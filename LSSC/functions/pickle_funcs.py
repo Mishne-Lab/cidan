@@ -1,9 +1,10 @@
 import pickle
 import numpy as np
 import os
-dir_name = "tmp_pickle"
+dir_name = "/data2/Sam/pythonTestEnviroment/tmp_pickle"
 def pickle_set_dir(dir_path):
-    dir_name=dir_path
+    global dir_name
+    dir_name = dir_path
 def pickle_save(obj, name, trial_num=0):
     """
     saves an object as a pickle file in a folder specific to the trial
@@ -69,8 +70,11 @@ def pickle_clear(trial_num=0):
     -------
     None
     """
+    try:
+        dir_full_path = os.path.join(dir_name, str(trial_num) + "/")
+        filelist = [f for f in os.listdir(dir_full_path) if f.endswith(".pickle")]
+        for f in filelist:
+            os.remove(os.path.join(dir_full_path, f))
+    except FileNotFoundError:
+        pass
 
-    dir_full_path = os.path.join(dir_name, str(trial_num) + "/")
-    filelist = [f for f in os.listdir(dir_full_path) if f.endswith(".pickle")]
-    for f in filelist:
-        os.remove(os.path.join(dir_full_path, f))

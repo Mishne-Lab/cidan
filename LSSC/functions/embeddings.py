@@ -6,7 +6,7 @@ os.environ["VECLIB_MAXIMUM_THREADS"] = "10" # export VECLIB_MAXIMUM_THREADS=4
 os.environ["NUMEXPR_NUM_THREADS"] = "10" # export NUMEXPR_NUM_THREADS=6
 import scipy.sparse as sparse
 import hnswlib as hnsw
-from LSSC.Stack import *
+import numpy as np
 
 
 def calc_affinity_matrix(pixel_list, metric="l2",knn=20,accuracy=200, connections=40, num_threads=10):
@@ -90,4 +90,7 @@ def calc_D_neg_sqrt(D_diag, dim):
             (dim,dim)))
     return D_neg_sqrt
 
-
+def embed_eigen(eigen_vectors):
+    pixel_embedings = np.sum(np.power(eigen_vectors, 2),
+                                   axis=1)
+    return pixel_embedings
