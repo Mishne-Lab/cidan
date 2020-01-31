@@ -174,24 +174,24 @@ class Stack:
         img.save(image_path)
 
     def clusters(self, num_clusters, refinement=False,
-                 num_eigen_vector_select=5):
+                 num_eigen_vector_select=5, save_images= False):
         # TODO take all eigen vectors that have embedings for pixel that are at least t percent of the biggest like 10%
         e_vectors = self.eigs()[1]
 
+        cluster_list = cluster_image(e_vectors, num_clusters=num_clusters,original_shape=self.original_shape(), refinement=False, num_eigen_vector_select=num_eigen_vector_select,max_iter=1000)
+        if save_images:
+            for num, x in enumerate(cluster_list):
+                original_zeros = np.zeros((self.pixel_length()))
 
-        pixels_in_cluster = np.array([], dtype=np.int32)
+                original_zeros[x] = 255
+                img = Image.fromarray(
+                    np.reshape(original_zeros,
+                               self.original_shape()[1:])).convert('L')
+                img.save("/data2/Sam/pythonTestEnviroment/output_images/cluster_tests_with_component/my%i.png" % num)
+        return cluster_list
+if __name__ == '__main__':
 
-        for num, x in enumerate(cluster_list):
-            original_zeros = np.zeros((self.pixel_length()))
-
-            original_zeros[x] = 255
-            img = Image.fromarray(
-                np.reshape(original_zeros,
-                           self.original_shape()[1:])).convert('L')
-            img.save("/data2/Sam/pythonTestEnviroment/output_images/cluster_tests_with_component/my%i.png" % num)
-
-
-data_stack = Stack(
-    "/data2/Sam/pythonTestEnviroment/input_images/8_6_14_d10_001.tif", 1,
-    Parameters(num_threads=10))
-data_stack.clusters(80)
+    data_stack = Stack(
+        "/data2/Sam/pythonTestEnviroment/input_images/8_6_14_d10_001.tif", 1,
+        Parameters(num_threads=10))
+    data_stack.clusters(80, save_images=True)

@@ -21,6 +21,8 @@ def pickle_save(obj, name, trial_num=0):
     if ".pickle" not in name:
         name = name + ".pickle"
     dir_full_path = os.path.join(dir_name,str(trial_num)+"/")
+    if not os.path.isdir(dir_name):
+        os.mkdir(dir_name)
     if not os.path.isdir(dir_full_path):
         os.mkdir(dir_full_path)
     with open(os.path.join(dir_full_path,name), "wb") as file:

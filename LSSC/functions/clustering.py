@@ -45,7 +45,6 @@ def cluster_image(e_vectors, num_clusters, original_shape, refinement=False,
 
         pixels_in_cluster_final = connected_component(pixel_length, original_shape, pixels_in_cluster, current_pixel_number)
 
-        print(len(np.in1d(pixel_sort_indices, pixels_in_cluster_final[0])))
         cluster_size_threshold = 10  # TODO also add this before and after refinement
         if len(pixels_in_cluster_final[0]) > 50:
             cluster_list.append(pixels_in_cluster_final)
@@ -56,6 +55,7 @@ def cluster_image(e_vectors, num_clusters, original_shape, refinement=False,
         else:
             pixel_sort_indices = np.delete(
                 np.append(pixel_sort_indices, pixel_sort_indices[0]), 0)
+    return cluster_list
 def pixel_distance(eigen_vectors, pixel_num):
     return np.sum(np.power(eigen_vectors - eigen_vectors[pixel_num], 2),
            axis=1)
@@ -71,9 +71,10 @@ def connected_component(pixel_length, original_shape, pixels_in_cluster, current
         blobs_labels == correct_label)
     return pixels_in_cluster_new
 def select_eigen_vectors(e_vectors, pixels, num_eigen_vector_select):
-    pixel_eigen_vec_values = e_vectors[pixels]
+    pixel_eigen_vec_values = np.sum(e_vectors[pixels],axis=0)
     pixel_eigen_vec_values_sort_indices = np.flip(
         np.argsort(pixel_eigen_vec_values))
     small_eigen_vectors = e_vectors[:,
                           pixel_eigen_vec_values_sort_indices[
                           :num_eigen_vector_select]]
+    return small_eigen_vectors
