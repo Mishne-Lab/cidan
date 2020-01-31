@@ -1,11 +1,10 @@
-import data_manipulation
-import embedings
-from pickle_funcs import *
+from Classes.functions import data_manipulation, embedings
+from Classes.functions.pickle_funcs import *
 from scipy.sparse import linalg
 import numpy as np
-from PIL import Image, ImageOps
+from PIL import Image
 from skimage import measure
-from Parameters import Parameters
+from Classes.Parameters import Parameters
 # TODO  add slice function
 
 class Stack:
@@ -75,7 +74,7 @@ class Stack:
             self.priv_D_inv = pickle_load("D_inv", trial_num=self.trial_index)
         else:
             self.priv_D_inv,self.priv_D_diag = embedings.construct_D_inv(self.pixel_length(),
-                                                        self.K())
+                                                                         self.K())
             pickle_save(self.priv_D_inv, "D_inv", trial_num=self.trial_index)
             pickle_save(self.priv_D_diag, "D_diag", trial_num=self.trial_index)
         return self.priv_D_inv
@@ -118,7 +117,7 @@ class Stack:
             return self.priv_D_neg_sqrt
         else:
             self.priv_D_neg_sqrt = embedings.calc_D_neg_sqrt(self.D_diag(),
-                                                self.pixel_length())
+                                                             self.pixel_length())
         return self.priv_D_neg_sqrt
     def eigs(self):
         if type(self.priv_eig_values)!=bool and type(self.priv_eig_vectors)!=bool:
@@ -196,5 +195,5 @@ class Stack:
                            self.original_shape()[1:])).convert('L')
             img.save("cluster_tests_with_component/my%i.png" % num)
 
-data_stack = Stack("/data2/Sam/pythonTestEnviroment/test_files/8_6_14_d10_001.tif", 1, Parameters(num_threads=10))
+data_stack = Stack("/data2/Sam/pythonTestEnviroment/input_images/8_6_14_d10_001.tif", 1, Parameters(num_threads=10))
 data_stack.clusters(80)

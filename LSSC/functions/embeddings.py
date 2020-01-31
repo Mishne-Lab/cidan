@@ -1,17 +1,14 @@
-from ScanImageTiffReader import ScanImageTiffReader
 import os
 os.environ["OMP_NUM_THREADS"] = "10" # export OMP_NUM_THREADS=4
 os.environ["OPENBLAS_NUM_THREADS"] = "10" # export OPENBLAS_NUM_THREADS=4
 os.environ["MKL_NUM_THREADS"] = "10" # export MKL_NUM_THREADS=6
 os.environ["VECLIB_MAXIMUM_THREADS"] = "10" # export VECLIB_MAXIMUM_THREADS=4
 os.environ["NUMEXPR_NUM_THREADS"] = "10" # export NUMEXPR_NUM_THREADS=6
-import numpy as np
 import scipy.sparse as sparse
 import hnswlib as hnsw
-from pickle_funcs import *
-from scipy.sparse import linalg
-from PIL import Image
-from matplotlib import cm
+from LSSC.Stack import *
+
+
 def calc_affinity_matrix(pixel_list, metric="l2",knn=20,accuracy=200, connections=40, num_threads=10):
     """
     Calculates an affinity matrix for the image stack

@@ -2,6 +2,8 @@ import pickle
 import numpy as np
 import os
 dir_name = "tmp_pickle"
+def pickle_set_dir(dir_path):
+    dir_name=dir_path
 def pickle_save(obj, name, trial_num=0):
     """
     saves an object as a pickle file in a folder specific to the trial
