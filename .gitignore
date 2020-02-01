@@ -127,3 +127,15 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+/output_images/cluster_tests_no_component/
+/output_images/cluster_tests_with_component/
+/output_images/eigen_images/
+/input_images/
+/tmp_pickle/
+/my.png
+/my0.png
+/my2.png
+/my2 copy.png
+/my3.png
+/output_images/
+/tmp_pickle/

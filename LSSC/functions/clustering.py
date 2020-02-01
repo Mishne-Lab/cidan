@@ -1,102 +1,205 @@
 import numpy as np
 from skimage import measure
 from LSSC.functions.embeddings import embed_eigen
+from typing import Union, Any, List, Optional, cast, Tuple, Dict
 
-def cluster_image(e_vectors, num_clusters, original_shape, refinement=False,
-                 num_eigen_vector_select=4, max_iter = 1000):
+
+def cluster_image(e_vectors: np.ndarray, num_clusters: int,
+                  original_shape: tuple, refinement: bool = False,
+                  num_eigen_vector_select: int = 4, max_iter: int = 100000,
+                  cluster_size_threshold: int = 4) -> List[np.ndarray]:
     """
     Computes the Local Selective Spectral Clustering algorithm on an set of
     eigen vectors
     Parameters
     ----------
-    e_vectors eigen vector in 2D numpy array
-    num_clusters
-    original_shape original shape of image
-    refinement if to do pixel refinement
-    num_eigen_vector_select number of eigen values to project into
-    max_iter max amount of pixels to try and cluster around
+    e_vectors: eigen vector in 2D numpy array
+    num_clusters:
+    original_shape: original shape of image
+    refinement: if to do cluster refinement
+    num_eigen_vector_select: number of eigen values to project into
+    max_iter: max amount of pixels to try and cluster around
+    cluster_size_threshold: min size for cluster to be output if too big might
+     limit number of clusters
 
     Returns
     -------
-    2D list of clusters [[list of pixels cluster 1], [
-                          list of pixels cluster 2] ... ]
+    2D list of clusters [[np.array of pixels cluster 1], [
+                          np.array  of pixels cluster 2] ... ]
     It will have length num_clusters unless max_iter amount is surpassed
     """
     pixel_length = e_vectors.shape[0]
-    e_vectors_squared = np.power(e_vectors, 2)
-    pixel_embedings = np.sum(e_vectors_squared, axis=1)
+    pixel_embedings = embed_eigen(
+        e_vectors)  # embeds the pixels in the eigen space
+    initial_pixel_list = np.flip(np.argsort(
+        pixel_embedings))  # creates a list of pixels with the highest values
+    # in the eigenspace this list is used to decide on the initial point
+    # for the cluster
 
-    pixel_sort_indices = np.flip(np.argsort(pixel_embedings))
-    cluster_list = []
+    cluster_list = [] # output list of clusters
 
+    # iter_counter is used to limit the ammount of pixels it tries
+    # from initial_pixel_list
     iter_counter = 0
     while len(cluster_list) < num_clusters and len(
-            pixel_sort_indices) > 0 and iter_counter < max_iter:
+            initial_pixel_list) > 0 and iter_counter < max_iter:
         iter_counter += 1
-        print(iter_counter, len(cluster_list), len(cluster_list[-1][0]) if len(cluster_list)>0 else 0)
-        current_pixel_number = pixel_sort_indices[0]
-        small_eigen_vectors = select_eigen_vectors(e_vectors, [current_pixel_number], num_eigen_vector_select)
-
+        print(iter_counter, len(cluster_list),
+              len(cluster_list[-1]) if len(cluster_list) > 0 else 0)
+        initial_pixel = initial_pixel_list[0] # Select initial point
+        # select eigen vectors to project into
+        small_eigen_vectors = select_eigen_vectors(e_vectors,
+                                                   [initial_pixel],
+                                                   num_eigen_vector_select)
+        # project into new eigen space
         small_pixel_embedings = embed_eigen(small_eigen_vectors)
-        small_pixel_distance = pixel_distance(small_eigen_vectors, current_pixel_number)
+
+        # calculate the distance between the initial point and each pixel
+        # in the new eigen space
+        small_pixel_distance = pixel_distance(small_eigen_vectors,
+                                              initial_pixel)
+        # selects pixels in cluster
         pixels_in_cluster = np.nonzero(
-            small_pixel_distance <= small_pixel_embedings)
+            small_pixel_distance <= small_pixel_embedings)[0]
 
-
-        pixels_in_cluster_comp = connected_component(pixel_length, original_shape, pixels_in_cluster, current_pixel_number)
+        # runs a connected component analysis around the initial point
+        # in original image
+        pixels_in_cluster_comp = connected_component(pixel_length,
+                                                     original_shape,
+                                                     pixels_in_cluster,
+                                                     initial_pixel)
         pixels_in_cluster_final = pixels_in_cluster_comp
-        if refinement:
-            rf_eigen_vectors = select_eigen_vectors(e_vectors, pixels_in_cluster_final[0], num_eigen_vector_select)
-            rf_pixel_embedings = embed_eigen(rf_eigen_vectors)
-            rf_centroid_select = select_centroid(rf_pixel_embedings, pixels_in_cluster_final[0])
+
+        # runs refinement step if enabled and if enough pixels in cluster
+        if refinement and len(pixels_in_cluster_final) > \
+                cluster_size_threshold:
+
+            # selects a new set of eigenvectors based on the pixels in cluster
+            rf_eigen_vectors = select_eigen_vectors(e_vectors,
+                                                    pixels_in_cluster_final[0],
+                                                    num_eigen_vector_select)
+
+            # embeds all pixels in this new eigen space
+            rf_pixel_embedding = embed_eigen(rf_eigen_vectors)
+
+            # selects the initial point based on the pixel with max in
+            # the new embedding space
+            rf_initial_point = select_initial_point(rf_pixel_embedding,
+                                                    pixels_in_cluster_final)
+
+            # calculate the distance between the initial point and each pixel
+            # in the new eigen space
             rf_pixel_distance = pixel_distance(rf_eigen_vectors,
-                                                  rf_centroid_select)
+                                               rf_initial_point)
+
+            # selects pixels in cluster
             rf_pixels_in_cluster = np.nonzero(
-                rf_pixel_distance <= rf_pixel_embedings)
+                rf_pixel_distance <= rf_pixel_embedding)[0]
+
+            # runs a connected component analysis around the initial point
+            # in original image
             rf_pixels_in_cluster_comp = connected_component(pixel_length,
-                                                         original_shape,
-                                                         rf_pixels_in_cluster,
-                                                         rf_centroid_select)
+                                                            original_shape,
+                                                            rf_pixels_in_cluster,
+                                                            rf_initial_point)
             pixels_in_cluster_final = rf_pixels_in_cluster_comp
 
-
-        cluster_size_threshold = 40  # TODO also add this before and after refinement
-        if len(pixels_in_cluster_final[0]) > cluster_size_threshold:
+        # checks if cluster is big enough
+        if len(pixels_in_cluster_final) > cluster_size_threshold:
             cluster_list.append(pixels_in_cluster_final)
-            pixel_sort_indices = np.extract(
-                np.in1d(pixel_sort_indices, pixels_in_cluster_final[0],
-                        assume_unique=True, invert=True),
-                pixel_sort_indices)
-            if current_pixel_number not in pixels_in_cluster_final[0]:
-                pixel_sort_indices = np.delete(pixel_sort_indices, 0)
-            # this is correct points in clusters can't initalize a cluster
-            print(len(pixel_sort_indices))
-        else:
-            pixel_sort_indices = np.delete(
-                np.append(pixel_sort_indices, pixel_sort_indices[0]), 0)
-    return cluster_list
-def pixel_distance(eigen_vectors, pixel_num):
-    return np.sum(np.power(eigen_vectors - eigen_vectors[pixel_num], 2),
-           axis=1)
 
-def connected_component(pixel_length, original_shape, pixels_in_cluster, current_pixel_number):
-    original_zeros = np.zeros((pixel_length))
+            # takes all pixels in current cluster out of initial_pixel_list
+            initial_pixel_list = np.extract(
+                np.in1d(initial_pixel_list, pixels_in_cluster_final,
+                        assume_unique=True, invert=True),
+                initial_pixel_list)
+            if initial_pixel not in pixels_in_cluster_final:
+                initial_pixel_list = np.delete(initial_pixel_list, 0)
+
+            print(len(initial_pixel_list))
+        else:
+            # takes current initial point and moves it to end of
+            # initial_pixel_list
+            initial_pixel_list = np.delete(
+                np.append(initial_pixel_list, initial_pixel_list[0]), 0)
+    return cluster_list
+
+
+def pixel_distance(eigen_vectors: np.ndarray, pixel_num:int) -> np.ndarray:
+    """
+    Calculates squared distance between pixels in embedding space and initial_point
+    Parameters
+    ----------
+    eigen_vectors: the eigen vectors describing the vector space with
+        dimensions number of pixels in image by number of eigen vectors
+    pixel_num: the number of the initial pixel in the eigen vectors
+
+    Returns
+    -------
+    A np array with dim: number of pixels in image
+    """
+    return np.sum(np.power(eigen_vectors - eigen_vectors[pixel_num], 2),
+                  axis=1)
+
+
+def connected_component(pixel_length: int, original_shape: Tuple[int], pixels_in_cluster: np.ndarray,
+                        initial_pixel_number: int) -> np.ndarray:
+    """
+    Runs a connected component analysis on a group of pixels in an image
+    Parameters
+    ----------
+    pixel_length: number of pixels in image
+    original_shape: original shape of image
+    pixels_in_cluster: a tuple with the first entry as a
+    initial_pixel_number: the number of the original pixel in the
+        flattened image
+
+
+    Returns
+    -------
+    An subset of the original pixels that are connected to initial pixel
+    """
+    # first creates an image with pixel values of 1 if pixel in cluster
+    original_zeros = np.zeros(pixel_length)
     original_zeros[pixels_in_cluster] = 1
     pixel_image = np.reshape(original_zeros, original_shape[1:])
+
+    #runs connected component analysis on image
     blobs_labels = np.reshape(measure.label(pixel_image, background=0),
                               (-1))
-    correct_label = blobs_labels[current_pixel_number]
+    correct_label = blobs_labels[initial_pixel_number]
+
+    # filters pixels to only ones with same label as initial pixel
     pixels_in_cluster_new = np.nonzero(
-        blobs_labels == correct_label)
+        blobs_labels == correct_label)[0]
     return pixels_in_cluster_new
-def select_eigen_vectors(e_vectors, pixels, num_eigen_vector_select):
-    pixel_eigen_vec_values = np.sum(e_vectors[pixels],axis=0)
+
+
+def select_eigen_vectors(eigen_vectors: np.ndarray, pixels_in_cluster: np.ndarray,
+                         num_eigen_vector_select: int):
+    """
+    Selects eigen vectors that are most descriptive of a set a points
+    Parameters
+    ----------
+    eigen_vectors: the eigen vectors describing the vector space with
+        dimensions number of pixels in image by number of eigen vectors
+    pixels_in_cluster: np array of indices of all pixels in cluster
+    num_eigen_vector_select: number of eigen vectors to select
+
+    Returns
+    -------
+
+    """
+    pixel_eigen_vec_values = np.sum(eigen_vectors[pixels_in_cluster], axis=0)
     pixel_eigen_vec_values_sort_indices = np.flip(
         np.argsort(pixel_eigen_vec_values))
-    small_eigen_vectors = e_vectors[:,
+    small_eigen_vectors = eigen_vectors[:,
                           pixel_eigen_vec_values_sort_indices[
                           :num_eigen_vector_select]]
     return small_eigen_vectors
-def select_centroid(rf_pixel_embedings, pixels_in_cluster):
-    indice_in_cluster = np.flip(np.argsort(rf_pixel_embedings[pixels_in_cluster]))[0]
+
+
+def select_initial_point(rf_pixel_embedings, pixels_in_cluster):
+    indice_in_cluster = \
+        np.flip(np.argsort(rf_pixel_embedings[pixels_in_cluster]))[0]
     return pixels_in_cluster[indice_in_cluster]

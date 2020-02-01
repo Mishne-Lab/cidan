@@ -1,25 +1,27 @@
 import os
-os.environ["OMP_NUM_THREADS"] = "10" # export OMP_NUM_THREADS=4
-os.environ["OPENBLAS_NUM_THREADS"] = "10" # export OPENBLAS_NUM_THREADS=4
-os.environ["MKL_NUM_THREADS"] = "10" # export MKL_NUM_THREADS=6
-os.environ["VECLIB_MAXIMUM_THREADS"] = "10" # export VECLIB_MAXIMUM_THREADS=4
-os.environ["NUMEXPR_NUM_THREADS"] = "10" # export NUMEXPR_NUM_THREADS=6
+
+os.environ["OMP_NUM_THREADS"] = "10"  # export OMP_NUM_THREADS=4
+os.environ["OPENBLAS_NUM_THREADS"] = "10"  # export OPENBLAS_NUM_THREADS=4
+os.environ["MKL_NUM_THREADS"] = "10"  # export MKL_NUM_THREADS=6
+os.environ["VECLIB_MAXIMUM_THREADS"] = "10"  # export VECLIB_MAXIMUM_THREADS=4
+os.environ["NUMEXPR_NUM_THREADS"] = "10"  # export NUMEXPR_NUM_THREADS=6
 import scipy.sparse as sparse
 import hnswlib as hnsw
 import numpy as np
 
 
-def calc_affinity_matrix(pixel_list, metric="l2",knn=20,accuracy=200, connections=40, num_threads=10):
+def calc_affinity_matrix(pixel_list: np.matrix, metric="l2", knn=20,
+                         accuracy=200, connections=40, num_threads=10):
     """
-    Calculates an affinity matrix for the image stack
+    Calculates an pairwise affinity matrix for the image stack
     Parameters
     ----------
-    pixel_list a 2d np array of pixels with dim 0 being a list of pixels and dim 1 being pixel values over time
-    metric can be "l2" squared l2, "ip" Inner product, "cosine" Cosine similarity
-    knn number of nearest neighbors to search for
-    accuracy time of construction vs acuracy tradeoff
-    connections max number of outgoing connections
-    num_threads
+    pixel_list: a 2d np array of pixels with dim 0 being a list of pixels and dim 1 being pixel values over time
+    metric: can be "l2" squared l2, "ip" Inner product, "cosine" Cosine similarity
+    knn: number of nearest neighbors to search for
+    accuracy: time of construction vs acuracy tradeoff
+    connections: max number of outgoing connections
+    num_threads: number of threads to use
 
     Returns
     -------
@@ -51,7 +53,8 @@ def calc_affinity_matrix(pixel_list, metric="l2",knn=20,accuracy=200, connection
 
     return sparse.csr_matrix(sparse.coo_matrix(
         (
-        reformat_distances_scaled, (reformat_indicies_x, reformat_indicies_y)),
+            reformat_distances_scaled,
+            (reformat_indicies_x, reformat_indicies_y)),
         shape=(num_elements, num_elements)))
 
 
@@ -68,29 +71,35 @@ def construct_D_inv(dim, K):
     a sparse matrix with type csr, and D's diagnol values
     """
     # D_diag = np.nan_to_num(1/K.sum(axis=1), nan=0.0, posinf =0, neginf=0) #add small epsilon to each row in K.sum()
-    D_diag = 1/K.sum(axis=1)
+    D_diag = 1 / K.sum(axis=1)
 
     D_sparse = sparse.dia_matrix((np.reshape(D_diag, [1, -1]), [0]),
-                      (dim, dim))
+                                 (dim, dim))
     return sparse.csr_matrix(D_sparse), D_diag
+
+
 def calc_laplacian(P_sparse, dim):
     I_sparse = sparse.identity(dim, format="csr")
     laplacian_sparse = I_sparse - P_sparse
     return laplacian_sparse
+
 
 def calc_D_sqrt(D_diag, dim):
     D_sqrt = sparse.csr_matrix(
         sparse.dia_matrix((np.reshape(np.power(D_diag, .5), [1, -1]), [0]),
                           (dim, dim)))
     return D_sqrt
+
+
 def calc_D_neg_sqrt(D_diag, dim):
     D_neg_sqrt = sparse.csr_matrix(
         sparse.dia_matrix(
             (np.reshape(np.power(D_diag, -.5), [1, -1]), [0]),
-            (dim,dim)))
+            (dim, dim)))
     return D_neg_sqrt
+
 
 def embed_eigen(eigen_vectors):
     pixel_embedings = np.sum(np.power(eigen_vectors, 2),
-                                   axis=1)
+                             axis=1)
     return pixel_embedings
