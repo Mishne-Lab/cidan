@@ -178,7 +178,7 @@ class Stack:
         # TODO take all eigen vectors that have embedings for pixel that are at least t percent of the biggest like 10%
         e_vectors = self.eigs()[1]
 
-        cluster_list = cluster_image(e_vectors, num_clusters=num_clusters,original_shape=self.original_shape(), refinement=False, num_eigen_vector_select=num_eigen_vector_select,max_iter=1000)
+        cluster_list = cluster_image(e_vectors, num_clusters=num_clusters,original_shape=self.original_shape(), refinement=True, num_eigen_vector_select=num_eigen_vector_select,max_iter=1000)
         if save_images:
             for num, x in enumerate(cluster_list):
                 original_zeros = np.zeros((self.pixel_length()))
