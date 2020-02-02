@@ -7,19 +7,19 @@ from typing import Union, Any, List, Optional, cast, Tuple, Dict
 def cluster_image(e_vectors: np.ndarray, num_clusters: int,
                   original_shape: tuple, refinement: bool = False,
                   num_eigen_vector_select: int = 4, max_iter: int = 100000,
-                  cluster_size_threshold: int = 4) -> List[np.ndarray]:
+                  cluster_size_threshold: int = 30) -> List[np.ndarray]:
     """
     Computes the Local Selective Spectral Clustering algorithm on an set of
     eigen vectors
     Parameters
     ----------
-    e_vectors: eigen vector in 2D numpy array
-    num_clusters:
-    original_shape: original shape of image
-    refinement: if to do cluster refinement
-    num_eigen_vector_select: number of eigen values to project into
-    max_iter: max amount of pixels to try and cluster around
-    cluster_size_threshold: min size for cluster to be output if too big might
+    e_vectors: Eigen vector in 2D numpy array
+    num_clusters: Number of clusters
+    original_shape: Original shape of image
+    refinement: If to do cluster refinement
+    num_eigen_vector_select: Number of eigen values to project into
+    max_iter: Max amount of pixels to try and cluster around
+    cluster_size_threshold: Min size for cluster to be output if too big might
      limit number of clusters
 
     Returns
@@ -84,7 +84,7 @@ def cluster_image(e_vectors: np.ndarray, num_clusters: int,
 
             # selects the initial point based on the pixel with max in
             # the new embedding space
-            rf_initial_point = select_initial_point(rf_pixel_embedding,
+            rf_initial_point = rf_select_initial_point(rf_pixel_embedding,
                                                     pixels_in_cluster_final)
 
             # calculate the distance between the initial point and each pixel
@@ -130,9 +130,9 @@ def pixel_distance(eigen_vectors: np.ndarray, pixel_num:int) -> np.ndarray:
     Calculates squared distance between pixels in embedding space and initial_point
     Parameters
     ----------
-    eigen_vectors: the eigen vectors describing the vector space with
+    eigen_vectors: The eigen vectors describing the vector space with
         dimensions number of pixels in image by number of eigen vectors
-    pixel_num: the number of the initial pixel in the eigen vectors
+    pixel_num: The number of the initial pixel in the eigen vectors
 
     Returns
     -------
@@ -148,10 +148,10 @@ def connected_component(pixel_length: int, original_shape: Tuple[int], pixels_in
     Runs a connected component analysis on a group of pixels in an image
     Parameters
     ----------
-    pixel_length: number of pixels in image
-    original_shape: original shape of image
-    pixels_in_cluster: a tuple with the first entry as a
-    initial_pixel_number: the number of the original pixel in the
+    pixel_length: Number of pixels in image
+    original_shape: Ariginal shape of image
+    pixels_in_cluster: A tuple with the first entry as a
+    initial_pixel_number: The number of the original pixel in the
         flattened image
 
 
@@ -176,18 +176,20 @@ def connected_component(pixel_length: int, original_shape: Tuple[int], pixels_in
 
 
 def select_eigen_vectors(eigen_vectors: np.ndarray, pixels_in_cluster: np.ndarray,
-                         num_eigen_vector_select: int):
+                         num_eigen_vector_select: int) -> np.ndarray:
     """
     Selects eigen vectors that are most descriptive of a set a points
     Parameters
     ----------
-    eigen_vectors: the eigen vectors describing the vector space with
+    eigen_vectors: The eigen vectors describing the vector space with
         dimensions number of pixels in image by number of eigen vectors
-    pixels_in_cluster: np array of indices of all pixels in cluster
-    num_eigen_vector_select: number of eigen vectors to select
+    pixels_in_cluster: Np array of indices of all pixels in cluster
+    num_eigen_vector_select: Number of eigen vectors to select
 
     Returns
     -------
+    the eigen vectors describing the new vector space with
+        dimensions number of pixels in image by numb_eigen_vector_select
 
     """
     pixel_eigen_vec_values = np.sum(eigen_vectors[pixels_in_cluster], axis=0)
@@ -199,7 +201,19 @@ def select_eigen_vectors(eigen_vectors: np.ndarray, pixels_in_cluster: np.ndarra
     return small_eigen_vectors
 
 
-def select_initial_point(rf_pixel_embedings, pixels_in_cluster):
+def rf_select_initial_point(pixel_embedings: np.ndarray, pixels_in_cluster: np.ndarray):
+    """
+    Selects an initial point for clustering based on the pixels in current
+    cluster, this is part of the refinement step
+    Parameters
+    ----------
+    pixel_embedings: The embedings of each pixel in a vector space
+    pixels_in_cluster: a list of the indices of the pixel in the cluster
+
+    Returns
+    -------
+    an indice for the initial point pixel
+    """
     indice_in_cluster = \
-        np.flip(np.argsort(rf_pixel_embedings[pixels_in_cluster]))[0]
-    return pixels_in_cluster[indice_in_cluster]
+        np.flip(np.argsort(pixel_embedings[pixels_in_cluster]))[0]
+    return np.sort(pixels_in_cluster)[indice_in_cluster]

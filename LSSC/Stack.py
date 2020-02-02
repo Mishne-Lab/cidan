@@ -17,6 +17,13 @@ from LSSC.Parameters import Parameters
 
 
 class Stack:
+    """
+    This is a class to interact with different operations on a stack of images.
+    It is lazy, so it won't load any data or do anything else until necessary
+    Each function is designed to produce the necessary values with the least
+    computation possible. It will first try to load it from memory, then from
+    the disk, then only if both of those fail does it generate the information
+    """
     def __init__(self, file_path, trial_index, parameters, gen_new=False):
         """
         Initializes a stack object
@@ -202,4 +209,4 @@ if __name__ == '__main__':
     data_stack = Stack(
         "/data2/Sam/pythonTestEnviroment/input_images/8_6_14_d10_001.tif", 1,
         Parameters(num_threads=10))
-    data_stack.clusters(6, save_images=True)
+    data_stack.clusters(150, save_images=True)
