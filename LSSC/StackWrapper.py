@@ -26,6 +26,8 @@ class Stack_Wrapper:
         y_frames = self.gen_frames(shape[2], num_y_frames, overlap_pixels)
         bounding_boxes = [tuple(zip(*(tuple(x+y+z)))) for x,y,z in
                           (time_frames, x_frames, y_frames)]
+        stack_list =
+
     def gen_frames(self, total_steps, num_frames, overlap):
         return [(
             total_steps// num_frames * x - overlap if
