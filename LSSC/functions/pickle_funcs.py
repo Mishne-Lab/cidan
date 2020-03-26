@@ -39,7 +39,7 @@ def pickle_save(obj, name, trial_num=0, output_directory=None):
         pickle.dump(obj, file, protocol=4)
 
 
-def pickle_exist(name, trial_num=0):
+def pickle_exist(name, trial_num=0,output_directory=None):
     """
     checks if a pickle file exists
     Parameters
@@ -51,13 +51,16 @@ def pickle_exist(name, trial_num=0):
     -------
     None
     """
-    dir_full_path = os.path.join(dir_name, str(trial_num) + "/")
+    if not output_directory:
+        dir_full_path = os.path.join(dir_name, str(trial_num) + "/")
+    else:
+        dir_full_path = output_directory
     if ".pickle" not in name:
         name = name + ".pickle"
     return os.path.isfile(os.path.join(dir_full_path, name))
 
 
-def pickle_load(name, trial_num=0):
+def pickle_load(name, trial_num=0,output_directory=None):
     """
     loads a pickled object
     Parameters
@@ -69,11 +72,15 @@ def pickle_load(name, trial_num=0):
     -------
     object
     """
-    dir_full_path = os.path.join(dir_name, str(trial_num) + "/")
+    if not output_directory:
+        dir_full_path = os.path.join(dir_name, str(trial_num) + "/")
+    else:
+        dir_full_path = output_directory
     if ".pickle" not in name:
         name = name + ".pickle"
     with open(os.path.join(dir_full_path, name), "rb") as file:
         return pickle.load(file)
+    raise FileNotFoundError
 
 
 def pickle_clear(trial_num=0):

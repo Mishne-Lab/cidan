@@ -17,9 +17,10 @@ setup(
     scripts=[
         'LSSC/Stack.py',
         'LSSC/Parameters.py',
+        'LSSC/Stack_Wrapper.py',
         'LSSC/functions/pickle_funcs.py',
         'LSSC/functions/data_manipulation.py',
         'LSSC/functions/embeddings.py',
-        'LSSC/functions/clustering.py',
+        'LSSC/functions/roi_extraction.py',
     ]
 )

@@ -3,7 +3,7 @@ from typing import Union, Any, List, Optional, cast, Tuple, Dict
 
 class Parameters:
 
-    def __init__(self, num_threads: int = 10,
+    def __init__(self, *, num_threads: int = 10,
                  bounding_box: bool = False,
                  bounding_box_val: Tuple[Tuple[int]] = ((0, 0, 0), (0, 0, 0)),
                  median_filter: bool = False,
@@ -14,7 +14,7 @@ class Parameters:
                  connections: int = 50, K: int = 2,
                  num_eig: int = 25, refinement: bool = True,
                  cluster_size_threshold: int = 30,
-                 cluster_size_limit: int = 500,
+                 cluster_size_limit: int = 600,
                  fill_holes: bool = True,
                  num_eigen_vector_select: int = 5,
                  eigen_threshold_method: int = True,
@@ -44,12 +44,12 @@ class Parameters:
         connections: max number of outgoing connections
         K: used in autotune algorithm, decides which K closest neighbor to use
         num_eig: number of eigen vectors to calculate
-        refinement: whether to preform refinement step in clustering algorithm
+        refinement: whether to preform refinement step in roi_extraction algorithm
         cluster_size_threshold: Size threshold that all clusters need to be above
         cluster_size_limit: max size of cluster set to large number if don't want to exclude any
         fill_holes: whether to fill inner holes in each cluster
         num_eigen_vector_select: Number of eigen vectors to project into for
-         clustering algorithm not used if threshold_method
+         roi_extraction algorithm not used if threshold_method
         eigen_threshold_method: Way of determining eigen vectors to project
          into by only taking ones more than threshold*first eigenvector
         eigen_threshold_value: Value for eigen threshold
@@ -58,7 +58,7 @@ class Parameters:
         elbow_threshold_multiplier: Multiplies the threshold determined by
          elbow method to either allow more pixels in when > 1 or
          or less when < 1
-        max_iter: Max number of iterations to try in clustering algorithm
+        max_iter: Max number of iterations to try in roi_extraction algorithm
         num_clusters: number of clusters to try and generate, might not if runs
          over max_iter
         merge_temporal_coef: Coefficient for comparing if two clusters are
@@ -111,7 +111,7 @@ class Parameters:
         assert isinstance(num_eig, int) and num_eig >= 1
         self.num_eig = num_eig
 
-        # Clustering Parameters
+        # roi_extraction Parameters
         assert isinstance(refinement, bool)
         self.refinement = refinement
         assert isinstance(cluster_size_threshold,
@@ -132,7 +132,7 @@ class Parameters:
         self.eigen_threshold_value = eigen_threshold_value
         assert isinstance(elbow_threshold_method, bool)
         self.elbow_threshold_method = elbow_threshold_method
-        assert isinstance(elbow_threshold_multiplier, float) \
+        assert (isinstance(elbow_threshold_multiplier, float) or isinstance(elbow_threshold_multiplier, int))\
                and elbow_threshold_multiplier >= 0
         self.elbow_threshold_multiplier = elbow_threshold_multiplier
         assert isinstance(num_clusters, int) and num_clusters > 0
@@ -142,3 +142,5 @@ class Parameters:
         assert isinstance(merge_temporal_coef, float)
         assert 0 < merge_temporal_coef < 1
         self.merge_temporal_coef = merge_temporal_coef
+    def __str__(self):
+        """Function to easily print parameters used"""

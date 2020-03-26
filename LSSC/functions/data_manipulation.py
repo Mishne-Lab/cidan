@@ -5,8 +5,15 @@ import tifffile
 from LSSC.Parameters import Parameters
 import matplotlib.pyplot as plt
 from scipy import ndimage
+from typing import Union, Any, List, Optional, cast, Tuple, Dict
+
 # from IPython.display import display, Image
-def load_tif_stack(path):
+from dask import delayed
+
+def load_filter_tif_stack(*, path, filter: bool, median_filter: bool,
+                          median_filter_size: Tuple[int, int,int],
+                          z_score: bool, slice_stack: bool,
+                          slice_every, slice_start: int):
     """
     This function reads a tiff stack file
     Parameters
@@ -19,15 +26,31 @@ def load_tif_stack(path):
 
     """
     if os.path.isdir(path):
-        raise Exception( "Invalid Input folders not allowed currently ")
-        # for num, x in enumerate(os.listdir(path)):
-        #     file_path = os.path.join(path, x)
-        #     if num == 0:
-        #         vol = ScanImageTiffReader(file_path).data()
-        #         print(vol)
+        volumes = []
+        for num, x in enumerate(os.listdir(path)[2:7]):
+            file_path = os.path.join(path, x)
+            image = tifffile.imread(file_path)
+            if slice_stack:
+                image = image[slice_start::slice_every, :, :]
+            if filter:
+                image = filter_stack(stack=image, median_filter=median_filter,
+                                     median_filter_size=median_filter_size,
+                                     z_score=z_score)
+            volumes.append(image)
+            print(x)
+
+        image = np.hstack(volumes)
+        return image
     if os.path.isfile(path):
         # return ScanImageTiffReader(path).data()
-        return tifffile.imread(path)
+        image = tifffile.imread(path)
+
+        if slice_stack:
+            image = image[slice_start::slice_every,:,:]
+        if filter:
+            image = filter_stack(stack=image, median_filter=median_filter,
+                                 median_filter_size=median_filter_size, z_score=z_score)
+        return image
     raise Exception("Invalid Input folders not allowed currently ")
     # vol=ScanImageTiffReader(file_path).data()
 
@@ -62,21 +85,27 @@ def save_image(volume: np.ndarray, name: str, directory: str, shape: tuple, numb
     None
     """
     for x in range(number_save):
-        imgplot = plt.imshow(np.reshape(volume,
+        fig, ax = plt.subplots()
+        imgplot = ax.imshow(np.reshape(volume,
                        shape)[shape[0]//number_save*x])
-        plt.savefig(os.path.join(directory,name+"_"+str(x)))
+        fig.savefig(os.path.join(directory,name+"_"+str(x)))
 
         # img = Image.fromarray(
         #     np.reshape(volume,
         #                shape)[shape[0]/number_save*x] * 255).convert('L')
         # img.save(
         #     os.path.join(directory,name+"_"+str(x)))
-def filter_stack(stack: np.ndarray, parameters: Parameters):
-    if parameters.z_score:
-        stack_t = np.transpose(stack,(1,2,0))
-        std = np.std(stack_t,axis=2)
-        mean = np.mean(stack_t,axis=2)
-        stack = (stack_t-mean)/std
-    if parameters.median_filter:
-        stack = ndimage.median_filter(stack, parameters.median_filter_size)
+def filter_stack(*,stack: np.ndarray, median_filter: bool,
+                 median_filter_size: Tuple[int, int, int],
+                 z_score: bool,):
+
+    if z_score:
+        stack_t  = np.transpose(stack, (1, 2, 0))
+        shape = (1,stack_t.shape[1],stack_t.shape[2])
+        std = np.std(stack_t,axis=0).reshape(shape)
+        mean = np.mean(stack_t,axis=0).reshape(shape)
+        stack_t = (stack_t-mean)/std
+        stack = np.transpose(stack_t, (2, 0, 1))
+    if median_filter:
+        stack = ndimage.median_filter(stack, median_filter_size)
     return stack
