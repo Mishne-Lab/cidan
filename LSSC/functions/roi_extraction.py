@@ -6,11 +6,19 @@ from functools import reduce
 from itertools import compress
 from scipy.ndimage.morphology import binary_fill_holes
 from LSSC.Parameters import Parameters
+from scipy.interpolate import make_interp_spline
+import matplotlib.pyplot as plt
 
-
-def cluster_image(e_vectors: np.ndarray,
-                  original_shape: tuple, original_2d_vol: np.ndarray,
-                  parameters: Parameters) -> List[np.ndarray]:
+from dask import delayed
+@delayed
+def cluster_image(*, e_vectors: np.ndarray,
+                  original_shape: tuple, original_2d_vol: np.ndarray, merge: bool,
+                  num_clusters: int, refinement: bool, num_eigen_vector_select: int,
+                  max_iter: int, cluster_size_threshold: int, fill_holes: bool,
+                  elbow_threshold_method: bool, elbow_threshold_value: float,
+                  eigen_threshold_method: bool,
+                  eigen_threshold_value: float, merge_temporal_coef: float,
+                  cluster_size_limit: int) -> List[np.ndarray]:
     """
     Computes the Local Selective Spectral Clustering algorithm on an set of
     eigen vectors
@@ -51,8 +59,8 @@ def cluster_image(e_vectors: np.ndarray,
     # iter_counter is used to limit the ammount of pixels it tries
     # from initial_pixel_list
     iter_counter = 0
-    while len(cluster_list) < parameters.num_clusters and len(
-            initial_pixel_list) > 0 and iter_counter < parameters.max_iter:
+    while len(cluster_list) < num_clusters and len(
+            initial_pixel_list) > 0 and iter_counter < max_iter:
         iter_counter += 1
         print(iter_counter, len(cluster_list),
               len(cluster_list[-1]) if len(cluster_list) > 0 else 0)
@@ -60,9 +68,10 @@ def cluster_image(e_vectors: np.ndarray,
         # select eigen vectors to project into
         small_eigen_vectors = select_eigen_vectors(e_vectors,
                                                    [initial_pixel],
-                                                   parameters.num_eigen_vector_select,
-                                                   threshold_method=parameters.eigen_threshold_method,
-                                                   threshold=parameters.eigen_threshold_value)
+                                                   num_eigen_vector_select,
+                                                   threshold_method=eigen_threshold_method,
+                                                   threshold=eigen_threshold_value)
+        print(small_eigen_vectors.shape)
         # TODO Find way to auto determin threshold value automatically max values
         # project into new eigen space
         small_pixel_embeding_norm = embed_eigen_norm(small_eigen_vectors)
@@ -85,15 +94,15 @@ def cluster_image(e_vectors: np.ndarray,
         pixels_in_cluster_final = pixels_in_cluster_comp
 
         # runs refinement step if enabled and if enough pixels in cluster
-        if parameters.refinement:  # TODO Look at this again
+        if refinement:  # TODO Look at this again
             # and len(pixels_in_cluster_final) > \
             #  cluster_size_threshold / 2
             # selects a new set of eigenvectors based on the pixels in cluster
             rf_eigen_vectors = select_eigen_vectors(e_vectors,
                                                     pixels_in_cluster_final,
-                                                    parameters.num_eigen_vector_select,
-                                                    threshold_method=parameters.eigen_threshold_method,
-                                                    threshold=parameters.eigen_threshold_value)
+                                                    num_eigen_vector_select,
+                                                    threshold_method=eigen_threshold_method,
+                                                    threshold=eigen_threshold_value)
 
             # embeds all pixels in this new eigen space
             rf_pixel_embedding_norm = embed_eigen_norm(rf_eigen_vectors)
@@ -109,9 +118,12 @@ def cluster_image(e_vectors: np.ndarray,
                                                rf_initial_point)
 
             # selects pixels in cluster
-            if parameters.elbow_threshold_method:
-                threshold = elbow_threshold(rf_pixel_distance,
-                                            np.argsort(rf_pixel_distance))
+            if elbow_threshold_method:
+                threshold = elbow_threshold_value * elbow_threshold(rf_pixel_distance,
+                                                                     np.argsort(
+                                                                         rf_pixel_distance),
+                                                                     half=True,
+                                                                     num=iter_counter)
                 rf_pixels_in_cluster = np.nonzero(
                     rf_pixel_distance < threshold)[0]
             else:
@@ -127,10 +139,10 @@ def cluster_image(e_vectors: np.ndarray,
             pixels_in_cluster_final = rf_pixels_in_cluster_comp
 
         # checks if cluster is big enough
-        print(len(pixels_in_cluster_final))
+        print("cluster size:", len(pixels_in_cluster_final))
 
-        if parameters.cluster_size_threshold < len(
-                pixels_in_cluster_final) < parameters.cluster_size_limit:
+        if cluster_size_threshold < len(
+                pixels_in_cluster_final) < cluster_size_limit:
             cluster_list.append(pixels_in_cluster_final)
 
             # takes all pixels in current cluster out of initial_pixel_list
@@ -147,18 +159,19 @@ def cluster_image(e_vectors: np.ndarray,
             # initial_pixel_list
             initial_pixel_list = np.delete(
                 np.append(initial_pixel_list, initial_pixel_list[0]), 0)
-    if parameters.fill_holes:
-        cluster_list = fill_holes(cluster_list, pixel_length, original_shape)
+    if fill_holes:
+        cluster_list = fill_holes_func(cluster_list, pixel_length, original_shape)
     # Merges clusters
-    cluster_list = merge_clusters(cluster_list,
-                                  temporal_coefficient=parameters.merge_temporal_coef,
-                                  original_2d_vol=original_2d_vol)
-    if parameters.fill_holes:
-        cluster_list = fill_holes(cluster_list, pixel_length, original_shape)
+    if merge:
+        cluster_list = merge_clusters(cluster_list,
+                                      temporal_coefficient=merge_temporal_coef,
+                                      original_2d_vol=original_2d_vol)
+        if fill_holes:
+            cluster_list = fill_holes_func(cluster_list, pixel_length, original_shape)
     return cluster_list
 
 
-def fill_holes(cluster_list: List[np.ndarray], pixel_length: int,
+def fill_holes_func(cluster_list: List[np.ndarray], pixel_length: int,
                original_shape: Tuple[int]) -> List[np.ndarray]:
     """
     Close holes in each cluster
@@ -296,24 +309,52 @@ def rf_select_initial_point(pixel_embedings: np.ndarray,
     return np.sort(pixels_in_cluster)[indice_in_cluster]
 
 
-def elbow_threshold(pixel_vals, pixel_val_sort_indices, half=True):
+def elbow_threshold(pixel_vals: np.ndarray, pixel_val_sort_indices: np.ndarray,
+                    half: bool = True, num=0) -> float:
+    """
+    Calculates the elbow threshold for the refinement step in clustering
+    algorithm, determines the pixel that is farthest away from line drawn
+    from first to last or first to middle pixel
+
+    Projects each point(pixel # in sorted pixel_val, distance val) to the line then subtracts that from the points value to find distance
+    Parameters
+    ----------
+    pixel_vals: The distance values for each pixel
+    pixel_val_sort_indices: The array necessary to sort said pixels from lowest
+     to highest
+    half: whether to run only with the closest half of the pixels, recommended
+
+    Returns
+    -------
+    float, the optimal threshold based on elbow
+    """
     n_points = len(pixel_vals) if not half else len(pixel_vals) // 2
+    # fig, ax = plt.subplots(figsize=(4, 4))
+    # ax.scatter(list(range(n_points)),
+    #            pixel_vals[pixel_val_sort_indices[:n_points]])
+    # fig.savefig(
+    #     "/data2/Sam/pythonTestEnviroment/output_images/plots/dist_plot_{}1.png".format(num),
+    #     aspect='auto')
+    # plt.close('all')
     pixel_vals_sorted_zipped = np.array(list(
         zip(range(n_points), pixel_vals[pixel_val_sort_indices[:n_points]])))
-    # xnew = np.linspace(0, n_points, 300)
-    # spl = make_interp_spline(list(range(n_points)), pixel_vals[pixel_val_sort_indices[:n_points]], k=101)  # BSpline object
-    # power_smooth = spl(xnew)
-    #
-    # plt.scatter(list(range(n_points)),pixel_vals[pixel_val_sort_indices[:n_points]])
-    # plt.savefig("/data2/Sam/pythonTestEnviroment/output_images/plots/dist_plot_1.png")
+
     first_point = pixel_vals_sorted_zipped[0, :]
     last_point = pixel_vals_sorted_zipped[-1, :]
     line_vec = last_point - first_point
+
     line_vec_norm = line_vec / (np.sum(np.power(line_vec, 2)) ** .5)
     dist_from_first = pixel_vals_sorted_zipped - first_point
-    scalar_product = dist_from_first * np.transpose(line_vec_norm)
-    vec_to_line = dist_from_first - scalar_product * line_vec_norm
+    proj_point_to_line = np.matmul(dist_from_first,
+                                   line_vec_norm[:, None]) * line_vec_norm
+    vec_to_line = dist_from_first - proj_point_to_line
     dist_to_line = np.power(np.sum(np.power(vec_to_line, 2), axis=1), .5)
+    # fig, ax = plt.subplots(figsize=(4, 4))
+    # ax.scatter(list(range(n_points)),
+    #            dist_from_first[:n_points,1])
+    # fig.savefig(
+    #     "/data2/Sam/pythonTestEnviroment/output_images/plots/dist_plot_{}2.png".format(num),
+    #     aspect='auto')
     dist_max_indice = np.argmax(dist_to_line)
     threshold = pixel_vals_sorted_zipped[dist_max_indice][1]
     return threshold
@@ -355,7 +396,7 @@ def merge_clusters(cluster_list: List,
                 lambda cluster1, cluster2: combine_clusters(cluster1,
                                                             cluster2),
                 [curr_cluster] + similar_clusters))
-            new_clusters.append(curr_cluster)
+            new_clusters.append(curr_cluster_combined)
         if not combined_clusters:
             break
         else:
