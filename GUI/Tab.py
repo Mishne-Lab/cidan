@@ -1,9 +1,10 @@
 from PySide2.QtWidgets import *
 from GUI.Module import Module
 from typing import Union, Any, List, Optional, cast, Tuple, Dict
-from GUI.SettingsModule import preprocessing_settings
+from GUI.SettingsModule import *
 from GUI.ImageViewModule import ImageViewModule
 from GUI.Input import FileInput
+from GUI.DataHandlerWrapper import *
 from GUI.fileHandling import *
 class Tab(QWidget):
     def __init__(self, name, column_1: List[Module], column_2: List[Module], column_2_display=True):
@@ -23,11 +24,23 @@ class Tab(QWidget):
             self.layout.addLayout(self.column_2_layout, stretch=1)
         self.setLayout(self.layout)
 def PreprocessingTab(main_widget):
-    return Tab("Preprocessing", column_1=[preprocessing_settings(main_widget)], column_2=[
+    process_button = QPushButton()
+    process_button.importance =1
+    process_button.setText("Apply Settings")
+    thread = PreprocessThread(main_widget,process_button)
+    main_widget.thread_list.append(thread)
+    process_button.clicked.connect(lambda: thread.runThread())
+
+    return Tab("Preprocessing", column_1=[preprocessing_settings(main_widget), process_button], column_2=[
             main_widget.image_view])
 
 def ROIExtractionTab(main_widget):
-    return Tab("ROI Extraction", column_1=[],
+    tab_selector = QTabWidget()
+    tab_selector.setStyleSheet("QTabWidget {font-size: 20px;}")
+    tab_selector.importance = 1
+    tab_selector.addTab(Tab("ROI Settings", column_1=[roi_extraction_settings(main_widget)], column_2=[],column_2_display=False)," ROI Settings")
+    tab_selector.addTab(QWidget(),"ROI List")
+    return Tab("ROI Extraction", column_1=[tab_selector],
                          column_2=[])
 def AnalysisTab(main_widget):
     return Tab("Analysis", column_1=[], column_2=[])

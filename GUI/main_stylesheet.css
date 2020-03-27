@@ -1,5 +1,5 @@
 
-QTabWidget {font-size: 25px; padding-right: 250px; padding-left: 25px;}
+QTabWidget {font-size: 25px;}
 QTabBar::tab {
     /*background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,*/
     /*                            stop: 0 #E1E1E1, stop: 0.4 #DDDDDD,*/
@@ -9,5 +9,4 @@ QTabBar::tab {
     /*border-top-left-radius: 4px;*/
     /*border-top-right-radius: 4px;*/
     min-width: 8ex;
-    padding: 10px;
 }

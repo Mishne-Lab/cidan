@@ -5,6 +5,7 @@ import qdarkstyle
 from GUI.ImageViewModule import ImageViewModule
 from GUI.fileHandling import loadImageWrapper
 from GUI.DataHandler import DataHandler
+from GUI.ConsoleWidget import ConsoleWidget
 import sys
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -25,10 +26,10 @@ class MainWidget(QWidget):
         super().__init__(parent)
         self.layout = QVBoxLayout(self)
         self.data_handler = None
+        self.thread_list = []
         self.open_file_dialog = loadImageWrapper(self)
         self.image_view = ImageViewModule(self)
         self.tab_widget = QTabWidget()
-        self.tab_widget.tabBar().setStyleSheet("padding: 75px")
         self.tabs = ["Preprocessing", "ROI Extraction", "Analysis"]
         # Add tabs
         self.tab_widget.addTab(FileOpenTab(self), "Open Dataset")
@@ -37,6 +38,8 @@ class MainWidget(QWidget):
             self.tab_widget.setTabEnabled(num+1, False)
 
         self.layout.addWidget(self.tab_widget)
+        self.console = ConsoleWidget()
+        self.layout.addWidget(self.console)
         self.setLayout(self.layout)
         if True:
             self.data_handler = DataHandler("/Users/sschickler/Documents/LSSC-python/input_images/small_dataset.tif","/Users/sschickler/Documents/LSSC-python/input_images/test31", save_dir_already_created=False)

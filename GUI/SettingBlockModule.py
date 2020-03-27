@@ -62,9 +62,32 @@ def dataset_setting_block(main_widget):
                                                            min=1, max=1000,step=1)
                                                   ])
 
-# class FilterSettingBlock(SettingBlockModule):
-#     def __init__(self):
-#         super().__init__("Filter Settings")
-# class FilterSettingBlock(SettingBlockModule):
-#     def __init__(self):
-#         super().__init__("Filter Settings")
+def multiprocessing_settings_block(main_widget):
+    data_handler = main_widget.data_handler
+    return SettingBlockModule("Multiprocessing Settings", [IntInput(display_name="Number of Timesteps:",
+                                                           program_name="total_num_time_steps",
+                                                           on_change_function=lambda x,y:data_handler.change_box_param(x,y),
+                                                           default_val=data_handler.box_params["total_num_time_steps"],
+                                                           tool_tip="Number of timesteps to break the processing into",
+                                                           min=1, max=1000,step=1),
+                                                           IntInput(
+                                                               display_name="Number of Spatial Boxes:",
+                                                               program_name="total_num_spatial_boxes",
+                                                               on_change_function=lambda x,y: data_handler.change_box_param(
+                                                                   x, y),
+                                                               default_val=
+                                                               data_handler.box_params[
+                                                                   "total_num_spatial_boxes"],
+                                                               tool_tip="Number of boxes to break the calculation into, please make sure it is a sqaure",
+                                                               min=1, max=1000, step=1)
+                                                           ,
+                                                           IntInput(
+                                                              display_name="Spatial Overlap:",
+                                                              program_name="spatial_overlap",
+                                                              on_change_function=lambda x, y: data_handler.change_box_param(x, y),
+                                                              default_val=
+                                                              data_handler.box_params[
+                                                                  "spatial_overlap"],
+                                                              tool_tip="Number of pixels to overlap each box",
+                                                              min=1, max=1000, step=1)]
+                                                )
