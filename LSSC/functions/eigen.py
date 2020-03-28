@@ -6,7 +6,7 @@ import os
 from PIL import Image
 from LSSC.functions.pickle_funcs import pickle_save, pickle_exist, pickle_load
 @delayed
-def gen_eigen_vectors(*, K: np.ndarray, num_eig: int)->np.ndarray:
+def gen_eigen_vectors(*, K: np.ndarray, num_eig: int, spatial_box_num:int, temporal_box_num: int)->np.ndarray:
     """Calculate Eigen Vectors given parts of the affinity matrix
 
     Parameters
@@ -21,6 +21,7 @@ def gen_eigen_vectors(*, K: np.ndarray, num_eig: int)->np.ndarray:
     -------
     A matrix of eigen vectors
     """
+    print("Spatial Box {}, Time Step {}: Generating eigen vectors".format(spatial_box_num, temporal_box_num))
     D_inv, D_diag = calc_D_inv(K=K)
     P = D_inv*K
     D_neg_sqrt = calc_D_neg_sqrt(D_diag)

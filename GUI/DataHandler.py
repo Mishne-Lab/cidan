@@ -4,6 +4,7 @@ from typing import Dict
 import numpy as np
 from LSSC.functions.data_manipulation import load_filter_tif_stack, filter_stack, \
     reshape_to_2d_over_time
+from LSSC.functions.pickle_funcs import *
 from LSSC.process_data import process_data
 class DataHandler:
     global_params_default = {
@@ -62,9 +63,22 @@ class DataHandler:
     def __init__(self, data_path, save_dir_path, save_dir_already_created):
         # TODO Create two initialization methods one with default parameters and one
         #  with loading save dir parameters
+        # TODO Check if parrelization is working
+        self.color_list = [(218, 67, 34), (218, 134, 34),
+                           (132, 249, 22), (22, 249, 140), (22, 245, 249),
+                           (22, 132, 249), (224, 22, 249), (249, 22, 160),
+                           (249, 160, 22)]
+
         self.save_dir_path = save_dir_path
+        self.rois_loaded = False
         if save_dir_already_created:
-            valid = self.load_param_xml()
+            valid = self.load_param_json()
+            self.calculate_filters()
+            #
+
+            if self.rois_exist:
+                self.load_rois()
+                self.rois_loaded = True
             if not valid:
                 raise FileNotFoundError("Save directory not valid")
         else:
@@ -85,18 +99,32 @@ class DataHandler:
     @property
     def param_path(self):
         return os.path.join(self.save_dir_path, "parameters.json")
-
+    @property
+    def eigen_vectors_exist(self):
+        # TODO implement if eigen_vectors exist
+        return True
+    @property
+    def rois_exist(self):
+        return pickle_exist("rois",output_directory=self.save_dir_path)
+    def load_rois(self):
+        if pickle_exist("rois",output_directory=self.save_dir_path):
+            self.clusters = pickle_load("rois", output_directory=self.save_dir_path)
+            self.gen_roi_display_variables()
+    def save_rois(self, rois):
+        if os.path.isdir(self.save_dir_path):
+            pickle_save(rois, "rois",output_directory=self.save_dir_path)
     def load_param_json(self):
 
         try:
             with open(self.param_path, "r") as f:
-                all_params = json.load(f.read())
+                all_params = json.loads(f.read())
             self.global_params = all_params["global_params"]
             self.dataset_params = all_params["dataset_params"]
             self.filter_params = all_params["filter_params"]
             self.box_params = all_params["box_params"]
             self.eigen_params = all_params["eigen_params"]
             self.roi_extraction_params = all_params["roi_extraction_params"]
+            return True
         except KeyError:
             raise KeyError("Please Choose a valid parameter file")
         except FileNotFoundError:
@@ -248,7 +276,7 @@ class DataHandler:
                                          load_data=False, data_path="",
                                          image_data=self.calculate_filters(),
                                          eigen_vectors_already_generated=(not self.global_params[
-                     "need_recalc_eigen_params"])and self.global_params["save_intermediate_steps"],
+                     "need_recalc_eigen_params"])and self.global_params["save_intermediate_steps"]and self.eigen_vectors_exist,
                                          save_embedding_images=True,
                                          total_num_time_steps=self.box_params["total_num_time_steps"],
                                          total_num_spatial_boxes=self.box_params[
@@ -283,14 +311,29 @@ class DataHandler:
                                          merge_temporal_coef=self.roi_extraction_params["merge_temporal_coef"],
                                          roi_size_max=self.roi_extraction_params["roi_size_max"])
             self.global_params["need_recalc_eigen_params"] = False
+            self.save_rois(self.clusters)
 
-            self.pixel_with_clusters_flat = np.zeros([self.dataset.shape[1]*self.dataset.shape[2]])
-            self.pixel_with_clusters_color_flat = np.zeros([self.dataset.shape[1]*self.dataset.shape[2],3])
-            color_list = [(218, 67, 34), (218, 134, 34 ),(245, 249, 22  ),(132, 249, 22),(22, 249, 140),(22, 245, 249),(22, 132, 249),(224, 22, 249),(249, 22, 160),(249, 160, 22)]
-            for num, cluster in enumerate(self.clusters):
-                cur_color = color_list[num%len(color_list)]
-                self.pixel_with_clusters_flat[cluster] = num+1
-                self.pixel_with_clusters_color_flat[cluster]=cur_color
-            self.pixel_with_clusters_color = np.reshape(self.pixel_with_clusters_color_flat, [self.dataset.shape[1],self.dataset.shape[2],3])
+            self.gen_roi_display_variables()
+            self.rois_loaded = True
+    def gen_roi_display_variables(self):
+        self.pixel_with_rois_flat = np.zeros(
+            [self.dataset.shape[1] * self.dataset.shape[2]])
+        self.pixel_with_rois_color_flat = np.zeros(
+            [self.dataset.shape[1] * self.dataset.shape[2], 3])
+        for num, cluster in enumerate(self.clusters):
+            cur_color = self.color_list[num % len(self.color_list)]
+            self.pixel_with_rois_flat[cluster] = num + 1
+            self.pixel_with_rois_color_flat[cluster] = cur_color
+        self.pixel_with_rois_color = np.reshape(self.pixel_with_rois_color_flat,
+                                                [self.dataset.shape[1],
+                                                 self.dataset.shape[2], 3])
+    def calculate_time_trace(self, num):
+        cluster = self.clusters[num-1]
+        # TODO maybe make this be a class variable
+        data_2d = reshape_to_2d_over_time(self.dataset)
+        time_trace = np.average(data_2d[cluster], axis=0)
+        return time_trace
+        # TODO Make sure loading all timepoints
+
 
 

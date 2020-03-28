@@ -18,7 +18,7 @@ def roi_extract_image(*, e_vectors: np.ndarray,
                       elbow_threshold_method: bool, elbow_threshold_value: float,
                       eigen_threshold_method: bool,
                       eigen_threshold_value: float, merge_temporal_coef: float,
-                      roi_size_limit: int) -> List[np.ndarray]:
+                      roi_size_limit: int, box_num:int) -> List[np.ndarray]:
     """
     Computes the Local Selective Spectral roi_extraction algorithm on an set of
     eigen vectors
@@ -46,6 +46,7 @@ def roi_extract_image(*, e_vectors: np.ndarray,
                           np.array  of pixels roi 2] ... ]
     It will have length num_rois unless max_iter amount is surpassed
     """
+    print("Spatial Box {}: Starting ROI selection process".format(box_num))
     pixel_length = e_vectors.shape[0]
     pixel_embedings = embed_eigen_norm(
         e_vectors)  # embeds the pixels in the eigen space
@@ -62,8 +63,8 @@ def roi_extract_image(*, e_vectors: np.ndarray,
     while len(roi_list) < num_rois and len(
             initial_pixel_list) > 0 and iter_counter < max_iter:
         iter_counter += 1
-        print(iter_counter, len(roi_list),
-              len(roi_list[-1]) if len(roi_list) > 0 else 0)
+        # print(iter_counter, len(roi_list),
+        #       len(roi_list[-1]) if len(roi_list) > 0 else 0)
         initial_pixel = initial_pixel_list[0]  # Select initial point
         # select eigen vectors to project into
         small_eigen_vectors = select_eigen_vectors(e_vectors,
@@ -71,7 +72,7 @@ def roi_extract_image(*, e_vectors: np.ndarray,
                                                    num_eigen_vector_select,
                                                    threshold_method=eigen_threshold_method,
                                                    threshold=eigen_threshold_value)
-        print(small_eigen_vectors.shape)
+        # print(small_eigen_vectors.shape)
         # TODO Find way to auto determin threshold value automatically max values
         # project into new eigen space
         small_pixel_embeding_norm = embed_eigen_norm(small_eigen_vectors)
@@ -139,7 +140,7 @@ def roi_extract_image(*, e_vectors: np.ndarray,
             pixels_in_roi_final = rf_pixels_in_roi_comp
 
         # checks if roi is big enough
-        print("roi size:", len(pixels_in_roi_final))
+        # print("roi size:", len(pixels_in_roi_final))
 
         if roi_size_min < len(
                 pixels_in_roi_final) < roi_size_limit:
@@ -153,7 +154,7 @@ def roi_extract_image(*, e_vectors: np.ndarray,
             if initial_pixel not in pixels_in_roi_final:
                 initial_pixel_list = np.delete(initial_pixel_list, 0)
 
-            print(len(initial_pixel_list))
+            # print(len(initial_pixel_list))
         else:
             # takes current initial point and moves it to end of
             # initial_pixel_list

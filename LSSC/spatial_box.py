@@ -29,7 +29,6 @@ class SpatialBox:
         self.shape = (image_shape[0],self.box_cord_2[0]-self.box_cord_1[0],
                                   self.box_cord_2[
             1]-self.box_cord_1[1])
-        print(box_num,self.shape)
     @delayed
     def extract_box(self, dataset):
         return dataset[:,self.box_cord_1[0]:self.box_cord_2[0], self.box_cord_1[1]:

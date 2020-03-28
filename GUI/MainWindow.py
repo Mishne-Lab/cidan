@@ -42,8 +42,9 @@ class MainWidget(QWidget):
         self.console = ConsoleWidget()
         self.layout.addWidget(self.console)
         self.setLayout(self.layout)
+
         if True:
-            self.data_handler = DataHandler("/Users/sschickler/Documents/LSSC-python/input_images/small_dataset.tif","/Users/sschickler/Documents/LSSC-python/input_images/test31", save_dir_already_created=False)
+            self.data_handler = DataHandler("/Users/sschickler/Documents/LSSC-python/input_images/small_dataset.tif","/Users/sschickler/Documents/LSSC-python/input_images/test31", save_dir_already_created=True)
             self.init_w_data()
     def init_w_data(self):
         #
@@ -51,7 +52,7 @@ class MainWidget(QWidget):
         #
         for num, _ in enumerate(self.tabs):
             self.tab_widget.removeTab(1)
-
+        # TODO actually delete the tabs not just remove them
 
         self.tabs = [PreprocessingTab(self), ROIExtractionTab(self), AnalysisTab(self)]
 
@@ -60,7 +61,7 @@ class MainWidget(QWidget):
         for tab in self.tabs:
             self.tab_widget.addTab(tab, tab.name)
         self.tab_widget.setCurrentIndex(1)
-        self.preprocess_image_view.setImage(self.data_handler.calculate_filters())
+
 
 
 

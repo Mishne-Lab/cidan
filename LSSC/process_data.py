@@ -52,6 +52,7 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
     if test_images:
         save_volume_images(volume=image, output_dir=test_output_dir)
     shape = image.shape
+    print("Creating {} spatial boxes".format(total_num_spatial_boxes))
     spatial_boxes = [SpatialBox(box_num=x, total_boxes=total_num_spatial_boxes,
                                 spatial_overlap=spatial_overlap, image_shape=shape)
                      for x in range(total_num_spatial_boxes)]
@@ -71,10 +72,10 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                                          knn=knn, accuracy=accuracy,
                                          connections=connections,
                                          normalize_w_k=normalize_w_k,
-                                         num_threads=num_threads)
+                                         num_threads=num_threads,spatial_box_num=spatial_box.box_num, temporal_box_num=temporal_box_num)
                 eigen_vectors = gen_eigen_vectors(K=k,
                                                   num_eig=num_eig //
-                                                          total_num_time_steps)
+                                                          total_num_time_steps,spatial_box_num=spatial_box.box_num, temporal_box_num=temporal_box_num)
                 if save_intermediate_steps:
                     eigen_vectors = save_eigen_vectors(e_vectors=eigen_vectors,
                                                        spatial_box_num=spatial_box.box_num,
@@ -98,7 +99,7 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                                                                  temporal_box_num,
                                                                  save_dir))
 
-        all_eigen_vectors = delayed(np.hstack)(all_eigen_vectors_list).compute()
+        all_eigen_vectors = delayed(np.hstack)(all_eigen_vectors_list)
         rois = roi_extract_image(e_vectors=all_eigen_vectors,
                                  original_shape=spatial_box_data.shape,
                                  original_2d_vol=reshape_to_2d_over_time(
@@ -114,7 +115,7 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                                  eigen_threshold_method=eigen_threshold_method,
                                  eigen_threshold_value=eigen_threshold_value,
                                  merge_temporal_coef=merge_temporal_coef,
-                                 roi_size_limit=roi_size_max)
+                                 roi_size_limit=roi_size_max, box_num=spatial_box.box_num)
         if test_images:
             pass
             # delayed(save_roi_images)(
@@ -128,7 +129,7 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                                               temporal_coefficient=merge_temporal_coef,
                                               original_2d_vol=reshape_to_2d_over_time(
                                                       image)).compute()
-    print("Done Computing")
+
     if test_images:
         delayed(save_roi_images)(roi_list=all_rois_merged,
                                      output_dir=test_output_dir,

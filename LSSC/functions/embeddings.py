@@ -11,10 +11,10 @@ import numpy as np
 
 from dask import delayed
 @delayed
-def calc_affinity_matrix(*, pixel_list: np.matrix, metric: str, knn:int, 
-                         accuracy:int,connections: int, normalize_w_k: int,
+def calc_affinity_matrix(*, pixel_list: np.matrix, metric: str, knn:int,
+                         accuracy:int, connections: int, normalize_w_k: int,
                          num_threads: 
-        int, ):
+        int, spatial_box_num:int, temporal_box_num: int):
     """
     Calculates an pairwise affinity matrix for the image stack
     Parameters
@@ -35,7 +35,7 @@ def calc_affinity_matrix(*, pixel_list: np.matrix, metric: str, knn:int,
 
     dim = pixel_list.shape[1]
     num_elements = pixel_list.shape[0]
-
+    print("Spatial Box {}, Time Step {}: Generating pairwise affinity matrix".format(spatial_box_num, temporal_box_num))
     p = hnsw.Index(space=metric, dim=dim)
     p.init_index(max_elements=num_elements, ef_construction=accuracy,
                  M=connections)

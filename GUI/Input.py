@@ -18,15 +18,20 @@ class Input(Module):
         temp_lable.setText(display_name)
         temp_lable.setToolTip(tool_tip)
         self.layout.addWidget(temp_lable)
-        self.on_change_function = lambda x: on_change_function(program_name, x)
+        self.on_change_function = on_change_function
         self.setLayout(self.layout)
 
     def on_change(self, *args, **kwargs):
-        self.on_change_function(self.program_name, self.current_state())
+        try:
+            self.on_change_function(self.program_name, self.current_state())
+        except AssertionError as e:
+            print(e)
+            self.set_default_val()
 
     def current_state(self):
         pass
-
+    def set_default_val(self):
+        pass
 
 class FloatInput(Input):
     def __init__(self, display_name, program_name, on_change_function, default_val,
@@ -42,12 +47,14 @@ class FloatInput(Input):
         self.input_box.setMaximumWidth(50)
         self.input_box.setSingleStep(step)
         self.input_box.setValue(self.default_val)
-        self.input_box.valueChanged.connect(self.on_change_function)
+        self.input_box.valueChanged.connect(self.on_change)
         self.input_box.setToolTip(self.tool_tip)
         self.layout.addWidget(self.input_box)
 
     def current_state(self):
         return self.input_box.value()
+    def set_default_val(self):
+        self.input_box.setValue(self.default_val)
 
 
 class IntInput(Input):
@@ -66,12 +73,15 @@ class IntInput(Input):
         self.input_box.setValue(self.default_val)
         self.input_box.setToolTip(self.tool_tip)
         self.layout.addWidget(self.input_box)
-        self.input_box.valueChanged.connect(self.on_change_function)
+        self.input_box.valueChanged.connect(self.on_change)
 
     def current_state(self):
         return self.input_box.value()
+    def set_default_val(self):
+        self.input_box.setValue(self.default_val)
 
 
+# TODO implement way to check spatial boxes square
 class BoolInput(Input):
     def __init__(self, display_name, program_name, on_change_function, default_val,
                  tool_tip):
@@ -81,13 +91,14 @@ class BoolInput(Input):
         self.input_box = QRadioButton()
         self.input_box.setMaximumWidth(50)
         self.input_box.setChecked(self.default_val)
-        self.input_box.toggled.connect(self.on_change_function)
+        self.input_box.toggled.connect(self.on_change)
         self.input_box.setToolTip(self.tool_tip)
         self.layout.addWidget(self.input_box)
 
     def current_state(self):
         return self.input_box.isChecked()
-
+    def set_default_val(self):
+        self.input_box.setChecked(self.default_val)
 
 class OptionInput(Input):
     def __init__(self, display_name, program_name, on_change_function, default_index,
@@ -101,11 +112,14 @@ class OptionInput(Input):
         self.input_box.setMaximumWidth(50)
         self.input_box.setCurrentIndex(self.default_val)
         self.input_box.setToolTip(self.tool_tip)
-        self.input_box.currentIndexChanged.connect(self.on_change_function)
+        self.input_box.currentIndexChanged.connect(self.on_change)
         self.layout.addWidget(self.input_box)
 
     def current_state(self):
         return self.input_box.isChecked()
+    def set_default_val(self):
+        self.input_box.setCurrentIndex(self.default_val)
+
 
 
 class FileInput(Input):
@@ -132,3 +146,4 @@ class FileInput(Input):
 
     def current_state(self):
         return self.path
+
