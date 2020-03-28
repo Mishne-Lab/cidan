@@ -32,16 +32,29 @@ def PreprocessingTab(main_widget):
     process_button.clicked.connect(lambda: thread.runThread())
 
     return Tab("Preprocessing", column_1=[preprocessing_settings(main_widget), process_button], column_2=[
-            main_widget.image_view])
+            main_widget.preprocess_image_view])
 
 def ROIExtractionTab(main_widget):
+    def click(event):
+        event.accept()
+        pos = event.pos()
+        print(int(pos.x()), int(pos.y()))
+        print(main_widget.roi_image_view.image_view.getImageItem().mapFromScene(pos))
+    process_button = QPushButton()
+    process_button.importance = 1
+    process_button.setText("Apply Settings")
+    thread = ROIExtractionThread(main_widget, process_button)
+    main_widget.thread_list.append(thread)
+    process_button.clicked.connect(lambda: thread.runThread())
+    main_widget.roi_image_view.image_view.getImageItem().mouseClickEvent = click
     tab_selector = QTabWidget()
+    tab_selector.setMaximumWidth(400)
     tab_selector.setStyleSheet("QTabWidget {font-size: 20px;}")
     tab_selector.importance = 1
-    tab_selector.addTab(Tab("ROI Settings", column_1=[roi_extraction_settings(main_widget)], column_2=[],column_2_display=False)," ROI Settings")
+    tab_selector.addTab(Tab("ROI Settings", column_1=[roi_extraction_settings(main_widget), process_button], column_2=[],column_2_display=False)," ROI Settings")
     tab_selector.addTab(QWidget(),"ROI List")
     return Tab("ROI Extraction", column_1=[tab_selector],
-                         column_2=[])
+                         column_2=[main_widget.roi_image_view])
 def AnalysisTab(main_widget):
     return Tab("Analysis", column_1=[], column_2=[])
 def FileOpenTab(main_widget):

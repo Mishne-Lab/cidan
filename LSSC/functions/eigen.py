@@ -34,22 +34,23 @@ def gen_eigen_vectors(*, K: np.ndarray, num_eig: int)->np.ndarray:
 @delayed
 def save_eigen_vectors(*, e_vectors, spatial_box_num: int, time_box_num:int, save_dir:
 str):
-    eigen_dir = os.join(save_dir, "/eigen_vectors")
+    eigen_dir = os.path.join(save_dir, "eigen_vectors")
     if not os.path.isdir(eigen_dir):
         os.mkdir(eigen_dir)
     pickle_save(e_vectors, name="eigen_vectors_box_{}_{"+
                                 "}.pickle".format(spatial_box_num,time_box_num),
-                output_directory=save_dir, )
+                output_directory=eigen_dir, )
     return e_vectors
 @delayed
 def load_eigen_vectors(*, spatial_box_num: int, time_box_num: int, save_dir: str):
-    eigen_dir = os.join(save_dir, "/eigen_vectors")
+    eigen_dir = os.path.join(save_dir, "eigen_vectors")
     return pickle_load(name="eigen_vectors_box_{}_{"
                                 +"}.pickle".format(spatial_box_num,time_box_num),
-                output_directory=save_dir)
+                output_directory=eigen_dir)
 @delayed
 def save_embeding_norm_image(*, e_vectors, image_shape, save_dir, spatial_box_num):
-    embed_dir = os.join(save_dir, "/embedding_norm_images")
+    # print(save_dir)
+    embed_dir = os.path.join(save_dir, "embedding_norm_images")
     e_vectors_squared = np.power(e_vectors, 2)
     e_vectors_sum = np.sum(e_vectors_squared, axis=1)
 
@@ -59,7 +60,7 @@ def save_embeding_norm_image(*, e_vectors, image_shape, save_dir, spatial_box_nu
     img = Image.fromarray(
         np.reshape(e_vectors_sum_rescaled,
                    image_shape[1:]) * 255).convert('L')
-    image_path = os.join(embed_dir, "embedding_norm_image_box_{}.png".format(
+    image_path = os.path.join(embed_dir, "embedding_norm_image_box_{}.png".format(
         spatial_box_num))
     img.save(image_path)
     return e_vectors

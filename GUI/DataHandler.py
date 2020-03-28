@@ -7,12 +7,13 @@ from LSSC.functions.data_manipulation import load_filter_tif_stack, filter_stack
 from LSSC.process_data import process_data
 class DataHandler:
     global_params_default = {
-        "save_intermediate_steps": True,
+        "save_intermediate_steps": False,
         "need_recalc_dataset_params": True,
         "need_recalc_filter_params": True,
         "need_recalc_box_params": True,
         "need_recalc_eigen_params": True,
-        "need_recalc_roi_extraction_params": True
+        "need_recalc_roi_extraction_params": True,
+        "num_threads": 1
     }
 
     dataset_params_default = {
@@ -41,20 +42,22 @@ class DataHandler:
         "knn": 50,
         "accuracy": 50,
         "connections": 60,
+
     }
     roi_extraction_params_default = {
         "elbow_threshold_method": True,
         "elbow_threshold_value": 1.0,
         "eigen_threshold_method": True,
         "eigen_threshold_value": .5,
-        "merge_temporal_coef": .01,
+        "num_eigen_vector_select": 5,
+        "merge_temporal_coef": .05,
         "roi_size_min": 30,
         "roi_size_max": 600,
         "merge": True,
         "num_rois": 25,
         "fill_holes": True,
         "refinement": True,
-        "max_iter": 1000
+        "max_iter": 1000,
     }
     def __init__(self, data_path, save_dir_path, save_dir_already_created):
         # TODO Create two initialization methods one with default parameters and one
@@ -210,6 +213,7 @@ class DataHandler:
                                                  slice_every=self.dataset_params["slice_every"])
             self.global_params["need_recalc_dataset_params"] = False
 
+
             print("Finished Calculating Dataset")
 
         return self.dataset
@@ -218,14 +222,12 @@ class DataHandler:
 
         if self.global_params["need_recalc_filter_params"] or self.global_params["need_recalc_dataset_params"] or \
                 not hasattr(self,"dataset_filtered"):
-            print("Starting Calculating Filters")
             self.dataset_filtered = filter_stack(stack=self.calculate_dataset(),
                                                  median_filter_size=(1, self.filter_params["median_filter_size"], self.filter_params["median_filter_size"]),
                                                  median_filter=self.filter_params[
                                                      "median_filter"],
                                                  z_score=self.filter_params["z_score"])
             self.global_params["need_recalc_filter_params"] = False
-            print("Finished Calculating Filters")
         return self.dataset_filtered
 
 
@@ -245,8 +247,8 @@ class DataHandler:
                      "save_intermediate_steps"],
                                          load_data=False, data_path="",
                                          image_data=self.calculate_filters(),
-                                         eigen_vectors_already_generated=not self.global_params[
-                     "need_recalc_eigen_params"],
+                                         eigen_vectors_already_generated=(not self.global_params[
+                     "need_recalc_eigen_params"])and self.global_params["save_intermediate_steps"],
                                          save_embedding_images=True,
                                          total_num_time_steps=self.box_params["total_num_time_steps"],
                                          total_num_spatial_boxes=self.box_params[
@@ -269,7 +271,7 @@ class DataHandler:
                                          max_iter=self.roi_extraction_params["max_iter"],
                                          roi_size_min=self.roi_extraction_params["roi_size_min"],
                                          fill_holes=self.roi_extraction_params[
-                                                 "fillholes"],
+                                                 "fill_holes"],
 
                                          elbow_threshold_method=self.roi_extraction_params[
                      "elbow_threshold_method"],
@@ -281,3 +283,14 @@ class DataHandler:
                                          merge_temporal_coef=self.roi_extraction_params["merge_temporal_coef"],
                                          roi_size_max=self.roi_extraction_params["roi_size_max"])
             self.global_params["need_recalc_eigen_params"] = False
+
+            self.pixel_with_clusters_flat = np.zeros([self.dataset.shape[1]*self.dataset.shape[2]])
+            self.pixel_with_clusters_color_flat = np.zeros([self.dataset.shape[1]*self.dataset.shape[2],3])
+            color_list = [(218, 67, 34), (218, 134, 34 ),(245, 249, 22  ),(132, 249, 22),(22, 249, 140),(22, 245, 249),(22, 132, 249),(224, 22, 249),(249, 22, 160),(249, 160, 22)]
+            for num, cluster in enumerate(self.clusters):
+                cur_color = color_list[num%len(color_list)]
+                self.pixel_with_clusters_flat[cluster] = num+1
+                self.pixel_with_clusters_color_flat[cluster]=cur_color
+            self.pixel_with_clusters_color = np.reshape(self.pixel_with_clusters_color_flat, [self.dataset.shape[1],self.dataset.shape[2],3])
+
+

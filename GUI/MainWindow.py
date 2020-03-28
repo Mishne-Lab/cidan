@@ -28,7 +28,8 @@ class MainWidget(QWidget):
         self.data_handler = None
         self.thread_list = []
         self.open_file_dialog = loadImageWrapper(self)
-        self.image_view = ImageViewModule(self)
+        self.preprocess_image_view = ImageViewModule(self)
+        self.roi_image_view = ImageViewModule(self, histogram=False)
         self.tab_widget = QTabWidget()
         self.tabs = ["Preprocessing", "ROI Extraction", "Analysis"]
         # Add tabs
@@ -59,14 +60,10 @@ class MainWidget(QWidget):
         for tab in self.tabs:
             self.tab_widget.addTab(tab, tab.name)
         self.tab_widget.setCurrentIndex(1)
-        self.image_view.setImage(self.data_handler.calculate_filters())
+        self.preprocess_image_view.setImage(self.data_handler.calculate_filters())
 
 
 
-        # Create first tab
-
-
-        # Add tabs to widget
 
 if __name__ == "__main__":
     app = QApplication([])

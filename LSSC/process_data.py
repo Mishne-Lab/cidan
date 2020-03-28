@@ -76,14 +76,14 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                                                   num_eig=num_eig //
                                                           total_num_time_steps)
                 if save_intermediate_steps:
-                    eigen_vectors = save_eigen_vectors(eigen_vectors,
-                                                       spatial_box.box_num,
-                                                       temporal_box_num, save_dir)
+                    eigen_vectors = save_eigen_vectors(e_vectors=eigen_vectors,
+                                                       spatial_box_num=spatial_box.box_num,
+                                                       time_box_num=temporal_box_num,save_dir= save_dir)
                 if save_embedding_images:
-                    eigen_vectors = save_embeding_norm_image(eigen_vectors,
-                                                             spatial_box.shape,
-                                                             save_dir,
-                                                             spatial_box.box_num)
+                    eigen_vectors = save_embeding_norm_image(e_vectors=eigen_vectors,
+                                                             image_shape=spatial_box.shape,
+                                                             save_dir=save_dir,
+                                                             spatial_box_num=spatial_box.box_num)
                 all_eigen_vectors_list.append(eigen_vectors)
                 if test_images:
                     pass
@@ -133,7 +133,7 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
         delayed(save_roi_images)(roi_list=all_rois_merged,
                                      output_dir=test_output_dir,
                                      image_shape=shape, box_num="all").compute()
-    pass
+    return all_rois_merged
 
 
 if __name__ == '__main__':

@@ -7,7 +7,7 @@ from GUI.SettingBlockModule import *
 class SettingsModule(Module):
     def __init__(self, importance, name, *args, show_name=True):
         super().__init__(importance)
-        self.setMaximumWidth(300)
+        self.setMaximumWidth(375)
         self.setStyleSheet("SettingsModule { border:1px solid rgb(50, 65, "
                            "75);} ")
         self.setting_block_list = args
@@ -26,7 +26,7 @@ def preprocessing_settings(main_widget):
     return SettingsModule(1, "Preprocessing Settings", dataset_setting_block(main_widget),
                           filter_setting_block(main_widget))
 def roi_extraction_settings(main_widget):
-    return SettingsModule(1, "ROI Extraction Settings", multiprocessing_settings_block(main_widget), show_name=False)
+    return SettingsModule(1, "ROI Extraction Settings", multiprocessing_settings_block(main_widget), roi_extraction_settings_block(main_widget), show_name=False)
 if __name__ == "__main__":
     app = QApplication([])
 

@@ -3,7 +3,7 @@ from GUI.Module import Module
 from PySide2.QtWidgets import *
 from PySide2.QtCore import *
 class ImageViewModule(Module):
-    def __init__(self, main_widget):
+    def __init__(self, main_widget, histogram=True):
         super().__init__(5)
 
         self.main_window = main_widget
@@ -12,6 +12,7 @@ class ImageViewModule(Module):
         self.setStyleSheet("ImageViewModule {margin:5px; border:1px solid rgb(50, 65, "
                            "75);} ")
         self.layout = QHBoxLayout()
+
         # self.layout.setAlignment(Qt.AlignHCenter)
 
         self.setLayout(self.layout)
@@ -20,6 +21,11 @@ class ImageViewModule(Module):
         # self.no_image_message.clicked.connect(main_widget.open_file_dialog)
         # self.no_image_message.setStyleSheet("QPushButton {font-size:80;}")
         self.image_view = ImageView()
+        self.image_view.ui.roiBtn.hide()
+        self.image_view.ui.menuBtn.hide()
+        if not histogram:
+            self.image_view.ui.histogram.hide()
+        self.image_view.getImageItem().importance = 1
         self.layout.addWidget(self.image_view)
 
     def setImage(self, data):

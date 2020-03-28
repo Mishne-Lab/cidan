@@ -15,14 +15,14 @@ class SettingBlockModule(Module):
 
 def filter_setting_block(main_widget):
     data_handler = main_widget.data_handler
-    return SettingBlockModule("Filter Settings", [BoolInput(display_name="Median Filter:",
+    return SettingBlockModule("Filter Settings", [BoolInput(display_name="Median filter:",
                                                            program_name="median_filter",
                                                            on_change_function=lambda x,y:data_handler.change_filter_param(x,y),
                                                            default_val=data_handler.filter_params["median_filter"],
                                                            tool_tip="Whether to apply a median filter to each timestep",
                                                            ),
                                                   IntInput(
-                                                      display_name="Median Filter Size:",
+                                                      display_name="Median filter size:",
                                                       program_name="median_filter_size",
                                                       on_change_function=lambda x,y:data_handler.change_filter_param(x,y),
                                                       default_val=
@@ -31,7 +31,7 @@ def filter_setting_block(main_widget):
                                                       tool_tip="The size of the median filter for each timestep",
                                                       min=1,max=50,step=1),
                                                   BoolInput(
-                                                      display_name="Z-Score:",
+                                                      display_name="Z-score:",
                                                       program_name="z_score",
                                                       on_change_function=lambda x,y:data_handler.change_filter_param(x,y),
                                                       default_val=
@@ -42,19 +42,19 @@ def filter_setting_block(main_widget):
 
 def dataset_setting_block(main_widget):
     data_handler = main_widget.data_handler
-    return SettingBlockModule("Dataset Settings",[BoolInput(display_name="Slice Stack:",
+    return SettingBlockModule("Dataset Settings",[BoolInput(display_name="Slice stack:",
                                                    program_name="slice_stack",
                                                     on_change_function=lambda x,y:data_handler.change_dataset_param(x,y),
                                                     default_val=data_handler.dataset_params["slice_stack"],
                                                     tool_tip="Used to Select only "
                                                              "certain timepoints from a dataset"),
-                                                  IntInput(display_name="Slice Every:",
+                                                  IntInput(display_name="Slice every:",
                                                            program_name="slice_every",
                                                            on_change_function=lambda x,y:data_handler.change_dataset_param(x,y),
                                                            default_val=data_handler.dataset_params["slice_every"],
                                                            tool_tip="Select every x timesteps",
                                                            min=1, max=100,step=1),
-                                                  IntInput(display_name="Slice Start:",
+                                                  IntInput(display_name="Slice start:",
                                                            program_name="slice_start",
                                                            on_change_function=lambda x,y:data_handler.change_dataset_param(x,y),
                                                            tool_tip="Start selecting on x timestep",
@@ -64,14 +64,14 @@ def dataset_setting_block(main_widget):
 
 def multiprocessing_settings_block(main_widget):
     data_handler = main_widget.data_handler
-    return SettingBlockModule("Multiprocessing Settings", [IntInput(display_name="Number of Timesteps:",
+    return SettingBlockModule("Multiprocessing Settings", [IntInput(display_name="Number of timesteps:",
                                                            program_name="total_num_time_steps",
                                                            on_change_function=lambda x,y:data_handler.change_box_param(x,y),
                                                            default_val=data_handler.box_params["total_num_time_steps"],
                                                            tool_tip="Number of timesteps to break the processing into",
                                                            min=1, max=1000,step=1),
                                                            IntInput(
-                                                               display_name="Number of Spatial Boxes:",
+                                                               display_name="Number of spatial boxes:",
                                                                program_name="total_num_spatial_boxes",
                                                                on_change_function=lambda x,y: data_handler.change_box_param(
                                                                    x, y),
@@ -82,12 +82,91 @@ def multiprocessing_settings_block(main_widget):
                                                                min=1, max=1000, step=1)
                                                            ,
                                                            IntInput(
-                                                              display_name="Spatial Overlap:",
+                                                              display_name="Spatial overlap:",
                                                               program_name="spatial_overlap",
                                                               on_change_function=lambda x, y: data_handler.change_box_param(x, y),
                                                               default_val=
                                                               data_handler.box_params[
                                                                   "spatial_overlap"],
                                                               tool_tip="Number of pixels to overlap each box",
-                                                              min=1, max=1000, step=1)]
-                                                )
+                                                              min=1, max=1000, step=1)])
+
+def roi_extraction_settings_block(main_widget):
+    data_handler = main_widget.data_handler
+    return SettingBlockModule("ROI Extraction Settings",
+                              [IntInput(display_name="Number of eigen vectors:",
+                                        program_name="num_eig",
+                                        on_change_function=lambda x,
+                                                                  y: data_handler.change_eigen_param(
+                                            x, y),
+                                        default_val=data_handler.eigen_params[
+                                            "num_eig"],
+                                        tool_tip="Number of eigen vectors to generate",
+                                        min=1, max=1000, step=1),
+                               IntInput(display_name="Max Number of ROIs per spatial box:",
+                                        program_name="num_rois",
+                                        on_change_function=lambda x,
+                                                                  y: data_handler.change_roi_extraction_param(
+                                            x, y),
+                                        default_val=data_handler.roi_extraction_params[
+                                            "num_rois"],
+                                        tool_tip="Max number of ROIs to select for each spatial box",
+                                        min=1, max=1000, step=1),
+                               IntInput(
+                                   display_name="ROI size minimum:",
+                                   program_name="roi_size_min",
+                                   on_change_function=lambda x,
+                                                             y: data_handler.change_roi_extraction_param(
+                                       x, y),
+                                   default_val=
+                                   data_handler.roi_extraction_params[
+                                       "roi_size_min"],
+                                   tool_tip="Minimum size in pixels for a region of interest",
+                                   min=1, max=1000, step=1)
+                                  ,
+                               IntInput(
+                                   display_name="ROI size maximum:",
+                                   program_name="roi_size_max",
+                                   on_change_function=lambda x,
+                                                             y: data_handler.change_roi_extraction_param(
+                                       x, y),
+                                   default_val=
+                                   data_handler.roi_extraction_params[
+                                       "roi_size_max"],
+                                   tool_tip="Maximum size in pixels for a region of interest",
+                                   min=1, max=100000, step=1),
+                               BoolInput(
+                                   display_name="Run refinement step:",
+                                   program_name="refinement",
+                                   on_change_function=lambda x,
+                                                             y: data_handler.change_roi_extraction_param(
+                                       x, y),
+                                   default_val=
+                                   data_handler.roi_extraction_params[
+                                       "refinement"],
+                                   tool_tip="Whether to run the refinement step, greatly improves results"),
+                               FloatInput(
+                                   display_name="Merge temporal coefficient:",
+                                   program_name="merge_temporal_coef",
+                                   on_change_function=lambda x,
+                                                             y: data_handler.change_roi_extraction_param(
+                                       x, y),
+                                   default_val=
+                                   data_handler.roi_extraction_params[
+                                       "merge_temporal_coef"],
+                                   tool_tip="The coefficient that determines if two overlapping regions are merged based on their temporal correlation",
+                                   min=0, max=1, step=.01),
+                               BoolInput(
+                                   display_name="Fill holes:",
+                                   program_name="fill_holes",
+                                   on_change_function=lambda x,
+                                                             y: data_handler.change_roi_extraction_param(
+                                       x, y),
+                                   default_val=
+                                   data_handler.roi_extraction_params[
+                                       "fill_holes"],
+                                   tool_tip="Whether to fill holes in each cluster"),
+
+                               ]
+                                            )
+# TODO add fill holes/number rois per spatial box to inputs
