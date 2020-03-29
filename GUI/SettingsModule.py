@@ -7,7 +7,7 @@ from GUI.SettingBlockModule import *
 class SettingsModule(Module):
     def __init__(self, importance, name, *args, show_name=True):
         super().__init__(importance)
-        self.setMaximumWidth(375)
+
         self.setStyleSheet("SettingsModule { border:1px solid rgb(50, 65, "
                            "75);} ")
         self.setting_block_list = args

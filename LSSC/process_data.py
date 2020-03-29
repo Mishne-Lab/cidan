@@ -124,7 +124,7 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
             #                              image_shape=shape,
             #                              box_num=spatial_box.box_num).compute()
         all_rois.append(spatial_box.redefine_spatial_cord_1d(rois))
-    all_rois = delayed(reduce)(lambda x, y: x + y, all_rois).compute()
+    all_rois = delayed(reduce)(lambda x, y: x + y, all_rois)
     all_rois_merged = delayed(merge_rois)(roi_list=all_rois,
                                               temporal_coefficient=merge_temporal_coef,
                                               original_2d_vol=reshape_to_2d_over_time(

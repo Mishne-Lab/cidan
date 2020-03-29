@@ -23,6 +23,7 @@ class ConsoleWidget(QWidget):
         self.label = QLabel()
         self.label.setText("Console:")
         self.layout.addWidget(self.label)
+        self.setMinimumHeight(100)
         self.process = QTextBrowser()
         self.process.moveCursor(QtGui.QTextCursor.Start)
         self.process.ensureCursorVisible()

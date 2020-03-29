@@ -37,9 +37,9 @@ class ROIListModule(Module):
             if item.checkState() != check_val:
                 self.roi_check_list[num-1] = item.checkState()
                 if item.checkState():
-                    self.roi_tab.select_roi(num)
+                    self.roi_tab.selectRoi(num)
                 else:
-                    self.roi_tab.unselect_roi(num)
+                    self.roi_tab.deselectRoi(num)
 
 
 

@@ -16,6 +16,7 @@ def loadImageWrapper(main_widget):
     return loadImage
 
 def createFileDialog(directory='', forOpen=True, fmt='', isFolder=0):
+    directory="/Users/sschickler/Documents/LSSC-python/input_images"
     options = QFileDialog.Options()
     options |= QFileDialog.DontUseNativeDialog
     options |= QFileDialog.DontUseCustomDirectoryIcons
@@ -66,3 +67,5 @@ def load_prev_session(main_widget, save_dir_input):
                                            save_dir_path=save_dir_path,
                                            save_dir_already_created=True)
     main_widget.init_w_data()
+def export_timetraces(main_widget):
+    createFileDialog(forOpen=False,isFolder=2)

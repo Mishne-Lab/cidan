@@ -21,13 +21,14 @@ class ROIItemModule(QStandardItem):
         pm = QPixmap.fromImage(out_img)
         self.num = num
         super().__init__(pm, str(num))
+        self.setEditable(False)
         self.setCheckable(True)
     def toggle_check_state(self):
         if self.checkState() == False:
-            self.roi_tab.select_roi(self.num)
+            self.roi_tab.selectRoi(self.num)
             self.setCheckState(QtCore.Qt.CheckState.Checked)
         else:
-            self.roi_tab.unselect_roi(self.num)
+            self.roi_tab.deselectRoi(self.num)
             self.setCheckState(QtCore.Qt.CheckState.Unchecked)
 
     def checkState(self):

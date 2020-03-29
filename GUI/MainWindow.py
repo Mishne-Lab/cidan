@@ -42,9 +42,12 @@ class MainWidget(QWidget):
         self.console = ConsoleWidget()
         self.layout.addWidget(self.console)
         self.setLayout(self.layout)
-
+        # TODO check if it can load data twice
         if True:
             self.data_handler = DataHandler("/Users/sschickler/Documents/LSSC-python/input_images/small_dataset.tif","/Users/sschickler/Documents/LSSC-python/input_images/test31", save_dir_already_created=True)
+            self.init_w_data()
+        if False:
+            self.data_handler = DataHandler("/Users/sschickler/Documents/LSSC-python/input_images/dataset_1","/Users/sschickler/Documents/LSSC-python/input_images/test3", save_dir_already_created=False)
             self.init_w_data()
     def init_w_data(self):
         #

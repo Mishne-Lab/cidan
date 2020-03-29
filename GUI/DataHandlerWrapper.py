@@ -11,6 +11,12 @@ class StrSignal(QObject):
     def __init__(self):
         super().__init__()
     sig = Signal(str)
+
+class BoolSignal(QObject):
+    def __init__(self):
+        super().__init__()
+
+    sig = Signal(bool)
 class Thread(QThread):
     def __init__(self, data_handler, parent=None):
         QThread.__init__(self, parent)
@@ -42,25 +48,31 @@ class PreprocessThread(Thread):
 class ROIExtractionThread(Thread):
     def __init__(self,main_widget, button, roi_list_module, roi_tab):
         super().__init__(main_widget.data_handler)
-        self.signal = StrSignal()
+        self.signal = BoolSignal()
         self.roi_tab = roi_tab
         self.main_widget = main_widget
         self.roi_list_module = roi_list_module
         self.button = button
-        self.signal.sig.connect(lambda x: self.endThread())
+        self.signal.sig.connect(lambda x: self.endThread(x))
     def run(self):
         # TODO add  try except wrapper to this
-        self.data_handler.calculate_roi_extraction()
-        self.signal.sig.emit("")
+        try:
+            self.data_handler.calculate_roi_extraction()
+            self.signal.sig.emit(True)
+        except AssertionError as e:
+            print(e)
+            self.signal.sig.emit(False)
+
     def runThread(self):
 
         if not any([x.isRunning() for x in self.main_widget.thread_list]):
             print("Starting ROI extraction")
             self.button.setEnabled(False)
             self.start()
-    def endThread(self):
-        print("Finished ROI extraction")
+    def endThread(self, success):
         self.button.setEnabled(True)
-        self.roi_list_module.set_list_items(self.main_widget.data_handler.clusters)
-        self.main_widget.roi_image_view.setImage(self.main_widget.data_handler.pixel_with_rois_color)
-        self.roi_tab.current_image_flat = self.main_widget.data_handler.pixel_with_rois_color_flat
+        if success:
+            print("Finished ROI extraction")
+            self.roi_list_module.set_list_items(self.main_widget.data_handler.clusters)
+            self.roi_tab.current_image_flat = self.main_widget.data_handler.pixel_with_rois_color_flat
+            self.roi_tab.current_background_func()

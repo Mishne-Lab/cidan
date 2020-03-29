@@ -59,7 +59,7 @@ def dataset_setting_block(main_widget):
                                                            on_change_function=lambda x,y:data_handler.change_dataset_param(x,y),
                                                            tool_tip="Start selecting on x timestep",
                                                            default_val=data_handler.dataset_params["slice_start"],
-                                                           min=1, max=1000,step=1)
+                                                           min=0, max=1000,step=1)
                                                   ])
 
 def multiprocessing_settings_block(main_widget):
@@ -92,6 +92,7 @@ def multiprocessing_settings_block(main_widget):
                                                               min=1, max=1000, step=1)])
 
 def roi_extraction_settings_block(main_widget):
+    # TODO fix input into spatial box number
     data_handler = main_widget.data_handler
     return SettingBlockModule("ROI Extraction Settings",
                               [IntInput(display_name="Number of eigen vectors:",

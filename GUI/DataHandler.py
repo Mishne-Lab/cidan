@@ -40,14 +40,14 @@ class DataHandler:
         "num_eig": 24,
         "normalize_w_k": 2,
         "metric": "l2",
-        "knn": 50,
-        "accuracy": 50,
-        "connections": 60,
+        "knn": 20,
+        "accuracy": 39,
+        "connections": 40,
 
     }
     roi_extraction_params_default = {
         "elbow_threshold_method": True,
-        "elbow_threshold_value": 1.0,
+        "elbow_threshold_value": 1.2,
         "eigen_threshold_method": True,
         "eigen_threshold_value": .5,
         "num_eigen_vector_select": 5,
@@ -78,6 +78,7 @@ class DataHandler:
 
             if self.rois_exist:
                 self.load_rois()
+                self.calculate_time_traces()
                 self.rois_loaded = True
             if not valid:
                 raise FileNotFoundError("Save directory not valid")
@@ -95,6 +96,7 @@ class DataHandler:
             if not valid:
                 raise FileNotFoundError("Please chose an empty directory for your " +
                                         "save directory")
+            self.time_traces = []
 
     @property
     def param_path(self):
@@ -194,9 +196,9 @@ class DataHandler:
 
     def change_box_param(self, param_name, new_value):
         if param_name in self.box_params:
-            if param_name == "total_num_spatial_boxes":
-                assert (int(new_value**.5))**2 == new_value, "Please make sure Number of Spatial Boxes is a square number"
-            self.filter_params[param_name] = new_value
+            # if param_name == "total_num_spatial_boxes":
+            #     assert (int(new_value**.5))**2 == new_value, "Please make sure Number of Spatial Boxes is a square number"
+            self.box_params[param_name] = new_value
             self.global_params["need_recalc_box_params"] = True
             self.save_new_param_json()
             return True
@@ -227,6 +229,7 @@ class DataHandler:
         Returns
         -------
         """
+        # TODO make it so it does't load the dataset every time
         if self.global_params["need_recalc_dataset_params"] or not hasattr(
                 self,"dataset"):
             print("Starting Calculating Dataset")
@@ -255,6 +258,8 @@ class DataHandler:
                                                  median_filter=self.filter_params[
                                                      "median_filter"],
                                                  z_score=self.filter_params["z_score"])
+            self.mean_image = np.mean(self.dataset_filtered, axis=0)
+            self.max_image = np.max(self.dataset_filtered, axis=0)
             self.global_params["need_recalc_filter_params"] = False
         return self.dataset_filtered
 
@@ -268,6 +273,10 @@ class DataHandler:
             "need_recalc_roi_extraction_params"] or self.global_params[
             "need_recalc_box_parmas"] or self.global_params["need_recalc_dataset_params"] or \
                 self.global_params["need_recalc_filter_params"]:
+            assert (int(
+                self.box_params[
+                    "total_num_spatial_boxes"] ** .5)) ** 2 == self.box_params[
+                                             "total_num_spatial_boxes"], "Please make sure Number of Spatial Boxes is a square number"
             self.clusters = process_data(num_threads=self.global_params[
                 "num_threads"], test_images=False, test_output_dir="",
                                          save_dir=self.save_dir_path,
@@ -312,8 +321,15 @@ class DataHandler:
                                          roi_size_max=self.roi_extraction_params["roi_size_max"])
             self.global_params["need_recalc_eigen_params"] = False
             self.save_rois(self.clusters)
-
+            print("Calculating Time Traces:")
+            self.time_traces = []
+            for cluster in self.clusters:
+                # TODO maybe make this be a class variable
+                data_2d = reshape_to_2d_over_time(self.dataset)
+                time_trace = np.average(data_2d[cluster], axis=0)
+                self.time_traces.append(time_trace)
             self.gen_roi_display_variables()
+            self.calculate_time_traces()
             self.rois_loaded = True
     def gen_roi_display_variables(self):
         self.pixel_with_rois_flat = np.zeros(
@@ -327,13 +343,19 @@ class DataHandler:
         self.pixel_with_rois_color = np.reshape(self.pixel_with_rois_color_flat,
                                                 [self.dataset.shape[1],
                                                  self.dataset.shape[2], 3])
-    def calculate_time_trace(self, num):
-        cluster = self.clusters[num-1]
-        # TODO maybe make this be a class variable
-        data_2d = reshape_to_2d_over_time(self.dataset)
-        time_trace = np.average(data_2d[cluster], axis=0)
-        return time_trace
-        # TODO Make sure loading all timepoints
+    def calculate_time_traces(self):
+        self.time_traces = []
+        for cluster in self.clusters:
+            # TODO maybe make this be a class variable
+            data_2d = reshape_to_2d_over_time(self.dataset)
+            time_trace = np.average(data_2d[cluster], axis=0)
+            self.time_traces.append(time_trace)
+        self.gen_roi_display_variables()
+        self.rois_loaded = True
+    def get_time_trace(self, num):
+        return self.time_traces[num-1]
+
+
 
 
 

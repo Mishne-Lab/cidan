@@ -27,7 +27,7 @@ def load_filter_tif_stack(*, path, filter: bool, median_filter: bool,
     """
     if os.path.isdir(path):
         volumes = []
-        for num, x in enumerate(os.listdir(path)[2:7]):
+        for num, x in enumerate(sorted(os.listdir(path))):
             file_path = os.path.join(path, x)
             image = tifffile.imread(file_path)
             if slice_stack:
@@ -37,9 +37,9 @@ def load_filter_tif_stack(*, path, filter: bool, median_filter: bool,
                                      median_filter_size=median_filter_size,
                                      z_score=z_score)
             volumes.append(image)
-            print(x)
+            print("Loading: "+x)
 
-        image = np.hstack(volumes)
+        image = np.vstack(volumes)
         return image
     if os.path.isfile(path):
         # return ScanImageTiffReader(path).data()
