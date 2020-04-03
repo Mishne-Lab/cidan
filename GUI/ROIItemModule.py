@@ -1,4 +1,3 @@
-from GUI.Module import Module
 from PySide2.QtWidgets import *
 from PySide2.QtGui import *
 from PySide2 import QtCore

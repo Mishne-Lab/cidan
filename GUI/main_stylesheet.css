@@ -10,3 +10,7 @@ QTabBar::tab {
     /*border-top-right-radius: 4px;*/
     min-width: 8ex;
 }
+QComboBox::item:checked {
+  font-weight: bold;
+  height: 12px;
+}

@@ -38,15 +38,13 @@ str):
     eigen_dir = os.path.join(save_dir, "eigen_vectors")
     if not os.path.isdir(eigen_dir):
         os.mkdir(eigen_dir)
-    pickle_save(e_vectors, name="eigen_vectors_box_{}_{"+
-                                "}.pickle".format(spatial_box_num,time_box_num),
+    pickle_save(e_vectors, name="eigen_vectors_box_{}_{}.pickle".format(spatial_box_num,time_box_num),
                 output_directory=eigen_dir, )
     return e_vectors
 @delayed
 def load_eigen_vectors(*, spatial_box_num: int, time_box_num: int, save_dir: str):
     eigen_dir = os.path.join(save_dir, "eigen_vectors")
-    return pickle_load(name="eigen_vectors_box_{}_{"
-                                +"}.pickle".format(spatial_box_num,time_box_num),
+    return pickle_load(name="eigen_vectors_box_{}_{}.pickle".format(spatial_box_num,time_box_num),
                 output_directory=eigen_dir)
 @delayed
 def save_embeding_norm_image(*, e_vectors, image_shape, save_dir, spatial_box_num):

@@ -1,10 +1,9 @@
-from GUI.Module import Module
 from PySide2.QtWidgets import *
 from PySide2.QtGui import *
 from GUI.ROIItemModule import ROIItemModule
-class ROIListModule(Module):
+class ROIListModule(QFrame):
     def __init__(self, data_handler, roi_tab):
-        super().__init__(1)
+        super().__init__()
         self.roi_tab = roi_tab
         self.color_list = data_handler.color_list
         self.list = QListView()

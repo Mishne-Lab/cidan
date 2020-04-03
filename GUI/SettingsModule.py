@@ -1,12 +1,11 @@
 from PySide2.QtWidgets import *
-from GUI.Module import Module
 import sys
 import qdarkstyle
 from GUI.SettingBlockModule import *
 
-class SettingsModule(Module):
-    def __init__(self, importance, name, *args, show_name=True):
-        super().__init__(importance)
+class SettingsModule(QFrame):
+    def __init__(self, name, *args, show_name=True):
+        super().__init__()
 
         self.setStyleSheet("SettingsModule { border:1px solid rgb(50, 65, "
                            "75);} ")
@@ -23,10 +22,10 @@ class SettingsModule(Module):
         self.layout.addWidget(self.setting_block_layout)
         self.setLayout(self.layout)
 def preprocessing_settings(main_widget):
-    return SettingsModule(1, "Preprocessing Settings", dataset_setting_block(main_widget),
+    return SettingsModule( "Preprocessing Settings", dataset_setting_block(main_widget),
                           filter_setting_block(main_widget))
 def roi_extraction_settings(main_widget):
-    return SettingsModule(1, "ROI Extraction Settings", multiprocessing_settings_block(main_widget), roi_extraction_settings_block(main_widget), show_name=False)
+    return SettingsModule( "ROI Extraction Settings", multiprocessing_settings_block(main_widget), roi_extraction_settings_block(main_widget), show_name=False)
 if __name__ == "__main__":
     app = QApplication([])
 

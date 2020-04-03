@@ -1,10 +1,9 @@
 from pyqtgraph import ImageView
-from GUI.Module import Module
 from PySide2.QtWidgets import *
 from PySide2.QtCore import *
-class ImageViewModule(Module):
+class ImageViewModule(QFrame):
     def __init__(self, main_widget, histogram=True):
-        super().__init__(5)
+        super().__init__()
 
         self.main_window = main_widget
         # self.setMinimumWidth(600)
@@ -25,7 +24,6 @@ class ImageViewModule(Module):
         self.image_view.ui.menuBtn.hide()
         if not histogram:
             self.image_view.ui.histogram.hide()
-        self.image_view.getImageItem().importance = 1
         self.layout.addWidget(self.image_view)
 
     def setImage(self, data):

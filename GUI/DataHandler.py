@@ -4,11 +4,12 @@ from typing import Dict
 import numpy as np
 from LSSC.functions.data_manipulation import load_filter_tif_stack, filter_stack, \
     reshape_to_2d_over_time
+from LSSC.functions.temporal_correlation import calculate_temporal_correlation
 from LSSC.functions.pickle_funcs import *
 from LSSC.process_data import process_data
 class DataHandler:
     global_params_default = {
-        "save_intermediate_steps": False,
+        "save_intermediate_steps": True,
         "need_recalc_dataset_params": True,
         "need_recalc_filter_params": True,
         "need_recalc_box_params": True,
@@ -103,8 +104,12 @@ class DataHandler:
         return os.path.join(self.save_dir_path, "parameters.json")
     @property
     def eigen_vectors_exist(self):
-        # TODO implement if eigen_vectors exist
-        return True
+        eigen_dir = os.path.join(self.save_dir_path, "eigen_vectors")
+
+        file_names = ["eigen_vectors_box_{}_{}.pickle".format(spatial_box_num,time_box_num)
+                      for spatial_box_num in range(self.box_params["total_num_spatial_boxes"])
+                      for time_box_num in range(self.box_params["total_num_time_steps"])]
+        return all(pickle_exist(x,output_directory=eigen_dir) for x in file_names)
     @property
     def rois_exist(self):
         return pickle_exist("rois",output_directory=self.save_dir_path)
@@ -260,6 +265,7 @@ class DataHandler:
                                                  z_score=self.filter_params["z_score"])
             self.mean_image = np.mean(self.dataset_filtered, axis=0)
             self.max_image = np.max(self.dataset_filtered, axis=0)
+            self.temporal_correlation_image = calculate_temporal_correlation(self.dataset_filtered)
             self.global_params["need_recalc_filter_params"] = False
         return self.dataset_filtered
 

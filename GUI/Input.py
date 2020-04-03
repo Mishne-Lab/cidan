@@ -1,25 +1,31 @@
-from GUI.Module import Module
 from PySide2.QtWidgets import *
 from PySide2 import QtGui
 from GUI.fileHandling import createFileDialog
 
 
-class Input(Module):
+class Input(QFrame):
     def __init__(self, display_name, program_name, on_change_function, default_val,
-                 tool_tip):
-        super().__init__(1)
+                 tool_tip, display_tool_tip =False):
+        super().__init__()
         self.program_name = program_name
         self.input_box = None
         self.tool_tip = tool_tip
         self.default_val = default_val
         self.display_name = display_name
-        self.layout = QHBoxLayout()
+        self.layout_main = QVBoxLayout()
+        self.layout_h = QHBoxLayout()
         temp_lable = QLabel()
         temp_lable.setText(display_name)
         temp_lable.setToolTip(tool_tip)
-        self.layout.addWidget(temp_lable)
+        self.layout_h.addWidget(temp_lable)
         self.on_change_function = on_change_function
-        self.setLayout(self.layout)
+        self.layout_main.addLayout(self.layout_h)
+        if display_tool_tip:
+            temp_lable_2 = QLabel()
+            temp_lable_2.setText(tool_tip)
+            self.layout_main.addWidget(temp_lable_2)
+
+        self.setLayout(self.layout_main)
 
     def on_change(self, *args, **kwargs):
         try:
@@ -36,10 +42,10 @@ class Input(Module):
 class FloatInput(Input):
     def __init__(self, display_name, program_name, on_change_function, default_val,
                  tool_tip,
-                 min, max, step,
+                 min, max, step, display_tool_tip =False
                  ):
         super().__init__(display_name, program_name, on_change_function, default_val,
-                         tool_tip)
+                         tool_tip, display_tool_tip)
 
         self.input_box = QDoubleSpinBox()
         self.input_box.setMinimum(min)
@@ -49,7 +55,7 @@ class FloatInput(Input):
         self.input_box.setValue(self.default_val)
         self.input_box.valueChanged.connect(self.on_change)
         self.input_box.setToolTip(self.tool_tip)
-        self.layout.addWidget(self.input_box)
+        self.layout_h.addWidget(self.input_box)
 
     def current_state(self):
         return self.input_box.value()
@@ -60,10 +66,10 @@ class FloatInput(Input):
 class IntInput(Input):
     def __init__(self, display_name, program_name, on_change_function, default_val,
                  tool_tip,
-                 min, max, step,
+                 min, max, step,  display_tool_tip =False
                  ):
         super().__init__(display_name, program_name, on_change_function, default_val,
-                         tool_tip)
+                         tool_tip, display_tool_tip)
 
         self.input_box = QSpinBox()
         self.input_box.setMinimum(min)
@@ -72,7 +78,7 @@ class IntInput(Input):
         self.input_box.setSingleStep(step)
         self.input_box.setValue(self.default_val)
         self.input_box.setToolTip(self.tool_tip)
-        self.layout.addWidget(self.input_box)
+        self.layout_h.addWidget(self.input_box)
         self.input_box.valueChanged.connect(self.on_change)
 
     def current_state(self):
@@ -84,16 +90,16 @@ class IntInput(Input):
 # TODO implement way to check spatial boxes square
 class BoolInput(Input):
     def __init__(self, display_name, program_name, on_change_function, default_val,
-                 tool_tip):
+                 tool_tip, display_tool_tip =False):
         super().__init__(display_name, program_name, on_change_function, default_val,
-                         tool_tip)
+                         tool_tip, display_tool_tip)
 
         self.input_box = QRadioButton()
         self.input_box.setMaximumWidth(50)
         self.input_box.setChecked(self.default_val)
         self.input_box.toggled.connect(self.on_change)
         self.input_box.setToolTip(self.tool_tip)
-        self.layout.addWidget(self.input_box)
+        self.layout_h.addWidget(self.input_box)
 
     def current_state(self):
         return self.input_box.isChecked()
@@ -103,20 +109,21 @@ class BoolInput(Input):
 class OptionInput(Input):
     def __init__(self, display_name, program_name, on_change_function, default_index,
                  tool_tip,
-                 val_list):
+                 val_list, display_tool_tip =False):
         super().__init__(display_name, program_name, on_change_function,
-                         default_index, tool_tip)
+                         default_index, tool_tip, display_tool_tip)
 
         self.input_box = QComboBox()
+        self.val_list = val_list
         self.input_box.addItems(val_list)
-        self.input_box.setMaximumWidth(50)
+
         self.input_box.setCurrentIndex(self.default_val)
         self.input_box.setToolTip(self.tool_tip)
         self.input_box.currentIndexChanged.connect(self.on_change)
-        self.layout.addWidget(self.input_box)
+        self.layout_h.addWidget(self.input_box)
 
     def current_state(self):
-        return self.input_box.isChecked()
+        return self.val_list[self.input_box.currentIndex()]
     def set_default_val(self):
         self.input_box.setCurrentIndex(self.default_val)
 
@@ -132,12 +139,12 @@ class FileInput(Input):
         self.path = ""
         self.current_location = QLabel()
         self.current_location.setText("")
-        self.layout.addWidget(self.current_location)
+        self.layout_h.addWidget(self.current_location)
         self.button = QPushButton()
         self.button.setText("Browse")
         self.button.clicked.connect(self.on_browse_button)
         self.button.setToolTip(tool_tip)
-        self.layout.addWidget(self.button)
+        self.layout_h.addWidget(self.button)
 
     def on_browse_button(self):
         self.path = createFileDialog(directory="~/Desktop", forOpen=self.forOpen,

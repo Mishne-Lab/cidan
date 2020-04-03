@@ -4,6 +4,7 @@ from LSSC.functions.roi_extraction import roi_extract_image, merge_rois
 from LSSC.functions.embeddings import calc_affinity_matrix
 from LSSC.functions.pickle_funcs import pickle_save, pickle_load, pickle_clear, \
     pickle_set_dir, pickle_exist
+from LSSC.functions.temporal_correlation import *
 from LSSC.functions.eigen import gen_eigen_vectors, save_eigen_vectors, \
     load_eigen_vectors, save_embeding_norm_image
 from dask import delayed
@@ -47,6 +48,7 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                                       z_score=z_score, slice_stack=slice_stack,
                                       slice_start=slice_start,
                                       slice_every=slice_every)
+        calculate_temporal_correlation(image)
     else:
         image = image_data
     if test_images:
@@ -95,9 +97,9 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
 
         else:
             for temporal_box_num in range(total_num_time_steps):
-                all_eigen_vectors_list.append(load_eigen_vectors(spatial_box.box_num,
-                                                                 temporal_box_num,
-                                                                 save_dir))
+                all_eigen_vectors_list.append(load_eigen_vectors(spatial_box_num=spatial_box.box_num,
+                                                                 time_box_num=temporal_box_num,
+                                                                 save_dir=save_dir))
 
         all_eigen_vectors = delayed(np.hstack)(all_eigen_vectors_list)
         rois = roi_extract_image(e_vectors=all_eigen_vectors,
@@ -161,7 +163,7 @@ if __name__ == '__main__':
     #              roi_size_limit=600)
     # with performance_report(filename="dask-report.html"):
     process_data(num_threads=1, load_data=True,
-                 data_path="/Users/sschickler/Documents/LSSC-python/input_images/dataset_1",
+                 data_path="/Users/sschickler/Documents/LSSC-python/input_images/small_dataset.tif",
                  test_images=True,
                  test_output_dir="/Users/sschickler/Documents/LSSC-python/output_images/16",
                  image_data=None,

@@ -75,4 +75,4 @@ class ROIExtractionThread(Thread):
             print("Finished ROI extraction")
             self.roi_list_module.set_list_items(self.main_widget.data_handler.clusters)
             self.roi_tab.current_image_flat = self.main_widget.data_handler.pixel_with_rois_color_flat
-            self.roi_tab.current_background_func()
+            self.roi_tab.updateImageDisplay()

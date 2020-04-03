@@ -1,9 +1,8 @@
-from GUI.Module import Module
 from PySide2.QtWidgets import *
 from GUI.Input import *
-class SettingBlockModule(Module):
+class SettingBlockModule(QFrame):
     def __init__(self, name, input_list):
-        super().__init__(1)
+        super().__init__()
         self.name = name
         self.input_list = input_list
         self.layout = QVBoxLayout()
@@ -47,7 +46,7 @@ def dataset_setting_block(main_widget):
                                                     on_change_function=lambda x,y:data_handler.change_dataset_param(x,y),
                                                     default_val=data_handler.dataset_params["slice_stack"],
                                                     tool_tip="Used to Select only "
-                                                             "certain timepoints from a dataset"),
+                                                             "certain timepoints from a dataset", display_tool_tip=True),
                                                   IntInput(display_name="Slice every:",
                                                            program_name="slice_every",
                                                            on_change_function=lambda x,y:data_handler.change_dataset_param(x,y),
