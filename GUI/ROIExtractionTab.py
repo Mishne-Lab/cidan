@@ -17,6 +17,9 @@ class ROIExtractionTab(Tab):
             A reference to the main widget
         data_handler : DataHandler
             A reference to the main DataHandler of MainWidget
+        click_event : bool
+            A bool that keeps track of whether a click event is currently happening used
+            by roi_click_event and select_roi
         time_plot : pg.PlotWidget
             the plot for the time traces
         roi_list_module : ROIListModule
@@ -28,6 +31,7 @@ class ROIExtractionTab(Tab):
 
         self.main_widget = main_widget
         self.data_handler = main_widget.data_handler
+        self.click_event = False
         # This part creates the top left settings/roi list view in two tabs
         self.tab_selector_roi = QTabWidget()
         self.tab_selector_roi.setMaximumWidth(450)
@@ -164,12 +168,25 @@ class ROIExtractionTab(Tab):
         combined = self.current_image_flat + max_image
         combine_reshaped = combined.reshape((shape[1],shape[2],3))
         self.main_widget.roi_image_view.setImage(combine_reshaped)
-    def selectRoi(self, num):
+    def selectRoi(self, num, ):
+
         color_select = (245, 249, 22)
         color_roi = self.main_widget.data_handler.color_list[(num-1) % len(self.main_widget.data_handler.color_list)]
         shape = self.main_widget.data_handler.dataset.shape
         self.current_image_flat[self.main_widget.data_handler.clusters[num-1]] = color_select
         self.updateImageDisplay()
+        if self.click_event:
+            self.click_event = False
+        else:
+
+            max_cord_list = np.array([x for num,x in enumerate(self.main_widget.data_handler.cluster_max_cord_list) if self.roi_list_module.roi_check_list[num]])
+            max_cord = list(np.max(max_cord_list, axis=0))
+            min_cord_list =np.array([x for num,x in enumerate(self.main_widget.data_handler.cluster_min_cord_list) if self.roi_list_module.roi_check_list[num]])
+            min_cord = list( np.min(min_cord_list, axis=0))
+
+            self.main_widget.roi_image_view.image_view.getView().setXRange(min_cord[1], max_cord[1])
+            self.main_widget.roi_image_view.image_view.getView().setYRange(min_cord[0],
+                                                                       max_cord[0])
         pen = pg.mkPen(color=color_roi, width=3)
         self.time_plot.plot(self.main_widget.data_handler.get_time_trace(num), pen=pen)
         self.time_plot.enableAutoRange(axis=0)
@@ -193,6 +210,7 @@ class ROIExtractionTab(Tab):
     def roi_view_click(self, event):
         event.accept()
         pos = event.pos()
+        self.click_event = True
         x = int(pos.x())
         y = int(pos.y())
         pixel_with_rois_flat = self.main_widget.data_handler.pixel_with_rois_flat
@@ -200,4 +218,4 @@ class ROIExtractionTab(Tab):
         roi_num = int(pixel_with_rois_flat[shape[2] * x + y])
         # TODO change to int
         if roi_num != 0:
-            self.roi_list.set_current_select(roi_num)
+            self.roi_list_module.set_current_select(roi_num)

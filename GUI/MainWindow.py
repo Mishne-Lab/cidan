@@ -1,6 +1,7 @@
 from PySide2.QtWidgets import QMainWindow, QWidget, QApplication, QVBoxLayout, \
     QHBoxLayout, QPushButton, QTabWidget
-from GUI.Tab import Tab,  AnalysisTab, FileOpenTab
+from GUI.Tab import Tab,  AnalysisTab
+from GUI.FileOpenTab import FileOpenTab
 from GUI.ROIExtractionTab import *
 from GUI.PreprocessingTab import *
 import qdarkstyle
@@ -17,17 +18,23 @@ class MainWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        self.title = 'Mishne Lab-ROI Extraction Suite'
+        self.title = 'CIDAN'
         self.width = 900
         self.height = 400
         self.setWindowTitle(self.title)
         self.setMinimumSize(self.width, self.height)
+        self.main_menu = self.menuBar()
         self.table_widget = MainWidget(self)
         self.setCentralWidget(self.table_widget)
         # self.setStyleSheet(qdarkstyle.load_stylesheet())
         with open("main_stylesheet.css", "r") as f:
             self.setStyleSheet(qdarkstyle.load_stylesheet() + f.read())
+
+        # extractAction.triggered.connect()
+
+
         self.show()
+
 
 
 class MainWidget(QWidget):
@@ -35,6 +42,10 @@ class MainWidget(QWidget):
 
     Attributes
     ----------
+    main_window : MainWindow
+        A reference to the main window of the application
+    main_menu : ???
+        the top bar menu
     layout : QLayout
         The main layout for the widget
     data_handler : DataHandler
@@ -62,14 +73,18 @@ class MainWidget(QWidget):
         parent
         """
         super().__init__(parent)
+        self.main_window = parent
+        self.main_menu = self.main_window.main_menu
         self.layout = QVBoxLayout(self)
         self.data_handler = None
         self.thread_list = []
-        self.preprocess_image_view = ImageViewModule(self)
-        self.roi_image_view = ImageViewModule(self, histogram=False)
+        self.preprocess_image_view = ImageViewModule(self, roi=False)
+        self.roi_image_view = ImageViewModule(self, histogram=False, roi=False)
 
         self.tab_widget = QTabWidget()
-        self.tab_widget.addTab(FileOpenTab(self), "Open Dataset")
+        self.fileOpenTab = FileOpenTab(self)
+        self.tab_widget.addTab(self.fileOpenTab, "Open Dataset")
+
         # This part add placeholder tabs until data is loaded
         self.tabs = ["Preprocessing", "ROI Extraction", "Analysis"]
         for num, tab in enumerate(self.tabs):
@@ -80,6 +95,23 @@ class MainWidget(QWidget):
         self.console = ConsoleWidget()
         self.layout.addWidget(self.console)
         self.setLayout(self.layout)
+
+        # Initialize top bar menu
+        fileMenu = self.main_menu.addMenu('&File')
+        openFileAction = QAction("Open File", self)
+        openFileAction.setStatusTip('Open a single file')
+        openFileAction.triggered.connect(lambda: self.selectOpenFileTab(0))
+        fileMenu.addAction(openFileAction)
+        openFolderAction = QAction("Open Folder", self)
+        openFolderAction.setStatusTip('Open a folder')
+        openFolderAction.triggered.connect(lambda: self.selectOpenFileTab(1))
+        fileMenu.addAction(openFolderAction)
+        openPrevAction = QAction("Open Previous Session", self)
+        openPrevAction.setStatusTip('Open a previous session')
+        openPrevAction.triggered.connect(lambda: self.selectOpenFileTab(2))
+        fileMenu.addAction(openPrevAction)
+
+
 
         # Below here in this function is just code for testing
         # TODO check if it can load data twice
@@ -117,11 +149,23 @@ class MainWidget(QWidget):
         for tab in self.tabs:
             self.tab_widget.addTab(tab, tab.name)
         self.tab_widget.setCurrentIndex(1)
-
-
+        self.export_menu = self.main_menu.addMenu("&Export")
+        export_action = QAction("Export Time Traces/ROIs", self)
+        export_action.setStatusTip('Export Time Traces/ROIs')
+        export_action.triggered.connect(lambda: self.exportStuff())
+        self.export_menu.addAction(export_action)
+    def selectOpenFileTab(self, index):
+        self.tab_widget.setCurrentIndex(0)
+        self.fileOpenTab.tab_selector.setCurrentIndex(index)
+    def exportStuff(self):
+        msg = QMessageBox()
+        msg.setWindowTitle("Export data")
+        msg.setText("Data Exported to save directory")
+        msg.setIcon(QMessageBox.Information)
+        x = msg.exec_()
 if __name__ == "__main__":
     app = QApplication([])
-
+    app.setApplicationName("CIDAN")
     widget = MainWindow()
 
     sys.exit(app.exec_())

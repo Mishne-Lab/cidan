@@ -12,7 +12,7 @@ from functools import reduce
 
 import numpy as np
 from typing import Union, Any, List, Optional, cast, Tuple, Dict
-from LSSC.spatial_box import SpatialBox
+from LSSC.SpatialBox import SpatialBox
 from LSSC.functions.save_test_images import save_eigen_images, save_volume_images, \
     save_roi_images
 

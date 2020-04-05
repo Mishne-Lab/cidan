@@ -109,3 +109,24 @@ def filter_stack(*,stack: np.ndarray, median_filter: bool,
     if median_filter:
         stack = ndimage.median_filter(stack, median_filter_size)
     return stack
+
+def pixel_num_to_2d_cord(pixel_list, volume_shape):
+    """
+    Takes a list of pixels and converts it to a list of cords for each pixel
+
+    Parameters
+    ----------
+    pixel_list : np.ndarray
+        list of pixel numbers
+    volume_shape : tuple
+        shape of the original dataset
+
+    Returns
+    -------
+    a list of tuples where each is the cordinates for each pixel
+
+    """
+    def convert_one(num):
+        return num%volume_shape[2], num//volume_shape[2]
+
+    return np.apply_along_axis(convert_one,axis=0, arr=pixel_list)

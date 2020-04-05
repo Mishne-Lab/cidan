@@ -3,7 +3,7 @@ import os
 from typing import Dict
 import numpy as np
 from LSSC.functions.data_manipulation import load_filter_tif_stack, filter_stack, \
-    reshape_to_2d_over_time
+    reshape_to_2d_over_time, pixel_num_to_2d_cord
 from LSSC.functions.temporal_correlation import calculate_temporal_correlation
 from LSSC.functions.pickle_funcs import *
 from LSSC.process_data import process_data
@@ -65,10 +65,9 @@ class DataHandler:
         # TODO Create two initialization methods one with default parameters and one
         #  with loading save dir parameters
         # TODO Check if parrelization is working
-        self.color_list = [(218, 67, 34), (218, 134, 34),
+        self.color_list = [(218, 67, 34),
                            (132, 249, 22), (22, 249, 140), (22, 245, 249),
-                           (22, 132, 249), (224, 22, 249), (249, 22, 160),
-                           (249, 160, 22)]
+                           (22, 132, 249), (224, 22, 249), (249, 22, 160)]
 
         self.save_dir_path = save_dir_path
         self.rois_loaded = False
@@ -336,8 +335,15 @@ class DataHandler:
                 self.time_traces.append(time_trace)
             self.gen_roi_display_variables()
             self.calculate_time_traces()
+
             self.rois_loaded = True
+
     def gen_roi_display_variables(self):
+        cluster_list_2d_cord = [
+            pixel_num_to_2d_cord(x, volume_shape=self.dataset_filtered.shape) for x in
+            self.clusters]
+        self.cluster_max_cord_list = [np.max(x, axis=1) for x in cluster_list_2d_cord]
+        self.cluster_min_cord_list = [np.min(x, axis=1) for x in cluster_list_2d_cord]
         self.pixel_with_rois_flat = np.zeros(
             [self.dataset.shape[1] * self.dataset.shape[2]])
         self.pixel_with_rois_color_flat = np.zeros(
@@ -356,6 +362,8 @@ class DataHandler:
             data_2d = reshape_to_2d_over_time(self.dataset)
             time_trace = np.average(data_2d[cluster], axis=0)
             self.time_traces.append(time_trace)
+        if os.path.isdir(self.save_dir_path):
+            pickle_save(self.time_traces, "time_traces", output_directory=self.save_dir_path)
         self.gen_roi_display_variables()
         self.rois_loaded = True
     def get_time_trace(self, num):

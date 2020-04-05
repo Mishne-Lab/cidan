@@ -2,7 +2,7 @@ from pyqtgraph import ImageView
 from PySide2.QtWidgets import *
 from PySide2.QtCore import *
 class ImageViewModule(QFrame):
-    def __init__(self, main_widget, histogram=True):
+    def __init__(self, main_widget, histogram=True, roi=True):
         super().__init__()
 
         self.main_window = main_widget
@@ -20,10 +20,14 @@ class ImageViewModule(QFrame):
         # self.no_image_message.clicked.connect(main_widget.open_file_dialog)
         # self.no_image_message.setStyleSheet("QPushButton {font-size:80;}")
         self.image_view = ImageView()
-        self.image_view.ui.roiBtn.hide()
+        # self.image_view.ui.roiBtn.hide()
         self.image_view.ui.menuBtn.hide()
         if not histogram:
             self.image_view.ui.histogram.hide()
+        if not roi:
+            self.image_view.ui.roiBtn.hide()
+        # self.image_view.getRoiPlot().hide()
+
         self.layout.addWidget(self.image_view)
 
     def setImage(self, data):
