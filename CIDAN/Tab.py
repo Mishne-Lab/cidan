@@ -1,13 +1,13 @@
 from PySide2.QtWidgets import *
 from typing import Union, Any, List, Optional, cast, Tuple, Dict
-from GUI.SettingsModule import *
-from GUI.roiTools import *
-from GUI.ImageViewModule import ImageViewModule
-from GUI.Input import FileInput
-from GUI.DataHandlerWrapper import *
-from GUI.fileHandling import *
+from CIDAN.SettingsModule import *
+from CIDAN.roiTools import *
+from CIDAN.ImageViewModule import ImageViewModule
+from CIDAN.Input import FileInput
+from CIDAN.DataHandlerWrapper import *
+from CIDAN.fileHandling import *
 import pyqtgraph as pg
-from GUI.ROIListModule import *
+from CIDAN.ROIListModule import *
 class Tab(QWidget):
     def __init__(self, name, column_1: List[QFrame], column_2: List[QFrame], column_2_display=True):
         super().__init__()

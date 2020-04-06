@@ -1,4 +1,4 @@
-from LSSC.process_data import process_data
+from CIDAN.LSSC.process_data import process_data
 
 
 def test_process_data():

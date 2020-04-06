@@ -1,10 +1,10 @@
-from LSSC.functions.embeddings import calc_D_sqrt, calc_D_neg_sqrt, calc_D_inv
+from CIDAN.LSSC.functions.embeddings import calc_D_sqrt, calc_D_neg_sqrt, calc_D_inv
 import numpy as np
 from dask import delayed
 from scipy.sparse import linalg
 import os
 from PIL import Image
-from LSSC.functions.pickle_funcs import pickle_save, pickle_exist, pickle_load
+from CIDAN.LSSC.functions.pickle_funcs import pickle_save, pickle_exist, pickle_load
 @delayed
 def gen_eigen_vectors(*, K: np.ndarray, num_eig: int, spatial_box_num:int, temporal_box_num: int)->np.ndarray:
     """Calculate Eigen Vectors given parts of the affinity matrix

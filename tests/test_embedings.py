@@ -1,2 +1,2 @@
-from LSSC.functions.embeddings import *
+from CIDAN.LSSC.functions.embeddings import *
 

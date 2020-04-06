@@ -1,4 +1,4 @@
-from LSSC.Parameters import *
+from CIDAN.LSSC.Parameters import *
 def test_Parameters():
     params = Parameters(metric="l2",knn=20,accuracy=30,connections=43,num_threads=23, num_eig=25)
     assert params.metric == 'l2'

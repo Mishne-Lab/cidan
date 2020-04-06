@@ -1,4 +1,4 @@
-from LSSC.functions.pickle_funcs import *
+from CIDAN.LSSC.functions.pickle_funcs import *
 def test_pickle_funcs():
     test_dir = "test_pickle"
     pickle_set_dir(test_dir)

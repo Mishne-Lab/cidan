@@ -1,13 +1,11 @@
 import numpy as np
 from skimage import measure
-from LSSC.functions.embeddings import embed_eigen_norm
+from CIDAN.LSSC.functions.embeddings import embed_eigen_norm
 from typing import Union, Any, List, Optional, cast, Tuple, Dict
 from functools import reduce
 from itertools import compress
 from scipy.ndimage.morphology import binary_fill_holes
-from LSSC.Parameters import Parameters
-from scipy.interpolate import make_interp_spline
-import matplotlib.pyplot as plt
+
 
 from dask import delayed
 @delayed

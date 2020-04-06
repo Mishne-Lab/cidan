@@ -1,6 +1,6 @@
 from PySide2.QtWidgets import *
 from PySide2.QtGui import *
-from GUI.ROIItemModule import ROIItemModule
+from CIDAN.ROIItemModule import ROIItemModule
 class ROIListModule(QFrame):
     def __init__(self, data_handler, roi_tab):
         super().__init__()

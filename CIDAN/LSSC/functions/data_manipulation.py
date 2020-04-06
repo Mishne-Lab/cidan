@@ -1,8 +1,6 @@
 import os
 import numpy as np
-from ScanImageTiffReader import ScanImageTiffReader
 import tifffile
-from LSSC.Parameters import Parameters
 import matplotlib.pyplot as plt
 from scipy import ndimage
 from typing import Union, Any, List, Optional, cast, Tuple, Dict

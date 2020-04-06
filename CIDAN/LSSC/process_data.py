@@ -1,19 +1,19 @@
-from LSSC.functions.data_manipulation import load_filter_tif_stack, filter_stack, \
+from CIDAN.LSSC.functions.data_manipulation import load_filter_tif_stack, filter_stack, \
     reshape_to_2d_over_time
-from LSSC.functions.roi_extraction import roi_extract_image, merge_rois
-from LSSC.functions.embeddings import calc_affinity_matrix
-from LSSC.functions.pickle_funcs import pickle_save, pickle_load, pickle_clear, \
+from CIDAN.LSSC.functions.roi_extraction import roi_extract_image, merge_rois
+from CIDAN.LSSC.functions.embeddings import calc_affinity_matrix
+from CIDAN.LSSC.functions.pickle_funcs import pickle_save, pickle_load, pickle_clear, \
     pickle_set_dir, pickle_exist
-from LSSC.functions.temporal_correlation import *
-from LSSC.functions.eigen import gen_eigen_vectors, save_eigen_vectors, \
+from CIDAN.LSSC.functions.temporal_correlation import *
+from CIDAN.LSSC.functions.eigen import gen_eigen_vectors, save_eigen_vectors, \
     load_eigen_vectors, save_embeding_norm_image
 from dask import delayed
 from functools import reduce
 
 import numpy as np
 from typing import Union, Any, List, Optional, cast, Tuple, Dict
-from LSSC.SpatialBox import SpatialBox
-from LSSC.functions.save_test_images import save_eigen_images, save_volume_images, \
+from CIDAN.LSSC.SpatialBox import SpatialBox
+from CIDAN.LSSC.functions.save_test_images import save_eigen_images, save_volume_images, \
     save_roi_images
 
 from dask.distributed import performance_report

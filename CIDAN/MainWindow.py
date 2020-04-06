@@ -1,15 +1,15 @@
 from PySide2.QtWidgets import QMainWindow, QWidget, QApplication, QVBoxLayout, \
     QHBoxLayout, QPushButton, QTabWidget
-from GUI.Tab import Tab,  AnalysisTab
-from GUI.FileOpenTab import FileOpenTab
-from GUI.ROIExtractionTab import *
-from GUI.PreprocessingTab import *
+from CIDAN.Tab import Tab,  AnalysisTab
+from CIDAN.FileOpenTab import FileOpenTab
+from CIDAN.ROIExtractionTab import *
+from CIDAN.PreprocessingTab import *
 import qdarkstyle
-from GUI.ImageViewModule import ImageViewModule
-from GUI.fileHandling import loadImageWrapper
-from GUI.DataHandler import DataHandler
-from GUI.DataHandlerWrapper import Thread
-from GUI.ConsoleWidget import ConsoleWidget
+from CIDAN.ImageViewModule import ImageViewModule
+from CIDAN.fileHandling import loadImageWrapper
+from CIDAN.DataHandler import DataHandler
+from CIDAN.DataHandlerWrapper import Thread
+from CIDAN.ConsoleWidget import ConsoleWidget
 import sys
 
 
@@ -27,8 +27,24 @@ class MainWindow(QMainWindow):
         self.table_widget = MainWidget(self)
         self.setCentralWidget(self.table_widget)
         # self.setStyleSheet(qdarkstyle.load_stylesheet())
-        with open("main_stylesheet.css", "r") as f:
-            self.setStyleSheet(qdarkstyle.load_stylesheet() + f.read())
+        style = """
+            QTabWidget {font-size: 25px;}
+            QTabBar::tab {
+                /*background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,*/
+                /*                            stop: 0 #E1E1E1, stop: 0.4 #DDDDDD,*/
+                /*                            stop: 0.5 #D8D8D8, stop: 1.0 #D3D3D3);*/
+                /*border: 2px solid #C4C4C3;*/
+                /*border-bottom-color: #C2C7CB; !* same as the pane color *!*/
+                /*border-top-left-radius: 4px;*/
+                /*border-top-right-radius: 4px;*/
+                min-width: 8ex;
+            }
+            QComboBox::item:checked {
+              font-weight: bold;
+              height: 12px;
+            }
+            """
+        self.setStyleSheet(qdarkstyle.load_stylesheet() + style)
 
         # extractAction.triggered.connect()
 

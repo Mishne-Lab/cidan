@@ -1,12 +1,12 @@
-from GUI.Tab import Tab
+from CIDAN.Tab import Tab
 from PySide2.QtWidgets import *
 from PySide2.QtCore import *
 import numpy as np
 import pyqtgraph as pg
-from GUI.DataHandlerWrapper import ROIExtractionThread
-from GUI.SettingsModule import roi_extraction_settings
-from GUI.ROIListModule import ROIListModule
-from GUI.Input import OptionInput
+from CIDAN.DataHandlerWrapper import ROIExtractionThread
+from CIDAN.SettingsModule import roi_extraction_settings
+from CIDAN.ROIListModule import ROIListModule
+from CIDAN.Input import OptionInput
 class ROIExtractionTab(Tab):
     """Class controlling the ROI Extraction tab, inherits from Tab
 

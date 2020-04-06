@@ -2,11 +2,11 @@ import json
 import os
 from typing import Dict
 import numpy as np
-from LSSC.functions.data_manipulation import load_filter_tif_stack, filter_stack, \
+from CIDAN.LSSC.functions.data_manipulation import load_filter_tif_stack, filter_stack, \
     reshape_to_2d_over_time, pixel_num_to_2d_cord
-from LSSC.functions.temporal_correlation import calculate_temporal_correlation
-from LSSC.functions.pickle_funcs import *
-from LSSC.process_data import process_data
+from CIDAN.LSSC.functions.temporal_correlation import calculate_temporal_correlation
+from CIDAN.LSSC.functions.pickle_funcs import *
+from CIDAN.LSSC.process_data import process_data
 class DataHandler:
     global_params_default = {
         "save_intermediate_steps": True,

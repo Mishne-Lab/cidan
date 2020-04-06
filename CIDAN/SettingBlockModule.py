@@ -1,5 +1,5 @@
 from PySide2.QtWidgets import *
-from GUI.Input import *
+from CIDAN.Input import *
 class SettingBlockModule(QFrame):
     def __init__(self, name, input_list):
         super().__init__()

@@ -1,7 +1,7 @@
 from PySide2.QtWidgets import *
 import sys
 import qdarkstyle
-from GUI.SettingBlockModule import *
+from CIDAN.SettingBlockModule import *
 
 class SettingsModule(QFrame):
     def __init__(self, name, *args, show_name=True):

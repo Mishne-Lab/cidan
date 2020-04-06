@@ -1,4 +1,4 @@
-from LSSC.functions import data_manipulation
+from CIDAN.LSSC.functions import data_manipulation
 import numpy as np
 import os
 import matplotlib.pyplot as plt

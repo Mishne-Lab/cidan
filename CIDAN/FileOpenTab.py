@@ -1,7 +1,7 @@
-from GUI.Tab import Tab
-from GUI.Input import FileInput
+from CIDAN.Tab import Tab
+from CIDAN.Input import FileInput
 from PySide2.QtWidgets import *
-from GUI.fileHandling import *
+from CIDAN.fileHandling import *
 class FileOpenTab(Tab):
     def __init__(self,main_widget):
         # TODO Make this less ugly can reorganize code

@@ -1,6 +1,6 @@
 from PySide2.QtWidgets import *
 from PySide2 import QtGui
-from GUI.fileHandling import createFileDialog
+from CIDAN.fileHandling import createFileDialog
 
 
 class Input(QFrame):

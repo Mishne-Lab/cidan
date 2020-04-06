@@ -1,5 +1,5 @@
-from GUI.ImageViewModule import ImageViewModule
-from GUI.DataHandler import DataHandler
+from CIDAN.ImageViewModule import ImageViewModule
+from CIDAN.DataHandler import DataHandler
 from PySide2.QtWidgets import *
 # from PySide2.QtGui import *
 from PySide2 import QtCore
