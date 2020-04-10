@@ -3,17 +3,19 @@ from CIDAN.DataHandler import DataHandler
 from PySide2.QtWidgets import *
 # from PySide2.QtGui import *
 from PySide2 import QtCore
-def loadImageWrapper(main_widget):
-    def loadImage():
-        path_to_file = createFileDialog("~/Desktop", forOpen=True, fmt='', isFolder=0)
-        path_to_save_dir = createFileDialog("~/Desktop", forOpen=False, fmt='',
-                                            isFolder=1)
-        main_widget.data_handler = DataHandler(data_path=path_to_file,
-                                               save_dir_path=path_to_save_dir,
-                                               save_dir_already_created=False)
-        main_widget.image_view.setImage(main_widget.data_handler.calculate_filters())
-
-    return loadImage
+# def loadImageWrapper(main_widget):
+#     def loadImage():
+#         path_to_file = createFileDialog("~/Desktop", forOpen=True, fmt='', isFolder=0)
+#         path_to_save_dir = createFileDialog("~/Desktop", forOpen=False, fmt='',
+#                                             isFolder=1)
+#         if hasattr(main_widget, "data_handler"):
+#             main_widget.data_handler.__del__()
+#         main_widget.data_handler = DataHandler(data_path=path_to_file,
+#                                                save_dir_path=path_to_save_dir,
+#                                                save_dir_already_created=False)
+#         main_widget.image_view.setImage(main_widget.data_handler.calculate_filters())
+#
+#     return loadImage
 
 def createFileDialog(directory='', forOpen=True, fmt='', isFolder=0):
     directory="/Users/sschickler/Documents/LSSC-python/input_images"
@@ -55,6 +57,9 @@ def load_new_dataset(main_widget, file_input, save_dir_input):
     # TODO add error handling here to ensure valid inputs
     file_path = file_input.current_state()
     save_dir_path = save_dir_input.current_state()
+    if hasattr(main_widget, "data_handler"):
+        main_widget.data_handler.__del__()
+
     main_widget.data_handler = DataHandler(data_path=file_path,
                                                save_dir_path=save_dir_path,
                                                save_dir_already_created=False)

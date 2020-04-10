@@ -1,6 +1,7 @@
 import json
 import os
 from typing import Dict
+from PIL import Image
 import numpy as np
 from CIDAN.LSSC.functions.data_manipulation import load_filter_tif_stack, filter_stack, \
     reshape_to_2d_over_time, pixel_num_to_2d_cord
@@ -48,7 +49,7 @@ class DataHandler:
     }
     roi_extraction_params_default = {
         "elbow_threshold_method": True,
-        "elbow_threshold_value": 1.2,
+        "elbow_threshold_value": 1,
         "eigen_threshold_method": True,
         "eigen_threshold_value": .5,
         "num_eigen_vector_select": 5,
@@ -98,6 +99,9 @@ class DataHandler:
                                         "save directory")
             self.time_traces = []
 
+    def __del__(self):
+        for x in self.__dict__.items():
+            self.__dict__[x] = None
     @property
     def param_path(self):
         return os.path.join(self.save_dir_path, "parameters.json")
@@ -234,24 +238,22 @@ class DataHandler:
         -------
         """
         # TODO make it so it does't load the dataset every time
-        if self.global_params["need_recalc_dataset_params"] or not hasattr(
-                self,"dataset"):
-            print("Starting Calculating Dataset")
-            self.dataset = load_filter_tif_stack(path=self.dataset_params[
-                "dataset_path"], filter=False,
-                                                 median_filter=False,
-                                                 median_filter_size=(1,3,3),
-                                                 z_score=False, slice_stack=self.dataset_params[
-                    "slice_stack"],
-                                                 slice_start=self.dataset_params["slice_start"],
 
-                                                 slice_every=self.dataset_params["slice_every"])
-            self.global_params["need_recalc_dataset_params"] = False
+        dataset = load_filter_tif_stack(path=self.dataset_params[
+            "dataset_path"], filter=False,
+                                             median_filter=False,
+                                             median_filter_size=(1,3,3),
+                                             z_score=False, slice_stack=self.dataset_params[
+                "slice_stack"],
+                                             slice_start=self.dataset_params["slice_start"],
 
+                                             slice_every=self.dataset_params["slice_every"])
+        # self.global_params["need_recalc_dataset_params"] = False
+        self.shape = dataset.shape
 
-            print("Finished Calculating Dataset")
+        print("Finished Calculating Dataset")
 
-        return self.dataset
+        return dataset
 
     def calculate_filters(self):
 
@@ -330,7 +332,7 @@ class DataHandler:
             self.time_traces = []
             for cluster in self.clusters:
                 # TODO maybe make this be a class variable
-                data_2d = reshape_to_2d_over_time(self.dataset)
+                data_2d = reshape_to_2d_over_time(self.dataset_filtered)
                 time_trace = np.average(data_2d[cluster], axis=0)
                 self.time_traces.append(time_trace)
             self.gen_roi_display_variables()
@@ -345,21 +347,26 @@ class DataHandler:
         self.cluster_max_cord_list = [np.max(x, axis=1) for x in cluster_list_2d_cord]
         self.cluster_min_cord_list = [np.min(x, axis=1) for x in cluster_list_2d_cord]
         self.pixel_with_rois_flat = np.zeros(
-            [self.dataset.shape[1] * self.dataset.shape[2]])
+            [self.dataset_filtered.shape[1] * self.dataset_filtered.shape[2]])
         self.pixel_with_rois_color_flat = np.zeros(
-            [self.dataset.shape[1] * self.dataset.shape[2], 3])
+            [self.dataset_filtered.shape[1] * self.dataset_filtered.shape[2], 3])
         for num, cluster in enumerate(self.clusters):
             cur_color = self.color_list[num % len(self.color_list)]
             self.pixel_with_rois_flat[cluster] = num + 1
             self.pixel_with_rois_color_flat[cluster] = cur_color
         self.pixel_with_rois_color = np.reshape(self.pixel_with_rois_color_flat,
-                                                [self.dataset.shape[1],
-                                                 self.dataset.shape[2], 3])
+                                                [self.dataset_filtered.shape[1],
+                                                 self.dataset_filtered.shape[2], 3])
+        try:
+            self.eigen_norm_image = np.asarray(Image.open(os.path.join(self.save_dir_path, "embedding_norm_images/embedding_norm_image.png")))
+        except:
+            print("Can't generate eigen Norm image please try again")
+
     def calculate_time_traces(self):
         self.time_traces = []
         for cluster in self.clusters:
             # TODO maybe make this be a class variable
-            data_2d = reshape_to_2d_over_time(self.dataset)
+            data_2d = reshape_to_2d_over_time(self.dataset_filtered)
             time_trace = np.average(data_2d[cluster], axis=0)
             self.time_traces.append(time_trace)
         if os.path.isdir(self.save_dir_path):

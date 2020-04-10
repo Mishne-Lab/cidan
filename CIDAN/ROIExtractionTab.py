@@ -26,6 +26,9 @@ class ROIExtractionTab(Tab):
             The module the controlls the list of ROIs
         thread : ROIExtractionThread
             The thread that runs the roi extraction process
+        background_slider : QSlider
+            slider that determines intensity of background image+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
         """
     def __init__(self,main_widget):
 
@@ -33,9 +36,9 @@ class ROIExtractionTab(Tab):
         self.data_handler = main_widget.data_handler
         self.click_event = False
         # This part creates the top left settings/roi list view in two tabs
-        self.tab_selector_roi = QTabWidget()
-        self.tab_selector_roi.setMaximumWidth(450)
-        self.tab_selector_roi.setStyleSheet("QTabWidget {font-size: 20px;}")
+        tab_selector_roi = QTabWidget()
+        tab_selector_roi.setMaximumWidth(450)
+        tab_selector_roi.setStyleSheet("QTabWidget {font-size: 20px;}")
         # This is the second tab
         self.roi_list_module = ROIListModule(main_widget.data_handler, self)
         # Start of first tab with the process button
@@ -51,8 +54,8 @@ class ROIExtractionTab(Tab):
         self.roi_settings_layout.addWidget(roi_extraction_settings(main_widget))
         self.roi_settings_layout.addWidget(process_button)
         # adding the tabs to the
-        self.tab_selector_roi.addTab(self.roi_settings, "ROI Settings")
-        self.tab_selector_roi.addTab(self.roi_list_module, "ROI List")
+        tab_selector_roi.addTab(self.roi_settings, "ROI Settings")
+        tab_selector_roi.addTab(self.roi_list_module, "ROI List")
 
         # Initialization of the background and rois
         self.current_background_intensity = 1
@@ -64,66 +67,66 @@ class ROIExtractionTab(Tab):
         self.time_plot.showGrid(x = True, y = True, alpha = 0.3)
 
         # Image and time trace settings window
-        self.tab_selector_image = QTabWidget()
-        self.tab_selector_image.setMaximumHeight(200)
-        self.tab_selector_image.setStyleSheet("QButton, QLabel, QSlider {padding: 5px; margin: 5px;}")
-        self.tab_selector_image.setStyleSheet("QTabWidget {font-size: 20px;}")
-        self.background_settings_layout = QVBoxLayout()
+        tab_selector_image = QTabWidget()
+        tab_selector_image.setMaximumHeight(200)
+        tab_selector_image.setStyleSheet("QButton, QLabel, QSlider {padding: 5px; margin: 5px;}")
+        tab_selector_image.setStyleSheet("QTabWidget {font-size: 20px;}")
+        background_settings_layout = QVBoxLayout()
 
-        self.background_settings = QWidget()
-        self.background_settings.setMaximumHeight(150)
-        self.background_settings.setLayout(self.background_settings_layout)
-        self.background_chooser = OptionInput("Background:", "",
+        background_settings = QWidget()
+        background_settings.setMaximumHeight(150)
+        background_settings.setLayout(background_settings_layout)
+        background_chooser = OptionInput("Background:", "",
                                               on_change_function=self.set_background, default_index=0,
                                               tool_tip="Choose background to display",
-                                              val_list=["Blank Image", "Mean Image", "Max Image", "Temporal Correlation Image", "Eigennorm image"])
+                                              val_list=["Blank Image", "Mean Image", "Max Image", "Temporal Correlation Image", "Eigen Norm Image"])
 
-        self.background_settings_layout.addWidget(self.background_chooser)
-        self.background_slider_layout = QHBoxLayout()
-        self.background_slider_layout.addWidget(QLabel("0"))
+        background_settings_layout.addWidget(background_chooser)
+        background_slider_layout = QHBoxLayout()
+        background_slider_layout.addWidget(QLabel("0"))
         self.background_slider = QSlider(Qt.Horizontal)
         self.background_slider.setMinimum(0)
         self.background_slider.setValue(10)
         self.background_slider.setMaximum(100)
         self.background_slider.setSingleStep(1)
         self.background_slider.valueChanged.connect(self.intensity_slider_changed)
-        self.background_slider_layout.addWidget(self.background_slider)
-        self.background_slider_layout.addWidget(QLabel("10"))
+        background_slider_layout.addWidget(self.background_slider)
+        background_slider_layout.addWidget(QLabel("10"))
 
-        self.background_settings_layout.addWidget(QLabel("Change background intensity:"))
-        self.background_settings_layout.addLayout(self.background_slider_layout)
-        self.tab_selector_image.addTab(self.background_settings,"Background Settings")
-        self.tab_selector_image.addTab(QWidget(), "Time Trace Settings")
+        background_settings_layout.addWidget(QLabel("Change background intensity:"))
+        background_settings_layout.addLayout(background_slider_layout)
+        tab_selector_image.addTab(background_settings,"Background Settings")
+        tab_selector_image.addTab(QWidget(), "Time Trace Settings")
 
         # Initialize the tab with each column
-        super().__init__("ROI Extraction", column_1=[self.tab_selector_roi, self.tab_selector_image],
+        super().__init__("ROI Extraction", column_1=[tab_selector_roi, tab_selector_image],
                          column_2=[], column_2_display=False)
-        # this is to override how we do the column 2 to replace it with a splitter
-        self.column_2_layout_box = QVBoxLayout()
-        self.time_plot_layout_wrapper = QWidget()
-        self.time_plot_layout = QVBoxLayout()
-        self.time_plot_layout_wrapper.setLayout(self.time_plot_layout)
-        self.time_plot_layout.addWidget(QLabel("Time Trace Plot:"))
-        self.time_plot_layout.addWidget(self.time_plot)
+        # this is to override how we do the column 2 to replace it with a split view
+        column_2_layout_box = QVBoxLayout()
+        time_plot_layout_wrapper = QWidget()
+        time_plot_layout = QVBoxLayout()
+        time_plot_layout_wrapper .setLayout(time_plot_layout)
+        time_plot_layout.addWidget(QLabel("Time Trace Plot:"))
+        time_plot_layout.addWidget(self.time_plot)
 
-        self.column_2 = [self.main_widget.roi_image_view, self.time_plot_layout_wrapper]
+        self.column_2 = [self.main_widget.roi_image_view, time_plot_layout_wrapper ]
 
 
-        self.column_2_split = QSplitter(Qt.Vertical)  # Layout for column 2
+        column_2_split = QSplitter(Qt.Vertical)  # Layout for column 2 with split part
         for module in self.column_2:
-            self.column_2_split.addWidget(module)
-        self.column_2_split.setSizes([400, 100])
+            column_2_split.addWidget(module)
+        column_2_split.setSizes([400, 100])
 
 
-        self.column_2_layout_box.addWidget(self.column_2_split)
-        # self.column_2_layout_box.addWidget(self.tab_selector_image)
-        self.layout.addLayout(self.column_2_layout_box)
+        column_2_layout_box.addWidget(column_2_split)
+        # column_2_layout_box.addWidget(tab_selector_image)
+        self.layout.addLayout(column_2_layout_box)
     def intensity_slider_changed(self):
         self.current_background_intensity= float(self.background_slider.value()) / 10
         self.updateImageDisplay()
     def set_background(self, name,func_name, update_image=True):
         # Background refers to the image behind the rois
-        shape = self.main_widget.data_handler.dataset.shape
+        shape = self.main_widget.data_handler.shape
         if func_name == "Mean Image":
             self.current_background = self.main_widget.data_handler.mean_image.reshape([-1, 1])
         if func_name == "Max Image":
@@ -132,11 +135,13 @@ class ROIExtractionTab(Tab):
             self.current_background = np.zeros([shape[1]*shape[2],1])
         if func_name == "Temporal Correlation Image":
             self.current_background = self.data_handler.temporal_correlation_image.reshape([-1, 1])
+        if func_name == "Eigen Norm Image":
+            self.current_background = self.data_handler.eigen_norm_image.reshape([-1, 1])
 
         if update_image:
             self.updateImageDisplay()
     def updateImageDisplay(self):
-        shape = self.main_widget.data_handler.dataset.shape
+        shape = self.main_widget.data_handler.dataset_filtered.shape
         background_max =self.current_background.max()
         background_image_scaled = (
                                  self.current_background_intensity * 255 / (background_max if background_max!= 0 else 1)) * self.current_background
@@ -144,35 +149,12 @@ class ROIExtractionTab(Tab):
         combined = self.current_image_flat + background_image_scaled
         combine_reshaped = combined.reshape((shape[1], shape[2], 3))
         self.main_widget.roi_image_view.setImage(combine_reshaped)
-    def displayBlankImageBackground(self):
-        shape = self.main_widget.data_handler.dataset.shape
 
-        self.main_widget.roi_image_view.setImage(self.current_image_flat.reshape((shape[1],shape[2],3)))
-    def displayMeanImageBackground(self):
-        # TODO add slider for background intensity
-        shape = self.main_widget.data_handler.dataset.shape
-
-        mean_image = self.main_widget.data_handler.mean_image.reshape([-1,1])
-        mean_image = (self.current_background_intensity * 255 / mean_image.max()) * mean_image
-
-        combined = self.current_image_flat+ mean_image
-        combine_reshaped = combined.reshape((shape[1],shape[2],3))
-        self.main_widget.roi_image_view.setImage(combine_reshaped)
-    def displayMaxImageBackground(self):
-        # TODO add slider for background intensity
-        shape = self.main_widget.data_handler.dataset.shape
-
-        max_image = self.main_widget.data_handler.max_image.reshape([-1,1])
-        max_image = (self.current_background_intensity * 255 / max_image.max()) * max_image
-
-        combined = self.current_image_flat + max_image
-        combine_reshaped = combined.reshape((shape[1],shape[2],3))
-        self.main_widget.roi_image_view.setImage(combine_reshaped)
     def selectRoi(self, num, ):
 
         color_select = (245, 249, 22)
         color_roi = self.main_widget.data_handler.color_list[(num-1) % len(self.main_widget.data_handler.color_list)]
-        shape = self.main_widget.data_handler.dataset.shape
+        shape = self.main_widget.data_handler.dataset_filtered.shape
         self.current_image_flat[self.main_widget.data_handler.clusters[num-1]] = color_select
         self.updateImageDisplay()
         if self.click_event:
@@ -193,7 +175,7 @@ class ROIExtractionTab(Tab):
     def deselectRoi(self, num):
 
         color = self.main_widget.data_handler.color_list[(num-1) % len(self.main_widget.data_handler.color_list)]
-        shape = self.main_widget.data_handler.dataset.shape
+        shape = self.main_widget.data_handler.dataset_filtered.shape
         self.current_image_flat[self.main_widget.data_handler.clusters[num - 1]] = color
         self.updateImageDisplay()
         self.time_plot.clear()
@@ -214,7 +196,7 @@ class ROIExtractionTab(Tab):
         x = int(pos.x())
         y = int(pos.y())
         pixel_with_rois_flat = self.main_widget.data_handler.pixel_with_rois_flat
-        shape = self.main_widget.data_handler.dataset.shape
+        shape = self.main_widget.data_handler.dataset_filtered.shape
         roi_num = int(pixel_with_rois_flat[shape[2] * x + y])
         # TODO change to int
         if roi_num != 0:

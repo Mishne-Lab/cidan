@@ -1,3 +1,5 @@
+import os
+os.environ['QT_API'] = 'pyside2'
 from PySide2.QtWidgets import QMainWindow, QWidget, QApplication, QVBoxLayout, \
     QHBoxLayout, QPushButton, QTabWidget
 from CIDAN.Tab import Tab,  AnalysisTab
@@ -6,7 +8,6 @@ from CIDAN.ROIExtractionTab import *
 from CIDAN.PreprocessingTab import *
 import qdarkstyle
 from CIDAN.ImageViewModule import ImageViewModule
-from CIDAN.fileHandling import loadImageWrapper
 from CIDAN.DataHandler import DataHandler
 from CIDAN.DataHandlerWrapper import Thread
 from CIDAN.ConsoleWidget import ConsoleWidget
@@ -16,7 +17,7 @@ import sys
 class MainWindow(QMainWindow):
     """Initializes the basic window with Main widget being the focused widget"""
 
-    def __init__(self):
+    def __init__(self, dev=False):
         super().__init__()
         self.title = 'CIDAN'
         self.width = 900
@@ -131,12 +132,12 @@ class MainWidget(QWidget):
 
         # Below here in this function is just code for testing
         # TODO check if it can load data twice
-        if False:
+        if True:
             # auto loads a small dataset
             self.data_handler = DataHandler(
                 "/Users/sschickler/Documents/LSSC-python/input_images/small_dataset.tif",
                 "/Users/sschickler/Documents/LSSC-python/input_images/test31",
-                save_dir_already_created=True)
+                save_dir_already_created=False)
             self.init_w_data()
         if False:
             # auto loads a large dataset
@@ -182,6 +183,6 @@ class MainWidget(QWidget):
 if __name__ == "__main__":
     app = QApplication([])
     app.setApplicationName("CIDAN")
-    widget = MainWindow()
+    widget = MainWindow(dev=True)
 
     sys.exit(app.exec_())

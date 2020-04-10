@@ -25,7 +25,6 @@ setup(
         "CIDAN/LSSC/functions/save_test_images.py",
         "CIDAN/LSSC/functions/temporal_correlation.py",
         "CIDAN/ConsoleWidget.py",
-        "CIDAN/main_stylesheet.css",
         "CIDAN/DataHandler.py",
         'CIDAN/DataHandlerWrapper.py',
         'CIDAN/fileHandling.py',

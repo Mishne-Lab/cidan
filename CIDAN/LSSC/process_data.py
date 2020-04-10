@@ -6,7 +6,7 @@ from CIDAN.LSSC.functions.pickle_funcs import pickle_save, pickle_load, pickle_c
     pickle_set_dir, pickle_exist
 from CIDAN.LSSC.functions.temporal_correlation import *
 from CIDAN.LSSC.functions.eigen import gen_eigen_vectors, save_eigen_vectors, \
-    load_eigen_vectors, save_embeding_norm_image
+    load_eigen_vectors, save_embeding_norm_image, create_embeding_norm_multiple
 from dask import delayed
 from functools import reduce
 
@@ -59,6 +59,7 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                                 spatial_overlap=spatial_overlap, image_shape=shape)
                      for x in range(total_num_spatial_boxes)]
     all_rois = []
+    all_boxes_eigen_vectors = []
     for spatial_box in spatial_boxes:
         spatial_box_data = spatial_box.extract_box(image)
         time_boxes = [(x * (shape[0] // total_num_time_steps), (x + 1) * (shape[0] //
@@ -82,11 +83,7 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                     eigen_vectors = save_eigen_vectors(e_vectors=eigen_vectors,
                                                        spatial_box_num=spatial_box.box_num,
                                                        time_box_num=temporal_box_num,save_dir= save_dir)
-                if save_embedding_images:
-                    eigen_vectors = save_embeding_norm_image(e_vectors=eigen_vectors,
-                                                             image_shape=spatial_box.shape,
-                                                             save_dir=save_dir,
-                                                             spatial_box_num=spatial_box.box_num)
+
                 all_eigen_vectors_list.append(eigen_vectors)
                 if test_images:
                     pass
@@ -102,6 +99,13 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                                                                  save_dir=save_dir))
 
         all_eigen_vectors = delayed(np.hstack)(all_eigen_vectors_list)
+        all_boxes_eigen_vectors.append(all_eigen_vectors)
+        if save_embedding_images:
+            all_eigen_vectors = save_embeding_norm_image(e_vectors=all_eigen_vectors,
+                                                     image_shape=spatial_box.shape,
+                                                     save_dir=save_dir,
+                                                     spatial_box_num=spatial_box.box_num)
+
         rois = roi_extract_image(e_vectors=all_eigen_vectors,
                                  original_shape=spatial_box_data.shape,
                                  original_2d_vol=reshape_to_2d_over_time(
@@ -127,6 +131,7 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
             #                              box_num=spatial_box.box_num).compute()
         all_rois.append(spatial_box.redefine_spatial_cord_1d(rois))
     all_rois = delayed(reduce)(lambda x, y: x + y, all_rois)
+    all_rois = all_rois.compute()
     all_rois_merged = delayed(merge_rois)(roi_list=all_rois,
                                               temporal_coefficient=merge_temporal_coef,
                                               original_2d_vol=reshape_to_2d_over_time(
@@ -136,6 +141,10 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
         delayed(save_roi_images)(roi_list=all_rois_merged,
                                      output_dir=test_output_dir,
                                      image_shape=shape, box_num="all").compute()
+    if save_embedding_images and save_intermediate_steps:
+        create_embeding_norm_multiple( spatial_box_list=spatial_boxes,save_dir=save_dir, num_time_steps=total_num_time_steps)
+
+
     return all_rois_merged
 
 
@@ -167,18 +176,18 @@ if __name__ == '__main__':
                  test_images=True,
                  test_output_dir="/Users/sschickler/Documents/LSSC-python/output_images/16",
                  image_data=None,
-                 save_dir="test",
-                 save_embedding_images=False,
-                 save_intermediate_steps=False,
+                 save_dir="/Users/sschickler/Documents/LSSC-python/output_images/16",
+                 save_embedding_images=True,
+                 save_intermediate_steps=True,
                  eigen_vectors_already_generated=False,
-                 total_num_time_steps=5, total_num_spatial_boxes=16, spatial_overlap=15,
+                 total_num_time_steps=1, total_num_spatial_boxes=9, spatial_overlap=15,
                  filter=True, median_filter_size=(1, 3, 3), median_filter=True,
-                 z_score=False, slice_stack=True, slice_every=3, slice_start=0,
-                 metric="l2", knn=50, accuracy=50, connections=60,
-                 num_eig=250, normalize_w_k=2, merge=True,
+                 z_score=False, slice_stack=False, slice_every=10, slice_start=0,
+                 metric="l2", knn=50, accuracy=59, connections=60,
+                 num_eig=50, normalize_w_k=2, merge=True,
                  num_rois=25, refinement=True,
                  num_eigen_vector_select=5,
-                 max_iter=1000, roi_size_min=30,
+                 max_iter=400, roi_size_min=30,
                  fill_holes=True,
                  elbow_threshold_method=True,
                  elbow_threshold_value=1,

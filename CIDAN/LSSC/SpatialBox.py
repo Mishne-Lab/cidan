@@ -1,4 +1,5 @@
 from dask import delayed
+import numpy as np
 class SpatialBox:
     def __init__(self, box_num: int, total_boxes: int, image_shape: int,
                  spatial_overlap: int):
@@ -7,6 +8,7 @@ class SpatialBox:
         self.total_boxes = total_boxes
         self.image_shape = image_shape
         self.boxes_per_row = int(total_boxes ** .5)
+        self.spatial_overlap = spatial_overlap
         self.y_box_num = box_num // self.boxes_per_row
         self.x_box_num = box_num - (self.y_box_num * self.boxes_per_row)
 
@@ -18,6 +20,7 @@ class SpatialBox:
                 self.x_box_num+1)+spatial_overlap,
                            (image_shape[2] // self.boxes_per_row ) * (
                                    self.y_box_num+1)+spatial_overlap]
+
         self.box_cord_1[0] = 0 if self.box_cord_1[0]<0 else self.box_cord_1[0]
         self.box_cord_1[1] =  0 if self.box_cord_1[1] < 0 \
             else self.box_cord_1[1]
@@ -47,6 +50,68 @@ class SpatialBox:
     def convert_1d_to_2d(self):
         # TODO implement this
         pass
+    def data_w_out_spatial_overlap(self, data):
+        """
+
+        Parameters
+        ----------
+        data 2d dataset
+
+        Returns
+        -------
+
+        """
+        if self.total_boxes == 1:
+            return data
+        x = [0,self.shape[1]]
+        y = [0, self.shape[2]]
+        # This uses which column each box is in to determin overlap parts, first, last,
+        # any other column
+        if self.box_num%self.boxes_per_row==0:
+            x[1] = self.shape[1]-self.spatial_overlap
+        elif self.box_num%self.boxes_per_row==self.boxes_per_row-1:
+            x[0] = self.spatial_overlap
+        else:
+            x[0] = self.spatial_overlap
+            x[1] = self.shape[1] - self.spatial_overlap
+        # This uses which row each box is in to determin overlap parts, first, last,
+        # any other row
+        if self.box_num//self.boxes_per_row==0:
+            y[1] = self.shape[2]-self.spatial_overlap
+        elif self.box_num//self.boxes_per_row==self.boxes_per_row-1:
+            y[0] = self.spatial_overlap
+        else:
+            y[0] = self.spatial_overlap
+            y[1] = self.shape[2] - self.spatial_overlap
+        return data[x[0]:x[1],y[0]:y[1]]
+
+
+def combine_images(spatial_box_list, data_list):
+    """
+
+    Parameters
+    ----------
+    spatial_box_list
+    data_list list of reshaped eigen vectors in the correct shape for these boxes
+
+    Returns
+    -------
+
+    """
+    # Going to go through the lists in a 2d format using number of spatial boxes is always square
+    spatial_box_num = len(spatial_box_list)
+    spatial_box_root= int(spatial_box_num**.5)
+    data_matched = []
+    for y in range(spatial_box_root):
+        temp = []
+        for x in range(spatial_box_root):
+            current_spatial_box = spatial_box_list[y*spatial_box_root+x]
+            current_data = data_list[y*spatial_box_root+x]
+            temp.append(current_spatial_box.data_w_out_spatial_overlap(current_data))
+        data_matched.append(np.vstack(temp))
+    all_data = np.hstack(data_matched)
+
+    return all_data
 if __name__ == '__main__':
     test = SpatialBox(box_num=0,total_boxes=9, image_shape=[1,9,9],spatial_overlap=0)
     pixel_list = test.redefine_spatial_cord_1d([0,4,8]).compute()

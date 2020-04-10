@@ -5,7 +5,7 @@ from typing import Union, Any, List, Optional, cast, Tuple, Dict
 from functools import reduce
 from itertools import compress
 from scipy.ndimage.morphology import binary_fill_holes
-
+from matplotlib import pyplot as plt
 
 from dask import delayed
 @delayed
@@ -352,7 +352,7 @@ def elbow_threshold(pixel_vals: np.ndarray, pixel_val_sort_indices: np.ndarray,
     # ax.scatter(list(range(n_points)),
     #            dist_from_first[:n_points,1])
     # fig.savefig(
-    #     "/data2/Sam/pythonTestEnviroment/output_images/plots/dist_plot_{}2.png".format(num),
+    #     "/Users/sschickler/Documents/LSSC-python/output_images/plots/dist_plot_{}2.png".format(num),
     #     aspect='auto')
     dist_max_indice = np.argmax(dist_to_line)
     threshold = pixel_vals_sorted_zipped[dist_max_indice][1]

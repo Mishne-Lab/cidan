@@ -6,7 +6,6 @@ from scipy import ndimage
 from typing import Union, Any, List, Optional, cast, Tuple, Dict
 
 # from IPython.display import display, Image
-from dask import delayed
 
 def load_filter_tif_stack(*, path, filter: bool, median_filter: bool,
                           median_filter_size: Tuple[int, int,int],
