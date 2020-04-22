@@ -2,6 +2,7 @@ from PySide2.QtWidgets import *
 from PySide2.QtGui import *
 from PySide2.QtCore import *
 import numpy as np
+import sys
 
 class MatrixSignal(QObject):
     def __init__(self):
@@ -35,16 +36,24 @@ class PreprocessThread(Thread):
         self.signal.sig.connect(lambda x: self.endThread(x))
 
     def run(self):
-        self.signal.sig.emit(self.data_handler.calculate_filters())
+        try:
+            self.signal.sig.emit(self.data_handler.calculate_filters())
+        except:
+            print("Unexpected error:", sys.exc_info()[0])
+            self.signal.sig.emit(np.matrix([0]))
+
     def runThread(self):
+
         if not any([x.isRunning() for x in self.main_widget.thread_list]):
             print("Starting preprocessing sequence")
             self.button.setEnabled(False)
             self.start()
     def endThread(self,image_data):
-        print("Finished preprocessing sequence")
         self.button.setEnabled(True)
-        self.main_widget.preprocess_image_view.setImage(image_data)
+        if image_data.shape!=[1]:
+
+            print("Finished preprocessing sequence")
+            self.main_widget.preprocess_image_view.setImage(image_data)
 class ROIExtractionThread(Thread):
     def __init__(self,main_widget, button, roi_list_module, roi_tab):
         super().__init__(main_widget.data_handler)
@@ -60,8 +69,8 @@ class ROIExtractionThread(Thread):
             self.data_handler.calculate_roi_extraction()
             self.signal.sig.emit(True)
         except AssertionError as e:
-            print(e)
             self.signal.sig.emit(False)
+
 
     def runThread(self):
 
@@ -74,5 +83,11 @@ class ROIExtractionThread(Thread):
         if success:
             print("Finished ROI extraction")
             self.roi_list_module.set_list_items(self.main_widget.data_handler.clusters)
-            self.roi_tab.current_image_flat = self.main_widget.data_handler.pixel_with_rois_color_flat
-            self.roi_tab.updateImageDisplay()
+            shape = self.main_widget.data_handler.edge_roi_image_flat.shape
+            self.roi_tab.roi_image_flat = np.hstack([self.main_widget.data_handler.edge_roi_image_flat,
+                                                np.zeros(shape),
+                                                np.zeros(shape)])
+            self.roi_tab.select_image_flat = np.zeros([shape[0],3])
+
+            self.roi_tab.updateImageDisplay(new= True)
+

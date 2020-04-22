@@ -17,6 +17,8 @@ from CIDAN.LSSC.functions.save_test_images import save_eigen_images, save_volume
     save_roi_images
 
 from dask.distributed import performance_report
+import logging
+logger1 =logging.getLogger("CIDAN.LSSC.process_data")
 def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                  save_dir: str, save_intermediate_steps: bool,
                  load_data: bool, data_path: str,
@@ -36,7 +38,43 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                  eigen_threshold_method: bool,
                  eigen_threshold_value: float, merge_temporal_coef: float,
                  roi_size_max: int):
-
+    logger1.debug("""Inputs: num_threads {0},test_images {1}, test_output_dir {2},
+                 save_dir {3}, save_intermediate_steps {4},
+                 load_data {5}, data_path {6},
+                 image_data {7},
+                 eigen_vectors_already_generated {8},
+                 save_embedding_images {9},
+                 total_num_time_steps {10}, total_num_spatial_boxes {11},
+                 spatial_overlap {12}, filter {13}, median_filter {14},
+                 median_filter_size {15},
+                 z_score {16}, slice_stack {17},
+                 slice_every {18}, slice_start {19}, metric {20}, knn {21},
+                 accuracy {22}, connections {23}, normalize_w_k {24}, num_eig {25},
+                 merge {26},
+                 num_rois {27}, refinement {28}, num_eigen_vector_select {29},
+                 max_iter {30}, roi_size_min {31}, fill_holes {32},
+                 elbow_threshold_method {33}, elbow_threshold_value {34},
+                 eigen_threshold_method {35},
+                 eigen_threshold_value {36}, merge_temporal_coef {37},
+                 roi_size_max {38}""".format(num_threads,test_images , test_output_dir,
+                 save_dir, save_intermediate_steps,
+                 load_data, data_path,
+                 image_data,
+                 eigen_vectors_already_generated,
+                 save_embedding_images,
+                 total_num_time_steps, total_num_spatial_boxes,
+                 spatial_overlap, filter, median_filter,
+                 median_filter_size,
+                 z_score, slice_stack,
+                 slice_every, slice_start, metric, knn,
+                 accuracy, connections, normalize_w_k, num_eig,
+                 merge,
+                 num_rois, refinement, num_eigen_vector_select,
+                 max_iter, roi_size_min, fill_holes,
+                 elbow_threshold_method, elbow_threshold_value,
+                 eigen_threshold_method,
+                 eigen_threshold_value, merge_temporal_coef,
+                 roi_size_max))
     # TODO Make after eigen vector make function to save intermediate embeding norm
     #  for each spatial box
 
@@ -48,12 +86,12 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                                       z_score=z_score, slice_stack=slice_stack,
                                       slice_start=slice_start,
                                       slice_every=slice_every)
-        calculate_temporal_correlation(image)
     else:
         image = image_data
     if test_images:
         save_volume_images(volume=image, output_dir=test_output_dir)
     shape = image.shape
+    logger1.debug("image shape {0}".format(shape))
     print("Creating {} spatial boxes".format(total_num_spatial_boxes))
     spatial_boxes = [SpatialBox(box_num=x, total_boxes=total_num_spatial_boxes,
                                 spatial_overlap=spatial_overlap, image_shape=shape)
@@ -69,8 +107,10 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
         if not eigen_vectors_already_generated:
             for temporal_box_num, start_end in enumerate(time_boxes):
                 start, end = start_end
+
                 time_box_data = spatial_box_data[start:end, :, :]
                 time_box_data_2d = reshape_to_2d_over_time(time_box_data)
+                logger1.debug("Time box {0}, start {1}, end {2}, time_box shape {3}, 2d shape {4}".format(temporal_box_num, start,end,time_box_data.shape,time_box_data_2d.shape))
                 k = calc_affinity_matrix(pixel_list=time_box_data_2d, metric=metric,
                                          knn=knn, accuracy=accuracy,
                                          connections=connections,
@@ -82,7 +122,7 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                 if save_intermediate_steps:
                     eigen_vectors = save_eigen_vectors(e_vectors=eigen_vectors,
                                                        spatial_box_num=spatial_box.box_num,
-                                                       time_box_num=temporal_box_num,save_dir= save_dir)
+                                                       time_box_num=temporal_box_num, save_dir= save_dir)
 
                 all_eigen_vectors_list.append(eigen_vectors)
                 if test_images:
@@ -172,15 +212,15 @@ if __name__ == '__main__':
     #              roi_size_limit=600)
     # with performance_report(filename="dask-report.html"):
     process_data(num_threads=1, load_data=True,
-                 data_path="/Users/sschickler/Documents/LSSC-python/input_images/small_dataset.tif",
-                 test_images=True,
+                 data_path="/Users/sschickler/Code Devel/LSSC-python/input_images/dataset_1",
+                 test_images=False,
                  test_output_dir="/Users/sschickler/Documents/LSSC-python/output_images/16",
                  image_data=None,
-                 save_dir="/Users/sschickler/Documents/LSSC-python/output_images/16",
+                 save_dir="/Users/sschickler/Code DEvel/LSSC-python/output_images/16",
                  save_embedding_images=True,
                  save_intermediate_steps=True,
                  eigen_vectors_already_generated=False,
-                 total_num_time_steps=1, total_num_spatial_boxes=9, spatial_overlap=15,
+                 total_num_time_steps=20, total_num_spatial_boxes=16, spatial_overlap=30,
                  filter=True, median_filter_size=(1, 3, 3), median_filter=True,
                  z_score=False, slice_stack=False, slice_every=10, slice_start=0,
                  metric="l2", knn=50, accuracy=59, connections=60,

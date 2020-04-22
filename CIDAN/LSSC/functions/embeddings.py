@@ -45,7 +45,7 @@ def calc_affinity_matrix(*, pixel_list: np.matrix, metric: str, knn:int,
 
     reformat_indicies_x = np.repeat(np.arange(0, num_elements, 1), knn)
     reformat_indicies_y = np.reshape(indices, (-1))
-    reformat_distances = np.reshape(distances, (-1))
+    reformat_distances = np.reshape(distances, (-1)) # this might have broke stuff idk
 
     scale_factor_indices = np.repeat(distances[:,normalize_w_k], knn)
     scale_factor_2_per_distances = scale_factor_indices[reformat_indicies_x] * scale_factor_indices[

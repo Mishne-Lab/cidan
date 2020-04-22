@@ -8,8 +8,10 @@ class ImageViewModule(QFrame):
         self.main_window = main_widget
         # self.setMinimumWidth(600)
         # self.setMinimumHeight(300)
-        self.setStyleSheet("ImageViewModule {margin:5px; border:1px solid rgb(50, 65, "
-                           "75);} ")
+        # self.setStyleSheet("ImageViewModule {margin:5px; border:1px solid rgb(50, 65, "
+        #                    "75);} ")
+        self.setStyleSheet("ImageViewModule {margin:0px; border:0px  solid rgb(50, 65, "
+                           "75); padding: 0px;} ")
         self.layout = QHBoxLayout()
 
         # self.layout.setAlignment(Qt.AlignHCenter)

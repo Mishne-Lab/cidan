@@ -6,6 +6,8 @@ import os
 from PIL import Image
 from CIDAN.LSSC.SpatialBox import combine_images
 from CIDAN.LSSC.functions.pickle_funcs import pickle_save, pickle_exist, pickle_load
+import logging
+logger1 = logging.getLogger("CIDAN.LSSC.eigen")
 @delayed
 def gen_eigen_vectors(*, K: np.ndarray, num_eig: int, spatial_box_num:int, temporal_box_num: int)->np.ndarray:
     """Calculate Eigen Vectors given parts of the affinity matrix
@@ -45,8 +47,12 @@ str):
 @delayed
 def load_eigen_vectors(*, spatial_box_num: int, time_box_num: int, save_dir: str):
     eigen_dir = os.path.join(save_dir, "eigen_vectors")
-    return pickle_load(name="eigen_vectors_box_{}_{}.pickle".format(spatial_box_num,time_box_num),
+    name = "eigen_vectors_box_{}_{}.pickle".format(spatial_box_num,time_box_num)
+    logger1.debug("Eigen vector load: file name: {0}, directory: {1}".format(name,eigen_dir))
+    vector = pickle_load(name=name,
                 output_directory=eigen_dir)
+    logger1.debug("Eigen spatial box {0}, time box {1} shape: {2}".format(spatial_box_num, time_box_num, vector.shape))
+    return vector
 @delayed
 def save_embeding_norm_image(*, e_vectors, image_shape, save_dir, spatial_box_num):
     # print(save_dir)

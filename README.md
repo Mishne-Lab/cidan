@@ -1,13 +1,15 @@
 # CIDAN
 
 # Install Instructions
-First download the enviroment.yml file then in the same directory where it is located
+1. Make sure you have anaconda installed.
+2. Then download the requirements.txt file.
+3. In the same directory where it is located
 run these commands:
 
 ```
-conda env create -f environment.yml
-source activate CIDAN
-pip install git+https://github.com/pyqtgraph/pyqtgraph@develop
+conda create -n CIDAN python=3.7
+conda activate CIDAN
+pip install -r requirements.txt
 python3 -m pip install --index-url https://test.pypi.org/simple/ --no-deps CIDAN
 python -m CIDAN
 ```

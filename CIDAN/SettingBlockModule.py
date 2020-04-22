@@ -23,7 +23,7 @@ def filter_setting_block(main_widget):
                                                   IntInput(
                                                       display_name="Median filter size:",
                                                       program_name="median_filter_size",
-                                                      on_change_function=lambda x,y:data_handler.change_filter_param(x,y),
+                                                      on_change_function=lambda x, y:data_handler.change_filter_param(x,y),
                                                       default_val=
                                                       data_handler.filter_params[
                                                           "median_filter_size"],
@@ -94,15 +94,7 @@ def roi_extraction_settings_block(main_widget):
     # TODO fix input into spatial box number
     data_handler = main_widget.data_handler
     return SettingBlockModule("ROI Extraction Settings",
-                              [IntInput(display_name="Number of eigen vectors:",
-                                        program_name="num_eig",
-                                        on_change_function=lambda x,
-                                                                  y: data_handler.change_eigen_param(
-                                            x, y),
-                                        default_val=data_handler.eigen_params[
-                                            "num_eig"],
-                                        tool_tip="Number of eigen vectors to generate",
-                                        min=1, max=1000, step=1),
+                              [
                                IntInput(display_name="Max Number of ROIs per spatial box:",
                                         program_name="num_rois",
                                         on_change_function=lambda x,
@@ -166,6 +158,23 @@ def roi_extraction_settings_block(main_widget):
                                    data_handler.roi_extraction_params[
                                        "fill_holes"],
                                    tool_tip="Whether to fill holes in each cluster"),
+
+                               ]
+                                            )
+def roi_advanced_settings_block(main_widget):
+    # TODO fix input into spatial box number
+    data_handler = main_widget.data_handler
+    return SettingBlockModule("Advanced Settings",
+                              [IntInput(display_name="Number of eigen vectors:",
+                                        program_name="num_eig",
+                                        on_change_function=lambda x,
+                                                                  y: data_handler.change_eigen_param(
+                                            x, y),
+                                        default_val=data_handler.eigen_params[
+                                            "num_eig"],
+                                        tool_tip="Number of eigen vectors to generate",
+                                        min=1, max=1000, step=1),
+
 
                                ]
                                             )

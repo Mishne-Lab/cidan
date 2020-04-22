@@ -37,6 +37,7 @@ def load_filter_tif_stack(*, path, filter: bool, median_filter: bool,
             print("Loading: "+x)
 
         image = np.vstack(volumes)
+        del volumes
         return image
     if os.path.isfile(path):
         # return ScanImageTiffReader(path).data()

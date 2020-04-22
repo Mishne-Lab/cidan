@@ -1,4 +1,3 @@
-from CIDAN.ImageViewModule import ImageViewModule
 from CIDAN.DataHandler import DataHandler
 from PySide2.QtWidgets import *
 # from PySide2.QtGui import *
@@ -57,8 +56,8 @@ def load_new_dataset(main_widget, file_input, save_dir_input):
     # TODO add error handling here to ensure valid inputs
     file_path = file_input.current_state()
     save_dir_path = save_dir_input.current_state()
-    if hasattr(main_widget, "data_handler"):
-        main_widget.data_handler.__del__()
+    # if hasattr(main_widget, "data_handler"):
+    #     main_widget.data_handler.__del__()
 
     main_widget.data_handler = DataHandler(data_path=file_path,
                                                save_dir_path=save_dir_path,

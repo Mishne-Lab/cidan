@@ -2,12 +2,15 @@ import json
 import os
 from typing import Dict
 from PIL import Image
+from skimage import feature
 import numpy as np
 from CIDAN.LSSC.functions.data_manipulation import load_filter_tif_stack, filter_stack, \
     reshape_to_2d_over_time, pixel_num_to_2d_cord
 from CIDAN.LSSC.functions.temporal_correlation import calculate_temporal_correlation
 from CIDAN.LSSC.functions.pickle_funcs import *
 from CIDAN.LSSC.process_data import process_data
+import logging
+logger1 = logging.getLogger("CIDAN.DataHandler")
 class DataHandler:
     global_params_default = {
         "save_intermediate_steps": True,
@@ -248,7 +251,7 @@ class DataHandler:
                                              slice_start=self.dataset_params["slice_start"],
 
                                              slice_every=self.dataset_params["slice_every"])
-        # self.global_params["need_recalc_dataset_params"] = False
+        self.global_params["need_recalc_dataset_params"] = False
         self.shape = dataset.shape
 
         print("Finished Calculating Dataset")
@@ -259,14 +262,16 @@ class DataHandler:
 
         if self.global_params["need_recalc_filter_params"] or self.global_params["need_recalc_dataset_params"] or \
                 not hasattr(self,"dataset_filtered"):
-            self.dataset_filtered = filter_stack(stack=self.calculate_dataset(),
+            dataset = self.calculate_dataset()
+            self.dataset_filtered = filter_stack(stack=dataset,
                                                  median_filter_size=(1, self.filter_params["median_filter_size"], self.filter_params["median_filter_size"]),
                                                  median_filter=self.filter_params[
                                                      "median_filter"],
                                                  z_score=self.filter_params["z_score"])
+            del dataset
             self.mean_image = np.mean(self.dataset_filtered, axis=0)
             self.max_image = np.max(self.dataset_filtered, axis=0)
-            self.temporal_correlation_image = calculate_temporal_correlation(self.dataset_filtered)
+            # self.temporal_correlation_image = calculate_temporal_correlation(self.dataset_filtered)
             self.global_params["need_recalc_filter_params"] = False
         return self.dataset_filtered
 
@@ -284,7 +289,8 @@ class DataHandler:
                 self.box_params[
                     "total_num_spatial_boxes"] ** .5)) ** 2 == self.box_params[
                                              "total_num_spatial_boxes"], "Please make sure Number of Spatial Boxes is a square number"
-            self.clusters = process_data(num_threads=self.global_params[
+            try:
+                self.clusters = process_data(num_threads=self.global_params[
                 "num_threads"], test_images=False, test_output_dir="",
                                          save_dir=self.save_dir_path,
                                          save_intermediate_steps=self.global_params[
@@ -326,19 +332,25 @@ class DataHandler:
                      "eigen_threshold_value"],
                                          merge_temporal_coef=self.roi_extraction_params["merge_temporal_coef"],
                                          roi_size_max=self.roi_extraction_params["roi_size_max"])
-            self.global_params["need_recalc_eigen_params"] = False
-            self.save_rois(self.clusters)
-            print("Calculating Time Traces:")
-            self.time_traces = []
-            for cluster in self.clusters:
-                # TODO maybe make this be a class variable
-                data_2d = reshape_to_2d_over_time(self.dataset_filtered)
-                time_trace = np.average(data_2d[cluster], axis=0)
-                self.time_traces.append(time_trace)
-            self.gen_roi_display_variables()
-            self.calculate_time_traces()
 
-            self.rois_loaded = True
+                self.global_params["need_recalc_eigen_params"] = False
+                self.save_rois(self.clusters)
+                print("Calculating Time Traces:")
+                self.time_traces = []
+                for cluster in self.clusters:
+                    # TODO maybe make this be a class variable
+                    data_2d = reshape_to_2d_over_time(self.dataset_filtered)
+                    time_trace = np.average(data_2d[cluster], axis=0)
+                    self.time_traces.append(time_trace)
+                self.gen_roi_display_variables()
+                self.calculate_time_traces()
+
+                self.rois_loaded = True
+            except Exception as e:
+                self.global_params["need_recalc_eigen_params"] = False
+                logger1.error(e)
+                print("Please try again there was an internal error in the roi extraction process")
+                raise AssertionError()
 
     def gen_roi_display_variables(self):
         cluster_list_2d_cord = [
@@ -354,6 +366,10 @@ class DataHandler:
             cur_color = self.color_list[num % len(self.color_list)]
             self.pixel_with_rois_flat[cluster] = num + 1
             self.pixel_with_rois_color_flat[cluster] = cur_color
+        edge_roi_image = feature.canny(np.reshape(self.pixel_with_rois_flat,
+                                                [self.dataset_filtered.shape[1],
+                                                 self.dataset_filtered.shape[2]]))
+        self.edge_roi_image_flat = np.reshape(edge_roi_image,[-1,1]) *255
         self.pixel_with_rois_color = np.reshape(self.pixel_with_rois_color_flat,
                                                 [self.dataset_filtered.shape[1],
                                                  self.dataset_filtered.shape[2], 3])

@@ -1,8 +1,12 @@
 from dask import delayed
 import numpy as np
+import logging
+logger1 = logging.getLogger("CIDAN.LSSC.SpatialBox")
 class SpatialBox:
     def __init__(self, box_num: int, total_boxes: int, image_shape: int,
                  spatial_overlap: int):
+        logger1.debug(
+            "Spatial Box creation inputs: box num {0}, total boxes {1}, image shape {2}, spatial overlap {3}".format(box_num, total_boxes,image_shape,spatial_overlap))
         # TODO implement spatial overlap
         self.box_num = box_num
         self.total_boxes = total_boxes
@@ -32,6 +36,9 @@ class SpatialBox:
         self.shape = (image_shape[0],self.box_cord_2[0]-self.box_cord_1[0],
                                   self.box_cord_2[
             1]-self.box_cord_1[1])
+        logger1.debug(("Spatial box creation: Boxes per row {0}, y_box_num {1}, "+
+                      "x_box_num"+" {2}, box cord 1 {3}, box cord 2 {4}, shape {5}"
+                       ).format(self.boxes_per_row,self.y_box_num,self.x_box_num,self.box_cord_1, self.box_cord_2, self.shape))
     @delayed
     def extract_box(self, dataset):
         return dataset[:,self.box_cord_1[0]:self.box_cord_2[0], self.box_cord_1[1]:

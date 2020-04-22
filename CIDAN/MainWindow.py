@@ -12,7 +12,8 @@ from CIDAN.DataHandler import DataHandler
 from CIDAN.DataHandlerWrapper import Thread
 from CIDAN.ConsoleWidget import ConsoleWidget
 import sys
-
+from dask.distributed import Client, progress
+import logging
 
 class MainWindow(QMainWindow):
     """Initializes the basic window with Main widget being the focused widget"""
@@ -25,26 +26,29 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(self.title)
         self.setMinimumSize(self.width, self.height)
         self.main_menu = self.menuBar()
-        self.table_widget = MainWidget(self)
+        self.table_widget = MainWidget(self, dev=dev)
         self.setCentralWidget(self.table_widget)
         # self.setStyleSheet(qdarkstyle.load_stylesheet())
         style = """
-            QTabWidget {font-size: 25px;}
+            QTabWidget {font-size: 25px; padding:1px; margin:5px;}
             QTabBar::tab {
-                /*background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,*/
-                /*                            stop: 0 #E1E1E1, stop: 0.4 #DDDDDD,*/
-                /*                            stop: 0.5 #D8D8D8, stop: 1.0 #D3D3D3);*/
+                background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                           stop: 0 #E1E1E1, stop: 0.4 #DDDDDD,
+                                          stop: 0.5 #D8D8D8, stop: 1.0 #D3D3D3);
                 /*border: 2px solid #C4C4C3;*/
                 /*border-bottom-color: #C2C7CB; !* same as the pane color *!*/
-                /*border-top-left-radius: 4px;*/
-                /*border-top-right-radius: 4px;*/
+                
                 min-width: 8ex;
+                padding:1px;
+                border:1px;
             }
+            
             QComboBox::item:checked {
               font-weight: bold;
               height: 12px;
             }
             """
+        logging.debug(qdarkstyle.load_stylesheet())
         self.setStyleSheet(qdarkstyle.load_stylesheet() + style)
 
         # extractAction.triggered.connect()
@@ -82,7 +86,7 @@ class MainWidget(QWidget):
         A list of the currently active tabs not used until after init_w_data is run
     """
 
-    def __init__(self, parent):
+    def __init__(self, parent, dev=False):
         """
         Initialize the main widget to load files
         Parameters
@@ -110,6 +114,8 @@ class MainWidget(QWidget):
         self.layout.addWidget(self.tab_widget)
 
         self.console = ConsoleWidget()
+        self.console.setMaximumHeight(150)
+        self.console.setMinimumHeight(150)
         self.layout.addWidget(self.console)
         self.setLayout(self.layout)
 
@@ -132,18 +138,19 @@ class MainWidget(QWidget):
 
         # Below here in this function is just code for testing
         # TODO check if it can load data twice
-        if True:
+        if True and dev:
             # auto loads a small dataset
             self.data_handler = DataHandler(
-                "/Users/sschickler/Documents/LSSC-python/input_images/small_dataset.tif",
-                "/Users/sschickler/Documents/LSSC-python/input_images/test31",
-                save_dir_already_created=False)
+
+                "/Users/sschickler/Code Devel/LSSC-python/input_images/small_dataset.tif",
+                "/Users/sschickler/Code Devel/LSSC-python/input_images/test31",
+                save_dir_already_created=True)
             self.init_w_data()
-        if False:
+        if False and dev:
             # auto loads a large dataset
             self.data_handler = DataHandler(
-                "/Users/sschickler/Documents/LSSC-python/input_images/dataset_1",
-                "/Users/sschickler/Documents/LSSC-python/input_images/test3",
+                "/Users/sschickler/Code Devel/LSSC-python/input_images/dataset_1",
+                "/Users/sschickler/Code Devel/LSSC-python/input_images/test3",
                 save_dir_already_created=False)
             self.init_w_data()
 
@@ -181,6 +188,13 @@ class MainWidget(QWidget):
         msg.setIcon(QMessageBox.Information)
         x = msg.exec_()
 if __name__ == "__main__":
+    # client = Client(processes=False, threads_per_worker=8,
+    #                 n_workers=1, memory_limit='16GB')
+    # print(client)
+    LOG_FILENAME = 'log.out'
+    logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG)
+    logger = logging.getLogger("CIDAN")
+    logger.debug("Program started")
     app = QApplication([])
     app.setApplicationName("CIDAN")
     widget = MainWindow(dev=True)
