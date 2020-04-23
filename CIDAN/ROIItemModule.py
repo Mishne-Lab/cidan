@@ -19,9 +19,9 @@ class ROIItemModule(QStandardItem):
         pr = QWindow().devicePixelRatio()
         pm = QPixmap.fromImage(out_img)
         self.num = num
-        super().__init__(pm, str(num))
+        super().__init__(pm, "")
         self.setEditable(False)
-        self.setCheckable(True)
+        # self.setCheckable(True)
     def toggle_check_state(self):
         if self.checkState() == False:
             self.roi_tab.selectRoi(self.num)

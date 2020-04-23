@@ -440,15 +440,16 @@ def compare_roi(roi1: List[int],
 
 def combine_rois(roi1: List[int], roi2: List[int]) -> List[int]:
     """
-
+    Combines two lists of clusters into one
     Parameters
     ----------
-    roi1
-    roi2
+    roi1 One list of pixels in cluster each pixel # is based on 1d representation of
+        image
+    roi2 List for other ROI
 
     Returns
     -------
-
+    List of merged ROI
     """
     roi2_not_in_1 = list(filter(lambda x: x not in roi1, roi2))
     return np.array(list(roi1) + roi2_not_in_1)

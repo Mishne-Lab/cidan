@@ -48,7 +48,6 @@ class MainWindow(QMainWindow):
               height: 12px;
             }
             """
-        logging.debug(qdarkstyle.load_stylesheet())
         self.setStyleSheet(qdarkstyle.load_stylesheet() + style)
 
         # extractAction.triggered.connect()

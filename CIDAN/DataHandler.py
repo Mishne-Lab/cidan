@@ -242,7 +242,7 @@ class DataHandler:
         """
         # TODO make it so it does't load the dataset every time
 
-        dataset = load_filter_tif_stack(path=self.dataset_params[
+        self.dataset = load_filter_tif_stack(path=self.dataset_params[
             "dataset_path"], filter=False,
                                              median_filter=False,
                                              median_filter_size=(1,3,3),
@@ -252,11 +252,11 @@ class DataHandler:
 
                                              slice_every=self.dataset_params["slice_every"])
         self.global_params["need_recalc_dataset_params"] = False
-        self.shape = dataset.shape
+        self.shape = self.dataset.shape
 
         print("Finished Calculating Dataset")
 
-        return dataset
+        return self.dataset
 
     def calculate_filters(self):
 
@@ -379,16 +379,31 @@ class DataHandler:
             print("Can't generate eigen Norm image please try again")
 
     def calculate_time_traces(self):
-        self.time_traces = []
-        for cluster in self.clusters:
-            # TODO maybe make this be a class variable
-            data_2d = reshape_to_2d_over_time(self.dataset_filtered)
-            time_trace = np.average(data_2d[cluster], axis=0)
-            self.time_traces.append(time_trace)
+        self.time_traces = [[]]*len(self.clusters)
+        for cluster in range(len(self.clusters)):
+            self.calculate_time_trace(cluster+1)
+
         if os.path.isdir(self.save_dir_path):
             pickle_save(self.time_traces, "time_traces", output_directory=self.save_dir_path)
         self.gen_roi_display_variables()
         self.rois_loaded = True
+    def calculate_time_trace(self,roi_num):
+        """
+        Calculates a time trace for a certain ROI and save to time trace list
+        Parameters
+        ----------
+        roi_num roi to calculate for
+
+        Returns
+        -------
+
+        """
+        cluster = self.clusters[roi_num-1]
+        data_2d = reshape_to_2d_over_time(self.dataset_filtered)
+        time_trace = np.average(data_2d[cluster], axis=0)
+        self.time_traces[roi_num-1] = time_trace
+        if os.path.isdir(self.save_dir_path):
+            pickle_save(self.time_traces, "time_traces", output_directory=self.save_dir_path)
     def get_time_trace(self, num):
         return self.time_traces[num-1]
 
