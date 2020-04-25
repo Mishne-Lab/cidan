@@ -6,7 +6,8 @@ from functools import reduce
 from itertools import compress
 from scipy.ndimage.morphology import binary_fill_holes
 from matplotlib import pyplot as plt
-
+from scipy.sparse.csgraph import connected_components as connected_components_graph
+from scipy.sparse import csr_matrix
 from dask import delayed
 @delayed
 def roi_extract_image(*, e_vectors: np.ndarray,
@@ -374,36 +375,52 @@ def merge_rois(roi_list: List,
     -------
 
     """
+    A = np.zeros([original_2d_vol.shape[0], len(roi_list)], dtype=bool)
+    for num, cluster in enumerate(roi_list):
+        A[cluster,num] = True
+    A_graph = np.matmul(A.transpose(),A)
+    A_csr = csr_matrix(A_graph)
+    connected = connected_components_graph(A_csr,False,return_labels=True)
+    roi_groups = [[] for _ in range(len(roi_list))]
+    for num in range(len(roi_list)):
+        roi_groups[connected[1][num]].append(roi_list[num])
+
     new_rois = []
-    while True:
-        combined_rois = False
-        while len(roi_list) > 0:
-            curr_roi = roi_list.pop(0)
-            similar_rois_bool = list(map(lambda comp_roi:
-                                             compare_roi(curr_roi,
-                                                             comp_roi,
-                                                             temporal_coefficient,
-                                                             original_2d_vol),
-                                             roi_list))
-            similar_rois = list(
-                compress(roi_list, similar_rois_bool))
-            roi_list = list(compress(roi_list, map(lambda x: not x,
-                                                           similar_rois_bool)))
-            combined_rois = True if len(
-                similar_rois) > 0 else combined_rois
-            curr_roi_combined = list(reduce(
-                lambda roi1, roi2: combine_rois(roi1,
-                                                            roi2),
-                [curr_roi] + similar_rois))
-            new_rois.append(curr_roi_combined)
-        if not combined_rois:
-            break
-        else:
-            roi_list = new_rois
-            new_rois = []
+    for group in roi_groups:
+        group_zipped = list(enumerate(group))
+        timetraces = [np.mean(original_2d_vol[roi], axis=0) for roi in group]
+        while len(group_zipped)>0:
+            first_num, first_roi = group_zipped.pop(0)
+            rois_to_merge = []
+            for num, roi in enumerate(group_zipped):
+                if compare_time_traces(timetraces[first_num],timetraces[roi[0]])>temporal_coefficient:
+                    rois_to_merge.append(num)
+            first_roi = list(reduce(combine_rois, [first_roi]+[group_zipped[x][1] for x in rois_to_merge]))
+            for num in rois_to_merge[::-1]:
+                group_zipped.pop(num)
+            new_rois.append(first_roi)
 
     return new_rois
+def compare_time_traces(trace_1, trace_2):
+    """
+    Compares two timetraces based on person correlation
+    Parameters
+    ----------
+    trace_1
+    trace_2
 
+    Returns
+    -------
+    the correlation
+    """
+    trace_1_mean = np.mean(trace_1)
+    trace_2_mean = np.mean(trace_2)
+    trace_1_sub_mean = (trace_1-trace_1_mean)
+    trace_2_sub_mean = (trace_2-trace_2_mean)
+    top = np.dot(trace_1_sub_mean, trace_2_sub_mean)
+    bottom = (np.dot(trace_1_sub_mean, trace_1_sub_mean)*
+              np.dot(trace_2_sub_mean,trace_2_sub_mean))**.5
+    return top/bottom
 
 def compare_roi(roi1: List[int],
                     roi2: List[int], temporal_coefficient: int,

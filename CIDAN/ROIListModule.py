@@ -1,5 +1,6 @@
 from PySide2.QtWidgets import *
 from PySide2.QtGui import *
+from PySide2 import QtCore
 from CIDAN.ROIItemModule import ROIItemModule
 from CIDAN.ROIItemWidget import ROIItemWidget
 class ROIListModule(QFrame):
@@ -10,9 +11,24 @@ class ROIListModule(QFrame):
         self.list = QListView()
         self.setStyleSheet( "QListView::item { border-bottom: 1px solid rgb(50, 65, "+
                            "75); }" )
+        self.top_labels_layout = QHBoxLayout()
+        label1=QLabel(text="ROI Selected")
+        label1.setMaximumWidth(100)
+        self.top_labels_layout.addWidget(label1, alignment=QtCore.Qt.AlignRight)
+        label2 = QLabel(text="ROI Num")
+        label2.setMaximumWidth(100)
+        self.top_labels_layout.addWidget(label2, alignment=QtCore.Qt.AlignLeft)
+        self.top_labels_layout.addWidget(QLabel(), alignment=QtCore.Qt.AlignRight)
+        self.top_labels_layout.addWidget(QLabel(), alignment=QtCore.Qt.AlignRight)
+        self.top_labels_layout.addWidget(QLabel(), alignment=QtCore.Qt.AlignRight)
+        self.top_labels_layout.addWidget(QLabel(), alignment=QtCore.Qt.AlignRight)
+        label3 = QLabel(text="Time Trace On")
+        label3.setMaximumWidth(100)
+        self.top_labels_layout.addWidget(label3, alignment=QtCore.Qt.AlignRight)
         self.model = QStandardItemModel(self.list)
         self.list.setModel(self.model)
         self.layout = QVBoxLayout()
+        self.layout.addLayout(self.top_labels_layout)
         self.layout.addWidget(self.list)
         self.roi_item_list =[]
         self.setLayout(self.layout)

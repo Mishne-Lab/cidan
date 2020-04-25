@@ -211,6 +211,8 @@ class DataHandler:
             #     assert (int(new_value**.5))**2 == new_value, "Please make sure Number of Spatial Boxes is a square number"
             self.box_params[param_name] = new_value
             self.global_params["need_recalc_box_params"] = True
+            self.global_params["need_recalc_eigen_params"]=True
+            self.global_params["need_recalc_roi_extraction_params"] = True
             self.save_new_param_json()
             return True
         else:

@@ -24,7 +24,6 @@ def gen_eigen_vectors(*, K: np.ndarray, num_eig: int, spatial_box_num:int, tempo
     -------
     A matrix of eigen vectors
     """
-    print("Spatial Box {}, Time Step {}: Generating eigen vectors".format(spatial_box_num, temporal_box_num))
     D_inv, D_diag = calc_D_inv(K=K)
     P = D_inv*K
     D_neg_sqrt = calc_D_neg_sqrt(D_diag)
@@ -34,6 +33,8 @@ def gen_eigen_vectors(*, K: np.ndarray, num_eig: int, spatial_box_num:int, tempo
         return_eigenvectors=True)
     eig_vectors = np.flip(
         D_neg_sqrt * eig_vectors_scaled, axis=1)
+    # print("Spatial Box {}, Time Step {}: Finished ".format(spatial_box_num, temporal_box_num))
+
     return eig_vectors
 @delayed
 def save_eigen_vectors(*, e_vectors, spatial_box_num: int, time_box_num:int, save_dir:

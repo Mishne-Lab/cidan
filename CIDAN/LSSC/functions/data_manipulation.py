@@ -15,16 +15,20 @@ def load_filter_tif_stack(*, path, filter: bool, median_filter: bool,
     This function reads a tiff stack file
     Parameters
     ----------
-    path The path to a single tif stack
+    path The path to a single tif stack or a list of paths to many tiff stacks
+
 
     Returns
     -------
     a 3D numpy array with the tiff files together
 
     """
-    if os.path.isdir(path):
+
+    if type(path) == list or os.path.isdir(path):
         volumes = []
-        for num, x in enumerate(sorted(os.listdir(path))):
+        paths = path if type(path) == list else sorted(os.listdir(path))
+
+        for num, x in enumerate(paths):
             file_path = os.path.join(path, x)
             image = tifffile.imread(file_path)
             if slice_stack:

@@ -172,11 +172,12 @@ class MainWidget(QWidget):
         for tab in self.tabs:
             self.tab_widget.addTab(tab, tab.name)
         self.tab_widget.setCurrentIndex(1)
-        self.export_menu = self.main_menu.addMenu("&Export")
-        export_action = QAction("Export Time Traces/ROIs", self)
-        export_action.setStatusTip('Export Time Traces/ROIs')
-        export_action.triggered.connect(lambda: self.exportStuff())
-        self.export_menu.addAction(export_action)
+        if not hasattr(self, "export_menu"):
+            self.export_menu = self.main_menu.addMenu("&Export")
+            export_action = QAction("Export Time Traces/ROIs", self)
+            export_action.setStatusTip('Export Time Traces/ROIs')
+            export_action.triggered.connect(lambda: self.exportStuff())
+            self.export_menu.addAction(export_action)
     def selectOpenFileTab(self, index):
         self.tab_widget.setCurrentIndex(0)
         self.fileOpenTab.tab_selector.setCurrentIndex(index)
