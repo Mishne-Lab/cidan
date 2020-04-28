@@ -65,10 +65,8 @@ class DataHandler:
         "refinement": True,
         "max_iter": 1000,
     }
-    def __init__(self, data_path, save_dir_path, save_dir_already_created):
-        # TODO Create two initialization methods one with default parameters and one
-        #  with loading save dir parameters
-        # TODO Check if parrelization is working
+    def __init__(self, data_path, save_dir_path, save_dir_already_created, trials=[]):
+        # TODO add loaded trials and all trials parameter here
         self.color_list = [(218, 67, 34),
                            (132, 249, 22), (22, 249, 140), (22, 245, 249),
                            (22, 132, 249), (224, 22, 249), (249, 22, 160)]
@@ -78,7 +76,7 @@ class DataHandler:
         if save_dir_already_created:
             valid = self.load_param_json()
             self.calculate_filters()
-            #
+
 
             if self.rois_exist:
                 self.load_rois()
@@ -91,9 +89,12 @@ class DataHandler:
 
             self.dataset_params = DataHandler.dataset_params_default.copy()
             self.dataset_params["dataset_path"] = data_path
+            self.dataset_params["trials"] = trials
+
 
             self.filter_params = DataHandler.filter_params_default.copy()
             self.box_params = DataHandler.box_params_default.copy()
+            self.box_params["total_num_time_steps"] = len(trials)
             self.eigen_params = DataHandler.eigen_params_default.copy()
             self.roi_extraction_params = DataHandler.roi_extraction_params_default.copy()
             valid = self.create_new_save_dir()
@@ -244,8 +245,9 @@ class DataHandler:
         """
         # TODO make it so it does't load the dataset every time
 
-        self.dataset = load_filter_tif_stack(path=self.dataset_params[
-            "dataset_path"], filter=False,
+        self.dataset = load_filter_tif_stack(path=[os.path.join(self.dataset_params[
+            "dataset_path"],x) for x in self.dataset_params[
+            "trials"]], filter=False,
                                              median_filter=False,
                                              median_filter_size=(1,3,3),
                                              z_score=False, slice_stack=self.dataset_params[
@@ -400,6 +402,7 @@ class DataHandler:
         -------
 
         """
+        # TODO make so it can also calculate for a specific trial, so it would be a 2d array
         cluster = self.clusters[roi_num-1]
         data_2d = reshape_to_2d_over_time(self.dataset_filtered)
         time_trace = np.average(data_2d[cluster], axis=0)

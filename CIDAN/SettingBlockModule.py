@@ -63,12 +63,8 @@ def dataset_setting_block(main_widget):
 
 def multiprocessing_settings_block(main_widget):
     data_handler = main_widget.data_handler
-    return SettingBlockModule("Multiprocessing Settings", [IntInput(display_name="Number of timesteps:",
-                                                           program_name="total_num_time_steps",
-                                                           on_change_function=lambda x,y:data_handler.change_box_param(x,y),
-                                                           default_val=data_handler.box_params["total_num_time_steps"],
-                                                           tool_tip="Number of timesteps to break the processing into",
-                                                           min=1, max=1000,step=1),
+    return SettingBlockModule("Multiprocessing Settings", [
+
                                                            IntInput(
                                                                display_name="Number of spatial boxes:",
                                                                program_name="total_num_spatial_boxes",
@@ -174,6 +170,12 @@ def roi_advanced_settings_block(main_widget):
                                             "num_eig"],
                                         tool_tip="Number of eigen vectors to generate",
                                         min=1, max=1000, step=1),
+                               IntInput(display_name="Number of timesteps:",
+                              program_name="total_num_time_steps",
+                              on_change_function=lambda x,y:data_handler.change_box_param(x,y),
+                              default_val=data_handler.box_params["total_num_time_steps"],
+                              tool_tip="Number of timesteps to break the processing into",
+                              min=1, max=1000,step=1),
 
 
                                ]

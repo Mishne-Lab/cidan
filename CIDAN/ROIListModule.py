@@ -6,6 +6,8 @@ from CIDAN.ROIItemWidget import ROIItemWidget
 class ROIListModule(QFrame):
     def __init__(self, data_handler, roi_tab):
         super().__init__()
+        self.current_selected_roi = 0
+
         self.roi_tab = roi_tab
         self.color_list = data_handler.color_list
         self.list = QListView()
@@ -34,8 +36,9 @@ class ROIListModule(QFrame):
         self.setLayout(self.layout)
     def set_current_select(self,num):
         self.list.setCurrentIndex(self.model.index(int(num-1),0))
-        self.roi_check_list[num - 1] = not self.roi_check_list[num - 1]
-        self.roi_item_list[num-1].select()
+        self.roi_time_check_list[num - 1] = not self.roi_time_check_list[num - 1]
+        self.roi_item_list[num-1].select_check_box()
+        self.roi_item_list[num-1].select_time_check_box()
 
 
     def set_list_items(self, clusters):
@@ -49,13 +52,15 @@ class ROIListModule(QFrame):
             self.roi_item_list.append(item)
             self.model.appendRow(item1)
             self.list.setIndexWidget(item1.index(), item)
-        self.roi_check_list = [False]*len(self.roi_item_list)
+        self.roi_time_check_list = [False]*len(self.roi_item_list)
+        self.roi_item_list[0].select_check_box()
+        self.roi_item_list[0].select_time_check_box()
     # def change(self):
     #     # This is a way of running the select roi function when a checkbox is clicked there
     #     # needed to be a work around because can't just connect a signal to it
-    #     for num, item, check_val in zip(range(1,len(self.roi_check_list)+1),self.roi_item_list,self.roi_check_list):
+    #     for num, item, check_val in zip(range(1,len(self.roi_time_check_list)+1),self.roi_item_list,self.roi_time_check_list):
     #         if item.checkState() != check_val:
-    #             self.roi_check_list[num-1] = item.checkState()
+    #             self.roi_time_check_list[num-1] = item.checkState()
     #             if item.checkState():
     #                 self.roi_tab.selectRoi(num)
     #             else:

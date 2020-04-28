@@ -112638,3 +112638,1126 @@ DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
 DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23763
 DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
 DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23763
+DEBUG:CIDAN:Program started
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23763
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23763
+DEBUG:qdarkstyle:Reading QSS file in: :qdarkstyle/style.qss
+INFO:qdarkstyle:QSS file sucessfuly loaded.
+DEBUG:qdarkstyle:Checking patches for being applied.
+INFO:qdarkstyle:Found OS patches to be applied.
+INFO:qdarkstyle:Found application patches to be applied.
+DEBUG:CIDAN.LSSC.process_data:Inputs: num_threads 1,test_images False, test_output_dir ,
+                 save_dir /Users/sschickler/Code Devel/LSSC-python/input_images/test31, save_intermediate_steps True,
+                 load_data False, data_path ,
+                 image_data [[[ 0  6  6 ... 26 26 26]
+  [ 4  4  6 ... 26 14  8]
+  [ 6  4  3 ... 14  8  8]
+  ...
+  [19 24 33 ...  1  1  1]
+  [ 4  4  9 ...  1  0  0]
+  [ 0  0  0 ...  0  0  0]]
+
+ [[13  7  7 ... 34 34 38]
+  [10  4  0 ... 30 34 39]
+  [ 3  3  0 ... 29 29 35]
+  ...
+  [10 10 37 ...  1  0  0]
+  [ 4  6 10 ...  0  0  0]
+  [ 3  4  6 ...  0  0  0]]
+
+ [[ 7  3  1 ... 45 38 45]
+  [ 7  4  4 ... 27 37 38]
+  [ 7  4  4 ... 23 21 21]
+  ...
+  [39 43 58 ...  0  0  0]
+  [ 1 19 29 ...  0  0  0]
+  [ 0 15 28 ...  0  0  0]]
+
+ ...
+
+ [[ 0  0  4 ...  7  0  7]
+  [ 0  0 11 ...  0  0  0]
+  [14 14 13 ...  0  0  0]
+  ...
+  [17 14  9 ...  3  3  6]
+  [14 14  9 ...  4  1  6]
+  [ 9 17 17 ... 11  7 19]]
+
+ [[ 4  1  0 ... 13  0  0]
+  [ 4  0  0 ...  8  0  0]
+  [ 4  0  0 ...  8  8  0]
+  ...
+  [ 9  9 14 ...  6 15  6]
+  [ 6  9 14 ...  6 18 18]
+  [ 6  6  9 ...  7 18 18]]
+
+ [[ 0 12 17 ... 16 26 31]
+  [ 0  0  0 ... 16 26 28]
+  [12  0  0 ... 26 24 26]
+  ...
+  [10 18 18 ... 14 12 12]
+  [ 0 10 22 ...  0  0  0]
+  [ 0 10 10 ...  0  0  0]]],
+                 eigen_vectors_already_generated False,
+                 save_embedding_images True,
+                 total_num_time_steps 1, total_num_spatial_boxes 4,
+                 spatial_overlap 30, filter False, median_filter False,
+                 median_filter_size (1, 3, 3),
+                 z_score False, slice_stack False,
+                 slice_every 1, slice_start 0, metric l2, knn 20,
+                 accuracy 39, connections 40, normalize_w_k 2, num_eig 50,
+                 merge True,
+                 num_rois 60, refinement True, num_eigen_vector_select 5,
+                 max_iter 1000, roi_size_min 30, fill_holes True,
+                 elbow_threshold_method True, elbow_threshold_value 1,
+                 eigen_threshold_method True,
+                 eigen_threshold_value 0.5, merge_temporal_coef 0.9199999999999999,
+                 roi_size_max 597
+DEBUG:CIDAN.LSSC.process_data:image shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 0, total boxes 4, image shape (99, 400, 150), spatial overlap 30
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 0, box cord 1 [0, 0], box cord 2 [230, 105], shape (99, 230, 105)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 1, total boxes 4, image shape (99, 400, 150), spatial overlap 30
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 1, box cord 1 [170, 0], box cord 2 [400, 105], shape (99, 230, 105)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 2, total boxes 4, image shape (99, 400, 150), spatial overlap 30
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 0, box cord 1 [0, 45], box cord 2 [230, 150], shape (99, 230, 105)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 3, total boxes 4, image shape (99, 400, 150), spatial overlap 30
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 1, box cord 1 [170, 45], box cord 2 [400, 150], shape (99, 230, 105)
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-7e8a8a1852dff89d4bc7f25a5906059c'), 2d shape Delayed('getattr-67cd3346a793838e571c6dce534c9dfe')
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-4c82a24846835ee699888f7e2b4430eb'), 2d shape Delayed('getattr-d6e2668fe5eb356d18a88bf34bb317fd')
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-366321b502267b2d659eeba2c17ca701'), 2d shape Delayed('getattr-1ef27bd60fe2fc3cdc02c2f28e5516b0')
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-159eb824f2c799e893f3d1d3f2d07bc1'), 2d shape Delayed('getattr-5e692bc4efbaa143be988e14e9fccbb3')
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 27154
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 27154
+DEBUG:CIDAN.LSSC.process_data:Inputs: num_threads 1,test_images False, test_output_dir ,
+                 save_dir /Users/sschickler/Code Devel/LSSC-python/input_images/test31, save_intermediate_steps True,
+                 load_data False, data_path ,
+                 image_data [[[ 0  6  6 ... 26 26 26]
+  [ 4  4  6 ... 26 14  8]
+  [ 6  4  3 ... 14  8  8]
+  ...
+  [19 24 33 ...  1  1  1]
+  [ 4  4  9 ...  1  0  0]
+  [ 0  0  0 ...  0  0  0]]
+
+ [[13  7  7 ... 34 34 38]
+  [10  4  0 ... 30 34 39]
+  [ 3  3  0 ... 29 29 35]
+  ...
+  [10 10 37 ...  1  0  0]
+  [ 4  6 10 ...  0  0  0]
+  [ 3  4  6 ...  0  0  0]]
+
+ [[ 7  3  1 ... 45 38 45]
+  [ 7  4  4 ... 27 37 38]
+  [ 7  4  4 ... 23 21 21]
+  ...
+  [39 43 58 ...  0  0  0]
+  [ 1 19 29 ...  0  0  0]
+  [ 0 15 28 ...  0  0  0]]
+
+ ...
+
+ [[ 0  0  4 ...  7  0  7]
+  [ 0  0 11 ...  0  0  0]
+  [14 14 13 ...  0  0  0]
+  ...
+  [17 14  9 ...  3  3  6]
+  [14 14  9 ...  4  1  6]
+  [ 9 17 17 ... 11  7 19]]
+
+ [[ 4  1  0 ... 13  0  0]
+  [ 4  0  0 ...  8  0  0]
+  [ 4  0  0 ...  8  8  0]
+  ...
+  [ 9  9 14 ...  6 15  6]
+  [ 6  9 14 ...  6 18 18]
+  [ 6  6  9 ...  7 18 18]]
+
+ [[ 0 12 17 ... 16 26 31]
+  [ 0  0  0 ... 16 26 28]
+  [12  0  0 ... 26 24 26]
+  ...
+  [10 18 18 ... 14 12 12]
+  [ 0 10 22 ...  0  0  0]
+  [ 0 10 10 ...  0  0  0]]],
+                 eigen_vectors_already_generated True,
+                 save_embedding_images True,
+                 total_num_time_steps 1, total_num_spatial_boxes 4,
+                 spatial_overlap 30, filter False, median_filter False,
+                 median_filter_size (1, 3, 3),
+                 z_score False, slice_stack False,
+                 slice_every 1, slice_start 0, metric l2, knn 20,
+                 accuracy 39, connections 40, normalize_w_k 2, num_eig 50,
+                 merge True,
+                 num_rois 60, refinement True, num_eigen_vector_select 5,
+                 max_iter 1000, roi_size_min 30, fill_holes True,
+                 elbow_threshold_method True, elbow_threshold_value 1,
+                 eigen_threshold_method True,
+                 eigen_threshold_value 0.5, merge_temporal_coef 0.95,
+                 roi_size_max 597
+DEBUG:CIDAN.LSSC.process_data:image shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 0, total boxes 4, image shape (99, 400, 150), spatial overlap 30
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 0, box cord 1 [0, 0], box cord 2 [230, 105], shape (99, 230, 105)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 1, total boxes 4, image shape (99, 400, 150), spatial overlap 30
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 1, box cord 1 [170, 0], box cord 2 [400, 105], shape (99, 230, 105)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 2, total boxes 4, image shape (99, 400, 150), spatial overlap 30
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 0, box cord 1 [0, 45], box cord 2 [230, 150], shape (99, 230, 105)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 3, total boxes 4, image shape (99, 400, 150), spatial overlap 30
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 1, box cord 1 [170, 45], box cord 2 [400, 150], shape (99, 230, 105)
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_2_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_1_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_3_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_0_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 2, time box 0 shape: (24150, 50)
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 3, time box 0 shape: (24150, 50)
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 1, time box 0 shape: (24150, 50)
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 0, time box 0 shape: (24150, 50)
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 27154
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 27154
+DEBUG:CIDAN.LSSC.process_data:Inputs: num_threads 1,test_images False, test_output_dir ,
+                 save_dir /Users/sschickler/Code Devel/LSSC-python/input_images/test31, save_intermediate_steps True,
+                 load_data False, data_path ,
+                 image_data [[[ 0  6  6 ... 26 26 26]
+  [ 4  4  6 ... 26 14  8]
+  [ 6  4  3 ... 14  8  8]
+  ...
+  [19 24 33 ...  1  1  1]
+  [ 4  4  9 ...  1  0  0]
+  [ 0  0  0 ...  0  0  0]]
+
+ [[13  7  7 ... 34 34 38]
+  [10  4  0 ... 30 34 39]
+  [ 3  3  0 ... 29 29 35]
+  ...
+  [10 10 37 ...  1  0  0]
+  [ 4  6 10 ...  0  0  0]
+  [ 3  4  6 ...  0  0  0]]
+
+ [[ 7  3  1 ... 45 38 45]
+  [ 7  4  4 ... 27 37 38]
+  [ 7  4  4 ... 23 21 21]
+  ...
+  [39 43 58 ...  0  0  0]
+  [ 1 19 29 ...  0  0  0]
+  [ 0 15 28 ...  0  0  0]]
+
+ ...
+
+ [[ 0  0  4 ...  7  0  7]
+  [ 0  0 11 ...  0  0  0]
+  [14 14 13 ...  0  0  0]
+  ...
+  [17 14  9 ...  3  3  6]
+  [14 14  9 ...  4  1  6]
+  [ 9 17 17 ... 11  7 19]]
+
+ [[ 4  1  0 ... 13  0  0]
+  [ 4  0  0 ...  8  0  0]
+  [ 4  0  0 ...  8  8  0]
+  ...
+  [ 9  9 14 ...  6 15  6]
+  [ 6  9 14 ...  6 18 18]
+  [ 6  6  9 ...  7 18 18]]
+
+ [[ 0 12 17 ... 16 26 31]
+  [ 0  0  0 ... 16 26 28]
+  [12  0  0 ... 26 24 26]
+  ...
+  [10 18 18 ... 14 12 12]
+  [ 0 10 22 ...  0  0  0]
+  [ 0 10 10 ...  0  0  0]]],
+                 eigen_vectors_already_generated False,
+                 save_embedding_images True,
+                 total_num_time_steps 1, total_num_spatial_boxes 4,
+                 spatial_overlap 10, filter False, median_filter False,
+                 median_filter_size (1, 3, 3),
+                 z_score False, slice_stack False,
+                 slice_every 1, slice_start 0, metric l2, knn 20,
+                 accuracy 39, connections 40, normalize_w_k 2, num_eig 50,
+                 merge True,
+                 num_rois 60, refinement True, num_eigen_vector_select 5,
+                 max_iter 1000, roi_size_min 30, fill_holes True,
+                 elbow_threshold_method True, elbow_threshold_value 1,
+                 eigen_threshold_method True,
+                 eigen_threshold_value 0.5, merge_temporal_coef 0.95,
+                 roi_size_max 597
+DEBUG:CIDAN.LSSC.process_data:image shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 0, total boxes 4, image shape (99, 400, 150), spatial overlap 10
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 0, box cord 1 [0, 0], box cord 2 [210, 85], shape (99, 210, 85)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 1, total boxes 4, image shape (99, 400, 150), spatial overlap 10
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 1, box cord 1 [190, 0], box cord 2 [400, 85], shape (99, 210, 85)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 2, total boxes 4, image shape (99, 400, 150), spatial overlap 10
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 0, box cord 1 [0, 65], box cord 2 [210, 150], shape (99, 210, 85)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 3, total boxes 4, image shape (99, 400, 150), spatial overlap 10
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 1, box cord 1 [190, 65], box cord 2 [400, 150], shape (99, 210, 85)
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-e47b3ea05dde74a4828376cde5d8c698'), 2d shape Delayed('getattr-3ff94998f365174e8bf1edd35183cffa')
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-d7869e25eea7739a57429fbbf36bdbb9'), 2d shape Delayed('getattr-1f3e1071eb51bdeae2d5e66bd0d45c3c')
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-7f0aabc46eb0f2203a07ea07902601d3'), 2d shape Delayed('getattr-384bd033c1ed59306a51751c16b908b8')
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-ff515a7148e81b8b147644e9aa88712e'), 2d shape Delayed('getattr-3be00c8a122e5206e6face32b3bf6d56')
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 32424
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 32424
+DEBUG:CIDAN.LSSC.process_data:Inputs: num_threads 1,test_images False, test_output_dir ,
+                 save_dir /Users/sschickler/Code Devel/LSSC-python/input_images/test31, save_intermediate_steps True,
+                 load_data False, data_path ,
+                 image_data [[[ 0  6  6 ... 26 26 26]
+  [ 4  4  6 ... 26 14  8]
+  [ 6  4  3 ... 14  8  8]
+  ...
+  [19 24 33 ...  1  1  1]
+  [ 4  4  9 ...  1  0  0]
+  [ 0  0  0 ...  0  0  0]]
+
+ [[13  7  7 ... 34 34 38]
+  [10  4  0 ... 30 34 39]
+  [ 3  3  0 ... 29 29 35]
+  ...
+  [10 10 37 ...  1  0  0]
+  [ 4  6 10 ...  0  0  0]
+  [ 3  4  6 ...  0  0  0]]
+
+ [[ 7  3  1 ... 45 38 45]
+  [ 7  4  4 ... 27 37 38]
+  [ 7  4  4 ... 23 21 21]
+  ...
+  [39 43 58 ...  0  0  0]
+  [ 1 19 29 ...  0  0  0]
+  [ 0 15 28 ...  0  0  0]]
+
+ ...
+
+ [[ 0  0  4 ...  7  0  7]
+  [ 0  0 11 ...  0  0  0]
+  [14 14 13 ...  0  0  0]
+  ...
+  [17 14  9 ...  3  3  6]
+  [14 14  9 ...  4  1  6]
+  [ 9 17 17 ... 11  7 19]]
+
+ [[ 4  1  0 ... 13  0  0]
+  [ 4  0  0 ...  8  0  0]
+  [ 4  0  0 ...  8  8  0]
+  ...
+  [ 9  9 14 ...  6 15  6]
+  [ 6  9 14 ...  6 18 18]
+  [ 6  6  9 ...  7 18 18]]
+
+ [[ 0 12 17 ... 16 26 31]
+  [ 0  0  0 ... 16 26 28]
+  [12  0  0 ... 26 24 26]
+  ...
+  [10 18 18 ... 14 12 12]
+  [ 0 10 22 ...  0  0  0]
+  [ 0 10 10 ...  0  0  0]]],
+                 eigen_vectors_already_generated False,
+                 save_embedding_images True,
+                 total_num_time_steps 1, total_num_spatial_boxes 4,
+                 spatial_overlap 10, filter False, median_filter False,
+                 median_filter_size (1, 3, 3),
+                 z_score False, slice_stack False,
+                 slice_every 1, slice_start 0, metric l2, knn 20,
+                 accuracy 39, connections 40, normalize_w_k 2, num_eig 25,
+                 merge True,
+                 num_rois 30, refinement True, num_eigen_vector_select 5,
+                 max_iter 1000, roi_size_min 30, fill_holes True,
+                 elbow_threshold_method True, elbow_threshold_value 1,
+                 eigen_threshold_method True,
+                 eigen_threshold_value 0.5, merge_temporal_coef 0.95,
+                 roi_size_max 597
+DEBUG:CIDAN.LSSC.process_data:image shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 0, total boxes 4, image shape (99, 400, 150), spatial overlap 10
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 0, box cord 1 [0, 0], box cord 2 [210, 85], shape (99, 210, 85)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 1, total boxes 4, image shape (99, 400, 150), spatial overlap 10
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 1, box cord 1 [190, 0], box cord 2 [400, 85], shape (99, 210, 85)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 2, total boxes 4, image shape (99, 400, 150), spatial overlap 10
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 0, box cord 1 [0, 65], box cord 2 [210, 150], shape (99, 210, 85)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 3, total boxes 4, image shape (99, 400, 150), spatial overlap 10
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 1, box cord 1 [190, 65], box cord 2 [400, 150], shape (99, 210, 85)
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-f0b8c98d8b1dc653b2d0ac58d80c17cc'), 2d shape Delayed('getattr-e341360e56b8eb95634c2d85ed5ad0dd')
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-a12670b279786fd78cf8c0665c00ec87'), 2d shape Delayed('getattr-1262b54e250b8152d9896c0a2ba5bac2')
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-5fd3dcfa17de7773c8266f6a61a63b35'), 2d shape Delayed('getattr-e60e22bee9c2e12d34b6a5763726eacc')
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-051dbfcf5d24d178ba9e52608faf6c05'), 2d shape Delayed('getattr-4812ea2106f90dae5809909957dc925d')
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23855
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23855
+DEBUG:CIDAN.LSSC.process_data:Inputs: num_threads 1,test_images False, test_output_dir ,
+                 save_dir /Users/sschickler/Code Devel/LSSC-python/input_images/test31, save_intermediate_steps True,
+                 load_data False, data_path ,
+                 image_data [[[ 0  6  6 ... 26 26 26]
+  [ 4  4  6 ... 26 14  8]
+  [ 6  4  3 ... 14  8  8]
+  ...
+  [19 24 33 ...  1  1  1]
+  [ 4  4  9 ...  1  0  0]
+  [ 0  0  0 ...  0  0  0]]
+
+ [[13  7  7 ... 34 34 38]
+  [10  4  0 ... 30 34 39]
+  [ 3  3  0 ... 29 29 35]
+  ...
+  [10 10 37 ...  1  0  0]
+  [ 4  6 10 ...  0  0  0]
+  [ 3  4  6 ...  0  0  0]]
+
+ [[ 7  3  1 ... 45 38 45]
+  [ 7  4  4 ... 27 37 38]
+  [ 7  4  4 ... 23 21 21]
+  ...
+  [39 43 58 ...  0  0  0]
+  [ 1 19 29 ...  0  0  0]
+  [ 0 15 28 ...  0  0  0]]
+
+ ...
+
+ [[ 0  0  4 ...  7  0  7]
+  [ 0  0 11 ...  0  0  0]
+  [14 14 13 ...  0  0  0]
+  ...
+  [17 14  9 ...  3  3  6]
+  [14 14  9 ...  4  1  6]
+  [ 9 17 17 ... 11  7 19]]
+
+ [[ 4  1  0 ... 13  0  0]
+  [ 4  0  0 ...  8  0  0]
+  [ 4  0  0 ...  8  8  0]
+  ...
+  [ 9  9 14 ...  6 15  6]
+  [ 6  9 14 ...  6 18 18]
+  [ 6  6  9 ...  7 18 18]]
+
+ [[ 0 12 17 ... 16 26 31]
+  [ 0  0  0 ... 16 26 28]
+  [12  0  0 ... 26 24 26]
+  ...
+  [10 18 18 ... 14 12 12]
+  [ 0 10 22 ...  0  0  0]
+  [ 0 10 10 ...  0  0  0]]],
+                 eigen_vectors_already_generated False,
+                 save_embedding_images True,
+                 total_num_time_steps 1, total_num_spatial_boxes 4,
+                 spatial_overlap 40, filter False, median_filter False,
+                 median_filter_size (1, 3, 3),
+                 z_score False, slice_stack False,
+                 slice_every 1, slice_start 0, metric l2, knn 20,
+                 accuracy 39, connections 40, normalize_w_k 2, num_eig 25,
+                 merge True,
+                 num_rois 30, refinement True, num_eigen_vector_select 5,
+                 max_iter 1000, roi_size_min 24, fill_holes True,
+                 elbow_threshold_method True, elbow_threshold_value 1,
+                 eigen_threshold_method True,
+                 eigen_threshold_value 0.5, merge_temporal_coef 0.96,
+                 roi_size_max 597
+DEBUG:CIDAN.LSSC.process_data:image shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 0, total boxes 4, image shape (99, 400, 150), spatial overlap 40
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 0, box cord 1 [0, 0], box cord 2 [240, 115], shape (99, 240, 115)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 1, total boxes 4, image shape (99, 400, 150), spatial overlap 40
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 1, box cord 1 [160, 0], box cord 2 [400, 115], shape (99, 240, 115)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 2, total boxes 4, image shape (99, 400, 150), spatial overlap 40
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 0, box cord 1 [0, 35], box cord 2 [240, 150], shape (99, 240, 115)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 3, total boxes 4, image shape (99, 400, 150), spatial overlap 40
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 1, box cord 1 [160, 35], box cord 2 [400, 150], shape (99, 240, 115)
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-4e09cf6420d342abf3a4be1f79a815bd'), 2d shape Delayed('getattr-05bfa1945ac4f41385bf196f48eeb274')
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-5e1c0e253798c645a2029c90c9936718'), 2d shape Delayed('getattr-f94d03b4ad6510b2258230a0883d8352')
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-50c4cbec9c3788bdec5184e7f23cc76a'), 2d shape Delayed('getattr-42171d47d4bc413f14cfe3082aebd065')
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-a67d2f58aa7cc70bda228b5c28ee147a'), 2d shape Delayed('getattr-9169182a1ce0f67ca04931f744c0a491')
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 18802
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 18802
+DEBUG:CIDAN.LSSC.process_data:Inputs: num_threads 1,test_images False, test_output_dir ,
+                 save_dir /Users/sschickler/Code Devel/LSSC-python/input_images/test31, save_intermediate_steps True,
+                 load_data False, data_path ,
+                 image_data [[[ 0  6  6 ... 26 26 26]
+  [ 4  4  6 ... 26 14  8]
+  [ 6  4  3 ... 14  8  8]
+  ...
+  [19 24 33 ...  1  1  1]
+  [ 4  4  9 ...  1  0  0]
+  [ 0  0  0 ...  0  0  0]]
+
+ [[13  7  7 ... 34 34 38]
+  [10  4  0 ... 30 34 39]
+  [ 3  3  0 ... 29 29 35]
+  ...
+  [10 10 37 ...  1  0  0]
+  [ 4  6 10 ...  0  0  0]
+  [ 3  4  6 ...  0  0  0]]
+
+ [[ 7  3  1 ... 45 38 45]
+  [ 7  4  4 ... 27 37 38]
+  [ 7  4  4 ... 23 21 21]
+  ...
+  [39 43 58 ...  0  0  0]
+  [ 1 19 29 ...  0  0  0]
+  [ 0 15 28 ...  0  0  0]]
+
+ ...
+
+ [[ 0  0  4 ...  7  0  7]
+  [ 0  0 11 ...  0  0  0]
+  [14 14 13 ...  0  0  0]
+  ...
+  [17 14  9 ...  3  3  6]
+  [14 14  9 ...  4  1  6]
+  [ 9 17 17 ... 11  7 19]]
+
+ [[ 4  1  0 ... 13  0  0]
+  [ 4  0  0 ...  8  0  0]
+  [ 4  0  0 ...  8  8  0]
+  ...
+  [ 9  9 14 ...  6 15  6]
+  [ 6  9 14 ...  6 18 18]
+  [ 6  6  9 ...  7 18 18]]
+
+ [[ 0 12 17 ... 16 26 31]
+  [ 0  0  0 ... 16 26 28]
+  [12  0  0 ... 26 24 26]
+  ...
+  [10 18 18 ... 14 12 12]
+  [ 0 10 22 ...  0  0  0]
+  [ 0 10 10 ...  0  0  0]]],
+                 eigen_vectors_already_generated True,
+                 save_embedding_images True,
+                 total_num_time_steps 1, total_num_spatial_boxes 4,
+                 spatial_overlap 40, filter False, median_filter False,
+                 median_filter_size (1, 3, 3),
+                 z_score False, slice_stack False,
+                 slice_every 1, slice_start 0, metric l2, knn 20,
+                 accuracy 39, connections 40, normalize_w_k 2, num_eig 25,
+                 merge True,
+                 num_rois 10, refinement True, num_eigen_vector_select 5,
+                 max_iter 1000, roi_size_min 24, fill_holes True,
+                 elbow_threshold_method True, elbow_threshold_value 1,
+                 eigen_threshold_method True,
+                 eigen_threshold_value 0.5, merge_temporal_coef 0.96,
+                 roi_size_max 597
+DEBUG:CIDAN.LSSC.process_data:image shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 0, total boxes 4, image shape (99, 400, 150), spatial overlap 40
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 0, box cord 1 [0, 0], box cord 2 [240, 115], shape (99, 240, 115)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 1, total boxes 4, image shape (99, 400, 150), spatial overlap 40
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 1, box cord 1 [160, 0], box cord 2 [400, 115], shape (99, 240, 115)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 2, total boxes 4, image shape (99, 400, 150), spatial overlap 40
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 0, box cord 1 [0, 35], box cord 2 [240, 150], shape (99, 240, 115)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 3, total boxes 4, image shape (99, 400, 150), spatial overlap 40
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 1, box cord 1 [160, 35], box cord 2 [400, 150], shape (99, 240, 115)
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_3_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_1_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_2_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_0_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 2, time box 0 shape: (27600, 25)
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 3, time box 0 shape: (27600, 25)
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 0, time box 0 shape: (27600, 25)
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 1, time box 0 shape: (27600, 25)
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 18802
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 18802
+DEBUG:CIDAN.LSSC.process_data:Inputs: num_threads 1,test_images False, test_output_dir ,
+                 save_dir /Users/sschickler/Code Devel/LSSC-python/input_images/test31, save_intermediate_steps True,
+                 load_data False, data_path ,
+                 image_data [[[ 0  6  6 ... 26 26 26]
+  [ 4  4  6 ... 26 14  8]
+  [ 6  4  3 ... 14  8  8]
+  ...
+  [19 24 33 ...  1  1  1]
+  [ 4  4  9 ...  1  0  0]
+  [ 0  0  0 ...  0  0  0]]
+
+ [[13  7  7 ... 34 34 38]
+  [10  4  0 ... 30 34 39]
+  [ 3  3  0 ... 29 29 35]
+  ...
+  [10 10 37 ...  1  0  0]
+  [ 4  6 10 ...  0  0  0]
+  [ 3  4  6 ...  0  0  0]]
+
+ [[ 7  3  1 ... 45 38 45]
+  [ 7  4  4 ... 27 37 38]
+  [ 7  4  4 ... 23 21 21]
+  ...
+  [39 43 58 ...  0  0  0]
+  [ 1 19 29 ...  0  0  0]
+  [ 0 15 28 ...  0  0  0]]
+
+ ...
+
+ [[ 0  0  4 ...  7  0  7]
+  [ 0  0 11 ...  0  0  0]
+  [14 14 13 ...  0  0  0]
+  ...
+  [17 14  9 ...  3  3  6]
+  [14 14  9 ...  4  1  6]
+  [ 9 17 17 ... 11  7 19]]
+
+ [[ 4  1  0 ... 13  0  0]
+  [ 4  0  0 ...  8  0  0]
+  [ 4  0  0 ...  8  8  0]
+  ...
+  [ 9  9 14 ...  6 15  6]
+  [ 6  9 14 ...  6 18 18]
+  [ 6  6  9 ...  7 18 18]]
+
+ [[ 0 12 17 ... 16 26 31]
+  [ 0  0  0 ... 16 26 28]
+  [12  0  0 ... 26 24 26]
+  ...
+  [10 18 18 ... 14 12 12]
+  [ 0 10 22 ...  0  0  0]
+  [ 0 10 10 ...  0  0  0]]],
+                 eigen_vectors_already_generated True,
+                 save_embedding_images True,
+                 total_num_time_steps 1, total_num_spatial_boxes 4,
+                 spatial_overlap 40, filter False, median_filter False,
+                 median_filter_size (1, 3, 3),
+                 z_score False, slice_stack False,
+                 slice_every 1, slice_start 0, metric l2, knn 20,
+                 accuracy 39, connections 40, normalize_w_k 2, num_eig 25,
+                 merge True,
+                 num_rois 15, refinement True, num_eigen_vector_select 5,
+                 max_iter 1000, roi_size_min 24, fill_holes True,
+                 elbow_threshold_method True, elbow_threshold_value 1,
+                 eigen_threshold_method True,
+                 eigen_threshold_value 0.5, merge_temporal_coef 0.96,
+                 roi_size_max 597
+DEBUG:CIDAN.LSSC.process_data:image shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 0, total boxes 4, image shape (99, 400, 150), spatial overlap 40
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 0, box cord 1 [0, 0], box cord 2 [240, 115], shape (99, 240, 115)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 1, total boxes 4, image shape (99, 400, 150), spatial overlap 40
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 1, box cord 1 [160, 0], box cord 2 [400, 115], shape (99, 240, 115)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 2, total boxes 4, image shape (99, 400, 150), spatial overlap 40
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 0, box cord 1 [0, 35], box cord 2 [240, 150], shape (99, 240, 115)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 3, total boxes 4, image shape (99, 400, 150), spatial overlap 40
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 1, box cord 1 [160, 35], box cord 2 [400, 150], shape (99, 240, 115)
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_3_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_2_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_0_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_1_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 3, time box 0 shape: (27600, 25)
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 1, time box 0 shape: (27600, 25)
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 0, time box 0 shape: (27600, 25)
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 2, time box 0 shape: (27600, 25)
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 18802
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 18802
+DEBUG:CIDAN.LSSC.process_data:Inputs: num_threads 1,test_images False, test_output_dir ,
+                 save_dir /Users/sschickler/Code Devel/LSSC-python/input_images/test31, save_intermediate_steps True,
+                 load_data False, data_path ,
+                 image_data [[[ 0  6  6 ... 26 26 26]
+  [ 4  4  6 ... 26 14  8]
+  [ 6  4  3 ... 14  8  8]
+  ...
+  [19 24 33 ...  1  1  1]
+  [ 4  4  9 ...  1  0  0]
+  [ 0  0  0 ...  0  0  0]]
+
+ [[13  7  7 ... 34 34 38]
+  [10  4  0 ... 30 34 39]
+  [ 3  3  0 ... 29 29 35]
+  ...
+  [10 10 37 ...  1  0  0]
+  [ 4  6 10 ...  0  0  0]
+  [ 3  4  6 ...  0  0  0]]
+
+ [[ 7  3  1 ... 45 38 45]
+  [ 7  4  4 ... 27 37 38]
+  [ 7  4  4 ... 23 21 21]
+  ...
+  [39 43 58 ...  0  0  0]
+  [ 1 19 29 ...  0  0  0]
+  [ 0 15 28 ...  0  0  0]]
+
+ ...
+
+ [[ 0  0  4 ...  7  0  7]
+  [ 0  0 11 ...  0  0  0]
+  [14 14 13 ...  0  0  0]
+  ...
+  [17 14  9 ...  3  3  6]
+  [14 14  9 ...  4  1  6]
+  [ 9 17 17 ... 11  7 19]]
+
+ [[ 4  1  0 ... 13  0  0]
+  [ 4  0  0 ...  8  0  0]
+  [ 4  0  0 ...  8  8  0]
+  ...
+  [ 9  9 14 ...  6 15  6]
+  [ 6  9 14 ...  6 18 18]
+  [ 6  6  9 ...  7 18 18]]
+
+ [[ 0 12 17 ... 16 26 31]
+  [ 0  0  0 ... 16 26 28]
+  [12  0  0 ... 26 24 26]
+  ...
+  [10 18 18 ... 14 12 12]
+  [ 0 10 22 ...  0  0  0]
+  [ 0 10 10 ...  0  0  0]]],
+                 eigen_vectors_already_generated True,
+                 save_embedding_images True,
+                 total_num_time_steps 1, total_num_spatial_boxes 4,
+                 spatial_overlap 40, filter False, median_filter False,
+                 median_filter_size (1, 3, 3),
+                 z_score False, slice_stack False,
+                 slice_every 1, slice_start 0, metric l2, knn 20,
+                 accuracy 39, connections 40, normalize_w_k 2, num_eig 25,
+                 merge True,
+                 num_rois 20, refinement True, num_eigen_vector_select 5,
+                 max_iter 1000, roi_size_min 24, fill_holes True,
+                 elbow_threshold_method True, elbow_threshold_value 1,
+                 eigen_threshold_method True,
+                 eigen_threshold_value 0.5, merge_temporal_coef 0.96,
+                 roi_size_max 597
+DEBUG:CIDAN.LSSC.process_data:image shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 0, total boxes 4, image shape (99, 400, 150), spatial overlap 40
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 0, box cord 1 [0, 0], box cord 2 [240, 115], shape (99, 240, 115)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 1, total boxes 4, image shape (99, 400, 150), spatial overlap 40
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 1, box cord 1 [160, 0], box cord 2 [400, 115], shape (99, 240, 115)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 2, total boxes 4, image shape (99, 400, 150), spatial overlap 40
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 0, box cord 1 [0, 35], box cord 2 [240, 150], shape (99, 240, 115)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 3, total boxes 4, image shape (99, 400, 150), spatial overlap 40
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 1, box cord 1 [160, 35], box cord 2 [400, 150], shape (99, 240, 115)
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_3_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_0_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_2_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_1_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 3, time box 0 shape: (27600, 25)
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 0, time box 0 shape: (27600, 25)
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 2, time box 0 shape: (27600, 25)
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 1, time box 0 shape: (27600, 25)
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 18802
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 18802
+DEBUG:CIDAN:Program started
+DEBUG:CIDAN:Program started
+DEBUG:CIDAN:Program started
+DEBUG:CIDAN:Program started
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 18802
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 18802
+DEBUG:qdarkstyle:Reading QSS file in: :qdarkstyle/style.qss
+INFO:qdarkstyle:QSS file sucessfuly loaded.
+DEBUG:qdarkstyle:Checking patches for being applied.
+INFO:qdarkstyle:Found OS patches to be applied.
+INFO:qdarkstyle:Found application patches to be applied.
+DEBUG:CIDAN:Program started
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 18802
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 18802
+DEBUG:qdarkstyle:Reading QSS file in: :qdarkstyle/style.qss
+INFO:qdarkstyle:QSS file sucessfuly loaded.
+DEBUG:qdarkstyle:Checking patches for being applied.
+INFO:qdarkstyle:Found OS patches to be applied.
+INFO:qdarkstyle:Found application patches to be applied.
+DEBUG:CIDAN:Program started
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 18802
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 18802
+DEBUG:qdarkstyle:Reading QSS file in: :qdarkstyle/style.qss
+INFO:qdarkstyle:QSS file sucessfuly loaded.
+DEBUG:qdarkstyle:Checking patches for being applied.
+INFO:qdarkstyle:Found OS patches to be applied.
+INFO:qdarkstyle:Found application patches to be applied.
+DEBUG:CIDAN:Program started
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 18802
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 18802
+DEBUG:qdarkstyle:Reading QSS file in: :qdarkstyle/style.qss
+INFO:qdarkstyle:QSS file sucessfuly loaded.
+DEBUG:qdarkstyle:Checking patches for being applied.
+INFO:qdarkstyle:Found OS patches to be applied.
+INFO:qdarkstyle:Found application patches to be applied.
+DEBUG:CIDAN:Program started
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 18802
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 18802
+DEBUG:qdarkstyle:Reading QSS file in: :qdarkstyle/style.qss
+INFO:qdarkstyle:QSS file sucessfuly loaded.
+DEBUG:qdarkstyle:Checking patches for being applied.
+INFO:qdarkstyle:Found OS patches to be applied.
+INFO:qdarkstyle:Found application patches to be applied.
+DEBUG:CIDAN:Program started
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 18802
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 18802
+DEBUG:qdarkstyle:Reading QSS file in: :qdarkstyle/style.qss
+INFO:qdarkstyle:QSS file sucessfuly loaded.
+DEBUG:qdarkstyle:Checking patches for being applied.
+INFO:qdarkstyle:Found OS patches to be applied.
+INFO:qdarkstyle:Found application patches to be applied.
+DEBUG:CIDAN:Program started
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 18802
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 18802
+DEBUG:qdarkstyle:Reading QSS file in: :qdarkstyle/style.qss
+INFO:qdarkstyle:QSS file sucessfuly loaded.
+DEBUG:qdarkstyle:Checking patches for being applied.
+INFO:qdarkstyle:Found OS patches to be applied.
+INFO:qdarkstyle:Found application patches to be applied.
+DEBUG:CIDAN:Program started
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 18802
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 18802
+DEBUG:qdarkstyle:Reading QSS file in: :qdarkstyle/style.qss
+INFO:qdarkstyle:QSS file sucessfuly loaded.
+DEBUG:qdarkstyle:Checking patches for being applied.
+INFO:qdarkstyle:Found OS patches to be applied.
+INFO:qdarkstyle:Found application patches to be applied.
+DEBUG:CIDAN:Program started
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 18802
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 18802
+DEBUG:qdarkstyle:Reading QSS file in: :qdarkstyle/style.qss
+INFO:qdarkstyle:QSS file sucessfuly loaded.
+DEBUG:qdarkstyle:Checking patches for being applied.
+INFO:qdarkstyle:Found OS patches to be applied.
+INFO:qdarkstyle:Found application patches to be applied.
+DEBUG:CIDAN:Program started
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 18802
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 18802
+DEBUG:qdarkstyle:Reading QSS file in: :qdarkstyle/style.qss
+INFO:qdarkstyle:QSS file sucessfuly loaded.
+DEBUG:qdarkstyle:Checking patches for being applied.
+INFO:qdarkstyle:Found OS patches to be applied.
+INFO:qdarkstyle:Found application patches to be applied.
+DEBUG:CIDAN:Program started
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 18802
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 18802
+DEBUG:qdarkstyle:Reading QSS file in: :qdarkstyle/style.qss
+INFO:qdarkstyle:QSS file sucessfuly loaded.
+DEBUG:qdarkstyle:Checking patches for being applied.
+INFO:qdarkstyle:Found OS patches to be applied.
+INFO:qdarkstyle:Found application patches to be applied.
+DEBUG:CIDAN:Program started
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 18802
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 18802
+DEBUG:qdarkstyle:Reading QSS file in: :qdarkstyle/style.qss
+INFO:qdarkstyle:QSS file sucessfuly loaded.
+DEBUG:qdarkstyle:Checking patches for being applied.
+INFO:qdarkstyle:Found OS patches to be applied.
+INFO:qdarkstyle:Found application patches to be applied.
+DEBUG:CIDAN:Program started
+DEBUG:CIDAN:Program started
+DEBUG:CIDAN:Program started
+DEBUG:CIDAN:Program started
+DEBUG:qdarkstyle:Reading QSS file in: :qdarkstyle/style.qss
+INFO:qdarkstyle:QSS file sucessfuly loaded.
+DEBUG:qdarkstyle:Checking patches for being applied.
+INFO:qdarkstyle:Found OS patches to be applied.
+INFO:qdarkstyle:Found application patches to be applied.
+DEBUG:CIDAN:Program started
+DEBUG:qdarkstyle:Reading QSS file in: :qdarkstyle/style.qss
+INFO:qdarkstyle:QSS file sucessfuly loaded.
+DEBUG:qdarkstyle:Checking patches for being applied.
+INFO:qdarkstyle:Found OS patches to be applied.
+INFO:qdarkstyle:Found application patches to be applied.
+DEBUG:CIDAN:Program started
+DEBUG:qdarkstyle:Reading QSS file in: :qdarkstyle/style.qss
+INFO:qdarkstyle:QSS file sucessfuly loaded.
+DEBUG:qdarkstyle:Checking patches for being applied.
+INFO:qdarkstyle:Found OS patches to be applied.
+INFO:qdarkstyle:Found application patches to be applied.
+DEBUG:CIDAN.LSSC.process_data:Inputs: num_threads 1,test_images False, test_output_dir ,
+                 save_dir /Users/sschickler/Code Devel/LSSC-python/input_images/test31, save_intermediate_steps True,
+                 load_data False, data_path ,
+                 image_data [[[ 0  6  6 ... 26 26 26]
+  [ 4  4  6 ... 26 14  8]
+  [ 6  4  3 ... 14  8  8]
+  ...
+  [19 24 33 ...  1  1  1]
+  [ 4  4  9 ...  1  0  0]
+  [ 0  0  0 ...  0  0  0]]
+
+ [[13  7  7 ... 34 34 38]
+  [10  4  0 ... 30 34 39]
+  [ 3  3  0 ... 29 29 35]
+  ...
+  [10 10 37 ...  1  0  0]
+  [ 4  6 10 ...  0  0  0]
+  [ 3  4  6 ...  0  0  0]]
+
+ [[ 7  3  1 ... 45 38 45]
+  [ 7  4  4 ... 27 37 38]
+  [ 7  4  4 ... 23 21 21]
+  ...
+  [39 43 58 ...  0  0  0]
+  [ 1 19 29 ...  0  0  0]
+  [ 0 15 28 ...  0  0  0]]
+
+ ...
+
+ [[ 0  0  4 ...  7  0  7]
+  [ 0  0 11 ...  0  0  0]
+  [14 14 13 ...  0  0  0]
+  ...
+  [17 14  9 ...  3  3  6]
+  [14 14  9 ...  4  1  6]
+  [ 9 17 17 ... 11  7 19]]
+
+ [[ 4  1  0 ... 13  0  0]
+  [ 4  0  0 ...  8  0  0]
+  [ 4  0  0 ...  8  8  0]
+  ...
+  [ 9  9 14 ...  6 15  6]
+  [ 6  9 14 ...  6 18 18]
+  [ 6  6  9 ...  7 18 18]]
+
+ [[ 0 12 17 ... 16 26 31]
+  [ 0  0  0 ... 16 26 28]
+  [12  0  0 ... 26 24 26]
+  ...
+  [10 18 18 ... 14 12 12]
+  [ 0 10 22 ...  0  0  0]
+  [ 0 10 10 ...  0  0  0]]],
+                 eigen_vectors_already_generated False,
+                 save_embedding_images True,
+                 total_num_time_steps 1, total_num_spatial_boxes 4,
+                 spatial_overlap 15, filter False, median_filter False,
+                 median_filter_size (1, 3, 3),
+                 z_score False, slice_stack False,
+                 slice_every 1, slice_start 0, metric l2, knn 20,
+                 accuracy 39, connections 40, normalize_w_k 2, num_eig 24,
+                 merge True,
+                 num_rois 25, refinement True, num_eigen_vector_select 5,
+                 max_iter 1000, roi_size_min 30, fill_holes True,
+                 elbow_threshold_method True, elbow_threshold_value 1,
+                 eigen_threshold_method True,
+                 eigen_threshold_value 0.5, merge_temporal_coef 0.05,
+                 roi_size_max 600
+DEBUG:CIDAN.LSSC.process_data:image shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 0, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 0, box cord 1 [0, 0], box cord 2 [215, 90], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 1, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 1, box cord 1 [185, 0], box cord 2 [400, 90], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 2, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 0, box cord 1 [0, 60], box cord 2 [215, 150], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 3, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 1, box cord 1 [185, 60], box cord 2 [400, 150], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-6987347c72de104331ac734dcb19ea9f'), 2d shape Delayed('getattr-f25e8189746d7734e0437798d3d0b5c6')
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-a775aa6d3fb7f90c426a33182c81a2e6'), 2d shape Delayed('getattr-7e03c55d92310197589f68d8515a786e')
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-005c802a7666b9c61118067876bed4d3'), 2d shape Delayed('getattr-9b51fa6c8efc3495f3f509190cee1e1f')
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-eaf6e282a231484d522288cec5cd43b3'), 2d shape Delayed('getattr-a6e4bb01bfc025285b8c9243e9518d96')
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:CIDAN:Program started
+DEBUG:qdarkstyle:Reading QSS file in: :qdarkstyle/style.qss
+INFO:qdarkstyle:QSS file sucessfuly loaded.
+DEBUG:qdarkstyle:Checking patches for being applied.
+INFO:qdarkstyle:Found OS patches to be applied.
+INFO:qdarkstyle:Found application patches to be applied.
+DEBUG:CIDAN:Program started
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:qdarkstyle:Reading QSS file in: :qdarkstyle/style.qss
+INFO:qdarkstyle:QSS file sucessfuly loaded.
+DEBUG:qdarkstyle:Checking patches for being applied.
+INFO:qdarkstyle:Found OS patches to be applied.
+INFO:qdarkstyle:Found application patches to be applied.
+DEBUG:CIDAN:Program started
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:qdarkstyle:Reading QSS file in: :qdarkstyle/style.qss
+INFO:qdarkstyle:QSS file sucessfuly loaded.
+DEBUG:qdarkstyle:Checking patches for being applied.
+INFO:qdarkstyle:Found OS patches to be applied.
+INFO:qdarkstyle:Found application patches to be applied.
+DEBUG:CIDAN:Program started
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:qdarkstyle:Reading QSS file in: :qdarkstyle/style.qss
+INFO:qdarkstyle:QSS file sucessfuly loaded.
+DEBUG:qdarkstyle:Checking patches for being applied.
+INFO:qdarkstyle:Found OS patches to be applied.
+INFO:qdarkstyle:Found application patches to be applied.
+DEBUG:CIDAN:Program started
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:qdarkstyle:Reading QSS file in: :qdarkstyle/style.qss
+INFO:qdarkstyle:QSS file sucessfuly loaded.
+DEBUG:qdarkstyle:Checking patches for being applied.
+INFO:qdarkstyle:Found OS patches to be applied.
+INFO:qdarkstyle:Found application patches to be applied.
+DEBUG:CIDAN:Program started
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:qdarkstyle:Reading QSS file in: :qdarkstyle/style.qss
+INFO:qdarkstyle:QSS file sucessfuly loaded.
+DEBUG:qdarkstyle:Checking patches for being applied.
+INFO:qdarkstyle:Found OS patches to be applied.
+INFO:qdarkstyle:Found application patches to be applied.
+DEBUG:CIDAN:Program started
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:qdarkstyle:Reading QSS file in: :qdarkstyle/style.qss
+INFO:qdarkstyle:QSS file sucessfuly loaded.
+DEBUG:qdarkstyle:Checking patches for being applied.
+INFO:qdarkstyle:Found OS patches to be applied.
+INFO:qdarkstyle:Found application patches to be applied.
+DEBUG:CIDAN:Program started
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:CIDAN:Program started
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:qdarkstyle:Reading QSS file in: :qdarkstyle/style.qss
+INFO:qdarkstyle:QSS file sucessfuly loaded.
+DEBUG:qdarkstyle:Checking patches for being applied.
+INFO:qdarkstyle:Found OS patches to be applied.
+INFO:qdarkstyle:Found application patches to be applied.
+DEBUG:CIDAN:Program started
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:qdarkstyle:Reading QSS file in: :qdarkstyle/style.qss
+INFO:qdarkstyle:QSS file sucessfuly loaded.
+DEBUG:qdarkstyle:Checking patches for being applied.
+INFO:qdarkstyle:Found OS patches to be applied.
+INFO:qdarkstyle:Found application patches to be applied.
+DEBUG:CIDAN:Program started
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:qdarkstyle:Reading QSS file in: :qdarkstyle/style.qss
+INFO:qdarkstyle:QSS file sucessfuly loaded.
+DEBUG:qdarkstyle:Checking patches for being applied.
+INFO:qdarkstyle:Found OS patches to be applied.
+INFO:qdarkstyle:Found application patches to be applied.
+DEBUG:CIDAN:Program started
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:qdarkstyle:Reading QSS file in: :qdarkstyle/style.qss
+INFO:qdarkstyle:QSS file sucessfuly loaded.
+DEBUG:qdarkstyle:Checking patches for being applied.
+INFO:qdarkstyle:Found OS patches to be applied.
+INFO:qdarkstyle:Found application patches to be applied.
+DEBUG:CIDAN:Program started
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:qdarkstyle:Reading QSS file in: :qdarkstyle/style.qss
+INFO:qdarkstyle:QSS file sucessfuly loaded.
+DEBUG:qdarkstyle:Checking patches for being applied.
+INFO:qdarkstyle:Found OS patches to be applied.
+INFO:qdarkstyle:Found application patches to be applied.
+DEBUG:CIDAN:Program started
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:qdarkstyle:Reading QSS file in: :qdarkstyle/style.qss
+INFO:qdarkstyle:QSS file sucessfuly loaded.
+DEBUG:qdarkstyle:Checking patches for being applied.
+INFO:qdarkstyle:Found OS patches to be applied.
+INFO:qdarkstyle:Found application patches to be applied.
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:CIDAN:Program started
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:qdarkstyle:Reading QSS file in: :qdarkstyle/style.qss
+INFO:qdarkstyle:QSS file sucessfuly loaded.
+DEBUG:qdarkstyle:Checking patches for being applied.
+INFO:qdarkstyle:Found OS patches to be applied.
+INFO:qdarkstyle:Found application patches to be applied.
+DEBUG:CIDAN:Program started
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:qdarkstyle:Reading QSS file in: :qdarkstyle/style.qss
+INFO:qdarkstyle:QSS file sucessfuly loaded.
+DEBUG:qdarkstyle:Checking patches for being applied.
+INFO:qdarkstyle:Found OS patches to be applied.
+INFO:qdarkstyle:Found application patches to be applied.
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145

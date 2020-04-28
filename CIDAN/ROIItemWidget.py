@@ -45,7 +45,7 @@ QPushButton:selected {
         self.check_box = QCheckBox()
         self.check_box.toggled.connect(lambda: self.check_box_toggled())
         self.check_box_time_trace = QCheckBox()
-        self.check_box_time_trace.toggled.connect(lambda: self.check_box_toggled())
+        self.check_box_time_trace.toggled.connect(lambda: self.time_check_box_toggled())
         out_img = QImage(100, 100, QImage.Format_ARGB32)
         out_img.fill(Qt.transparent)
         brush = QBrush(QColor(*color))  # Create texture brush
@@ -77,12 +77,33 @@ QPushButton:selected {
         # lay.addWidget(self.button2, alignment=QtCore.Qt.AlignRight)
         # lay.addWidget(self.button3, alignment=QtCore.Qt.AlignRight)
         lay.setContentsMargins(0, 0, 0, 0)
-    def select(self):
-        self.check_box.setChecked(not self.check_box.checkState())
+    def select_check_box(self):
+        if not self.check_box.checkState():
+            for x in self.roi_list.roi_item_list:
+                if x != self:
+                    x.check_box.setChecked(False)
+            self.check_box.setChecked(True)
+            self.roi_list.current_selected_roi = self.roi_num
 
+        else:
+            self.check_box.setChecked(False)
+            self.roi_list.current_selected_roi = None
+
+    def select_time_check_box(self):
+
+        self.check_box_time_trace.setChecked(not self.check_box_time_trace.checkState())
     def check_box_toggled(self):
-        self.roi_list.roi_check_list[self.roi_num- 1] = self.check_box.checkState()
         if self.check_box.checkState():
+            for x in self.roi_list.roi_item_list:
+                if x != self:
+                    x.check_box.setChecked(False)
+
+            self.roi_list.current_selected_roi = self.roi_num
+        else:
+            self.roi_list.current_selected_roi = None
+    def time_check_box_toggled(self):
+        self.roi_list.roi_time_check_list[self.roi_num- 1] = self.check_box_time_trace.checkState()
+        if self.check_box_time_trace.checkState():
             self.roi_tab.selectRoi(self.roi_num)
         else:
             self.roi_tab.deselectRoi(self.roi_num)

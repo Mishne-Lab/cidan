@@ -150,6 +150,8 @@ class FileInput(Input):
         self.path = createFileDialog(directory="~/Desktop", forOpen=self.forOpen,
                                      isFolder=self.isFolder)
         self.current_location.setText(self.path)
+        if self.on_change_function != None:
+            self.on_change_function(self.path)
 
     def current_state(self):
         return self.path

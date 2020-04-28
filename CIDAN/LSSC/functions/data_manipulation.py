@@ -29,7 +29,7 @@ def load_filter_tif_stack(*, path, filter: bool, median_filter: bool,
         paths = path if type(path) == list else sorted(os.listdir(path))
 
         for num, x in enumerate(paths):
-            file_path = os.path.join(path, x)
+            file_path = x if type(path) == list else os.path.join(path, x)
             image = tifffile.imread(file_path)
             if slice_stack:
                 image = image[slice_start::slice_every, :, :]

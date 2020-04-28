@@ -48,6 +48,8 @@ class PreprocessThread(Thread):
             print("Starting preprocessing sequence")
             self.button.setEnabled(False)
             self.start()
+        else:
+            print("Previous process in process, please wait to start new one till finished")
     def endThread(self,image_data):
         self.button.setEnabled(True)
         if image_data.shape!=[1]:
@@ -64,7 +66,6 @@ class ROIExtractionThread(Thread):
         self.button = button
         self.signal.sig.connect(lambda x: self.endThread(x))
     def run(self):
-        # TODO add  try except wrapper to this
         try:
             self.data_handler.calculate_roi_extraction()
             self.signal.sig.emit(True)
@@ -78,6 +79,8 @@ class ROIExtractionThread(Thread):
             print("Starting ROI extraction")
             self.button.setEnabled(False)
             self.start()
+        else:
+            print("Previous process in process, please wait to start new one till finished")
     def endThread(self, success):
         self.button.setEnabled(True)
         if success:

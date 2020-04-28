@@ -77,6 +77,7 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                  roi_size_max))
     # TODO Make after eigen vector make function to save intermediate embeding norm
     #  for each spatial box
+    # TODO Rewrite to take in a list of loaded datasets
 
     # TODO add assertions to make sure input splits work for dataset
     if load_data == True:
