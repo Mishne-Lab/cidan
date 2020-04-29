@@ -326,81 +326,109 @@ class ROIExtractionTab(Tab):
         if update_image:
             self.updateImageDisplay()
     def updateImageDisplay(self, new=False):
-        # new is to determine whether the zoom should be saved
-        # TODO add in update with image paint layer
-        shape = self.main_widget.data_handler.dataset_filtered.shape
-        if not hasattr(self, "select_image_flat"):
-            self.select_image_flat = np.zeros([shape[1]*shape[2], 3])
-        range_list=self.main_widget.roi_image_view.image_view.view.viewRange()
-        shape = self.main_widget.data_handler.dataset_filtered.shape
-        background_max = self.current_background.max()
-        background_image_scaled = (self.current_foreground_intensity * 255 / (background_max if background_max != 0 else 1)) * self.current_background
-        background_image_scaled_3_channel = np.hstack([background_image_scaled,background_image_scaled ,background_image_scaled])
+        try:
+            # new is to determine whether the zoom should be saved
+            # TODO add in update with image paint layer
+            shape = self.main_widget.data_handler.dataset_filtered.shape
+            if not hasattr(self, "select_image_flat"):
+                self.select_image_flat = np.zeros([shape[1]*shape[2], 3])
+            range_list=self.main_widget.roi_image_view.image_view.view.viewRange()
+            shape = self.main_widget.data_handler.dataset_filtered.shape
+            background_max = self.current_background.max()
+            background_image_scaled = (self.current_foreground_intensity * 255 / (background_max if background_max != 0 else 1)) * self.current_background
+            background_image_scaled_3_channel = np.hstack([background_image_scaled,background_image_scaled ,background_image_scaled])
 
 
 
-        if new:
-            # if self.add_image:
-            combined = self.roi_image_flat + background_image_scaled_3_channel + self.select_image_flat
+            if new:
+                # if self.add_image:
+                combined = self.roi_image_flat + background_image_scaled_3_channel + self.select_image_flat
 
-            # else:
-            #     combined = background_image_scaled + self.select_image_flat
-            #     mask = np.any(self.roi_image_flat != [0, 0, 0], axis=1)
-            #     combined[mask] = self.roi_image_flat[mask]
-            combined_reshaped = combined.reshape((shape[1], shape[2], 3))
-            self.main_widget.roi_image_view.setImage(combined_reshaped)
-            self.clearPixelSelection(update_display= False)
-        else:
-            self.image_item.image = background_image_scaled_3_channel.reshape((shape[1], shape[2], 3))
-            self.image_item.updateImage(autoLevels=True)
+                # else:
+                #     combined = background_image_scaled + self.select_image_flat
+                #     mask = np.any(self.roi_image_flat != [0, 0, 0], axis=1)
+                #     combined[mask] = self.roi_image_flat[mask]
+                combined_reshaped = combined.reshape((shape[1], shape[2], 3))
+                self.main_widget.roi_image_view.setImage(combined_reshaped)
+                self.clearPixelSelection(update_display= False)
+            else:
+                self.image_item.image = background_image_scaled_3_channel.reshape((shape[1], shape[2], 3))
+                self.image_item.updateImage(autoLevels=True)
 
-            # if self.add_image:
-            combined = (self.roi_image_flat + self.select_image_flat).reshape(
-                (shape[1], shape[2], 3))
-            self.image_item.image += combined
-            self.image_item.image[self.current_selected_pixels_mask] += self.select_pixel_color
+                # if self.add_image:
+                combined = (self.roi_image_flat + self.select_image_flat).reshape(
+                    (shape[1], shape[2], 3))
+                self.image_item.image += combined
+                self.image_item.image[self.current_selected_pixels_mask] += self.select_pixel_color
 
-            # else:
-            #     combined = self.select_image_flat+self.roi_image_flat
-            #     combined_reshaped = combined.reshape((shape[1], shape[2], 3))
-            #     mask = np.any(combined != [0, 0, 0], axis=1).reshape((shape[1], shape[2]))
-            #
-            #     self.image_item.image[mask] = combined_reshaped[mask]
-            self.image_item.updateImage(autoLevels=False)
+                # else:
+                #     combined = self.select_image_flat+self.roi_image_flat
+                #     combined_reshaped = combined.reshape((shape[1], shape[2], 3))
+                #     mask = np.any(combined != [0, 0, 0], axis=1).reshape((shape[1], shape[2]))
+                #
+                #     self.image_item.image[mask] = combined_reshaped[mask]
+                self.image_item.updateImage(autoLevels=False)
 
-            # self.main_widget.roi_image_view.image_view.view.setRange(xRange=range_list[0],
-            #                                                      yRange=range_list[1])
-            # range_list = self.main_widget.roi_image_view.image_view.view.viewRange()
-            # print(range_list)
+                # self.main_widget.roi_image_view.image_view.view.setRange(xRange=range_list[0],
+                #                                                      yRange=range_list[1])
+                # range_list = self.main_widget.roi_image_view.image_view.view.viewRange()
+                # print(range_list)
 
-        pass
+            pass
+        except AttributeError:
+            pass
 
     def selectRoi(self, num):
+        try:
+            color_select = (245, 249, 22)
+            color_roi = self.main_widget.data_handler.color_list[(num-1) % len(self.main_widget.data_handler.color_list)]
+            shape = self.main_widget.data_handler.dataset_filtered.shape
+            self.select_image_flat[self.main_widget.data_handler.clusters[num - 1]] = color_select
+            self.updateImageDisplay()
+        except AttributeError:
+            pass
 
-        color_select = (245, 249, 22)
-        color_roi = self.main_widget.data_handler.color_list[(num-1) % len(self.main_widget.data_handler.color_list)]
-        shape = self.main_widget.data_handler.dataset_filtered.shape
-        # self.select_image_flat[self.main_widget.data_handler.clusters[num - 1]] = color_select
-        # self.updateImageDisplay()
 
 
-
-        pen = pg.mkPen(color=color_roi, width=3)
-        self.time_plot.plot(self.main_widget.data_handler.get_time_trace(num), pen=pen)
-        self.time_plot.enableAutoRange(axis=0)
     def deselectRoi(self, num):
 
         color = self.main_widget.data_handler.color_list[(num-1) % len(self.main_widget.data_handler.color_list)]
         shape = self.main_widget.data_handler.dataset_filtered.shape
         shape_flat = self.data_handler.edge_roi_image_flat.shape
-        # self.select_image_flat[self.main_widget.data_handler.clusters[num - 1]] = color if not self.outlines \
-        #     else np.hstack([self.data_handler.edge_roi_image_flat,
-        #                                         np.zeros(shape_flat),
-        #                                         np.zeros(shape_flat)])[self.main_widget.data_handler.clusters[num - 1]]
-        # self.updateImageDisplay()
+        self.select_image_flat[self.main_widget.data_handler.clusters[num - 1]] = color if not self.outlines \
+            else np.hstack([self.data_handler.edge_roi_image_flat,
+                                                np.zeros(shape_flat),
+                                                np.zeros(shape_flat)])[self.main_widget.data_handler.clusters[num - 1]]
+        self.updateImageDisplay()
+
+
+    def selectRoiTime(self, num):
+        try:
+            color_select = (245, 249, 22)
+            color_roi = self.main_widget.data_handler.color_list[
+                (num - 1) % len(self.main_widget.data_handler.color_list)]
+            shape = self.main_widget.data_handler.dataset_filtered.shape
+
+
+            if (self.roi_list_module.roi_time_check_list[num - 1]):
+                pen = pg.mkPen(color=color_roi, width=3)
+                self.time_plot.plot(self.main_widget.data_handler.get_time_trace(num),
+                                    pen=pen)
+                self.time_plot.enableAutoRange(axis=0)
+        except AttributeError:
+            pass
+
+    def deselectRoiTime(self, num):
+
+        color = self.main_widget.data_handler.color_list[
+            (num - 1) % len(self.main_widget.data_handler.color_list)]
+        shape = self.main_widget.data_handler.dataset_filtered.shape
+        shape_flat = self.data_handler.edge_roi_image_flat.shape
+
         self.time_plot.clear()
         self.time_plot.enableAutoRange(axis=0)
-        for num2, x in zip(range(1,len(self.roi_list_module.roi_time_check_list)),self.roi_list_module.roi_time_check_list):
+        for num2, x in zip(range(1, len(self.roi_list_module.roi_time_check_list)),
+                           self.roi_list_module.roi_time_check_list):
             if x:
                 color_roi = self.main_widget.data_handler.color_list[
                     (num2 - 1) % len(self.main_widget.data_handler.color_list)]
@@ -408,7 +436,6 @@ class ROIExtractionTab(Tab):
                 pen = pg.mkPen(color=color_roi, width=3)
                 self.time_plot.plot(
                     self.main_widget.data_handler.get_time_trace(num2), pen=pen)
-
     def zoomRoi(self, num):
         """
         Zooms in to a certain roi

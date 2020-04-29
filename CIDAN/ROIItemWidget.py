@@ -90,10 +90,13 @@ QPushButton:selected {
             self.roi_list.current_selected_roi = None
 
     def select_time_check_box(self):
-
         self.check_box_time_trace.setChecked(not self.check_box_time_trace.checkState())
     def check_box_toggled(self):
         if self.check_box.checkState():
+
+            self.roi_tab.selectRoi(self.roi_num)
+
+
             for x in self.roi_list.roi_item_list:
                 if x != self:
                     x.check_box.setChecked(False)
@@ -101,9 +104,10 @@ QPushButton:selected {
             self.roi_list.current_selected_roi = self.roi_num
         else:
             self.roi_list.current_selected_roi = None
+            self.roi_tab.deselectRoi(self.roi_num)
     def time_check_box_toggled(self):
         self.roi_list.roi_time_check_list[self.roi_num- 1] = self.check_box_time_trace.checkState()
         if self.check_box_time_trace.checkState():
-            self.roi_tab.selectRoi(self.roi_num)
+            self.roi_tab.selectRoiTime(self.roi_num)
         else:
-            self.roi_tab.deselectRoi(self.roi_num)
+            self.roi_tab.deselectRoiTime(self.roi_num)

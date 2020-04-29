@@ -38,11 +38,11 @@ class DataHandler:
     box_params_default = {
         "total_num_time_steps": 1,
         "total_num_spatial_boxes": 4,
-        "spatial_overlap": 15
+        "spatial_overlap": 30
     }
     eigen_params_default = {
         "eigen_vectors_already_generated": False,
-        "num_eig": 24,
+        "num_eig": 50,
         "normalize_w_k": 2,
         "metric": "l2",
         "knn": 20,
@@ -55,8 +55,8 @@ class DataHandler:
         "elbow_threshold_value": 1,
         "eigen_threshold_method": True,
         "eigen_threshold_value": .5,
-        "num_eigen_vector_select": 5,
-        "merge_temporal_coef": .05,
+        "num_eigen_vector_select": 10,
+        "merge_temporal_coef": .95,
         "roi_size_min": 30,
         "roi_size_max": 600,
         "merge": True,

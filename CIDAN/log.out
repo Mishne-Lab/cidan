@@ -113761,3 +113761,2527 @@ DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
 DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
 DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
 DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:CIDAN:Program started
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:qdarkstyle:Reading QSS file in: :qdarkstyle/style.qss
+INFO:qdarkstyle:QSS file sucessfuly loaded.
+DEBUG:qdarkstyle:Checking patches for being applied.
+INFO:qdarkstyle:Found OS patches to be applied.
+INFO:qdarkstyle:Found application patches to be applied.
+DEBUG:CIDAN.LSSC.process_data:Inputs: num_threads 1,test_images False, test_output_dir ,
+                 save_dir /Users/sschickler/Code Devel/LSSC-python/input_images/test31, save_intermediate_steps True,
+                 load_data False, data_path ,
+                 image_data [[[ 0  6  6 ... 26 26 26]
+  [ 4  4  6 ... 26 14  8]
+  [ 6  4  3 ... 14  8  8]
+  ...
+  [19 24 33 ...  1  1  1]
+  [ 4  4  9 ...  1  0  0]
+  [ 0  0  0 ...  0  0  0]]
+
+ [[13  7  7 ... 34 34 38]
+  [10  4  0 ... 30 34 39]
+  [ 3  3  0 ... 29 29 35]
+  ...
+  [10 10 37 ...  1  0  0]
+  [ 4  6 10 ...  0  0  0]
+  [ 3  4  6 ...  0  0  0]]
+
+ [[ 7  3  1 ... 45 38 45]
+  [ 7  4  4 ... 27 37 38]
+  [ 7  4  4 ... 23 21 21]
+  ...
+  [39 43 58 ...  0  0  0]
+  [ 1 19 29 ...  0  0  0]
+  [ 0 15 28 ...  0  0  0]]
+
+ ...
+
+ [[ 0  0  4 ...  7  0  7]
+  [ 0  0 11 ...  0  0  0]
+  [14 14 13 ...  0  0  0]
+  ...
+  [17 14  9 ...  3  3  6]
+  [14 14  9 ...  4  1  6]
+  [ 9 17 17 ... 11  7 19]]
+
+ [[ 4  1  0 ... 13  0  0]
+  [ 4  0  0 ...  8  0  0]
+  [ 4  0  0 ...  8  8  0]
+  ...
+  [ 9  9 14 ...  6 15  6]
+  [ 6  9 14 ...  6 18 18]
+  [ 6  6  9 ...  7 18 18]]
+
+ [[ 0 12 17 ... 16 26 31]
+  [ 0  0  0 ... 16 26 28]
+  [12  0  0 ... 26 24 26]
+  ...
+  [10 18 18 ... 14 12 12]
+  [ 0 10 22 ...  0  0  0]
+  [ 0 10 10 ...  0  0  0]]],
+                 eigen_vectors_already_generated False,
+                 save_embedding_images True,
+                 total_num_time_steps 1, total_num_spatial_boxes 4,
+                 spatial_overlap 15, filter False, median_filter False,
+                 median_filter_size (1, 3, 3),
+                 z_score False, slice_stack False,
+                 slice_every 1, slice_start 0, metric l2, knn 20,
+                 accuracy 39, connections 40, normalize_w_k 2, num_eig 24,
+                 merge True,
+                 num_rois 25, refinement True, num_eigen_vector_select 5,
+                 max_iter 1000, roi_size_min 30, fill_holes True,
+                 elbow_threshold_method True, elbow_threshold_value 1,
+                 eigen_threshold_method True,
+                 eigen_threshold_value 0.5, merge_temporal_coef 0.95,
+                 roi_size_max 600
+DEBUG:CIDAN.LSSC.process_data:image shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 0, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 0, box cord 1 [0, 0], box cord 2 [215, 90], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 1, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 1, box cord 1 [185, 0], box cord 2 [400, 90], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 2, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 0, box cord 1 [0, 60], box cord 2 [215, 150], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 3, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 1, box cord 1 [185, 60], box cord 2 [400, 150], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-edc329c76615b7decd49556506d99de1'), 2d shape Delayed('getattr-6d442eca325f4edcf82ff71ec86f02de')
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-c460835fee3e153989899d10e0fedb30'), 2d shape Delayed('getattr-978fd8c3190735c4402a528ce14fb0ed')
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-42a340559d9199b665e8e876c6fb882f'), 2d shape Delayed('getattr-976e5cab4d94148f7e53d70d62b3fd1f')
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-d45ef876e5edfbe91f689399a3cc608e'), 2d shape Delayed('getattr-5d9ca092343e0fceddd40737b038c054')
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:CIDAN:Program started
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:qdarkstyle:Reading QSS file in: :qdarkstyle/style.qss
+INFO:qdarkstyle:QSS file sucessfuly loaded.
+DEBUG:qdarkstyle:Checking patches for being applied.
+INFO:qdarkstyle:Found OS patches to be applied.
+INFO:qdarkstyle:Found application patches to be applied.
+DEBUG:CIDAN:Program started
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:qdarkstyle:Reading QSS file in: :qdarkstyle/style.qss
+INFO:qdarkstyle:QSS file sucessfuly loaded.
+DEBUG:qdarkstyle:Checking patches for being applied.
+INFO:qdarkstyle:Found OS patches to be applied.
+INFO:qdarkstyle:Found application patches to be applied.
+DEBUG:CIDAN:Program started
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:qdarkstyle:Reading QSS file in: :qdarkstyle/style.qss
+INFO:qdarkstyle:QSS file sucessfuly loaded.
+DEBUG:qdarkstyle:Checking patches for being applied.
+INFO:qdarkstyle:Found OS patches to be applied.
+INFO:qdarkstyle:Found application patches to be applied.
+DEBUG:CIDAN:Program started
+DEBUG:qdarkstyle:Reading QSS file in: :qdarkstyle/style.qss
+INFO:qdarkstyle:QSS file sucessfuly loaded.
+DEBUG:qdarkstyle:Checking patches for being applied.
+INFO:qdarkstyle:Found OS patches to be applied.
+INFO:qdarkstyle:Found application patches to be applied.
+DEBUG:CIDAN.LSSC.process_data:Inputs: num_threads 1,test_images False, test_output_dir ,
+                 save_dir /Users/sschickler/Code Devel/LSSC-python/input_images/test31, save_intermediate_steps True,
+                 load_data False, data_path ,
+                 image_data [[[ 0  6  6 ... 26 26 26]
+  [ 4  4  6 ... 26 14  8]
+  [ 6  4  3 ... 14  8  8]
+  ...
+  [19 24 33 ...  1  1  1]
+  [ 4  4  9 ...  1  0  0]
+  [ 0  0  0 ...  0  0  0]]
+
+ [[13  7  7 ... 34 34 38]
+  [10  4  0 ... 30 34 39]
+  [ 3  3  0 ... 29 29 35]
+  ...
+  [10 10 37 ...  1  0  0]
+  [ 4  6 10 ...  0  0  0]
+  [ 3  4  6 ...  0  0  0]]
+
+ [[ 7  3  1 ... 45 38 45]
+  [ 7  4  4 ... 27 37 38]
+  [ 7  4  4 ... 23 21 21]
+  ...
+  [39 43 58 ...  0  0  0]
+  [ 1 19 29 ...  0  0  0]
+  [ 0 15 28 ...  0  0  0]]
+
+ ...
+
+ [[ 0  0  4 ...  7  0  7]
+  [ 0  0 11 ...  0  0  0]
+  [14 14 13 ...  0  0  0]
+  ...
+  [17 14  9 ...  3  3  6]
+  [14 14  9 ...  4  1  6]
+  [ 9 17 17 ... 11  7 19]]
+
+ [[ 4  1  0 ... 13  0  0]
+  [ 4  0  0 ...  8  0  0]
+  [ 4  0  0 ...  8  8  0]
+  ...
+  [ 9  9 14 ...  6 15  6]
+  [ 6  9 14 ...  6 18 18]
+  [ 6  6  9 ...  7 18 18]]
+
+ [[ 0 12 17 ... 16 26 31]
+  [ 0  0  0 ... 16 26 28]
+  [12  0  0 ... 26 24 26]
+  ...
+  [10 18 18 ... 14 12 12]
+  [ 0 10 22 ...  0  0  0]
+  [ 0 10 10 ...  0  0  0]]],
+                 eigen_vectors_already_generated False,
+                 save_embedding_images True,
+                 total_num_time_steps 1, total_num_spatial_boxes 4,
+                 spatial_overlap 15, filter False, median_filter False,
+                 median_filter_size (1, 3, 3),
+                 z_score False, slice_stack False,
+                 slice_every 1, slice_start 0, metric l2, knn 20,
+                 accuracy 39, connections 40, normalize_w_k 2, num_eig 24,
+                 merge True,
+                 num_rois 25, refinement True, num_eigen_vector_select 10,
+                 max_iter 1000, roi_size_min 30, fill_holes True,
+                 elbow_threshold_method True, elbow_threshold_value 1.1,
+                 eigen_threshold_method True,
+                 eigen_threshold_value 0.1, merge_temporal_coef 0.95,
+                 roi_size_max 600
+DEBUG:CIDAN.LSSC.process_data:image shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 0, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 0, box cord 1 [0, 0], box cord 2 [215, 90], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 1, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 1, box cord 1 [185, 0], box cord 2 [400, 90], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 2, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 0, box cord 1 [0, 60], box cord 2 [215, 150], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 3, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 1, box cord 1 [185, 60], box cord 2 [400, 150], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-4df8dac2c841a01eab2f0795814a538a'), 2d shape Delayed('getattr-b6959bfc28b59454246217b538ce257a')
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-707288d1369f353caaea79267725602c'), 2d shape Delayed('getattr-8957e43fdacadbe237a1d8916743b7c2')
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-0a4cdb58870df7160e64dd04b957566e'), 2d shape Delayed('getattr-8f8ed1298e02c8b833390d416a58214d')
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-1020e00cf362fc75b751d3cb88585321'), 2d shape Delayed('getattr-d55edecbd15b0fdf24a9fb95e5344354')
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:CIDAN:Program started
+DEBUG:qdarkstyle:Reading QSS file in: :qdarkstyle/style.qss
+INFO:qdarkstyle:QSS file sucessfuly loaded.
+DEBUG:qdarkstyle:Checking patches for being applied.
+INFO:qdarkstyle:Found OS patches to be applied.
+INFO:qdarkstyle:Found application patches to be applied.
+DEBUG:CIDAN.LSSC.process_data:Inputs: num_threads 1,test_images False, test_output_dir ,
+                 save_dir /Users/sschickler/Code Devel/LSSC-python/input_images/test31, save_intermediate_steps True,
+                 load_data False, data_path ,
+                 image_data [[[ 0  6  6 ... 26 26 26]
+  [ 4  4  6 ... 26 14  8]
+  [ 6  4  3 ... 14  8  8]
+  ...
+  [19 24 33 ...  1  1  1]
+  [ 4  4  9 ...  1  0  0]
+  [ 0  0  0 ...  0  0  0]]
+
+ [[13  7  7 ... 34 34 38]
+  [10  4  0 ... 30 34 39]
+  [ 3  3  0 ... 29 29 35]
+  ...
+  [10 10 37 ...  1  0  0]
+  [ 4  6 10 ...  0  0  0]
+  [ 3  4  6 ...  0  0  0]]
+
+ [[ 7  3  1 ... 45 38 45]
+  [ 7  4  4 ... 27 37 38]
+  [ 7  4  4 ... 23 21 21]
+  ...
+  [39 43 58 ...  0  0  0]
+  [ 1 19 29 ...  0  0  0]
+  [ 0 15 28 ...  0  0  0]]
+
+ ...
+
+ [[ 0  0  4 ...  7  0  7]
+  [ 0  0 11 ...  0  0  0]
+  [14 14 13 ...  0  0  0]
+  ...
+  [17 14  9 ...  3  3  6]
+  [14 14  9 ...  4  1  6]
+  [ 9 17 17 ... 11  7 19]]
+
+ [[ 4  1  0 ... 13  0  0]
+  [ 4  0  0 ...  8  0  0]
+  [ 4  0  0 ...  8  8  0]
+  ...
+  [ 9  9 14 ...  6 15  6]
+  [ 6  9 14 ...  6 18 18]
+  [ 6  6  9 ...  7 18 18]]
+
+ [[ 0 12 17 ... 16 26 31]
+  [ 0  0  0 ... 16 26 28]
+  [12  0  0 ... 26 24 26]
+  ...
+  [10 18 18 ... 14 12 12]
+  [ 0 10 22 ...  0  0  0]
+  [ 0 10 10 ...  0  0  0]]],
+                 eigen_vectors_already_generated False,
+                 save_embedding_images True,
+                 total_num_time_steps 1, total_num_spatial_boxes 4,
+                 spatial_overlap 15, filter False, median_filter False,
+                 median_filter_size (1, 3, 3),
+                 z_score False, slice_stack False,
+                 slice_every 1, slice_start 0, metric l2, knn 20,
+                 accuracy 39, connections 40, normalize_w_k 2, num_eig 50,
+                 merge True,
+                 num_rois 25, refinement True, num_eigen_vector_select 10,
+                 max_iter 1000, roi_size_min 30, fill_holes True,
+                 elbow_threshold_method True, elbow_threshold_value 1.1,
+                 eigen_threshold_method True,
+                 eigen_threshold_value 0.3, merge_temporal_coef 0.95,
+                 roi_size_max 600
+DEBUG:CIDAN.LSSC.process_data:image shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 0, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 0, box cord 1 [0, 0], box cord 2 [215, 90], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 1, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 1, box cord 1 [185, 0], box cord 2 [400, 90], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 2, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 0, box cord 1 [0, 60], box cord 2 [215, 150], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 3, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 1, box cord 1 [185, 60], box cord 2 [400, 150], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-f0f39499799dc5fbfe289e8068a77a28'), 2d shape Delayed('getattr-c5c75c647eca388cc09b4d9a5358b923')
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-c9bddb6508aaf4fb7f11d0ff8ebadb6f'), 2d shape Delayed('getattr-2684178a18075443eb0a65d12d966ade')
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-ad0591d1a9abbea6b02e3e1d1829b4cb'), 2d shape Delayed('getattr-327542a76d0b59cd12b966320555da5e')
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-d57c9d4286824f6c78e6fa516b1b47df'), 2d shape Delayed('getattr-2cbf17a5cf1626c421de6ed270bf5cd8')
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 30627
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 30627
+DEBUG:CIDAN:Program started
+DEBUG:qdarkstyle:Reading QSS file in: :qdarkstyle/style.qss
+INFO:qdarkstyle:QSS file sucessfuly loaded.
+DEBUG:qdarkstyle:Checking patches for being applied.
+INFO:qdarkstyle:Found OS patches to be applied.
+INFO:qdarkstyle:Found application patches to be applied.
+DEBUG:CIDAN.LSSC.process_data:Inputs: num_threads 1,test_images False, test_output_dir ,
+                 save_dir /Users/sschickler/Code Devel/LSSC-python/input_images/test31, save_intermediate_steps True,
+                 load_data False, data_path ,
+                 image_data [[[ 0  6  6 ... 26 26 26]
+  [ 4  4  6 ... 26 14  8]
+  [ 6  4  3 ... 14  8  8]
+  ...
+  [19 24 33 ...  1  1  1]
+  [ 4  4  9 ...  1  0  0]
+  [ 0  0  0 ...  0  0  0]]
+
+ [[13  7  7 ... 34 34 38]
+  [10  4  0 ... 30 34 39]
+  [ 3  3  0 ... 29 29 35]
+  ...
+  [10 10 37 ...  1  0  0]
+  [ 4  6 10 ...  0  0  0]
+  [ 3  4  6 ...  0  0  0]]
+
+ [[ 7  3  1 ... 45 38 45]
+  [ 7  4  4 ... 27 37 38]
+  [ 7  4  4 ... 23 21 21]
+  ...
+  [39 43 58 ...  0  0  0]
+  [ 1 19 29 ...  0  0  0]
+  [ 0 15 28 ...  0  0  0]]
+
+ ...
+
+ [[ 0  0  4 ...  7  0  7]
+  [ 0  0 11 ...  0  0  0]
+  [14 14 13 ...  0  0  0]
+  ...
+  [17 14  9 ...  3  3  6]
+  [14 14  9 ...  4  1  6]
+  [ 9 17 17 ... 11  7 19]]
+
+ [[ 4  1  0 ... 13  0  0]
+  [ 4  0  0 ...  8  0  0]
+  [ 4  0  0 ...  8  8  0]
+  ...
+  [ 9  9 14 ...  6 15  6]
+  [ 6  9 14 ...  6 18 18]
+  [ 6  6  9 ...  7 18 18]]
+
+ [[ 0 12 17 ... 16 26 31]
+  [ 0  0  0 ... 16 26 28]
+  [12  0  0 ... 26 24 26]
+  ...
+  [10 18 18 ... 14 12 12]
+  [ 0 10 22 ...  0  0  0]
+  [ 0 10 10 ...  0  0  0]]],
+                 eigen_vectors_already_generated False,
+                 save_embedding_images True,
+                 total_num_time_steps 1, total_num_spatial_boxes 4,
+                 spatial_overlap 15, filter False, median_filter False,
+                 median_filter_size (1, 3, 3),
+                 z_score False, slice_stack False,
+                 slice_every 1, slice_start 0, metric l2, knn 20,
+                 accuracy 39, connections 40, normalize_w_k 2, num_eig 50,
+                 merge True,
+                 num_rois 25, refinement True, num_eigen_vector_select 10,
+                 max_iter 1000, roi_size_min 30, fill_holes True,
+                 elbow_threshold_method True, elbow_threshold_value 1,
+                 eigen_threshold_method True,
+                 eigen_threshold_value 0.3, merge_temporal_coef 0.95,
+                 roi_size_max 600
+DEBUG:CIDAN.LSSC.process_data:image shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 0, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 0, box cord 1 [0, 0], box cord 2 [215, 90], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 1, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 1, box cord 1 [185, 0], box cord 2 [400, 90], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 2, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 0, box cord 1 [0, 60], box cord 2 [215, 150], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 3, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 1, box cord 1 [185, 60], box cord 2 [400, 150], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-afd20872306dc5059d9c3f2dff7795b8'), 2d shape Delayed('getattr-6cc6e7fad25770800d16a7ced90545fe')
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-e833a0e1fe98cfd92096ecc36d2c502b'), 2d shape Delayed('getattr-1ccd41770952ed5dedc2037ff07b3e7a')
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-cd23fbcd2fecf33dcf665536dee67ab2'), 2d shape Delayed('getattr-1f508d9193725ec5b62e4015ba62ee09')
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-332ea5313daf4e7aa15688e7689dcf7c'), 2d shape Delayed('getattr-742b92cbcea2cbd3a7d3690831132773')
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 30627
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 30627
+DEBUG:CIDAN:Program started
+DEBUG:qdarkstyle:Reading QSS file in: :qdarkstyle/style.qss
+INFO:qdarkstyle:QSS file sucessfuly loaded.
+DEBUG:qdarkstyle:Checking patches for being applied.
+INFO:qdarkstyle:Found OS patches to be applied.
+INFO:qdarkstyle:Found application patches to be applied.
+DEBUG:CIDAN.LSSC.process_data:Inputs: num_threads 1,test_images False, test_output_dir ,
+                 save_dir /Users/sschickler/Code Devel/LSSC-python/input_images/test31, save_intermediate_steps True,
+                 load_data False, data_path ,
+                 image_data [[[ 0  6  6 ... 26 26 26]
+  [ 4  4  6 ... 26 14  8]
+  [ 6  4  3 ... 14  8  8]
+  ...
+  [19 24 33 ...  1  1  1]
+  [ 4  4  9 ...  1  0  0]
+  [ 0  0  0 ...  0  0  0]]
+
+ [[13  7  7 ... 34 34 38]
+  [10  4  0 ... 30 34 39]
+  [ 3  3  0 ... 29 29 35]
+  ...
+  [10 10 37 ...  1  0  0]
+  [ 4  6 10 ...  0  0  0]
+  [ 3  4  6 ...  0  0  0]]
+
+ [[ 7  3  1 ... 45 38 45]
+  [ 7  4  4 ... 27 37 38]
+  [ 7  4  4 ... 23 21 21]
+  ...
+  [39 43 58 ...  0  0  0]
+  [ 1 19 29 ...  0  0  0]
+  [ 0 15 28 ...  0  0  0]]
+
+ ...
+
+ [[ 0  0  4 ...  7  0  7]
+  [ 0  0 11 ...  0  0  0]
+  [14 14 13 ...  0  0  0]
+  ...
+  [17 14  9 ...  3  3  6]
+  [14 14  9 ...  4  1  6]
+  [ 9 17 17 ... 11  7 19]]
+
+ [[ 4  1  0 ... 13  0  0]
+  [ 4  0  0 ...  8  0  0]
+  [ 4  0  0 ...  8  8  0]
+  ...
+  [ 9  9 14 ...  6 15  6]
+  [ 6  9 14 ...  6 18 18]
+  [ 6  6  9 ...  7 18 18]]
+
+ [[ 0 12 17 ... 16 26 31]
+  [ 0  0  0 ... 16 26 28]
+  [12  0  0 ... 26 24 26]
+  ...
+  [10 18 18 ... 14 12 12]
+  [ 0 10 22 ...  0  0  0]
+  [ 0 10 10 ...  0  0  0]]],
+                 eigen_vectors_already_generated False,
+                 save_embedding_images True,
+                 total_num_time_steps 1, total_num_spatial_boxes 4,
+                 spatial_overlap 15, filter False, median_filter False,
+                 median_filter_size (1, 3, 3),
+                 z_score False, slice_stack False,
+                 slice_every 1, slice_start 0, metric l2, knn 20,
+                 accuracy 39, connections 40, normalize_w_k 2, num_eig 50,
+                 merge True,
+                 num_rois 25, refinement True, num_eigen_vector_select 10,
+                 max_iter 1000, roi_size_min 30, fill_holes True,
+                 elbow_threshold_method True, elbow_threshold_value 1,
+                 eigen_threshold_method True,
+                 eigen_threshold_value 0.5, merge_temporal_coef 0.95,
+                 roi_size_max 600
+DEBUG:CIDAN.LSSC.process_data:image shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 0, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 0, box cord 1 [0, 0], box cord 2 [215, 90], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 1, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 1, box cord 1 [185, 0], box cord 2 [400, 90], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 2, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 0, box cord 1 [0, 60], box cord 2 [215, 150], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 3, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 1, box cord 1 [185, 60], box cord 2 [400, 150], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-7f0802b69123e11bb729d7f293df53e4'), 2d shape Delayed('getattr-368a448c38ca76439b4c99b52e9f8cd5')
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-48a1e20345a1faf9ad538db83ad66cab'), 2d shape Delayed('getattr-742d2fbbd006c96c98b41988be6eba52')
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-8720d68c0dbc95ef1eb43d8c815863ca'), 2d shape Delayed('getattr-ee57da968cbed5ae91413eb68afff915')
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-29bb0472cf3bf8ce4b0b12bfbe80e63c'), 2d shape Delayed('getattr-a8306c4c0a1c8b4bcf40846f0f24c93c')
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 30627
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 30627
+DEBUG:CIDAN.LSSC.process_data:Inputs: num_threads 1,test_images False, test_output_dir ,
+                 save_dir /Users/sschickler/Code Devel/LSSC-python/input_images/test31, save_intermediate_steps True,
+                 load_data False, data_path ,
+                 image_data [[[ 0  6  6 ... 26 26 26]
+  [ 4  4  6 ... 26 14  8]
+  [ 6  4  3 ... 14  8  8]
+  ...
+  [19 24 33 ...  1  1  1]
+  [ 4  4  9 ...  1  0  0]
+  [ 0  0  0 ...  0  0  0]]
+
+ [[13  7  7 ... 34 34 38]
+  [10  4  0 ... 30 34 39]
+  [ 3  3  0 ... 29 29 35]
+  ...
+  [10 10 37 ...  1  0  0]
+  [ 4  6 10 ...  0  0  0]
+  [ 3  4  6 ...  0  0  0]]
+
+ [[ 7  3  1 ... 45 38 45]
+  [ 7  4  4 ... 27 37 38]
+  [ 7  4  4 ... 23 21 21]
+  ...
+  [39 43 58 ...  0  0  0]
+  [ 1 19 29 ...  0  0  0]
+  [ 0 15 28 ...  0  0  0]]
+
+ ...
+
+ [[ 0  0  4 ...  7  0  7]
+  [ 0  0 11 ...  0  0  0]
+  [14 14 13 ...  0  0  0]
+  ...
+  [17 14  9 ...  3  3  6]
+  [14 14  9 ...  4  1  6]
+  [ 9 17 17 ... 11  7 19]]
+
+ [[ 4  1  0 ... 13  0  0]
+  [ 4  0  0 ...  8  0  0]
+  [ 4  0  0 ...  8  8  0]
+  ...
+  [ 9  9 14 ...  6 15  6]
+  [ 6  9 14 ...  6 18 18]
+  [ 6  6  9 ...  7 18 18]]
+
+ [[ 0 12 17 ... 16 26 31]
+  [ 0  0  0 ... 16 26 28]
+  [12  0  0 ... 26 24 26]
+  ...
+  [10 18 18 ... 14 12 12]
+  [ 0 10 22 ...  0  0  0]
+  [ 0 10 10 ...  0  0  0]]],
+                 eigen_vectors_already_generated False,
+                 save_embedding_images True,
+                 total_num_time_steps 1, total_num_spatial_boxes 4,
+                 spatial_overlap 15, filter False, median_filter False,
+                 median_filter_size (1, 3, 3),
+                 z_score False, slice_stack False,
+                 slice_every 1, slice_start 0, metric l2, knn 20,
+                 accuracy 39, connections 40, normalize_w_k 2, num_eig 25,
+                 merge True,
+                 num_rois 25, refinement True, num_eigen_vector_select 10,
+                 max_iter 1000, roi_size_min 30, fill_holes True,
+                 elbow_threshold_method True, elbow_threshold_value 1,
+                 eigen_threshold_method True,
+                 eigen_threshold_value 0.5, merge_temporal_coef 0.95,
+                 roi_size_max 600
+DEBUG:CIDAN.LSSC.process_data:image shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 0, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 0, box cord 1 [0, 0], box cord 2 [215, 90], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 1, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 1, box cord 1 [185, 0], box cord 2 [400, 90], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 2, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 0, box cord 1 [0, 60], box cord 2 [215, 150], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 3, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 1, box cord 1 [185, 60], box cord 2 [400, 150], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-db0a8545c95a66d3cad484ae2c0e478e'), 2d shape Delayed('getattr-29b64786f881ce505b6750347772d121')
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-cf2b7fca35170cad15ed48e34d0508aa'), 2d shape Delayed('getattr-f4ed7242898005f1533a90f2da63baff')
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-429a64519b3f382236221bf9eba60bf8'), 2d shape Delayed('getattr-af358433af416816ecf13f7295874a16')
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-fa0619b3e2561ee0a69cf9ea34d1c821'), 2d shape Delayed('getattr-a09e99ff11ae0b86a98adf7ab08d75e9')
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 24401
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 24401
+DEBUG:CIDAN.LSSC.process_data:Inputs: num_threads 1,test_images False, test_output_dir ,
+                 save_dir /Users/sschickler/Code Devel/LSSC-python/input_images/test31, save_intermediate_steps True,
+                 load_data False, data_path ,
+                 image_data [[[ 0  6  6 ... 26 26 26]
+  [ 4  4  6 ... 26 14  8]
+  [ 6  4  3 ... 14  8  8]
+  ...
+  [19 24 33 ...  1  1  1]
+  [ 4  4  9 ...  1  0  0]
+  [ 0  0  0 ...  0  0  0]]
+
+ [[13  7  7 ... 34 34 38]
+  [10  4  0 ... 30 34 39]
+  [ 3  3  0 ... 29 29 35]
+  ...
+  [10 10 37 ...  1  0  0]
+  [ 4  6 10 ...  0  0  0]
+  [ 3  4  6 ...  0  0  0]]
+
+ [[ 7  3  1 ... 45 38 45]
+  [ 7  4  4 ... 27 37 38]
+  [ 7  4  4 ... 23 21 21]
+  ...
+  [39 43 58 ...  0  0  0]
+  [ 1 19 29 ...  0  0  0]
+  [ 0 15 28 ...  0  0  0]]
+
+ ...
+
+ [[ 0  0  4 ...  7  0  7]
+  [ 0  0 11 ...  0  0  0]
+  [14 14 13 ...  0  0  0]
+  ...
+  [17 14  9 ...  3  3  6]
+  [14 14  9 ...  4  1  6]
+  [ 9 17 17 ... 11  7 19]]
+
+ [[ 4  1  0 ... 13  0  0]
+  [ 4  0  0 ...  8  0  0]
+  [ 4  0  0 ...  8  8  0]
+  ...
+  [ 9  9 14 ...  6 15  6]
+  [ 6  9 14 ...  6 18 18]
+  [ 6  6  9 ...  7 18 18]]
+
+ [[ 0 12 17 ... 16 26 31]
+  [ 0  0  0 ... 16 26 28]
+  [12  0  0 ... 26 24 26]
+  ...
+  [10 18 18 ... 14 12 12]
+  [ 0 10 22 ...  0  0  0]
+  [ 0 10 10 ...  0  0  0]]],
+                 eigen_vectors_already_generated True,
+                 save_embedding_images True,
+                 total_num_time_steps 1, total_num_spatial_boxes 4,
+                 spatial_overlap 15, filter False, median_filter False,
+                 median_filter_size (1, 3, 3),
+                 z_score False, slice_stack False,
+                 slice_every 1, slice_start 0, metric l2, knn 20,
+                 accuracy 39, connections 40, normalize_w_k 2, num_eig 25,
+                 merge True,
+                 num_rois 25, refinement True, num_eigen_vector_select 10,
+                 max_iter 1000, roi_size_min 30, fill_holes False,
+                 elbow_threshold_method True, elbow_threshold_value 1,
+                 eigen_threshold_method True,
+                 eigen_threshold_value 0.5, merge_temporal_coef 0.95,
+                 roi_size_max 600
+DEBUG:CIDAN.LSSC.process_data:image shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 0, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 0, box cord 1 [0, 0], box cord 2 [215, 90], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 1, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 1, box cord 1 [185, 0], box cord 2 [400, 90], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 2, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 0, box cord 1 [0, 60], box cord 2 [215, 150], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 3, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 1, box cord 1 [185, 60], box cord 2 [400, 150], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_0_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_2_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_3_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_1_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 0, time box 0 shape: (19350, 25)
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 2, time box 0 shape: (19350, 25)
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 1, time box 0 shape: (19350, 25)
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 3, time box 0 shape: (19350, 25)
+ERROR:CIDAN.DataHandler:unsupported operand type(s) for //: 'list' and 'int'
+DEBUG:CIDAN.LSSC.process_data:Inputs: num_threads 1,test_images False, test_output_dir ,
+                 save_dir /Users/sschickler/Code Devel/LSSC-python/input_images/test31, save_intermediate_steps True,
+                 load_data False, data_path ,
+                 image_data [[[ 0  6  6 ... 26 26 26]
+  [ 4  4  6 ... 26 14  8]
+  [ 6  4  3 ... 14  8  8]
+  ...
+  [19 24 33 ...  1  1  1]
+  [ 4  4  9 ...  1  0  0]
+  [ 0  0  0 ...  0  0  0]]
+
+ [[13  7  7 ... 34 34 38]
+  [10  4  0 ... 30 34 39]
+  [ 3  3  0 ... 29 29 35]
+  ...
+  [10 10 37 ...  1  0  0]
+  [ 4  6 10 ...  0  0  0]
+  [ 3  4  6 ...  0  0  0]]
+
+ [[ 7  3  1 ... 45 38 45]
+  [ 7  4  4 ... 27 37 38]
+  [ 7  4  4 ... 23 21 21]
+  ...
+  [39 43 58 ...  0  0  0]
+  [ 1 19 29 ...  0  0  0]
+  [ 0 15 28 ...  0  0  0]]
+
+ ...
+
+ [[ 0  0  4 ...  7  0  7]
+  [ 0  0 11 ...  0  0  0]
+  [14 14 13 ...  0  0  0]
+  ...
+  [17 14  9 ...  3  3  6]
+  [14 14  9 ...  4  1  6]
+  [ 9 17 17 ... 11  7 19]]
+
+ [[ 4  1  0 ... 13  0  0]
+  [ 4  0  0 ...  8  0  0]
+  [ 4  0  0 ...  8  8  0]
+  ...
+  [ 9  9 14 ...  6 15  6]
+  [ 6  9 14 ...  6 18 18]
+  [ 6  6  9 ...  7 18 18]]
+
+ [[ 0 12 17 ... 16 26 31]
+  [ 0  0  0 ... 16 26 28]
+  [12  0  0 ... 26 24 26]
+  ...
+  [10 18 18 ... 14 12 12]
+  [ 0 10 22 ...  0  0  0]
+  [ 0 10 10 ...  0  0  0]]],
+                 eigen_vectors_already_generated True,
+                 save_embedding_images True,
+                 total_num_time_steps 1, total_num_spatial_boxes 4,
+                 spatial_overlap 15, filter False, median_filter False,
+                 median_filter_size (1, 3, 3),
+                 z_score False, slice_stack False,
+                 slice_every 1, slice_start 0, metric l2, knn 20,
+                 accuracy 39, connections 40, normalize_w_k 2, num_eig 25,
+                 merge True,
+                 num_rois 25, refinement True, num_eigen_vector_select 10,
+                 max_iter 1000, roi_size_min 30, fill_holes False,
+                 elbow_threshold_method True, elbow_threshold_value 1,
+                 eigen_threshold_method True,
+                 eigen_threshold_value 0.5, merge_temporal_coef 0.95,
+                 roi_size_max 600
+DEBUG:CIDAN.LSSC.process_data:image shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 0, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 0, box cord 1 [0, 0], box cord 2 [215, 90], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 1, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 1, box cord 1 [185, 0], box cord 2 [400, 90], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 2, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 0, box cord 1 [0, 60], box cord 2 [215, 150], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 3, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 1, box cord 1 [185, 60], box cord 2 [400, 150], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_0_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_3_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_2_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_1_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 3, time box 0 shape: (19350, 25)
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 0, time box 0 shape: (19350, 25)
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 2, time box 0 shape: (19350, 25)
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 1, time box 0 shape: (19350, 25)
+ERROR:CIDAN.DataHandler:unsupported operand type(s) for //: 'list' and 'int'
+DEBUG:CIDAN.LSSC.process_data:Inputs: num_threads 1,test_images False, test_output_dir ,
+                 save_dir /Users/sschickler/Code Devel/LSSC-python/input_images/test31, save_intermediate_steps True,
+                 load_data False, data_path ,
+                 image_data [[[ 0  6  6 ... 26 26 26]
+  [ 4  4  6 ... 26 14  8]
+  [ 6  4  3 ... 14  8  8]
+  ...
+  [19 24 33 ...  1  1  1]
+  [ 4  4  9 ...  1  0  0]
+  [ 0  0  0 ...  0  0  0]]
+
+ [[13  7  7 ... 34 34 38]
+  [10  4  0 ... 30 34 39]
+  [ 3  3  0 ... 29 29 35]
+  ...
+  [10 10 37 ...  1  0  0]
+  [ 4  6 10 ...  0  0  0]
+  [ 3  4  6 ...  0  0  0]]
+
+ [[ 7  3  1 ... 45 38 45]
+  [ 7  4  4 ... 27 37 38]
+  [ 7  4  4 ... 23 21 21]
+  ...
+  [39 43 58 ...  0  0  0]
+  [ 1 19 29 ...  0  0  0]
+  [ 0 15 28 ...  0  0  0]]
+
+ ...
+
+ [[ 0  0  4 ...  7  0  7]
+  [ 0  0 11 ...  0  0  0]
+  [14 14 13 ...  0  0  0]
+  ...
+  [17 14  9 ...  3  3  6]
+  [14 14  9 ...  4  1  6]
+  [ 9 17 17 ... 11  7 19]]
+
+ [[ 4  1  0 ... 13  0  0]
+  [ 4  0  0 ...  8  0  0]
+  [ 4  0  0 ...  8  8  0]
+  ...
+  [ 9  9 14 ...  6 15  6]
+  [ 6  9 14 ...  6 18 18]
+  [ 6  6  9 ...  7 18 18]]
+
+ [[ 0 12 17 ... 16 26 31]
+  [ 0  0  0 ... 16 26 28]
+  [12  0  0 ... 26 24 26]
+  ...
+  [10 18 18 ... 14 12 12]
+  [ 0 10 22 ...  0  0  0]
+  [ 0 10 10 ...  0  0  0]]],
+                 eigen_vectors_already_generated True,
+                 save_embedding_images True,
+                 total_num_time_steps 1, total_num_spatial_boxes 4,
+                 spatial_overlap 15, filter False, median_filter False,
+                 median_filter_size (1, 3, 3),
+                 z_score False, slice_stack False,
+                 slice_every 1, slice_start 0, metric l2, knn 20,
+                 accuracy 39, connections 40, normalize_w_k 2, num_eig 25,
+                 merge True,
+                 num_rois 25, refinement True, num_eigen_vector_select 10,
+                 max_iter 1000, roi_size_min 30, fill_holes False,
+                 elbow_threshold_method True, elbow_threshold_value 1,
+                 eigen_threshold_method True,
+                 eigen_threshold_value 0.5, merge_temporal_coef 0.95,
+                 roi_size_max 600
+DEBUG:CIDAN.LSSC.process_data:image shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 0, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 0, box cord 1 [0, 0], box cord 2 [215, 90], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 1, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 1, box cord 1 [185, 0], box cord 2 [400, 90], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 2, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 0, box cord 1 [0, 60], box cord 2 [215, 150], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 3, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 1, box cord 1 [185, 60], box cord 2 [400, 150], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_0_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_3_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_2_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_1_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 0, time box 0 shape: (19350, 25)
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 2, time box 0 shape: (19350, 25)
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 3, time box 0 shape: (19350, 25)
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 1, time box 0 shape: (19350, 25)
+ERROR:CIDAN.DataHandler:unsupported operand type(s) for //: 'list' and 'int'
+DEBUG:CIDAN.LSSC.process_data:Inputs: num_threads 1,test_images False, test_output_dir ,
+                 save_dir /Users/sschickler/Code Devel/LSSC-python/input_images/test31, save_intermediate_steps True,
+                 load_data False, data_path ,
+                 image_data [[[ 0  6  6 ... 26 26 26]
+  [ 4  4  6 ... 26 14  8]
+  [ 6  4  3 ... 14  8  8]
+  ...
+  [19 24 33 ...  1  1  1]
+  [ 4  4  9 ...  1  0  0]
+  [ 0  0  0 ...  0  0  0]]
+
+ [[13  7  7 ... 34 34 38]
+  [10  4  0 ... 30 34 39]
+  [ 3  3  0 ... 29 29 35]
+  ...
+  [10 10 37 ...  1  0  0]
+  [ 4  6 10 ...  0  0  0]
+  [ 3  4  6 ...  0  0  0]]
+
+ [[ 7  3  1 ... 45 38 45]
+  [ 7  4  4 ... 27 37 38]
+  [ 7  4  4 ... 23 21 21]
+  ...
+  [39 43 58 ...  0  0  0]
+  [ 1 19 29 ...  0  0  0]
+  [ 0 15 28 ...  0  0  0]]
+
+ ...
+
+ [[ 0  0  4 ...  7  0  7]
+  [ 0  0 11 ...  0  0  0]
+  [14 14 13 ...  0  0  0]
+  ...
+  [17 14  9 ...  3  3  6]
+  [14 14  9 ...  4  1  6]
+  [ 9 17 17 ... 11  7 19]]
+
+ [[ 4  1  0 ... 13  0  0]
+  [ 4  0  0 ...  8  0  0]
+  [ 4  0  0 ...  8  8  0]
+  ...
+  [ 9  9 14 ...  6 15  6]
+  [ 6  9 14 ...  6 18 18]
+  [ 6  6  9 ...  7 18 18]]
+
+ [[ 0 12 17 ... 16 26 31]
+  [ 0  0  0 ... 16 26 28]
+  [12  0  0 ... 26 24 26]
+  ...
+  [10 18 18 ... 14 12 12]
+  [ 0 10 22 ...  0  0  0]
+  [ 0 10 10 ...  0  0  0]]],
+                 eigen_vectors_already_generated True,
+                 save_embedding_images True,
+                 total_num_time_steps 1, total_num_spatial_boxes 4,
+                 spatial_overlap 15, filter False, median_filter False,
+                 median_filter_size (1, 3, 3),
+                 z_score False, slice_stack False,
+                 slice_every 1, slice_start 0, metric l2, knn 20,
+                 accuracy 39, connections 40, normalize_w_k 2, num_eig 25,
+                 merge True,
+                 num_rois 25, refinement False, num_eigen_vector_select 10,
+                 max_iter 1000, roi_size_min 30, fill_holes False,
+                 elbow_threshold_method True, elbow_threshold_value 1,
+                 eigen_threshold_method True,
+                 eigen_threshold_value 0.5, merge_temporal_coef 0.95,
+                 roi_size_max 600
+DEBUG:CIDAN.LSSC.process_data:image shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 0, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 0, box cord 1 [0, 0], box cord 2 [215, 90], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 1, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 1, box cord 1 [185, 0], box cord 2 [400, 90], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 2, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 0, box cord 1 [0, 60], box cord 2 [215, 150], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 3, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 1, box cord 1 [185, 60], box cord 2 [400, 150], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_3_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_1_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_2_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_0_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 3, time box 0 shape: (19350, 25)
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 1, time box 0 shape: (19350, 25)
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 2, time box 0 shape: (19350, 25)
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 0, time box 0 shape: (19350, 25)
+ERROR:CIDAN.DataHandler:unsupported operand type(s) for //: 'list' and 'int'
+DEBUG:CIDAN.LSSC.process_data:Inputs: num_threads 1,test_images False, test_output_dir ,
+                 save_dir /Users/sschickler/Code Devel/LSSC-python/input_images/test31, save_intermediate_steps True,
+                 load_data False, data_path ,
+                 image_data [[[ 0  6  6 ... 26 26 26]
+  [ 4  4  6 ... 26 14  8]
+  [ 6  4  3 ... 14  8  8]
+  ...
+  [19 24 33 ...  1  1  1]
+  [ 4  4  9 ...  1  0  0]
+  [ 0  0  0 ...  0  0  0]]
+
+ [[13  7  7 ... 34 34 38]
+  [10  4  0 ... 30 34 39]
+  [ 3  3  0 ... 29 29 35]
+  ...
+  [10 10 37 ...  1  0  0]
+  [ 4  6 10 ...  0  0  0]
+  [ 3  4  6 ...  0  0  0]]
+
+ [[ 7  3  1 ... 45 38 45]
+  [ 7  4  4 ... 27 37 38]
+  [ 7  4  4 ... 23 21 21]
+  ...
+  [39 43 58 ...  0  0  0]
+  [ 1 19 29 ...  0  0  0]
+  [ 0 15 28 ...  0  0  0]]
+
+ ...
+
+ [[ 0  0  4 ...  7  0  7]
+  [ 0  0 11 ...  0  0  0]
+  [14 14 13 ...  0  0  0]
+  ...
+  [17 14  9 ...  3  3  6]
+  [14 14  9 ...  4  1  6]
+  [ 9 17 17 ... 11  7 19]]
+
+ [[ 4  1  0 ... 13  0  0]
+  [ 4  0  0 ...  8  0  0]
+  [ 4  0  0 ...  8  8  0]
+  ...
+  [ 9  9 14 ...  6 15  6]
+  [ 6  9 14 ...  6 18 18]
+  [ 6  6  9 ...  7 18 18]]
+
+ [[ 0 12 17 ... 16 26 31]
+  [ 0  0  0 ... 16 26 28]
+  [12  0  0 ... 26 24 26]
+  ...
+  [10 18 18 ... 14 12 12]
+  [ 0 10 22 ...  0  0  0]
+  [ 0 10 10 ...  0  0  0]]],
+                 eigen_vectors_already_generated True,
+                 save_embedding_images True,
+                 total_num_time_steps 1, total_num_spatial_boxes 4,
+                 spatial_overlap 15, filter False, median_filter False,
+                 median_filter_size (1, 3, 3),
+                 z_score False, slice_stack False,
+                 slice_every 1, slice_start 0, metric l2, knn 20,
+                 accuracy 39, connections 40, normalize_w_k 2, num_eig 25,
+                 merge True,
+                 num_rois 25, refinement False, num_eigen_vector_select 10,
+                 max_iter 1000, roi_size_min 30, fill_holes False,
+                 elbow_threshold_method True, elbow_threshold_value 1,
+                 eigen_threshold_method True,
+                 eigen_threshold_value 0.5, merge_temporal_coef 0.95,
+                 roi_size_max 600
+DEBUG:CIDAN.LSSC.process_data:image shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 0, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 0, box cord 1 [0, 0], box cord 2 [215, 90], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 1, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 1, box cord 1 [185, 0], box cord 2 [400, 90], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 2, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 0, box cord 1 [0, 60], box cord 2 [215, 150], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 3, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 1, box cord 1 [185, 60], box cord 2 [400, 150], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_1_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_2_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_3_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_0_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 1, time box 0 shape: (19350, 25)
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 2, time box 0 shape: (19350, 25)
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 3, time box 0 shape: (19350, 25)
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 0, time box 0 shape: (19350, 25)
+ERROR:CIDAN.DataHandler:unsupported operand type(s) for //: 'list' and 'int'
+DEBUG:CIDAN.LSSC.process_data:Inputs: num_threads 1,test_images False, test_output_dir ,
+                 save_dir /Users/sschickler/Code Devel/LSSC-python/input_images/test31, save_intermediate_steps True,
+                 load_data False, data_path ,
+                 image_data [[[ 0  6  6 ... 26 26 26]
+  [ 4  4  6 ... 26 14  8]
+  [ 6  4  3 ... 14  8  8]
+  ...
+  [19 24 33 ...  1  1  1]
+  [ 4  4  9 ...  1  0  0]
+  [ 0  0  0 ...  0  0  0]]
+
+ [[13  7  7 ... 34 34 38]
+  [10  4  0 ... 30 34 39]
+  [ 3  3  0 ... 29 29 35]
+  ...
+  [10 10 37 ...  1  0  0]
+  [ 4  6 10 ...  0  0  0]
+  [ 3  4  6 ...  0  0  0]]
+
+ [[ 7  3  1 ... 45 38 45]
+  [ 7  4  4 ... 27 37 38]
+  [ 7  4  4 ... 23 21 21]
+  ...
+  [39 43 58 ...  0  0  0]
+  [ 1 19 29 ...  0  0  0]
+  [ 0 15 28 ...  0  0  0]]
+
+ ...
+
+ [[ 0  0  4 ...  7  0  7]
+  [ 0  0 11 ...  0  0  0]
+  [14 14 13 ...  0  0  0]
+  ...
+  [17 14  9 ...  3  3  6]
+  [14 14  9 ...  4  1  6]
+  [ 9 17 17 ... 11  7 19]]
+
+ [[ 4  1  0 ... 13  0  0]
+  [ 4  0  0 ...  8  0  0]
+  [ 4  0  0 ...  8  8  0]
+  ...
+  [ 9  9 14 ...  6 15  6]
+  [ 6  9 14 ...  6 18 18]
+  [ 6  6  9 ...  7 18 18]]
+
+ [[ 0 12 17 ... 16 26 31]
+  [ 0  0  0 ... 16 26 28]
+  [12  0  0 ... 26 24 26]
+  ...
+  [10 18 18 ... 14 12 12]
+  [ 0 10 22 ...  0  0  0]
+  [ 0 10 10 ...  0  0  0]]],
+                 eigen_vectors_already_generated True,
+                 save_embedding_images True,
+                 total_num_time_steps 1, total_num_spatial_boxes 4,
+                 spatial_overlap 15, filter False, median_filter False,
+                 median_filter_size (1, 3, 3),
+                 z_score False, slice_stack False,
+                 slice_every 1, slice_start 0, metric l2, knn 20,
+                 accuracy 39, connections 40, normalize_w_k 2, num_eig 25,
+                 merge True,
+                 num_rois 25, refinement False, num_eigen_vector_select 10,
+                 max_iter 1000, roi_size_min 30, fill_holes False,
+                 elbow_threshold_method True, elbow_threshold_value 1,
+                 eigen_threshold_method True,
+                 eigen_threshold_value 0.5, merge_temporal_coef 0.95,
+                 roi_size_max 600
+DEBUG:CIDAN.LSSC.process_data:image shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 0, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 0, box cord 1 [0, 0], box cord 2 [215, 90], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 1, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 1, box cord 1 [185, 0], box cord 2 [400, 90], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 2, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 0, box cord 1 [0, 60], box cord 2 [215, 150], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 3, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 1, box cord 1 [185, 60], box cord 2 [400, 150], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_3_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_1_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_2_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_0_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 3, time box 0 shape: (19350, 25)
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 2, time box 0 shape: (19350, 25)
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 0, time box 0 shape: (19350, 25)
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 1, time box 0 shape: (19350, 25)
+ERROR:CIDAN.DataHandler:unsupported operand type(s) for //: 'list' and 'int'
+DEBUG:CIDAN.LSSC.process_data:Inputs: num_threads 1,test_images False, test_output_dir ,
+                 save_dir /Users/sschickler/Code Devel/LSSC-python/input_images/test31, save_intermediate_steps True,
+                 load_data False, data_path ,
+                 image_data [[[ 0  6  6 ... 26 26 26]
+  [ 4  4  6 ... 26 14  8]
+  [ 6  4  3 ... 14  8  8]
+  ...
+  [19 24 33 ...  1  1  1]
+  [ 4  4  9 ...  1  0  0]
+  [ 0  0  0 ...  0  0  0]]
+
+ [[13  7  7 ... 34 34 38]
+  [10  4  0 ... 30 34 39]
+  [ 3  3  0 ... 29 29 35]
+  ...
+  [10 10 37 ...  1  0  0]
+  [ 4  6 10 ...  0  0  0]
+  [ 3  4  6 ...  0  0  0]]
+
+ [[ 7  3  1 ... 45 38 45]
+  [ 7  4  4 ... 27 37 38]
+  [ 7  4  4 ... 23 21 21]
+  ...
+  [39 43 58 ...  0  0  0]
+  [ 1 19 29 ...  0  0  0]
+  [ 0 15 28 ...  0  0  0]]
+
+ ...
+
+ [[ 0  0  4 ...  7  0  7]
+  [ 0  0 11 ...  0  0  0]
+  [14 14 13 ...  0  0  0]
+  ...
+  [17 14  9 ...  3  3  6]
+  [14 14  9 ...  4  1  6]
+  [ 9 17 17 ... 11  7 19]]
+
+ [[ 4  1  0 ... 13  0  0]
+  [ 4  0  0 ...  8  0  0]
+  [ 4  0  0 ...  8  8  0]
+  ...
+  [ 9  9 14 ...  6 15  6]
+  [ 6  9 14 ...  6 18 18]
+  [ 6  6  9 ...  7 18 18]]
+
+ [[ 0 12 17 ... 16 26 31]
+  [ 0  0  0 ... 16 26 28]
+  [12  0  0 ... 26 24 26]
+  ...
+  [10 18 18 ... 14 12 12]
+  [ 0 10 22 ...  0  0  0]
+  [ 0 10 10 ...  0  0  0]]],
+                 eigen_vectors_already_generated False,
+                 save_embedding_images True,
+                 total_num_time_steps 1, total_num_spatial_boxes 4,
+                 spatial_overlap 15, filter False, median_filter False,
+                 median_filter_size (1, 3, 3),
+                 z_score False, slice_stack False,
+                 slice_every 1, slice_start 0, metric l2, knn 20,
+                 accuracy 39, connections 40, normalize_w_k 2, num_eig 24,
+                 merge True,
+                 num_rois 25, refinement False, num_eigen_vector_select 10,
+                 max_iter 1000, roi_size_min 30, fill_holes False,
+                 elbow_threshold_method True, elbow_threshold_value 1,
+                 eigen_threshold_method True,
+                 eigen_threshold_value 0.5, merge_temporal_coef 0.95,
+                 roi_size_max 600
+DEBUG:CIDAN.LSSC.process_data:image shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 0, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 0, box cord 1 [0, 0], box cord 2 [215, 90], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 1, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 1, box cord 1 [185, 0], box cord 2 [400, 90], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 2, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 0, box cord 1 [0, 60], box cord 2 [215, 150], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 3, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 1, box cord 1 [185, 60], box cord 2 [400, 150], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-38359ebe4f5383b628dbea133a82eaa4'), 2d shape Delayed('getattr-7f2aab1eddf22463463560586840e2a7')
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-d9feb34b75f151ec4050c73847d5160f'), 2d shape Delayed('getattr-116fcf1836b173b8b82ccc09fab2825f')
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-f02c1836ed96327c48031c397f461375'), 2d shape Delayed('getattr-2533e9ed7ee136bd882c74fa3dbed645')
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-5c3427bbc519fba534c3ad86148c932a'), 2d shape Delayed('getattr-4119023dcf622487c1adfa8de63810df')
+ERROR:CIDAN.DataHandler:unsupported operand type(s) for //: 'list' and 'int'
+DEBUG:CIDAN:Program started
+DEBUG:qdarkstyle:Reading QSS file in: :qdarkstyle/style.qss
+INFO:qdarkstyle:QSS file sucessfuly loaded.
+DEBUG:qdarkstyle:Checking patches for being applied.
+INFO:qdarkstyle:Found OS patches to be applied.
+INFO:qdarkstyle:Found application patches to be applied.
+DEBUG:CIDAN.LSSC.process_data:Inputs: num_threads 1,test_images False, test_output_dir ,
+                 save_dir /Users/sschickler/Code Devel/LSSC-python/input_images/test31, save_intermediate_steps True,
+                 load_data False, data_path ,
+                 image_data [[[ 0  6  6 ... 26 26 26]
+  [ 4  4  6 ... 26 14  8]
+  [ 6  4  3 ... 14  8  8]
+  ...
+  [19 24 33 ...  1  1  1]
+  [ 4  4  9 ...  1  0  0]
+  [ 0  0  0 ...  0  0  0]]
+
+ [[13  7  7 ... 34 34 38]
+  [10  4  0 ... 30 34 39]
+  [ 3  3  0 ... 29 29 35]
+  ...
+  [10 10 37 ...  1  0  0]
+  [ 4  6 10 ...  0  0  0]
+  [ 3  4  6 ...  0  0  0]]
+
+ [[ 7  3  1 ... 45 38 45]
+  [ 7  4  4 ... 27 37 38]
+  [ 7  4  4 ... 23 21 21]
+  ...
+  [39 43 58 ...  0  0  0]
+  [ 1 19 29 ...  0  0  0]
+  [ 0 15 28 ...  0  0  0]]
+
+ ...
+
+ [[ 0  0  4 ...  7  0  7]
+  [ 0  0 11 ...  0  0  0]
+  [14 14 13 ...  0  0  0]
+  ...
+  [17 14  9 ...  3  3  6]
+  [14 14  9 ...  4  1  6]
+  [ 9 17 17 ... 11  7 19]]
+
+ [[ 4  1  0 ... 13  0  0]
+  [ 4  0  0 ...  8  0  0]
+  [ 4  0  0 ...  8  8  0]
+  ...
+  [ 9  9 14 ...  6 15  6]
+  [ 6  9 14 ...  6 18 18]
+  [ 6  6  9 ...  7 18 18]]
+
+ [[ 0 12 17 ... 16 26 31]
+  [ 0  0  0 ... 16 26 28]
+  [12  0  0 ... 26 24 26]
+  ...
+  [10 18 18 ... 14 12 12]
+  [ 0 10 22 ...  0  0  0]
+  [ 0 10 10 ...  0  0  0]]],
+                 eigen_vectors_already_generated False,
+                 save_embedding_images True,
+                 total_num_time_steps 1, total_num_spatial_boxes 4,
+                 spatial_overlap 15, filter False, median_filter False,
+                 median_filter_size (1, 3, 3),
+                 z_score False, slice_stack False,
+                 slice_every 1, slice_start 0, metric l2, knn 20,
+                 accuracy 39, connections 40, normalize_w_k 2, num_eig 24,
+                 merge True,
+                 num_rois 25, refinement True, num_eigen_vector_select 10,
+                 max_iter 1000, roi_size_min 30, fill_holes False,
+                 elbow_threshold_method True, elbow_threshold_value 1,
+                 eigen_threshold_method True,
+                 eigen_threshold_value 0.5, merge_temporal_coef 0.95,
+                 roi_size_max 600
+DEBUG:CIDAN.LSSC.process_data:image shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 0, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 0, box cord 1 [0, 0], box cord 2 [215, 90], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 1, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 1, box cord 1 [185, 0], box cord 2 [400, 90], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 2, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 0, box cord 1 [0, 60], box cord 2 [215, 150], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 3, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 1, box cord 1 [185, 60], box cord 2 [400, 150], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-48fec7a6e1b96657b5a49785862d1a87'), 2d shape Delayed('getattr-2d7736dbdbb719ecb479d9274f1d6545')
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-869c11365f083b305a38355fe4d1a0aa'), 2d shape Delayed('getattr-40fe5136c681f5bd60241bf7620a08b3')
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-1b059b355c03a5c37bb1efa51b4a6bb0'), 2d shape Delayed('getattr-f57969963a0a5d99df3cdbf0a03960f0')
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-9b6f1de9e76e84ef4e40141d9c11b4bb'), 2d shape Delayed('getattr-14660d4d84ca496394112525187566f5')
+ERROR:CIDAN.DataHandler:unsupported operand type(s) for //: 'list' and 'int'
+DEBUG:CIDAN:Program started
+DEBUG:qdarkstyle:Reading QSS file in: :qdarkstyle/style.qss
+INFO:qdarkstyle:QSS file sucessfuly loaded.
+DEBUG:qdarkstyle:Checking patches for being applied.
+INFO:qdarkstyle:Found OS patches to be applied.
+INFO:qdarkstyle:Found application patches to be applied.
+DEBUG:CIDAN.LSSC.process_data:Inputs: num_threads 1,test_images False, test_output_dir ,
+                 save_dir /Users/sschickler/Code Devel/LSSC-python/input_images/test31, save_intermediate_steps True,
+                 load_data False, data_path ,
+                 image_data [[[ 0  6  6 ... 26 26 26]
+  [ 4  4  6 ... 26 14  8]
+  [ 6  4  3 ... 14  8  8]
+  ...
+  [19 24 33 ...  1  1  1]
+  [ 4  4  9 ...  1  0  0]
+  [ 0  0  0 ...  0  0  0]]
+
+ [[13  7  7 ... 34 34 38]
+  [10  4  0 ... 30 34 39]
+  [ 3  3  0 ... 29 29 35]
+  ...
+  [10 10 37 ...  1  0  0]
+  [ 4  6 10 ...  0  0  0]
+  [ 3  4  6 ...  0  0  0]]
+
+ [[ 7  3  1 ... 45 38 45]
+  [ 7  4  4 ... 27 37 38]
+  [ 7  4  4 ... 23 21 21]
+  ...
+  [39 43 58 ...  0  0  0]
+  [ 1 19 29 ...  0  0  0]
+  [ 0 15 28 ...  0  0  0]]
+
+ ...
+
+ [[ 0  0  4 ...  7  0  7]
+  [ 0  0 11 ...  0  0  0]
+  [14 14 13 ...  0  0  0]
+  ...
+  [17 14  9 ...  3  3  6]
+  [14 14  9 ...  4  1  6]
+  [ 9 17 17 ... 11  7 19]]
+
+ [[ 4  1  0 ... 13  0  0]
+  [ 4  0  0 ...  8  0  0]
+  [ 4  0  0 ...  8  8  0]
+  ...
+  [ 9  9 14 ...  6 15  6]
+  [ 6  9 14 ...  6 18 18]
+  [ 6  6  9 ...  7 18 18]]
+
+ [[ 0 12 17 ... 16 26 31]
+  [ 0  0  0 ... 16 26 28]
+  [12  0  0 ... 26 24 26]
+  ...
+  [10 18 18 ... 14 12 12]
+  [ 0 10 22 ...  0  0  0]
+  [ 0 10 10 ...  0  0  0]]],
+                 eigen_vectors_already_generated False,
+                 save_embedding_images True,
+                 total_num_time_steps 1, total_num_spatial_boxes 4,
+                 spatial_overlap 15, filter False, median_filter False,
+                 median_filter_size (1, 3, 3),
+                 z_score False, slice_stack False,
+                 slice_every 1, slice_start 0, metric l2, knn 20,
+                 accuracy 39, connections 40, normalize_w_k 2, num_eig 24,
+                 merge True,
+                 num_rois 25, refinement True, num_eigen_vector_select 10,
+                 max_iter 1000, roi_size_min 30, fill_holes False,
+                 elbow_threshold_method True, elbow_threshold_value 1,
+                 eigen_threshold_method True,
+                 eigen_threshold_value 0.5, merge_temporal_coef 0.95,
+                 roi_size_max 600
+DEBUG:CIDAN.LSSC.process_data:image shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 0, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 0, box cord 1 [0, 0], box cord 2 [215, 90], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 1, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 1, box cord 1 [185, 0], box cord 2 [400, 90], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 2, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 0, box cord 1 [0, 60], box cord 2 [215, 150], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 3, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 1, box cord 1 [185, 60], box cord 2 [400, 150], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-d679a0ee8df13f663984465a0fbadcdb'), 2d shape Delayed('getattr-b45ba1737277f3d3608d3b7d5a0881d6')
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-01435ccc3e81e52ddd44bc96095fc419'), 2d shape Delayed('getattr-1ed0422fbcbf6d1d1e2f5656571ad1e4')
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-ef0fcd71c61563b9d3dd394e01e83b38'), 2d shape Delayed('getattr-67ec4a4308362f7d32c7b3b106a4b1ce')
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-d061c6fdeeacf0b1fd7929293f1de5ba'), 2d shape Delayed('getattr-7aa8c2c945337130693736e1ea001c77')
+ERROR:CIDAN.DataHandler:unsupported operand type(s) for //: 'list' and 'int'
+DEBUG:CIDAN.LSSC.process_data:Inputs: num_threads 1,test_images False, test_output_dir ,
+                 save_dir /Users/sschickler/Code Devel/LSSC-python/input_images/test31, save_intermediate_steps True,
+                 load_data False, data_path ,
+                 image_data [[[ 0  6  6 ... 26 26 26]
+  [ 4  4  6 ... 26 14  8]
+  [ 6  4  3 ... 14  8  8]
+  ...
+  [19 24 33 ...  1  1  1]
+  [ 4  4  9 ...  1  0  0]
+  [ 0  0  0 ...  0  0  0]]
+
+ [[13  7  7 ... 34 34 38]
+  [10  4  0 ... 30 34 39]
+  [ 3  3  0 ... 29 29 35]
+  ...
+  [10 10 37 ...  1  0  0]
+  [ 4  6 10 ...  0  0  0]
+  [ 3  4  6 ...  0  0  0]]
+
+ [[ 7  3  1 ... 45 38 45]
+  [ 7  4  4 ... 27 37 38]
+  [ 7  4  4 ... 23 21 21]
+  ...
+  [39 43 58 ...  0  0  0]
+  [ 1 19 29 ...  0  0  0]
+  [ 0 15 28 ...  0  0  0]]
+
+ ...
+
+ [[ 0  0  4 ...  7  0  7]
+  [ 0  0 11 ...  0  0  0]
+  [14 14 13 ...  0  0  0]
+  ...
+  [17 14  9 ...  3  3  6]
+  [14 14  9 ...  4  1  6]
+  [ 9 17 17 ... 11  7 19]]
+
+ [[ 4  1  0 ... 13  0  0]
+  [ 4  0  0 ...  8  0  0]
+  [ 4  0  0 ...  8  8  0]
+  ...
+  [ 9  9 14 ...  6 15  6]
+  [ 6  9 14 ...  6 18 18]
+  [ 6  6  9 ...  7 18 18]]
+
+ [[ 0 12 17 ... 16 26 31]
+  [ 0  0  0 ... 16 26 28]
+  [12  0  0 ... 26 24 26]
+  ...
+  [10 18 18 ... 14 12 12]
+  [ 0 10 22 ...  0  0  0]
+  [ 0 10 10 ...  0  0  0]]],
+                 eigen_vectors_already_generated True,
+                 save_embedding_images True,
+                 total_num_time_steps 1, total_num_spatial_boxes 4,
+                 spatial_overlap 15, filter False, median_filter False,
+                 median_filter_size (1, 3, 3),
+                 z_score False, slice_stack False,
+                 slice_every 1, slice_start 0, metric l2, knn 20,
+                 accuracy 39, connections 40, normalize_w_k 2, num_eig 24,
+                 merge True,
+                 num_rois 25, refinement True, num_eigen_vector_select 10,
+                 max_iter 1000, roi_size_min 30, fill_holes True,
+                 elbow_threshold_method True, elbow_threshold_value 1,
+                 eigen_threshold_method True,
+                 eigen_threshold_value 0.5, merge_temporal_coef 0.95,
+                 roi_size_max 600
+DEBUG:CIDAN.LSSC.process_data:image shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 0, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 0, box cord 1 [0, 0], box cord 2 [215, 90], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 1, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 1, box cord 1 [185, 0], box cord 2 [400, 90], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 2, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 0, box cord 1 [0, 60], box cord 2 [215, 150], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 3, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 1, box cord 1 [185, 60], box cord 2 [400, 150], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_3_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_0_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_2_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_1_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 3, time box 0 shape: (19350, 24)
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 2, time box 0 shape: (19350, 24)
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 0, time box 0 shape: (19350, 24)
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 1, time box 0 shape: (19350, 24)
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:CIDAN.LSSC.process_data:Inputs: num_threads 1,test_images False, test_output_dir ,
+                 save_dir /Users/sschickler/Code Devel/LSSC-python/input_images/test31, save_intermediate_steps True,
+                 load_data False, data_path ,
+                 image_data [[[ 0  6  6 ... 26 26 26]
+  [ 4  4  6 ... 26 14  8]
+  [ 6  4  3 ... 14  8  8]
+  ...
+  [19 24 33 ...  1  1  1]
+  [ 4  4  9 ...  1  0  0]
+  [ 0  0  0 ...  0  0  0]]
+
+ [[13  7  7 ... 34 34 38]
+  [10  4  0 ... 30 34 39]
+  [ 3  3  0 ... 29 29 35]
+  ...
+  [10 10 37 ...  1  0  0]
+  [ 4  6 10 ...  0  0  0]
+  [ 3  4  6 ...  0  0  0]]
+
+ [[ 7  3  1 ... 45 38 45]
+  [ 7  4  4 ... 27 37 38]
+  [ 7  4  4 ... 23 21 21]
+  ...
+  [39 43 58 ...  0  0  0]
+  [ 1 19 29 ...  0  0  0]
+  [ 0 15 28 ...  0  0  0]]
+
+ ...
+
+ [[ 0  0  4 ...  7  0  7]
+  [ 0  0 11 ...  0  0  0]
+  [14 14 13 ...  0  0  0]
+  ...
+  [17 14  9 ...  3  3  6]
+  [14 14  9 ...  4  1  6]
+  [ 9 17 17 ... 11  7 19]]
+
+ [[ 4  1  0 ... 13  0  0]
+  [ 4  0  0 ...  8  0  0]
+  [ 4  0  0 ...  8  8  0]
+  ...
+  [ 9  9 14 ...  6 15  6]
+  [ 6  9 14 ...  6 18 18]
+  [ 6  6  9 ...  7 18 18]]
+
+ [[ 0 12 17 ... 16 26 31]
+  [ 0  0  0 ... 16 26 28]
+  [12  0  0 ... 26 24 26]
+  ...
+  [10 18 18 ... 14 12 12]
+  [ 0 10 22 ...  0  0  0]
+  [ 0 10 10 ...  0  0  0]]],
+                 eigen_vectors_already_generated True,
+                 save_embedding_images True,
+                 total_num_time_steps 1, total_num_spatial_boxes 4,
+                 spatial_overlap 15, filter False, median_filter False,
+                 median_filter_size (1, 3, 3),
+                 z_score False, slice_stack False,
+                 slice_every 1, slice_start 0, metric l2, knn 20,
+                 accuracy 39, connections 40, normalize_w_k 2, num_eig 24,
+                 merge True,
+                 num_rois 25, refinement True, num_eigen_vector_select 10,
+                 max_iter 1000, roi_size_min 30, fill_holes True,
+                 elbow_threshold_method True, elbow_threshold_value 1,
+                 eigen_threshold_method True,
+                 eigen_threshold_value 0.5, merge_temporal_coef 0.95,
+                 roi_size_max 600
+DEBUG:CIDAN.LSSC.process_data:image shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 0, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 0, box cord 1 [0, 0], box cord 2 [215, 90], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 1, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 1, box cord 1 [185, 0], box cord 2 [400, 90], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 2, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 0, box cord 1 [0, 60], box cord 2 [215, 150], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 3, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 1, box cord 1 [185, 60], box cord 2 [400, 150], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_1_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_2_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_0_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_3_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 2, time box 0 shape: (19350, 24)
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 0, time box 0 shape: (19350, 24)
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 1, time box 0 shape: (19350, 24)
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 3, time box 0 shape: (19350, 24)
+DEBUG:CIDAN:Program started
+DEBUG:qdarkstyle:Reading QSS file in: :qdarkstyle/style.qss
+INFO:qdarkstyle:QSS file sucessfuly loaded.
+DEBUG:qdarkstyle:Checking patches for being applied.
+INFO:qdarkstyle:Found OS patches to be applied.
+INFO:qdarkstyle:Found application patches to be applied.
+DEBUG:CIDAN.LSSC.process_data:Inputs: num_threads 1,test_images False, test_output_dir ,
+                 save_dir /Users/sschickler/Code Devel/LSSC-python/input_images/test31, save_intermediate_steps True,
+                 load_data False, data_path ,
+                 image_data [[[ 0  6  6 ... 26 26 26]
+  [ 4  4  6 ... 26 14  8]
+  [ 6  4  3 ... 14  8  8]
+  ...
+  [19 24 33 ...  1  1  1]
+  [ 4  4  9 ...  1  0  0]
+  [ 0  0  0 ...  0  0  0]]
+
+ [[13  7  7 ... 34 34 38]
+  [10  4  0 ... 30 34 39]
+  [ 3  3  0 ... 29 29 35]
+  ...
+  [10 10 37 ...  1  0  0]
+  [ 4  6 10 ...  0  0  0]
+  [ 3  4  6 ...  0  0  0]]
+
+ [[ 7  3  1 ... 45 38 45]
+  [ 7  4  4 ... 27 37 38]
+  [ 7  4  4 ... 23 21 21]
+  ...
+  [39 43 58 ...  0  0  0]
+  [ 1 19 29 ...  0  0  0]
+  [ 0 15 28 ...  0  0  0]]
+
+ ...
+
+ [[ 0  0  4 ...  7  0  7]
+  [ 0  0 11 ...  0  0  0]
+  [14 14 13 ...  0  0  0]
+  ...
+  [17 14  9 ...  3  3  6]
+  [14 14  9 ...  4  1  6]
+  [ 9 17 17 ... 11  7 19]]
+
+ [[ 4  1  0 ... 13  0  0]
+  [ 4  0  0 ...  8  0  0]
+  [ 4  0  0 ...  8  8  0]
+  ...
+  [ 9  9 14 ...  6 15  6]
+  [ 6  9 14 ...  6 18 18]
+  [ 6  6  9 ...  7 18 18]]
+
+ [[ 0 12 17 ... 16 26 31]
+  [ 0  0  0 ... 16 26 28]
+  [12  0  0 ... 26 24 26]
+  ...
+  [10 18 18 ... 14 12 12]
+  [ 0 10 22 ...  0  0  0]
+  [ 0 10 10 ...  0  0  0]]],
+                 eigen_vectors_already_generated False,
+                 save_embedding_images True,
+                 total_num_time_steps 1, total_num_spatial_boxes 4,
+                 spatial_overlap 15, filter False, median_filter False,
+                 median_filter_size (1, 3, 3),
+                 z_score False, slice_stack False,
+                 slice_every 1, slice_start 0, metric l2, knn 20,
+                 accuracy 39, connections 40, normalize_w_k 2, num_eig 24,
+                 merge True,
+                 num_rois 25, refinement True, num_eigen_vector_select 10,
+                 max_iter 1000, roi_size_min 30, fill_holes False,
+                 elbow_threshold_method True, elbow_threshold_value 1,
+                 eigen_threshold_method True,
+                 eigen_threshold_value 0.5, merge_temporal_coef 0.95,
+                 roi_size_max 600
+DEBUG:CIDAN.LSSC.process_data:image shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 0, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 0, box cord 1 [0, 0], box cord 2 [215, 90], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 1, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 0, x_box_num 1, box cord 1 [185, 0], box cord 2 [400, 90], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 2, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 0, box cord 1 [0, 60], box cord 2 [215, 150], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 3, total boxes 4, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 2, y_box_num 1, x_box_num 1, box cord 1 [185, 60], box cord 2 [400, 150], shape (99, 215, 90)
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-8e7bff25331e88500d5e43df6762a293'), 2d shape Delayed('getattr-34c03a7a4accbcf93c09d6c355979111')
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-2450b634b18b3a5e477bbb05a385148f'), 2d shape Delayed('getattr-664219e219419b324f20eb770b115bf5')
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-8c105f630c0baa4732ba7363e3fa7908'), 2d shape Delayed('getattr-c58b11f9bedb8ac105ee17586e1c4b72')
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-4fe48ed9741b86046acad9c10cc726e5'), 2d shape Delayed('getattr-35538190729634a6b8f09c590a3ba856')
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 23145
+DEBUG:CIDAN.LSSC.process_data:Inputs: num_threads 1,test_images False, test_output_dir ,
+                 save_dir /Users/sschickler/Code Devel/LSSC-python/input_images/test31, save_intermediate_steps True,
+                 load_data False, data_path ,
+                 image_data [[[ 0  6  6 ... 26 26 26]
+  [ 4  4  6 ... 26 14  8]
+  [ 6  4  3 ... 14  8  8]
+  ...
+  [19 24 33 ...  1  1  1]
+  [ 4  4  9 ...  1  0  0]
+  [ 0  0  0 ...  0  0  0]]
+
+ [[13  7  7 ... 34 34 38]
+  [10  4  0 ... 30 34 39]
+  [ 3  3  0 ... 29 29 35]
+  ...
+  [10 10 37 ...  1  0  0]
+  [ 4  6 10 ...  0  0  0]
+  [ 3  4  6 ...  0  0  0]]
+
+ [[ 7  3  1 ... 45 38 45]
+  [ 7  4  4 ... 27 37 38]
+  [ 7  4  4 ... 23 21 21]
+  ...
+  [39 43 58 ...  0  0  0]
+  [ 1 19 29 ...  0  0  0]
+  [ 0 15 28 ...  0  0  0]]
+
+ ...
+
+ [[ 0  0  4 ...  7  0  7]
+  [ 0  0 11 ...  0  0  0]
+  [14 14 13 ...  0  0  0]
+  ...
+  [17 14  9 ...  3  3  6]
+  [14 14  9 ...  4  1  6]
+  [ 9 17 17 ... 11  7 19]]
+
+ [[ 4  1  0 ... 13  0  0]
+  [ 4  0  0 ...  8  0  0]
+  [ 4  0  0 ...  8  8  0]
+  ...
+  [ 9  9 14 ...  6 15  6]
+  [ 6  9 14 ...  6 18 18]
+  [ 6  6  9 ...  7 18 18]]
+
+ [[ 0 12 17 ... 16 26 31]
+  [ 0  0  0 ... 16 26 28]
+  [12  0  0 ... 26 24 26]
+  ...
+  [10 18 18 ... 14 12 12]
+  [ 0 10 22 ...  0  0  0]
+  [ 0 10 10 ...  0  0  0]]],
+                 eigen_vectors_already_generated False,
+                 save_embedding_images True,
+                 total_num_time_steps 1, total_num_spatial_boxes 1,
+                 spatial_overlap 15, filter False, median_filter False,
+                 median_filter_size (1, 3, 3),
+                 z_score False, slice_stack False,
+                 slice_every 1, slice_start 0, metric l2, knn 20,
+                 accuracy 39, connections 40, normalize_w_k 2, num_eig 24,
+                 merge True,
+                 num_rois 25, refinement True, num_eigen_vector_select 10,
+                 max_iter 1000, roi_size_min 30, fill_holes False,
+                 elbow_threshold_method True, elbow_threshold_value 1,
+                 eigen_threshold_method True,
+                 eigen_threshold_value 0.5, merge_temporal_coef 0.95,
+                 roi_size_max 600
+DEBUG:CIDAN.LSSC.process_data:image shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 0, total boxes 1, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 1, y_box_num 0, x_box_num 0, box cord 1 [0, 0], box cord 2 [400, 150], shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-302d5771ca4fb75cbd9e7f5e586bc144'), 2d shape Delayed('getattr-e7e1d5407c6ca50bf8c1245832759a2f')
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 10622
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 10622
+DEBUG:CIDAN.LSSC.process_data:Inputs: num_threads 1,test_images False, test_output_dir ,
+                 save_dir /Users/sschickler/Code Devel/LSSC-python/input_images/test31, save_intermediate_steps True,
+                 load_data False, data_path ,
+                 image_data [[[ 0  6  6 ... 26 26 26]
+  [ 4  4  6 ... 26 14  8]
+  [ 6  4  3 ... 14  8  8]
+  ...
+  [19 24 33 ...  1  1  1]
+  [ 4  4  9 ...  1  0  0]
+  [ 0  0  0 ...  0  0  0]]
+
+ [[13  7  7 ... 34 34 38]
+  [10  4  0 ... 30 34 39]
+  [ 3  3  0 ... 29 29 35]
+  ...
+  [10 10 37 ...  1  0  0]
+  [ 4  6 10 ...  0  0  0]
+  [ 3  4  6 ...  0  0  0]]
+
+ [[ 7  3  1 ... 45 38 45]
+  [ 7  4  4 ... 27 37 38]
+  [ 7  4  4 ... 23 21 21]
+  ...
+  [39 43 58 ...  0  0  0]
+  [ 1 19 29 ...  0  0  0]
+  [ 0 15 28 ...  0  0  0]]
+
+ ...
+
+ [[ 0  0  4 ...  7  0  7]
+  [ 0  0 11 ...  0  0  0]
+  [14 14 13 ...  0  0  0]
+  ...
+  [17 14  9 ...  3  3  6]
+  [14 14  9 ...  4  1  6]
+  [ 9 17 17 ... 11  7 19]]
+
+ [[ 4  1  0 ... 13  0  0]
+  [ 4  0  0 ...  8  0  0]
+  [ 4  0  0 ...  8  8  0]
+  ...
+  [ 9  9 14 ...  6 15  6]
+  [ 6  9 14 ...  6 18 18]
+  [ 6  6  9 ...  7 18 18]]
+
+ [[ 0 12 17 ... 16 26 31]
+  [ 0  0  0 ... 16 26 28]
+  [12  0  0 ... 26 24 26]
+  ...
+  [10 18 18 ... 14 12 12]
+  [ 0 10 22 ...  0  0  0]
+  [ 0 10 10 ...  0  0  0]]],
+                 eigen_vectors_already_generated True,
+                 save_embedding_images True,
+                 total_num_time_steps 1, total_num_spatial_boxes 1,
+                 spatial_overlap 15, filter False, median_filter False,
+                 median_filter_size (1, 3, 3),
+                 z_score False, slice_stack False,
+                 slice_every 1, slice_start 0, metric l2, knn 20,
+                 accuracy 39, connections 40, normalize_w_k 2, num_eig 24,
+                 merge True,
+                 num_rois 50, refinement True, num_eigen_vector_select 10,
+                 max_iter 1000, roi_size_min 30, fill_holes False,
+                 elbow_threshold_method True, elbow_threshold_value 1,
+                 eigen_threshold_method True,
+                 eigen_threshold_value 0.5, merge_temporal_coef 0.95,
+                 roi_size_max 600
+DEBUG:CIDAN.LSSC.process_data:image shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 0, total boxes 1, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 1, y_box_num 0, x_box_num 0, box cord 1 [0, 0], box cord 2 [400, 150], shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_0_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 0, time box 0 shape: (60000, 24)
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 10622
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 10622
+DEBUG:CIDAN.LSSC.process_data:Inputs: num_threads 1,test_images False, test_output_dir ,
+                 save_dir /Users/sschickler/Code Devel/LSSC-python/input_images/test31, save_intermediate_steps True,
+                 load_data False, data_path ,
+                 image_data [[[ 0  6  6 ... 26 26 26]
+  [ 4  4  6 ... 26 14  8]
+  [ 6  4  3 ... 14  8  8]
+  ...
+  [19 24 33 ...  1  1  1]
+  [ 4  4  9 ...  1  0  0]
+  [ 0  0  0 ...  0  0  0]]
+
+ [[13  7  7 ... 34 34 38]
+  [10  4  0 ... 30 34 39]
+  [ 3  3  0 ... 29 29 35]
+  ...
+  [10 10 37 ...  1  0  0]
+  [ 4  6 10 ...  0  0  0]
+  [ 3  4  6 ...  0  0  0]]
+
+ [[ 7  3  1 ... 45 38 45]
+  [ 7  4  4 ... 27 37 38]
+  [ 7  4  4 ... 23 21 21]
+  ...
+  [39 43 58 ...  0  0  0]
+  [ 1 19 29 ...  0  0  0]
+  [ 0 15 28 ...  0  0  0]]
+
+ ...
+
+ [[ 0  0  4 ...  7  0  7]
+  [ 0  0 11 ...  0  0  0]
+  [14 14 13 ...  0  0  0]
+  ...
+  [17 14  9 ...  3  3  6]
+  [14 14  9 ...  4  1  6]
+  [ 9 17 17 ... 11  7 19]]
+
+ [[ 4  1  0 ... 13  0  0]
+  [ 4  0  0 ...  8  0  0]
+  [ 4  0  0 ...  8  8  0]
+  ...
+  [ 9  9 14 ...  6 15  6]
+  [ 6  9 14 ...  6 18 18]
+  [ 6  6  9 ...  7 18 18]]
+
+ [[ 0 12 17 ... 16 26 31]
+  [ 0  0  0 ... 16 26 28]
+  [12  0  0 ... 26 24 26]
+  ...
+  [10 18 18 ... 14 12 12]
+  [ 0 10 22 ...  0  0  0]
+  [ 0 10 10 ...  0  0  0]]],
+                 eigen_vectors_already_generated True,
+                 save_embedding_images True,
+                 total_num_time_steps 1, total_num_spatial_boxes 1,
+                 spatial_overlap 15, filter False, median_filter False,
+                 median_filter_size (1, 3, 3),
+                 z_score False, slice_stack False,
+                 slice_every 1, slice_start 0, metric l2, knn 20,
+                 accuracy 39, connections 40, normalize_w_k 2, num_eig 24,
+                 merge True,
+                 num_rois 50, refinement True, num_eigen_vector_select 10,
+                 max_iter 1000, roi_size_min 30, fill_holes True,
+                 elbow_threshold_method True, elbow_threshold_value 1,
+                 eigen_threshold_method True,
+                 eigen_threshold_value 0.5, merge_temporal_coef 0.95,
+                 roi_size_max 600
+DEBUG:CIDAN.LSSC.process_data:image shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 0, total boxes 1, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 1, y_box_num 0, x_box_num 0, box cord 1 [0, 0], box cord 2 [400, 150], shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_0_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 0, time box 0 shape: (60000, 24)
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 10622
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 10622
+DEBUG:CIDAN.LSSC.process_data:Inputs: num_threads 1,test_images False, test_output_dir ,
+                 save_dir /Users/sschickler/Code Devel/LSSC-python/input_images/test31, save_intermediate_steps True,
+                 load_data False, data_path ,
+                 image_data [[[ 0  6  6 ... 26 26 26]
+  [ 4  4  6 ... 26 14  8]
+  [ 6  4  3 ... 14  8  8]
+  ...
+  [19 24 33 ...  1  1  1]
+  [ 4  4  9 ...  1  0  0]
+  [ 0  0  0 ...  0  0  0]]
+
+ [[13  7  7 ... 34 34 38]
+  [10  4  0 ... 30 34 39]
+  [ 3  3  0 ... 29 29 35]
+  ...
+  [10 10 37 ...  1  0  0]
+  [ 4  6 10 ...  0  0  0]
+  [ 3  4  6 ...  0  0  0]]
+
+ [[ 7  3  1 ... 45 38 45]
+  [ 7  4  4 ... 27 37 38]
+  [ 7  4  4 ... 23 21 21]
+  ...
+  [39 43 58 ...  0  0  0]
+  [ 1 19 29 ...  0  0  0]
+  [ 0 15 28 ...  0  0  0]]
+
+ ...
+
+ [[ 0  0  4 ...  7  0  7]
+  [ 0  0 11 ...  0  0  0]
+  [14 14 13 ...  0  0  0]
+  ...
+  [17 14  9 ...  3  3  6]
+  [14 14  9 ...  4  1  6]
+  [ 9 17 17 ... 11  7 19]]
+
+ [[ 4  1  0 ... 13  0  0]
+  [ 4  0  0 ...  8  0  0]
+  [ 4  0  0 ...  8  8  0]
+  ...
+  [ 9  9 14 ...  6 15  6]
+  [ 6  9 14 ...  6 18 18]
+  [ 6  6  9 ...  7 18 18]]
+
+ [[ 0 12 17 ... 16 26 31]
+  [ 0  0  0 ... 16 26 28]
+  [12  0  0 ... 26 24 26]
+  ...
+  [10 18 18 ... 14 12 12]
+  [ 0 10 22 ...  0  0  0]
+  [ 0 10 10 ...  0  0  0]]],
+                 eigen_vectors_already_generated True,
+                 save_embedding_images True,
+                 total_num_time_steps 1, total_num_spatial_boxes 1,
+                 spatial_overlap 15, filter False, median_filter False,
+                 median_filter_size (1, 3, 3),
+                 z_score False, slice_stack False,
+                 slice_every 1, slice_start 0, metric l2, knn 20,
+                 accuracy 39, connections 40, normalize_w_k 2, num_eig 24,
+                 merge True,
+                 num_rois 50, refinement True, num_eigen_vector_select 10,
+                 max_iter 1000, roi_size_min 30, fill_holes True,
+                 elbow_threshold_method True, elbow_threshold_value 1,
+                 eigen_threshold_method True,
+                 eigen_threshold_value 0.5, merge_temporal_coef 0.98,
+                 roi_size_max 600
+DEBUG:CIDAN.LSSC.process_data:image shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 0, total boxes 1, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 1, y_box_num 0, x_box_num 0, box cord 1 [0, 0], box cord 2 [400, 150], shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_0_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 0, time box 0 shape: (60000, 24)
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 10622
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 10622
+DEBUG:CIDAN:Program started
+DEBUG:qdarkstyle:Reading QSS file in: :qdarkstyle/style.qss
+INFO:qdarkstyle:QSS file sucessfuly loaded.
+DEBUG:qdarkstyle:Checking patches for being applied.
+INFO:qdarkstyle:Found OS patches to be applied.
+INFO:qdarkstyle:Found application patches to be applied.
+DEBUG:CIDAN.LSSC.process_data:Inputs: num_threads 1,test_images False, test_output_dir ,
+                 save_dir /Users/sschickler/Code Devel/LSSC-python/input_images/test31, save_intermediate_steps True,
+                 load_data False, data_path ,
+                 image_data [[[ 0  6  6 ... 26 26 26]
+  [ 4  4  6 ... 26 14  8]
+  [ 6  4  3 ... 14  8  8]
+  ...
+  [19 24 33 ...  1  1  1]
+  [ 4  4  9 ...  1  0  0]
+  [ 0  0  0 ...  0  0  0]]
+
+ [[13  7  7 ... 34 34 38]
+  [10  4  0 ... 30 34 39]
+  [ 3  3  0 ... 29 29 35]
+  ...
+  [10 10 37 ...  1  0  0]
+  [ 4  6 10 ...  0  0  0]
+  [ 3  4  6 ...  0  0  0]]
+
+ [[ 7  3  1 ... 45 38 45]
+  [ 7  4  4 ... 27 37 38]
+  [ 7  4  4 ... 23 21 21]
+  ...
+  [39 43 58 ...  0  0  0]
+  [ 1 19 29 ...  0  0  0]
+  [ 0 15 28 ...  0  0  0]]
+
+ ...
+
+ [[ 0  0  4 ...  7  0  7]
+  [ 0  0 11 ...  0  0  0]
+  [14 14 13 ...  0  0  0]
+  ...
+  [17 14  9 ...  3  3  6]
+  [14 14  9 ...  4  1  6]
+  [ 9 17 17 ... 11  7 19]]
+
+ [[ 4  1  0 ... 13  0  0]
+  [ 4  0  0 ...  8  0  0]
+  [ 4  0  0 ...  8  8  0]
+  ...
+  [ 9  9 14 ...  6 15  6]
+  [ 6  9 14 ...  6 18 18]
+  [ 6  6  9 ...  7 18 18]]
+
+ [[ 0 12 17 ... 16 26 31]
+  [ 0  0  0 ... 16 26 28]
+  [12  0  0 ... 26 24 26]
+  ...
+  [10 18 18 ... 14 12 12]
+  [ 0 10 22 ...  0  0  0]
+  [ 0 10 10 ...  0  0  0]]],
+                 eigen_vectors_already_generated False,
+                 save_embedding_images True,
+                 total_num_time_steps 1, total_num_spatial_boxes 1,
+                 spatial_overlap 15, filter False, median_filter False,
+                 median_filter_size (1, 3, 3),
+                 z_score False, slice_stack False,
+                 slice_every 1, slice_start 0, metric l2, knn 20,
+                 accuracy 39, connections 40, normalize_w_k 2, num_eig 24,
+                 merge True,
+                 num_rois 25, refinement True, num_eigen_vector_select 10,
+                 max_iter 1000, roi_size_min 30, fill_holes True,
+                 elbow_threshold_method True, elbow_threshold_value 0.9,
+                 eigen_threshold_method True,
+                 eigen_threshold_value 0.5, merge_temporal_coef 0.95,
+                 roi_size_max 600
+DEBUG:CIDAN.LSSC.process_data:image shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 0, total boxes 1, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 1, y_box_num 0, x_box_num 0, box cord 1 [0, 0], box cord 2 [400, 150], shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.process_data:Time box 0, start 0, end 99, time_box shape Delayed('getattr-90fbeeaa6855ba21245d0f7811fb2d68'), 2d shape Delayed('getattr-7d5e247f67b8c49658e239f72bc7d0d7')
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 10004
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 10004
+DEBUG:CIDAN.LSSC.process_data:Inputs: num_threads 1,test_images False, test_output_dir ,
+                 save_dir /Users/sschickler/Code Devel/LSSC-python/input_images/test31, save_intermediate_steps True,
+                 load_data False, data_path ,
+                 image_data [[[ 0  6  6 ... 26 26 26]
+  [ 4  4  6 ... 26 14  8]
+  [ 6  4  3 ... 14  8  8]
+  ...
+  [19 24 33 ...  1  1  1]
+  [ 4  4  9 ...  1  0  0]
+  [ 0  0  0 ...  0  0  0]]
+
+ [[13  7  7 ... 34 34 38]
+  [10  4  0 ... 30 34 39]
+  [ 3  3  0 ... 29 29 35]
+  ...
+  [10 10 37 ...  1  0  0]
+  [ 4  6 10 ...  0  0  0]
+  [ 3  4  6 ...  0  0  0]]
+
+ [[ 7  3  1 ... 45 38 45]
+  [ 7  4  4 ... 27 37 38]
+  [ 7  4  4 ... 23 21 21]
+  ...
+  [39 43 58 ...  0  0  0]
+  [ 1 19 29 ...  0  0  0]
+  [ 0 15 28 ...  0  0  0]]
+
+ ...
+
+ [[ 0  0  4 ...  7  0  7]
+  [ 0  0 11 ...  0  0  0]
+  [14 14 13 ...  0  0  0]
+  ...
+  [17 14  9 ...  3  3  6]
+  [14 14  9 ...  4  1  6]
+  [ 9 17 17 ... 11  7 19]]
+
+ [[ 4  1  0 ... 13  0  0]
+  [ 4  0  0 ...  8  0  0]
+  [ 4  0  0 ...  8  8  0]
+  ...
+  [ 9  9 14 ...  6 15  6]
+  [ 6  9 14 ...  6 18 18]
+  [ 6  6  9 ...  7 18 18]]
+
+ [[ 0 12 17 ... 16 26 31]
+  [ 0  0  0 ... 16 26 28]
+  [12  0  0 ... 26 24 26]
+  ...
+  [10 18 18 ... 14 12 12]
+  [ 0 10 22 ...  0  0  0]
+  [ 0 10 10 ...  0  0  0]]],
+                 eigen_vectors_already_generated True,
+                 save_embedding_images True,
+                 total_num_time_steps 1, total_num_spatial_boxes 1,
+                 spatial_overlap 15, filter False, median_filter False,
+                 median_filter_size (1, 3, 3),
+                 z_score False, slice_stack False,
+                 slice_every 1, slice_start 0, metric l2, knn 20,
+                 accuracy 39, connections 40, normalize_w_k 2, num_eig 24,
+                 merge True,
+                 num_rois 50, refinement True, num_eigen_vector_select 10,
+                 max_iter 1000, roi_size_min 30, fill_holes True,
+                 elbow_threshold_method True, elbow_threshold_value 0.9,
+                 eigen_threshold_method True,
+                 eigen_threshold_value 0.5, merge_temporal_coef 0.95,
+                 roi_size_max 600
+DEBUG:CIDAN.LSSC.process_data:image shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 0, total boxes 1, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 1, y_box_num 0, x_box_num 0, box cord 1 [0, 0], box cord 2 [400, 150], shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_0_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 0, time box 0 shape: (60000, 24)
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 10004
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 10004
+DEBUG:CIDAN.LSSC.process_data:Inputs: num_threads 1,test_images False, test_output_dir ,
+                 save_dir /Users/sschickler/Code Devel/LSSC-python/input_images/test31, save_intermediate_steps True,
+                 load_data False, data_path ,
+                 image_data [[[ 0  6  6 ... 26 26 26]
+  [ 4  4  6 ... 26 14  8]
+  [ 6  4  3 ... 14  8  8]
+  ...
+  [19 24 33 ...  1  1  1]
+  [ 4  4  9 ...  1  0  0]
+  [ 0  0  0 ...  0  0  0]]
+
+ [[13  7  7 ... 34 34 38]
+  [10  4  0 ... 30 34 39]
+  [ 3  3  0 ... 29 29 35]
+  ...
+  [10 10 37 ...  1  0  0]
+  [ 4  6 10 ...  0  0  0]
+  [ 3  4  6 ...  0  0  0]]
+
+ [[ 7  3  1 ... 45 38 45]
+  [ 7  4  4 ... 27 37 38]
+  [ 7  4  4 ... 23 21 21]
+  ...
+  [39 43 58 ...  0  0  0]
+  [ 1 19 29 ...  0  0  0]
+  [ 0 15 28 ...  0  0  0]]
+
+ ...
+
+ [[ 0  0  4 ...  7  0  7]
+  [ 0  0 11 ...  0  0  0]
+  [14 14 13 ...  0  0  0]
+  ...
+  [17 14  9 ...  3  3  6]
+  [14 14  9 ...  4  1  6]
+  [ 9 17 17 ... 11  7 19]]
+
+ [[ 4  1  0 ... 13  0  0]
+  [ 4  0  0 ...  8  0  0]
+  [ 4  0  0 ...  8  8  0]
+  ...
+  [ 9  9 14 ...  6 15  6]
+  [ 6  9 14 ...  6 18 18]
+  [ 6  6  9 ...  7 18 18]]
+
+ [[ 0 12 17 ... 16 26 31]
+  [ 0  0  0 ... 16 26 28]
+  [12  0  0 ... 26 24 26]
+  ...
+  [10 18 18 ... 14 12 12]
+  [ 0 10 22 ...  0  0  0]
+  [ 0 10 10 ...  0  0  0]]],
+                 eigen_vectors_already_generated True,
+                 save_embedding_images True,
+                 total_num_time_steps 1, total_num_spatial_boxes 1,
+                 spatial_overlap 15, filter False, median_filter False,
+                 median_filter_size (1, 3, 3),
+                 z_score False, slice_stack False,
+                 slice_every 1, slice_start 0, metric l2, knn 20,
+                 accuracy 39, connections 40, normalize_w_k 2, num_eig 24,
+                 merge True,
+                 num_rois 50, refinement True, num_eigen_vector_select 10,
+                 max_iter 1000, roi_size_min 30, fill_holes True,
+                 elbow_threshold_method True, elbow_threshold_value 0.9,
+                 eigen_threshold_method True,
+                 eigen_threshold_value 0.5, merge_temporal_coef 1.0,
+                 roi_size_max 600
+DEBUG:CIDAN.LSSC.process_data:image shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 0, total boxes 1, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 1, y_box_num 0, x_box_num 0, box cord 1 [0, 0], box cord 2 [400, 150], shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_0_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 0, time box 0 shape: (60000, 24)
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 10004
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 10004
+DEBUG:CIDAN.LSSC.process_data:Inputs: num_threads 1,test_images False, test_output_dir ,
+                 save_dir /Users/sschickler/Code Devel/LSSC-python/input_images/test31, save_intermediate_steps True,
+                 load_data False, data_path ,
+                 image_data [[[ 0  6  6 ... 26 26 26]
+  [ 4  4  6 ... 26 14  8]
+  [ 6  4  3 ... 14  8  8]
+  ...
+  [19 24 33 ...  1  1  1]
+  [ 4  4  9 ...  1  0  0]
+  [ 0  0  0 ...  0  0  0]]
+
+ [[13  7  7 ... 34 34 38]
+  [10  4  0 ... 30 34 39]
+  [ 3  3  0 ... 29 29 35]
+  ...
+  [10 10 37 ...  1  0  0]
+  [ 4  6 10 ...  0  0  0]
+  [ 3  4  6 ...  0  0  0]]
+
+ [[ 7  3  1 ... 45 38 45]
+  [ 7  4  4 ... 27 37 38]
+  [ 7  4  4 ... 23 21 21]
+  ...
+  [39 43 58 ...  0  0  0]
+  [ 1 19 29 ...  0  0  0]
+  [ 0 15 28 ...  0  0  0]]
+
+ ...
+
+ [[ 0  0  4 ...  7  0  7]
+  [ 0  0 11 ...  0  0  0]
+  [14 14 13 ...  0  0  0]
+  ...
+  [17 14  9 ...  3  3  6]
+  [14 14  9 ...  4  1  6]
+  [ 9 17 17 ... 11  7 19]]
+
+ [[ 4  1  0 ... 13  0  0]
+  [ 4  0  0 ...  8  0  0]
+  [ 4  0  0 ...  8  8  0]
+  ...
+  [ 9  9 14 ...  6 15  6]
+  [ 6  9 14 ...  6 18 18]
+  [ 6  6  9 ...  7 18 18]]
+
+ [[ 0 12 17 ... 16 26 31]
+  [ 0  0  0 ... 16 26 28]
+  [12  0  0 ... 26 24 26]
+  ...
+  [10 18 18 ... 14 12 12]
+  [ 0 10 22 ...  0  0  0]
+  [ 0 10 10 ...  0  0  0]]],
+                 eigen_vectors_already_generated True,
+                 save_embedding_images True,
+                 total_num_time_steps 1, total_num_spatial_boxes 1,
+                 spatial_overlap 15, filter False, median_filter False,
+                 median_filter_size (1, 3, 3),
+                 z_score False, slice_stack False,
+                 slice_every 1, slice_start 0, metric l2, knn 20,
+                 accuracy 39, connections 40, normalize_w_k 2, num_eig 24,
+                 merge True,
+                 num_rois 50, refinement True, num_eigen_vector_select 10,
+                 max_iter 1000, roi_size_min 30, fill_holes True,
+                 elbow_threshold_method True, elbow_threshold_value 0.9,
+                 eigen_threshold_method True,
+                 eigen_threshold_value 0.5, merge_temporal_coef 0.8,
+                 roi_size_max 600
+DEBUG:CIDAN.LSSC.process_data:image shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 0, total boxes 1, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 1, y_box_num 0, x_box_num 0, box cord 1 [0, 0], box cord 2 [400, 150], shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_0_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 0, time box 0 shape: (60000, 24)
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 10004
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 10004
+DEBUG:CIDAN.LSSC.process_data:Inputs: num_threads 1,test_images False, test_output_dir ,
+                 save_dir /Users/sschickler/Code Devel/LSSC-python/input_images/test31, save_intermediate_steps True,
+                 load_data False, data_path ,
+                 image_data [[[ 0  6  6 ... 26 26 26]
+  [ 4  4  6 ... 26 14  8]
+  [ 6  4  3 ... 14  8  8]
+  ...
+  [19 24 33 ...  1  1  1]
+  [ 4  4  9 ...  1  0  0]
+  [ 0  0  0 ...  0  0  0]]
+
+ [[13  7  7 ... 34 34 38]
+  [10  4  0 ... 30 34 39]
+  [ 3  3  0 ... 29 29 35]
+  ...
+  [10 10 37 ...  1  0  0]
+  [ 4  6 10 ...  0  0  0]
+  [ 3  4  6 ...  0  0  0]]
+
+ [[ 7  3  1 ... 45 38 45]
+  [ 7  4  4 ... 27 37 38]
+  [ 7  4  4 ... 23 21 21]
+  ...
+  [39 43 58 ...  0  0  0]
+  [ 1 19 29 ...  0  0  0]
+  [ 0 15 28 ...  0  0  0]]
+
+ ...
+
+ [[ 0  0  4 ...  7  0  7]
+  [ 0  0 11 ...  0  0  0]
+  [14 14 13 ...  0  0  0]
+  ...
+  [17 14  9 ...  3  3  6]
+  [14 14  9 ...  4  1  6]
+  [ 9 17 17 ... 11  7 19]]
+
+ [[ 4  1  0 ... 13  0  0]
+  [ 4  0  0 ...  8  0  0]
+  [ 4  0  0 ...  8  8  0]
+  ...
+  [ 9  9 14 ...  6 15  6]
+  [ 6  9 14 ...  6 18 18]
+  [ 6  6  9 ...  7 18 18]]
+
+ [[ 0 12 17 ... 16 26 31]
+  [ 0  0  0 ... 16 26 28]
+  [12  0  0 ... 26 24 26]
+  ...
+  [10 18 18 ... 14 12 12]
+  [ 0 10 22 ...  0  0  0]
+  [ 0 10 10 ...  0  0  0]]],
+                 eigen_vectors_already_generated True,
+                 save_embedding_images True,
+                 total_num_time_steps 1, total_num_spatial_boxes 1,
+                 spatial_overlap 15, filter False, median_filter False,
+                 median_filter_size (1, 3, 3),
+                 z_score False, slice_stack False,
+                 slice_every 1, slice_start 0, metric l2, knn 20,
+                 accuracy 39, connections 40, normalize_w_k 2, num_eig 24,
+                 merge True,
+                 num_rois 50, refinement True, num_eigen_vector_select 10,
+                 max_iter 1000, roi_size_min 30, fill_holes True,
+                 elbow_threshold_method True, elbow_threshold_value 0.9,
+                 eigen_threshold_method True,
+                 eigen_threshold_value 0.5, merge_temporal_coef 0.8,
+                 roi_size_max 600
+DEBUG:CIDAN.LSSC.process_data:image shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 0, total boxes 1, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 1, y_box_num 0, x_box_num 0, box cord 1 [0, 0], box cord 2 [400, 150], shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_0_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 0, time box 0 shape: (60000, 24)
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 10004
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 10004
+DEBUG:CIDAN.LSSC.process_data:Inputs: num_threads 1,test_images False, test_output_dir ,
+                 save_dir /Users/sschickler/Code Devel/LSSC-python/input_images/test31, save_intermediate_steps True,
+                 load_data False, data_path ,
+                 image_data [[[ 0  6  6 ... 26 26 26]
+  [ 4  4  6 ... 26 14  8]
+  [ 6  4  3 ... 14  8  8]
+  ...
+  [19 24 33 ...  1  1  1]
+  [ 4  4  9 ...  1  0  0]
+  [ 0  0  0 ...  0  0  0]]
+
+ [[13  7  7 ... 34 34 38]
+  [10  4  0 ... 30 34 39]
+  [ 3  3  0 ... 29 29 35]
+  ...
+  [10 10 37 ...  1  0  0]
+  [ 4  6 10 ...  0  0  0]
+  [ 3  4  6 ...  0  0  0]]
+
+ [[ 7  3  1 ... 45 38 45]
+  [ 7  4  4 ... 27 37 38]
+  [ 7  4  4 ... 23 21 21]
+  ...
+  [39 43 58 ...  0  0  0]
+  [ 1 19 29 ...  0  0  0]
+  [ 0 15 28 ...  0  0  0]]
+
+ ...
+
+ [[ 0  0  4 ...  7  0  7]
+  [ 0  0 11 ...  0  0  0]
+  [14 14 13 ...  0  0  0]
+  ...
+  [17 14  9 ...  3  3  6]
+  [14 14  9 ...  4  1  6]
+  [ 9 17 17 ... 11  7 19]]
+
+ [[ 4  1  0 ... 13  0  0]
+  [ 4  0  0 ...  8  0  0]
+  [ 4  0  0 ...  8  8  0]
+  ...
+  [ 9  9 14 ...  6 15  6]
+  [ 6  9 14 ...  6 18 18]
+  [ 6  6  9 ...  7 18 18]]
+
+ [[ 0 12 17 ... 16 26 31]
+  [ 0  0  0 ... 16 26 28]
+  [12  0  0 ... 26 24 26]
+  ...
+  [10 18 18 ... 14 12 12]
+  [ 0 10 22 ...  0  0  0]
+  [ 0 10 10 ...  0  0  0]]],
+                 eigen_vectors_already_generated True,
+                 save_embedding_images True,
+                 total_num_time_steps 1, total_num_spatial_boxes 1,
+                 spatial_overlap 15, filter False, median_filter False,
+                 median_filter_size (1, 3, 3),
+                 z_score False, slice_stack False,
+                 slice_every 1, slice_start 0, metric l2, knn 20,
+                 accuracy 39, connections 40, normalize_w_k 2, num_eig 24,
+                 merge True,
+                 num_rois 50, refinement True, num_eigen_vector_select 10,
+                 max_iter 1000, roi_size_min 30, fill_holes True,
+                 elbow_threshold_method True, elbow_threshold_value 0.9,
+                 eigen_threshold_method True,
+                 eigen_threshold_value 0.5, merge_temporal_coef 0.5,
+                 roi_size_max 600
+DEBUG:CIDAN.LSSC.process_data:image shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 0, total boxes 1, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 1, y_box_num 0, x_box_num 0, box cord 1 [0, 0], box cord 2 [400, 150], shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_0_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 0, time box 0 shape: (60000, 24)
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 10004
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 10004
+DEBUG:CIDAN.LSSC.process_data:Inputs: num_threads 1,test_images False, test_output_dir ,
+                 save_dir /Users/sschickler/Code Devel/LSSC-python/input_images/test31, save_intermediate_steps True,
+                 load_data False, data_path ,
+                 image_data [[[ 0  6  6 ... 26 26 26]
+  [ 4  4  6 ... 26 14  8]
+  [ 6  4  3 ... 14  8  8]
+  ...
+  [19 24 33 ...  1  1  1]
+  [ 4  4  9 ...  1  0  0]
+  [ 0  0  0 ...  0  0  0]]
+
+ [[13  7  7 ... 34 34 38]
+  [10  4  0 ... 30 34 39]
+  [ 3  3  0 ... 29 29 35]
+  ...
+  [10 10 37 ...  1  0  0]
+  [ 4  6 10 ...  0  0  0]
+  [ 3  4  6 ...  0  0  0]]
+
+ [[ 7  3  1 ... 45 38 45]
+  [ 7  4  4 ... 27 37 38]
+  [ 7  4  4 ... 23 21 21]
+  ...
+  [39 43 58 ...  0  0  0]
+  [ 1 19 29 ...  0  0  0]
+  [ 0 15 28 ...  0  0  0]]
+
+ ...
+
+ [[ 0  0  4 ...  7  0  7]
+  [ 0  0 11 ...  0  0  0]
+  [14 14 13 ...  0  0  0]
+  ...
+  [17 14  9 ...  3  3  6]
+  [14 14  9 ...  4  1  6]
+  [ 9 17 17 ... 11  7 19]]
+
+ [[ 4  1  0 ... 13  0  0]
+  [ 4  0  0 ...  8  0  0]
+  [ 4  0  0 ...  8  8  0]
+  ...
+  [ 9  9 14 ...  6 15  6]
+  [ 6  9 14 ...  6 18 18]
+  [ 6  6  9 ...  7 18 18]]
+
+ [[ 0 12 17 ... 16 26 31]
+  [ 0  0  0 ... 16 26 28]
+  [12  0  0 ... 26 24 26]
+  ...
+  [10 18 18 ... 14 12 12]
+  [ 0 10 22 ...  0  0  0]
+  [ 0 10 10 ...  0  0  0]]],
+                 eigen_vectors_already_generated True,
+                 save_embedding_images True,
+                 total_num_time_steps 1, total_num_spatial_boxes 1,
+                 spatial_overlap 15, filter False, median_filter False,
+                 median_filter_size (1, 3, 3),
+                 z_score False, slice_stack False,
+                 slice_every 1, slice_start 0, metric l2, knn 20,
+                 accuracy 39, connections 40, normalize_w_k 2, num_eig 24,
+                 merge True,
+                 num_rois 50, refinement True, num_eigen_vector_select 10,
+                 max_iter 1000, roi_size_min 30, fill_holes True,
+                 elbow_threshold_method True, elbow_threshold_value 0.9,
+                 eigen_threshold_method True,
+                 eigen_threshold_value 0.5, merge_temporal_coef 0.0,
+                 roi_size_max 600
+DEBUG:CIDAN.LSSC.process_data:image shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 0, total boxes 1, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 1, y_box_num 0, x_box_num 0, box cord 1 [0, 0], box cord 2 [400, 150], shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_0_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 0, time box 0 shape: (60000, 24)
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 10004
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 10004
+DEBUG:CIDAN.LSSC.process_data:Inputs: num_threads 1,test_images False, test_output_dir ,
+                 save_dir /Users/sschickler/Code Devel/LSSC-python/input_images/test31, save_intermediate_steps True,
+                 load_data False, data_path ,
+                 image_data [[[ 0  6  6 ... 26 26 26]
+  [ 4  4  6 ... 26 14  8]
+  [ 6  4  3 ... 14  8  8]
+  ...
+  [19 24 33 ...  1  1  1]
+  [ 4  4  9 ...  1  0  0]
+  [ 0  0  0 ...  0  0  0]]
+
+ [[13  7  7 ... 34 34 38]
+  [10  4  0 ... 30 34 39]
+  [ 3  3  0 ... 29 29 35]
+  ...
+  [10 10 37 ...  1  0  0]
+  [ 4  6 10 ...  0  0  0]
+  [ 3  4  6 ...  0  0  0]]
+
+ [[ 7  3  1 ... 45 38 45]
+  [ 7  4  4 ... 27 37 38]
+  [ 7  4  4 ... 23 21 21]
+  ...
+  [39 43 58 ...  0  0  0]
+  [ 1 19 29 ...  0  0  0]
+  [ 0 15 28 ...  0  0  0]]
+
+ ...
+
+ [[ 0  0  4 ...  7  0  7]
+  [ 0  0 11 ...  0  0  0]
+  [14 14 13 ...  0  0  0]
+  ...
+  [17 14  9 ...  3  3  6]
+  [14 14  9 ...  4  1  6]
+  [ 9 17 17 ... 11  7 19]]
+
+ [[ 4  1  0 ... 13  0  0]
+  [ 4  0  0 ...  8  0  0]
+  [ 4  0  0 ...  8  8  0]
+  ...
+  [ 9  9 14 ...  6 15  6]
+  [ 6  9 14 ...  6 18 18]
+  [ 6  6  9 ...  7 18 18]]
+
+ [[ 0 12 17 ... 16 26 31]
+  [ 0  0  0 ... 16 26 28]
+  [12  0  0 ... 26 24 26]
+  ...
+  [10 18 18 ... 14 12 12]
+  [ 0 10 22 ...  0  0  0]
+  [ 0 10 10 ...  0  0  0]]],
+                 eigen_vectors_already_generated True,
+                 save_embedding_images True,
+                 total_num_time_steps 1, total_num_spatial_boxes 1,
+                 spatial_overlap 15, filter False, median_filter False,
+                 median_filter_size (1, 3, 3),
+                 z_score False, slice_stack False,
+                 slice_every 1, slice_start 0, metric l2, knn 20,
+                 accuracy 39, connections 40, normalize_w_k 2, num_eig 24,
+                 merge True,
+                 num_rois 50, refinement True, num_eigen_vector_select 10,
+                 max_iter 1000, roi_size_min 30, fill_holes True,
+                 elbow_threshold_method True, elbow_threshold_value 0.9,
+                 eigen_threshold_method True,
+                 eigen_threshold_value 0.5, merge_temporal_coef 0.7,
+                 roi_size_max 600
+DEBUG:CIDAN.LSSC.process_data:image shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial Box creation inputs: box num 0, total boxes 1, image shape (99, 400, 150), spatial overlap 15
+DEBUG:CIDAN.LSSC.SpatialBox:Spatial box creation: Boxes per row 1, y_box_num 0, x_box_num 0, box cord 1 [0, 0], box cord 2 [400, 150], shape (99, 400, 150)
+DEBUG:CIDAN.LSSC.eigen:Eigen vector load: file name: eigen_vectors_box_0_0.pickle, directory: /Users/sschickler/Code Devel/LSSC-python/input_images/test31/eigen_vectors
+DEBUG:CIDAN.LSSC.eigen:Eigen spatial box 0, time box 0 shape: (60000, 24)
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 10004
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 10004
+DEBUG:CIDAN:Program started
+DEBUG:CIDAN:Program started
+DEBUG:qdarkstyle:Reading QSS file in: :qdarkstyle/style.qss
+INFO:qdarkstyle:QSS file sucessfuly loaded.
+DEBUG:qdarkstyle:Checking patches for being applied.
+INFO:qdarkstyle:Found OS patches to be applied.
+INFO:qdarkstyle:Found application patches to be applied.
+DEBUG:CIDAN:Program started
+DEBUG:qdarkstyle:Reading QSS file in: :qdarkstyle/style.qss
+INFO:qdarkstyle:QSS file sucessfuly loaded.
+DEBUG:qdarkstyle:Checking patches for being applied.
+INFO:qdarkstyle:Found OS patches to be applied.
+INFO:qdarkstyle:Found application patches to be applied.

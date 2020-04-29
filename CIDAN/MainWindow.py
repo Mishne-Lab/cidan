@@ -145,7 +145,7 @@ class MainWidget(QWidget):
                 "/Users/sschickler/Code Devel/LSSC-python/input_images/test31",trials=[
                     "/Users/sschickler/Code Devel/LSSC-python/input_images/small_dataset.tif"
                 ],
-                save_dir_already_created=True)
+                save_dir_already_created=False)
             self.init_w_data()
         if False and dev:
             # auto loads a large dataset

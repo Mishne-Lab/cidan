@@ -170,6 +170,34 @@ def roi_advanced_settings_block(main_widget):
                                             "num_eig"],
                                         tool_tip="Number of eigen vectors to generate",
                                         min=1, max=1000, step=1),
+                               FloatInput(display_name="Eigen threshold value:",
+                                        program_name="eigen_threshold_value",
+                                        on_change_function=lambda x,
+                                                                  y: data_handler.change_roi_extraction_param(
+                                            x, y),
+                                        default_val=data_handler.roi_extraction_params[
+                                            "eigen_threshold_value"],
+                                        tool_tip="Number of eigen vectors to select at each point",
+                                        min=0, max=1, step=.01),
+                               FloatInput(display_name="Elbow threshold value:",
+                                          program_name="elbow_threshold_value",
+                                          on_change_function=lambda x,
+                                                                    y: data_handler.change_roi_extraction_param(
+                                              x, y),
+                                          default_val=data_handler.roi_extraction_params[
+                                              "elbow_threshold_value"],
+                                          tool_tip="Number of eigen vectors to select at each point",
+                                          min=0, max=1, step=.01),
+                               BoolInput(
+                                   display_name="Merge ROIs:",
+                                   program_name="merge",
+                                   on_change_function=lambda x,
+                                                             y: data_handler.change_roi_extraction_param(
+                                       x, y),
+                                   default_val=
+                                   data_handler.roi_extraction_params[
+                                       "merge"],
+                                   tool_tip="Whether to merge rois with similar time traces"),
                                IntInput(display_name="Number of timesteps:",
                               program_name="total_num_time_steps",
                               on_change_function=lambda x,y:data_handler.change_box_param(x,y),

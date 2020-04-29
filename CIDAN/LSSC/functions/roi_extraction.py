@@ -71,7 +71,7 @@ def roi_extract_image(*, e_vectors: np.ndarray,
                                                    num_eigen_vector_select,
                                                    threshold_method=eigen_threshold_method,
                                                    threshold=eigen_threshold_value)
-        # print(small_eigen_vectors.shape)
+        # print("original",small_eigen_vectors.shape)
         # TODO Find way to auto determin threshold value automatically max values
         # project into new eigen space
         small_pixel_embeding_norm = embed_eigen_norm(small_eigen_vectors)
@@ -104,6 +104,7 @@ def roi_extract_image(*, e_vectors: np.ndarray,
                                                     threshold_method=eigen_threshold_method,
                                                     threshold=eigen_threshold_value)
 
+            # print("rf",rf_eigen_vectors.shape)
             # embeds all pixels in this new eigen space
             rf_pixel_embedding_norm = embed_eigen_norm(rf_eigen_vectors)
 
@@ -398,7 +399,7 @@ def merge_rois(roi_list: List,
             first_roi = list(reduce(combine_rois, [first_roi]+[group_zipped[x][1] for x in rois_to_merge]))
             for num in rois_to_merge[::-1]:
                 group_zipped.pop(num)
-            new_rois.append(first_roi)
+            new_rois.append(np.array(first_roi))
 
     return new_rois
 def compare_time_traces(trace_1, trace_2):
