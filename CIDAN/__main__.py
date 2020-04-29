@@ -1,4 +1,4 @@
-from CIDAN import MainWindow
+from CIDAN.GUI import MainWindow
 from PySide2.QtWidgets import QApplication
 import sys
 import logging

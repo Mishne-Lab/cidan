@@ -1,14 +1,14 @@
 from PySide2 import QtCore
 
-from CIDAN.Tab import Tab
+from CIDAN.GUI.Tabs.Tab import Tab
 from PySide2.QtWidgets import *
 from PySide2.QtCore import *
 import numpy as np
 import pyqtgraph as pg
-from CIDAN.DataHandlerWrapper import ROIExtractionThread
-from CIDAN.SettingsModule import roi_extraction_settings
-from CIDAN.ROIListModule import ROIListModule
-from CIDAN.Input import OptionInput
+from CIDAN.GUI.Data_Interaction.ROIExtractionThread import ROIExtractionThread
+from CIDAN.GUI.SettingWidget.SettingsModule import roi_extraction_settings
+from CIDAN.GUI.ListWidgets.ROIListModule import ROIListModule
+from CIDAN.GUI.Inputs.OptionInput import OptionInput
 from CIDAN.LSSC.functions.roi_extraction import combine_rois
 class ROIExtractionTab(Tab):
     """Class controlling the ROI Extraction tab, inherits from Tab
@@ -177,12 +177,12 @@ class ROIExtractionTab(Tab):
 
 
 
-        background_chooser = OptionInput("Background:", "",
+        self.background_chooser = OptionInput("Background:", "",
                                               on_change_function=self.set_background, default_index=2,
                                               tool_tip="Choose background to display",
                                               val_list=["Blank Image", "Mean Image", "Max Image", "Temporal Correlation Image", "Eigen Norm Image"])
 
-        display_settings_layout.addWidget(background_chooser)
+        display_settings_layout.addWidget(self.background_chooser)
         background_slider_layout = QHBoxLayout()
         background_slider_layout.addWidget(QLabel("0"))
         self.foreground_slider = QSlider(Qt.Horizontal)

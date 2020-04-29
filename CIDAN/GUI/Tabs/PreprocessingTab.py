@@ -1,7 +1,7 @@
-from CIDAN.Tab import Tab
+from CIDAN.GUI.Tabs.Tab import Tab
 from PySide2.QtWidgets import *
-from CIDAN.DataHandlerWrapper import PreprocessThread
-from CIDAN.SettingsModule import preprocessing_settings
+from CIDAN.GUI.Data_Interaction.PreprocessThread import PreprocessThread
+from CIDAN.GUI.SettingWidget.SettingsModule import preprocessing_settings
 
 
 class PreprocessingTab(Tab):

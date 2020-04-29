@@ -1,3 +1,3 @@
-import CIDAN.MainWindow
+import CIDAN.GUI.MainWindow
 
 name = "CIDAN"

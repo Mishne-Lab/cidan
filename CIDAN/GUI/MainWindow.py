@@ -1,18 +1,15 @@
 import os
 os.environ['QT_API'] = 'pyside2'
-from PySide2.QtWidgets import QMainWindow, QWidget, QApplication, QVBoxLayout, \
-    QHBoxLayout, QPushButton, QTabWidget
-from CIDAN.Tab import Tab,  AnalysisTab
-from CIDAN.FileOpenTab import FileOpenTab
-from CIDAN.ROIExtractionTab import *
-from CIDAN.PreprocessingTab import *
+from PySide2.QtWidgets import QTabWidget
+from CIDAN.GUI.Tabs.Tab import AnalysisTab
+from CIDAN.GUI.Tabs.FileOpenTab import FileOpenTab
+from CIDAN.GUI.Tabs.ROIExtractionTab import *
+from CIDAN.GUI.Tabs.PreprocessingTab import *
 import qdarkstyle
-from CIDAN.ImageViewModule import ImageViewModule
-from CIDAN.DataHandler import DataHandler
-from CIDAN.DataHandlerWrapper import Thread
-from CIDAN.ConsoleWidget import ConsoleWidget
+from CIDAN.GUI.ImageView.ImageViewModule import ImageViewModule
+from CIDAN.GUI.Data_Interaction.DataHandler import DataHandler
+from CIDAN.GUI.Console.ConsoleWidget import ConsoleWidget
 import sys
-from dask.distributed import Client, progress
 import logging
 
 class MainWindow(QMainWindow):
@@ -174,6 +171,8 @@ class MainWidget(QWidget):
         for tab in self.tabs:
             self.tab_widget.addTab(tab, tab.name)
         self.tab_widget.setCurrentIndex(1)
+        self.tab_widget.currentChanged.connect(lambda x: self.tabs[1].set_background("",self.tabs[1].background_chooser.current_state(),update_image=True))
+
         if not hasattr(self, "export_menu"):
             self.export_menu = self.main_menu.addMenu("&Export")
             export_action = QAction("Export Time Traces/ROIs", self)

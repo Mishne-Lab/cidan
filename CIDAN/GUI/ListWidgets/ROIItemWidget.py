@@ -1,7 +1,7 @@
 from PySide2 import QtGui, QtCore
 from PySide2.QtWidgets import *
 from PySide2.QtGui import *
-class ROIItemWidget(QtGui.QWidget):
+class ROIItemWidget(QWidget):
     def __init__(self, roi_tab, color, roi_list, roi_num,parent=None):
         self.roi_tab= roi_tab
         self.roi_list = roi_list

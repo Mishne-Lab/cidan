@@ -53,7 +53,7 @@ def load_filter_tif_stack(*, path, filter: bool, median_filter: bool,
             image = filter_stack(stack=image, median_filter=median_filter,
                                  median_filter_size=median_filter_size, z_score=z_score)
         return image
-    raise Exception("Invalid Input folders not allowed currently ")
+    raise Exception("Invalid Inputs folders not allowed currently ")
     # vol=ScanImageTiffReader(file_path).data()
 
 def reshape_to_2d_over_time(volume):

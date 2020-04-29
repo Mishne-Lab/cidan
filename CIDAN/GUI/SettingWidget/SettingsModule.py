@@ -1,7 +1,6 @@
-from PySide2.QtWidgets import *
 import sys
 import qdarkstyle
-from CIDAN.SettingBlockModule import *
+from CIDAN.GUI.SettingWidget.SettingBlockModule import *
 
 class SettingsModule(QFrame):
     def __init__(self, name, *args, show_name=True):

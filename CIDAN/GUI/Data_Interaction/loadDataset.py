@@ -1,7 +1,6 @@
-from CIDAN.DataHandler import DataHandler
-from PySide2.QtWidgets import *
-# from PySide2.QtGui import *
-from PySide2 import QtCore
+from CIDAN.GUI.Data_Interaction.DataHandler import DataHandler
+
+from CIDAN.GUI.Inputs.FileInput import createFileDialog
 import logging
 logger1 = logging.getLogger("CIDAN.fileHandling")
 # def loadImageWrapper(main_widget):
@@ -18,41 +17,7 @@ logger1 = logging.getLogger("CIDAN.fileHandling")
 #
 #     return loadImage
 
-def createFileDialog(directory='', forOpen=True, fmt='', isFolder=0):
-    directory="/Users/sschickler/Documents/LSSC-python/input_images"
-    options = QFileDialog.Options()
-    options |= QFileDialog.DontUseNativeDialog
-    options |= QFileDialog.DontUseCustomDirectoryIcons
-    dialog = QFileDialog()
-    dialog.setOptions(options)
 
-    dialog.setFilter(dialog.filter() | QtCore.QDir.Hidden)
-
-    # ARE WE TALKING ABOUT FILES OR FOLDERS
-    if isFolder == 1:
-        dialog.setFileMode(QFileDialog.DirectoryOnly)
-    if isFolder == 2:
-        dialog.setFileMode(QFileDialog.AnyFile)
-    # OPENING OR SAVING
-    dialog.setAcceptMode(QFileDialog.AcceptOpen) if forOpen else dialog.setAcceptMode(QFileDialog.AcceptSave)
-
-    # SET FORMAT, IF SPECIFIED
-    if fmt != '' and isFolder is False:
-        dialog.setDefaultSuffix(fmt)
-        dialog.setNameFilters([f'{fmt} (*.{fmt})'])
-
-    # SET THE STARTING DIRECTORY
-    if directory != '':
-        dialog.setDirectory(str(directory))
-    # else:
-    #     dialog.setDirectory(str(ROOT_DIR))
-
-
-    if dialog.exec_() == QDialog.Accepted:
-        path = dialog.selectedFiles()[0]  # returns a list
-        return path
-    else:
-        return ''
 
 def load_new_dataset(main_widget, file_input, save_dir_input,trials=None):
     print(trials)
@@ -98,4 +63,4 @@ def load_prev_session(main_widget, save_dir_input):
         print("Loading Failed please try again, if problem persists save directory " +
               "is corrupted")
 def export_timetraces(main_widget):
-    createFileDialog(forOpen=False,isFolder=2)
+    createFileDialog(forOpen=False, isFolder=2)
