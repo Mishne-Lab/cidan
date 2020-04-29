@@ -1,4 +1,5 @@
 import os
+
 os.environ['QT_API'] = 'pyside2'
 from PySide2.QtWidgets import QTabWidget
 from CIDAN.GUI.Tabs.Tab import AnalysisTab
@@ -11,6 +12,7 @@ from CIDAN.GUI.Data_Interaction.DataHandler import DataHandler
 from CIDAN.GUI.Console.ConsoleWidget import ConsoleWidget
 import sys
 import logging
+
 
 class MainWindow(QMainWindow):
     """Initializes the basic window with Main widget being the focused widget"""
@@ -49,9 +51,7 @@ class MainWindow(QMainWindow):
 
         # extractAction.triggered.connect()
 
-
         self.show()
-
 
 
 class MainWidget(QWidget):
@@ -130,8 +130,6 @@ class MainWidget(QWidget):
         openPrevAction.triggered.connect(lambda: self.selectOpenFileTab(2))
         fileMenu.addAction(openPrevAction)
 
-
-
         # Below here in this function is just code for testing
         # TODO check if it can load data twice
         if True and dev:
@@ -139,9 +137,10 @@ class MainWidget(QWidget):
             self.data_handler = DataHandler(
 
                 "/Users/sschickler/Code Devel/LSSC-python/input_images/small_dataset.tif",
-                "/Users/sschickler/Code Devel/LSSC-python/input_images/test31",trials=[""
+                "/Users/sschickler/Code Devel/LSSC-python/input_images/test31",
+                trials=[""
 
-                ],
+                        ],
                 save_dir_already_created=False)
             self.init_w_data()
         if False and dev:
@@ -171,7 +170,10 @@ class MainWidget(QWidget):
         for tab in self.tabs:
             self.tab_widget.addTab(tab, tab.name)
         self.tab_widget.setCurrentIndex(1)
-        self.tab_widget.currentChanged.connect(lambda x: self.tabs[1].set_background("",self.tabs[1].background_chooser.current_state(),update_image=True))
+        self.tab_widget.currentChanged.connect(lambda x: self.tabs[1].set_background("",
+                                                                                     self.tabs[
+                                                                                         1].background_chooser.current_state(),
+                                                                                     update_image=True))
 
         if not hasattr(self, "export_menu"):
             self.export_menu = self.main_menu.addMenu("&Export")
@@ -179,15 +181,19 @@ class MainWidget(QWidget):
             export_action.setStatusTip('Export Time Traces/ROIs')
             export_action.triggered.connect(lambda: self.exportStuff())
             self.export_menu.addAction(export_action)
+
     def selectOpenFileTab(self, index):
         self.tab_widget.setCurrentIndex(0)
         self.fileOpenTab.tab_selector.setCurrentIndex(index)
+
     def exportStuff(self):
         msg = QMessageBox()
         msg.setWindowTitle("Export data")
         msg.setText("Data Exported to save directory")
         msg.setIcon(QMessageBox.Information)
         x = msg.exec_()
+
+
 if __name__ == "__main__":
     # client = Client(processes=False, threads_per_worker=8,
     #                 n_workers=1, memory_limit='16GB')

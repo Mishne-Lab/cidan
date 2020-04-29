@@ -1,5 +1,6 @@
 from PySide2 import QtCore
 from PySide2.QtWidgets import *
+
 from CIDAN.GUI.Inputs.Input import Input
 
 

@@ -1,6 +1,7 @@
-from PySide2.QtWidgets import *
-from PySide2.QtGui import *
 from PySide2 import QtCore
+from PySide2.QtGui import *
+
+
 class ROIItemModule(QStandardItem):
     def __init__(self, color, num, roi_tab):
         self.roi_tab = roi_tab
@@ -22,6 +23,7 @@ class ROIItemModule(QStandardItem):
         super().__init__(pm, "")
         self.setEditable(False)
         # self.setCheckable(True)
+
     def toggle_check_state(self):
         if self.checkState() == False:
             self.roi_tab.selectRoi(self.num)
@@ -32,7 +34,7 @@ class ROIItemModule(QStandardItem):
 
     def checkState(self):
         state = super().checkState()
-        if state==QtCore.Qt.CheckState.Unchecked:
+        if state == QtCore.Qt.CheckState.Unchecked:
             return False
         else:
             return True

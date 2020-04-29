@@ -10,11 +10,13 @@ import hnswlib as hnsw
 import numpy as np
 
 from dask import delayed
+
+
 @delayed
-def calc_affinity_matrix(*, pixel_list: np.matrix, metric: str, knn:int,
-                         accuracy:int, connections: int, normalize_w_k: int,
-                         num_threads: 
-        int, spatial_box_num:int, temporal_box_num: int):
+def calc_affinity_matrix(*, pixel_list: np.matrix, metric: str, knn: int,
+                         accuracy: int, connections: int, normalize_w_k: int,
+                         num_threads:
+                         int, spatial_box_num: int, temporal_box_num: int):
     """
     Calculates an pairwise affinity matrix for the image stack
     Parameters
@@ -35,7 +37,8 @@ def calc_affinity_matrix(*, pixel_list: np.matrix, metric: str, knn:int,
 
     dim = pixel_list.shape[1]
     num_elements = pixel_list.shape[0]
-    print("Spatial Box {}, Time Step {}: Started Processing".format(spatial_box_num, temporal_box_num))
+    print("Spatial Box {}, Time Step {}: Started Processing".format(spatial_box_num,
+                                                                    temporal_box_num))
     p = hnsw.Index(space=metric, dim=dim)
     p.init_index(max_elements=num_elements, ef_construction=accuracy,
                  M=connections)
@@ -45,11 +48,12 @@ def calc_affinity_matrix(*, pixel_list: np.matrix, metric: str, knn:int,
 
     reformat_indicies_x = np.repeat(np.arange(0, num_elements, 1), knn)
     reformat_indicies_y = np.reshape(indices, (-1))
-    reformat_distances = np.reshape(distances, (-1)) # this might have broke stuff idk
+    reformat_distances = np.reshape(distances, (-1))  # this might have broke stuff idk
 
-    scale_factor_indices = np.repeat(distances[:,normalize_w_k], knn)
-    scale_factor_2_per_distances = scale_factor_indices[reformat_indicies_x] * scale_factor_indices[
-        reformat_indicies_y]
+    scale_factor_indices = np.repeat(distances[:, normalize_w_k], knn)
+    scale_factor_2_per_distances = scale_factor_indices[reformat_indicies_x] * \
+                                   scale_factor_indices[
+                                       reformat_indicies_y]
     reformat_distances_scaled = np.exp(
         -reformat_distances / scale_factor_2_per_distances)
 
@@ -102,7 +106,8 @@ def calc_D_neg_sqrt(D_diag):
             (dim, dim)))
     return D_neg_sqrt
 
-def embed_eigen_norm(eigen_vectors): # embedding norm not just embeding
+
+def embed_eigen_norm(eigen_vectors):  # embedding norm not just embeding
     pixel_embedings = np.sum(np.power(eigen_vectors, 2),
                              axis=1)
     return pixel_embedings

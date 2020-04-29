@@ -1,6 +1,7 @@
-from pyqtgraph import ImageView
 from PySide2.QtWidgets import *
-from PySide2.QtCore import *
+from pyqtgraph import ImageView
+
+
 class ImageViewModule(QFrame):
     def __init__(self, main_widget, histogram=True, roi=True):
         super().__init__()
@@ -45,4 +46,3 @@ class ImageViewModule(QFrame):
         #     self.layout.addWidget(self.image_view)
         self.image_view.setImage(data, levelMode='mono', autoRange=True,
                                  autoLevels=True, autoHistogramRange=True)
-

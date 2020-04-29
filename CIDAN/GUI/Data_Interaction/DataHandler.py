@@ -1,16 +1,17 @@
 import json
-import os
-from typing import Dict
+import logging
+
 from PIL import Image
 from skimage import feature
-import numpy as np
+
 from CIDAN.LSSC.functions.data_manipulation import load_filter_tif_stack, filter_stack, \
     reshape_to_2d_over_time, pixel_num_to_2d_cord
-from CIDAN.LSSC.functions.temporal_correlation import calculate_temporal_correlation
 from CIDAN.LSSC.functions.pickle_funcs import *
 from CIDAN.LSSC.process_data import process_data
-import logging
+
 logger1 = logging.getLogger("CIDAN.DataHandler")
+
+
 class DataHandler:
     global_params_default = {
         "save_intermediate_steps": True,
@@ -65,6 +66,7 @@ class DataHandler:
         "refinement": True,
         "max_iter": 1000,
     }
+
     def __init__(self, data_path, save_dir_path, save_dir_already_created, trials=[]):
         # TODO add loaded trials and all trials parameter here
         self.color_list = [(218, 67, 34),
@@ -76,7 +78,6 @@ class DataHandler:
         if save_dir_already_created:
             valid = self.load_param_json()
             self.calculate_filters()
-
 
             if self.rois_exist:
                 self.load_rois()
@@ -92,7 +93,6 @@ class DataHandler:
             self.dataset_params["trials"] = trials
             self.trials = trials
 
-
             self.filter_params = DataHandler.filter_params_default.copy()
             self.box_params = DataHandler.box_params_default.copy()
             self.box_params["total_num_time_steps"] = len(trials)
@@ -107,27 +107,34 @@ class DataHandler:
     def __del__(self):
         for x in self.__dict__.items():
             self.__dict__[x] = None
+
     @property
     def param_path(self):
         return os.path.join(self.save_dir_path, "parameters.json")
+
     @property
     def eigen_vectors_exist(self):
         eigen_dir = os.path.join(self.save_dir_path, "eigen_vectors")
 
-        file_names = ["eigen_vectors_box_{}_{}.pickle".format(spatial_box_num,time_box_num)
-                      for spatial_box_num in range(self.box_params["total_num_spatial_boxes"])
-                      for time_box_num in range(self.box_params["total_num_time_steps"])]
-        return all(pickle_exist(x,output_directory=eigen_dir) for x in file_names)
+        file_names = [
+            "eigen_vectors_box_{}_{}.pickle".format(spatial_box_num, time_box_num)
+            for spatial_box_num in range(self.box_params["total_num_spatial_boxes"])
+            for time_box_num in range(self.box_params["total_num_time_steps"])]
+        return all(pickle_exist(x, output_directory=eigen_dir) for x in file_names)
+
     @property
     def rois_exist(self):
-        return pickle_exist("rois",output_directory=self.save_dir_path)
+        return pickle_exist("rois", output_directory=self.save_dir_path)
+
     def load_rois(self):
-        if pickle_exist("rois",output_directory=self.save_dir_path):
+        if pickle_exist("rois", output_directory=self.save_dir_path):
             self.clusters = pickle_load("rois", output_directory=self.save_dir_path)
             self.gen_roi_display_variables()
+
     def save_rois(self, rois):
         if os.path.isdir(self.save_dir_path):
-            pickle_save(rois, "rois",output_directory=self.save_dir_path)
+            pickle_save(rois, "rois", output_directory=self.save_dir_path)
+
     def load_param_json(self):
 
         try:
@@ -168,7 +175,6 @@ class DataHandler:
     def create_new_save_dir(self):
         try:
             if not os.path.isdir(self.save_dir_path):
-
                 os.mkdir(self.save_dir_path)
             eigen_vectors_folder_path = os.path.join(self.save_dir_path,
                                                      "eigen_vectors/")
@@ -214,7 +220,7 @@ class DataHandler:
             #     assert (int(new_value**.5))**2 == new_value, "Please make sure Number of Spatial Boxes is a square number"
             self.box_params[param_name] = new_value
             self.global_params["need_recalc_box_params"] = True
-            self.global_params["need_recalc_eigen_params"]=True
+            self.global_params["need_recalc_eigen_params"] = True
             self.global_params["need_recalc_roi_extraction_params"] = True
             self.save_new_param_json()
             return True
@@ -239,7 +245,7 @@ class DataHandler:
         else:
             return False
 
-    def calculate_dataset(self)->np.ndarray:
+    def calculate_dataset(self) -> np.ndarray:
         """Loads the dataset
 
         Returns
@@ -248,15 +254,19 @@ class DataHandler:
         # TODO make it so it does't load the dataset every time
 
         self.dataset = load_filter_tif_stack(path=[os.path.join(self.dataset_params[
-            "dataset_path"],x) for x in self.dataset_params[
-            "trials"]], filter=False,
+                                                                    "dataset_path"], x)
+                                                   for x in self.dataset_params[
+                                                       "trials"]], filter=False,
                                              median_filter=False,
-                                             median_filter_size=(1,3,3),
-                                             z_score=False, slice_stack=self.dataset_params[
-                "slice_stack"],
-                                             slice_start=self.dataset_params["slice_start"],
+                                             median_filter_size=(1, 3, 3),
+                                             z_score=False,
+                                             slice_stack=self.dataset_params[
+                                                 "slice_stack"],
+                                             slice_start=self.dataset_params[
+                                                 "slice_start"],
 
-                                             slice_every=self.dataset_params["slice_every"])
+                                             slice_every=self.dataset_params[
+                                                 "slice_every"])
         self.global_params["need_recalc_dataset_params"] = False
         self.shape = self.dataset.shape
 
@@ -266,11 +276,16 @@ class DataHandler:
 
     def calculate_filters(self):
 
-        if self.global_params["need_recalc_filter_params"] or self.global_params["need_recalc_dataset_params"] or \
-                not hasattr(self,"dataset_filtered"):
+        if self.global_params["need_recalc_filter_params"] or self.global_params[
+            "need_recalc_dataset_params"] or \
+                not hasattr(self, "dataset_filtered"):
             dataset = self.calculate_dataset()
             self.dataset_filtered = filter_stack(stack=dataset,
-                                                 median_filter_size=(1, self.filter_params["median_filter_size"], self.filter_params["median_filter_size"]),
+                                                 median_filter_size=(1,
+                                                                     self.filter_params[
+                                                                         "median_filter_size"],
+                                                                     self.filter_params[
+                                                                         "median_filter_size"]),
                                                  median_filter=self.filter_params[
                                                      "median_filter"],
                                                  z_score=self.filter_params["z_score"])
@@ -281,63 +296,81 @@ class DataHandler:
             self.global_params["need_recalc_filter_params"] = False
         return self.dataset_filtered
 
-
-
-
-
-
     def calculate_roi_extraction(self):
         if self.global_params["need_recalc_eigen_params"] or self.global_params[
             "need_recalc_roi_extraction_params"] or self.global_params[
-            "need_recalc_box_parmas"] or self.global_params["need_recalc_dataset_params"] or \
+            "need_recalc_box_parmas"] or self.global_params[
+            "need_recalc_dataset_params"] or \
                 self.global_params["need_recalc_filter_params"]:
             assert (int(
                 self.box_params[
                     "total_num_spatial_boxes"] ** .5)) ** 2 == self.box_params[
-                                             "total_num_spatial_boxes"], "Please make sure Number of Spatial Boxes is a square number"
+                       "total_num_spatial_boxes"], "Please make sure Number of Spatial Boxes is a square number"
             try:
                 self.clusters = process_data(num_threads=self.global_params[
-                "num_threads"], test_images=False, test_output_dir="",
-                                         save_dir=self.save_dir_path,
-                                         save_intermediate_steps=self.global_params[
-                     "save_intermediate_steps"],
-                                         load_data=False, data_path="",
-                                         image_data=self.calculate_filters(),
-                                         eigen_vectors_already_generated=(not self.global_params[
-                     "need_recalc_eigen_params"])and self.global_params["save_intermediate_steps"]and self.eigen_vectors_exist,
-                                         save_embedding_images=True,
-                                         total_num_time_steps=self.box_params["total_num_time_steps"],
-                                         total_num_spatial_boxes=self.box_params[
-                                             "total_num_spatial_boxes"],
-                                         spatial_overlap=self.box_params["spatial_overlap"]//2, filter= False,
-                                         median_filter=False,
-                                         median_filter_size=(1,3,3),
-                                         z_score=False, slice_stack=False,
-                                         slice_every=1, slice_start=0, metric=self.eigen_params["metric"],
-                                         knn=self.eigen_params["knn"],
-                                         accuracy=self.eigen_params["accuracy"],
-                                         connections=self.eigen_params["connections"],
-                                         normalize_w_k=self.eigen_params["normalize_w_k"],
-                                         num_eig=self.eigen_params["num_eig"],
-                                         merge=self.roi_extraction_params["merge"],
-                                         num_rois=self.roi_extraction_params["num_rois"],
-                                         refinement=self.roi_extraction_params["refinement"],
-                                         num_eigen_vector_select=self.roi_extraction_params[
-                              "num_eigen_vector_select"],
-                                         max_iter=self.roi_extraction_params["max_iter"],
-                                         roi_size_min=self.roi_extraction_params["roi_size_min"],
-                                         fill_holes=self.roi_extraction_params[
+                    "num_threads"], test_images=False, test_output_dir="",
+                                             save_dir=self.save_dir_path,
+                                             save_intermediate_steps=self.global_params[
+                                                 "save_intermediate_steps"],
+                                             load_data=False, data_path="",
+                                             image_data=self.calculate_filters(),
+                                             eigen_vectors_already_generated=(not
+                                                                              self.global_params[
+                                                                                  "need_recalc_eigen_params"]) and
+                                                                             self.global_params[
+                                                                                 "save_intermediate_steps"] and self.eigen_vectors_exist,
+                                             save_embedding_images=True,
+                                             total_num_time_steps=self.box_params[
+                                                 "total_num_time_steps"],
+                                             total_num_spatial_boxes=self.box_params[
+                                                 "total_num_spatial_boxes"],
+                                             spatial_overlap=self.box_params[
+                                                                 "spatial_overlap"] // 2,
+                                             filter=False,
+                                             median_filter=False,
+                                             median_filter_size=(1, 3, 3),
+                                             z_score=False, slice_stack=False,
+                                             slice_every=1, slice_start=0,
+                                             metric=self.eigen_params["metric"],
+                                             knn=self.eigen_params["knn"],
+                                             accuracy=self.eigen_params["accuracy"],
+                                             connections=self.eigen_params[
+                                                 "connections"],
+                                             normalize_w_k=self.eigen_params[
+                                                 "normalize_w_k"],
+                                             num_eig=self.eigen_params["num_eig"],
+                                             merge=self.roi_extraction_params["merge"],
+                                             num_rois=self.roi_extraction_params[
+                                                 "num_rois"],
+                                             refinement=self.roi_extraction_params[
+                                                 "refinement"],
+                                             num_eigen_vector_select=
+                                             self.roi_extraction_params[
+                                                 "num_eigen_vector_select"],
+                                             max_iter=self.roi_extraction_params[
+                                                 "max_iter"],
+                                             roi_size_min=self.roi_extraction_params[
+                                                 "roi_size_min"],
+                                             fill_holes=self.roi_extraction_params[
                                                  "fill_holes"],
 
-                                         elbow_threshold_method=self.roi_extraction_params[
-                     "elbow_threshold_method"],
-                                         elbow_threshold_value=self.roi_extraction_params["elbow_threshold_value"],
-                                         eigen_threshold_method=self.roi_extraction_params[
-                     "eigen_threshold_method"],
-                                         eigen_threshold_value=self.roi_extraction_params[
-                     "eigen_threshold_value"],
-                                         merge_temporal_coef=self.roi_extraction_params["merge_temporal_coef"],
-                                         roi_size_max=self.roi_extraction_params["roi_size_max"])
+                                             elbow_threshold_method=
+                                             self.roi_extraction_params[
+                                                 "elbow_threshold_method"],
+                                             elbow_threshold_value=
+                                             self.roi_extraction_params[
+                                                 "elbow_threshold_value"],
+                                             eigen_threshold_method=
+                                             self.roi_extraction_params[
+                                                 "eigen_threshold_method"],
+                                             eigen_threshold_value=
+                                             self.roi_extraction_params[
+                                                 "eigen_threshold_value"],
+                                             merge_temporal_coef=
+                                             self.roi_extraction_params[
+                                                 "merge_temporal_coef"],
+                                             roi_size_max=self.roi_extraction_params[
+                                                 "roi_size_max"])
 
                 self.global_params["need_recalc_eigen_params"] = False
                 self.save_rois(self.clusters)
@@ -355,7 +388,8 @@ class DataHandler:
             except Exception as e:
                 self.global_params["need_recalc_eigen_params"] = False
                 logger1.error(e)
-                print("Please try again there was an internal error in the roi extraction process")
+                print(
+                    "Please try again there was an internal error in the roi extraction process")
                 raise AssertionError()
 
     def gen_roi_display_variables(self):
@@ -373,27 +407,31 @@ class DataHandler:
             self.pixel_with_rois_flat[cluster] = num + 1
             self.pixel_with_rois_color_flat[cluster] = cur_color
         edge_roi_image = feature.canny(np.reshape(self.pixel_with_rois_flat,
-                                                [self.dataset_filtered.shape[1],
-                                                 self.dataset_filtered.shape[2]]))
-        self.edge_roi_image_flat = np.reshape(edge_roi_image,[-1,1]) *255
+                                                  [self.dataset_filtered.shape[1],
+                                                   self.dataset_filtered.shape[2]]))
+        self.edge_roi_image_flat = np.reshape(edge_roi_image, [-1, 1]) * 255
         self.pixel_with_rois_color = np.reshape(self.pixel_with_rois_color_flat,
                                                 [self.dataset_filtered.shape[1],
                                                  self.dataset_filtered.shape[2], 3])
         try:
-            self.eigen_norm_image = np.asarray(Image.open(os.path.join(self.save_dir_path, "embedding_norm_images/embedding_norm_image.png")))
+            self.eigen_norm_image = np.asarray(Image.open(
+                os.path.join(self.save_dir_path,
+                             "embedding_norm_images/embedding_norm_image.png")))
         except:
             print("Can't generate eigen Norm image please try again")
 
     def calculate_time_traces(self):
-        self.time_traces = [[]]*len(self.clusters)
+        self.time_traces = [[]] * len(self.clusters)
         for cluster in range(len(self.clusters)):
-            self.calculate_time_trace(cluster+1)
+            self.calculate_time_trace(cluster + 1)
 
         if os.path.isdir(self.save_dir_path):
-            pickle_save(self.time_traces, "time_traces", output_directory=self.save_dir_path)
+            pickle_save(self.time_traces, "time_traces",
+                        output_directory=self.save_dir_path)
         self.gen_roi_display_variables()
         self.rois_loaded = True
-    def calculate_time_trace(self,roi_num):
+
+    def calculate_time_trace(self, roi_num):
         """
         Calculates a time trace for a certain ROI and save to time trace list
         Parameters
@@ -405,16 +443,13 @@ class DataHandler:
 
         """
         # TODO make so it can also calculate for a specific trial, so it would be a 2d array
-        cluster = self.clusters[roi_num-1]
+        cluster = self.clusters[roi_num - 1]
         data_2d = reshape_to_2d_over_time(self.dataset_filtered)
         time_trace = np.average(data_2d[cluster], axis=0)
-        self.time_traces[roi_num-1] = time_trace
+        self.time_traces[roi_num - 1] = time_trace
         if os.path.isdir(self.save_dir_path):
-            pickle_save(self.time_traces, "time_traces", output_directory=self.save_dir_path)
+            pickle_save(self.time_traces, "time_traces",
+                        output_directory=self.save_dir_path)
+
     def get_time_trace(self, num):
-        return self.time_traces[num-1]
-
-
-
-
-
+        return self.time_traces[num - 1]

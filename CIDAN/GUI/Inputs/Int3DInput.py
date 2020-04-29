@@ -1,9 +1,12 @@
 from PySide2.QtWidgets import *
+
 from CIDAN.GUI.Inputs.Input import Input
+
+
 class Int3DInput(Input):
     def __init__(self, display_name, program_name, on_change_function, default_val,
                  tool_tip,
-                 min, max, step,  display_tool_tip =False
+                 min, max, step, display_tool_tip=False
                  ):
         super().__init__(display_name, program_name, on_change_function, default_val,
                          tool_tip, display_tool_tip)
@@ -38,5 +41,6 @@ class Int3DInput(Input):
 
     def current_state(self):
         return self.input_box_1.value()
+
     def set_default_val(self):
         self.input_box_1.setValue(self.default_val)

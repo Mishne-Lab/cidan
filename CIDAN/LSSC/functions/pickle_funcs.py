@@ -1,6 +1,5 @@
-import pickle
-import numpy as np
 import os
+import pickle
 
 dir_name = "/data2/Sam/pythonTestEnviroment/tmp_pickle"
 
@@ -39,7 +38,7 @@ def pickle_save(obj, name, trial_num=0, output_directory=None):
         pickle.dump(obj, file, protocol=4)
 
 
-def pickle_exist(name, trial_num=0,output_directory=None):
+def pickle_exist(name, trial_num=0, output_directory=None):
     """
     checks if a pickle file exists
     Parameters
@@ -60,7 +59,7 @@ def pickle_exist(name, trial_num=0,output_directory=None):
     return os.path.isfile(os.path.join(dir_full_path, name))
 
 
-def pickle_load(name, trial_num=0,output_directory=None):
+def pickle_load(name, trial_num=0, output_directory=None):
     """
     loads a pickled object
     Parameters
