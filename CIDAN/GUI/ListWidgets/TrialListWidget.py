@@ -16,7 +16,7 @@ class TrialListWidget(QWidget):
         label1 = QLabel(text="Trial Selection")
         self.top_labels_layout.addWidget(label1)
         label1.setStyleSheet("font-size:20")
-
+        self.setMinimumHeight(100)
 
         self.model = QStandardItemModel(self.list)
 
@@ -25,12 +25,12 @@ class TrialListWidget(QWidget):
         self.layout.addWidget(self.list)
         self.roi_item_list = []
         self.setLayout(self.layout)
-    def setItems(self, folder_path):
+    def setItems(self, path):
         """
-        Takes in a folder path and adds the trials to the list view
+        Takes in a  path to a folder or a single file and adds the trials to the list view
         Parameters
         ----------
-        folder_path path to folder
+        path path to folder or single tiff file
 
         Returns
         -------
@@ -38,8 +38,12 @@ class TrialListWidget(QWidget):
         """
         self.list.clear()
         self.trial_items = []
-        self.trial_paths = sorted(os.listdir(folder_path))
+        if os.path.isfile(path):
+            self.trial_paths = [path]
+        else:
+            self.trial_paths = sorted(os.listdir(path))
         for path in self.trial_paths:
+
             self.trial_items.append(QListWidgetItem(path,self.list))
             self.trial_items[-1].setFlags(self.trial_items[-1].flags() | QtCore.Qt.ItemIsUserCheckable)
             self.trial_items[-1].setCheckState(QtCore.Qt.Checked)

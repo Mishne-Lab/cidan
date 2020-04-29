@@ -90,6 +90,7 @@ class DataHandler:
             self.dataset_params = DataHandler.dataset_params_default.copy()
             self.dataset_params["dataset_path"] = data_path
             self.dataset_params["trials"] = trials
+            self.trials = trials
 
 
             self.filter_params = DataHandler.filter_params_default.copy()
@@ -138,6 +139,7 @@ class DataHandler:
             self.box_params = all_params["box_params"]
             self.eigen_params = all_params["eigen_params"]
             self.roi_extraction_params = all_params["roi_extraction_params"]
+            self.trials = self.dataset_params["trials"]
             return True
         except KeyError:
             raise KeyError("Please Choose a valid parameter file")

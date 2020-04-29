@@ -13,7 +13,7 @@ setup(
     author_email='sschickl@ucsd.edu',
     # url="http://www.foopackage.com/",
     packages=find_packages(),
-    install_requires=["QtPy","QDarkStyle", "Pyside2","numpy", "dask[complete]", "matplotlib","scipy","tiffile","scikit-image","hnswlib", "pillow"],  # TODO add external packages as dependencies
+    install_requires=["QtPy","QDarkStyle", "pyqtgraph==0.11.0rc0", "Pyside2","numpy", "dask[complete]", "matplotlib","scipy","tiffile","scikit-image","hnswlib", "pillow"],  # TODO add external packages as dependencies
     scripts=[
         "CIDAN/LSSC/process_data.py",
         "CIDAN/LSSC/SpatialBox.py",
@@ -36,7 +36,7 @@ setup(
         "CIDAN/GUI/ImageView/__init__.py",
         "CIDAN/GUI/ImageView/ImageViewModule.py",
         "CIDAN/GUI/Inputs/__init__.py",
-        "CIDAN/GUI/Inputs/Inputs.py",
+        "CIDAN/GUI/Inputs/Input.py",
         "CIDAN/GUI/Inputs/BoolInput.py",
         "CIDAN/GUI/Inputs/FileInput.py",
         "CIDAN/GUI/Inputs/FloatInput.py",

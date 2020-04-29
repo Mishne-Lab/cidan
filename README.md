@@ -9,8 +9,8 @@ run these commands:
 ```
 conda create -n CIDAN python=3.7
 conda activate CIDAN
-pip install -r requirements.txt
-python3 -m pip install --index-url https://test.pypi.org/simple/ --no-deps CIDAN
+pip install pyqtgraph==0.11.0rc0
+pip install CIDAN
 python -m CIDAN
 ```
  

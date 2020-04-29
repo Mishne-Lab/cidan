@@ -28,7 +28,7 @@ def load_new_dataset(main_widget, file_input, save_dir_input,trials=None):
     if not trials:
         try:
 
-            main_widget.data_handler = DataHandler(data_path="",trials=[file_path],
+            main_widget.data_handler = DataHandler(data_path=file_path,trials=[""],
                                                    save_dir_path=save_dir_path,
                                                save_dir_already_created=False)
             main_widget.init_w_data()

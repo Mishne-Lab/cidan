@@ -9,6 +9,7 @@ from CIDAN.GUI.Data_Interaction.ROIExtractionThread import ROIExtractionThread
 from CIDAN.GUI.SettingWidget.SettingsModule import roi_extraction_settings
 from CIDAN.GUI.ListWidgets.ROIListModule import ROIListModule
 from CIDAN.GUI.Inputs.OptionInput import OptionInput
+from CIDAN.GUI.ListWidgets.TrialListWidget import TrialListWidget
 from CIDAN.LSSC.functions.roi_extraction import combine_rois
 class ROIExtractionTab(Tab):
     """Class controlling the ROI Extraction tab, inherits from Tab
@@ -209,8 +210,21 @@ class ROIExtractionTab(Tab):
         tab_selector_time_trace.setMaximumHeight(200)
         self.time_plot = pg.PlotWidget()
         self.time_plot.showGrid(x=True, y=True, alpha=0.3)
+
         tab_selector_time_trace.addTab(self.time_plot, "Time Trace Plot")
-        tab_selector_time_trace.addTab(QWidget(), "Time Trace Settings")
+        time_trace_settings = QWidget()
+        time_trace_settings_layout = QVBoxLayout()
+        # time_trace_settings.setStyleSheet("padding:0px; margin:2px;")
+        time_trace_settings.setLayout(time_trace_settings_layout)
+        time_trace_settings_layout.addWidget(OptionInput("Time Trace Type", "",
+                                         lambda x: x+x, default_index=0,
+                                         tool_tip="Select way to calculate time trace",
+                                        val_list=["Normal", "DeltaF/F", "More"]),
+                                             stretch=1)
+        time_trace_trial_select_list = TrialListWidget()
+        time_trace_trial_select_list.setItems(self.data_handler.dataset_params["dataset_path"] )
+        time_trace_settings_layout.addWidget(time_trace_trial_select_list, stretch=5)
+        tab_selector_time_trace.addTab(time_trace_settings, "Time Trace Settings")
 
 
 
