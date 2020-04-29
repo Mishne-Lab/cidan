@@ -3,7 +3,7 @@ from PySide2.QtWidgets import *
 
 class Input(QFrame):
     def __init__(self, display_name, program_name, on_change_function, default_val,
-                 tool_tip, display_tool_tip =False):
+                 tool_tip, display_tool_tip=False):
         super().__init__()
         self.program_name = program_name
         self.input_box_1 = None
@@ -34,13 +34,8 @@ class Input(QFrame):
 
     def current_state(self):
         pass
+
     def set_default_val(self):
         pass
 
-
-
 # TODO implement way to check spatial boxes square
-
-
-
-

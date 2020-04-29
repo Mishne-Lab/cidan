@@ -1,7 +1,10 @@
-from CIDAN.LSSC.functions import data_manipulation
-import numpy as np
 import os
+
 import matplotlib.pyplot as plt
+import numpy as np
+
+from CIDAN.LSSC.functions import data_manipulation
+
 
 def save_volume_images(volume, output_dir):
     data_manipulation.save_image(volume,
@@ -36,8 +39,10 @@ def save_eigen_images(eigen_vectors, output_dir, image_shape, box_num=0):
                                  output_dir,
                                  e_vectors_reshape.shape,
                                  number_save=eigen_vectors.shape[1])
+
+
 def save_roi_images(roi_list, image_shape, output_dir, box_num=0):
-    pixel_length = image_shape[1]*image_shape[2]
+    pixel_length = image_shape[1] * image_shape[2]
     original_zeros_all = np.zeros((pixel_length))
     for num, x in enumerate(roi_list):
         original_zeros = np.zeros((pixel_length))
@@ -47,8 +52,7 @@ def save_roi_images(roi_list, image_shape, output_dir, box_num=0):
                                         (image_shape[1],
                                          image_shape[2])))
         plt.savefig(os.path.join(output_dir, "box_{}_roi_{}".format(
-            str(box_num).zfill(2), str(num).zfill(3))+ "_" +str(0)))
-
+            str(box_num).zfill(2), str(num).zfill(3)) + "_" + str(0)))
 
     data_manipulation.save_image(original_zeros_all, "box_{}_roi_all".format(
         str(box_num).zfill(2)),

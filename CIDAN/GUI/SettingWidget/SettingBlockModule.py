@@ -1,7 +1,8 @@
-from CIDAN.GUI.Inputs.BoolInput import BoolInput
-from CIDAN.GUI.Inputs.IntInput import IntInput
-from CIDAN.GUI.Inputs.FloatInput import FloatInput
 from PySide2.QtWidgets import *
+
+from CIDAN.GUI.Inputs.BoolInput import BoolInput
+from CIDAN.GUI.Inputs.FloatInput import FloatInput
+from CIDAN.GUI.Inputs.IntInput import IntInput
 
 
 class SettingBlockModule(QFrame):

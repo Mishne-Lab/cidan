@@ -1,14 +1,16 @@
-import numpy as np
-from skimage import measure
-from CIDAN.LSSC.functions.embeddings import embed_eigen_norm
-from typing import Union, Any, List, Optional, cast, Tuple, Dict
 from functools import reduce
-from itertools import compress
-from scipy.ndimage.morphology import binary_fill_holes
-from matplotlib import pyplot as plt
-from scipy.sparse.csgraph import connected_components as connected_components_graph
-from scipy.sparse import csr_matrix
+from typing import List, Tuple
+
+import numpy as np
 from dask import delayed
+from scipy.ndimage.morphology import binary_fill_holes
+from scipy.sparse import csr_matrix
+from scipy.sparse.csgraph import connected_components as connected_components_graph
+from skimage import measure
+
+from CIDAN.LSSC.functions.embeddings import embed_eigen_norm
+
+
 @delayed
 def roi_extract_image(*, e_vectors: np.ndarray,
                       original_shape: tuple, original_2d_vol: np.ndarray, merge: bool,
@@ -17,7 +19,7 @@ def roi_extract_image(*, e_vectors: np.ndarray,
                       elbow_threshold_method: bool, elbow_threshold_value: float,
                       eigen_threshold_method: bool,
                       eigen_threshold_value: float, merge_temporal_coef: float,
-                      roi_size_limit: int, box_num:int) -> List[np.ndarray]:
+                      roi_size_limit: int, box_num: int) -> List[np.ndarray]:
     """
     Computes the Local Selective Spectral roi_extraction algorithm on an set of
     eigen vectors
@@ -88,9 +90,9 @@ def roi_extract_image(*, e_vectors: np.ndarray,
         # runs a connected component analysis around the initial point
         # in original image
         pixels_in_roi_comp = connected_component(pixel_length,
-                                                     original_shape,
-                                                     pixels_in_roi,
-                                                     initial_pixel)
+                                                 original_shape,
+                                                 pixels_in_roi,
+                                                 initial_pixel)
         pixels_in_roi_final = pixels_in_roi_comp
 
         # runs refinement step if enabled and if enough pixels in roi
@@ -121,10 +123,10 @@ def roi_extract_image(*, e_vectors: np.ndarray,
             # selects pixels in roi
             if elbow_threshold_method:
                 threshold = elbow_threshold_value * elbow_threshold(rf_pixel_distance,
-                                                                     np.argsort(
-                                                                         rf_pixel_distance),
-                                                                     half=True,
-                                                                     num=iter_counter)
+                                                                    np.argsort(
+                                                                        rf_pixel_distance),
+                                                                    half=True,
+                                                                    num=iter_counter)
                 rf_pixels_in_roi = np.nonzero(
                     rf_pixel_distance < threshold)[0]
             else:
@@ -134,9 +136,9 @@ def roi_extract_image(*, e_vectors: np.ndarray,
             # runs a connected component analysis around the initial point
             # in original image
             rf_pixels_in_roi_comp = connected_component(pixel_length,
-                                                            original_shape,
-                                                            rf_pixels_in_roi,
-                                                            rf_initial_point)
+                                                        original_shape,
+                                                        rf_pixels_in_roi,
+                                                        rf_initial_point)
             pixels_in_roi_final = rf_pixels_in_roi_comp
 
         # checks if roi is big enough
@@ -165,15 +167,15 @@ def roi_extract_image(*, e_vectors: np.ndarray,
     # Merges rois
     if merge:
         roi_list = merge_rois(roi_list,
-                                  temporal_coefficient=merge_temporal_coef,
-                                  original_2d_vol=original_2d_vol)
+                              temporal_coefficient=merge_temporal_coef,
+                              original_2d_vol=original_2d_vol)
         if fill_holes:
             roi_list = fill_holes_func(roi_list, pixel_length, original_shape)
     return roi_list
 
 
 def fill_holes_func(roi_list: List[np.ndarray], pixel_length: int,
-               original_shape: Tuple[int]) -> List[np.ndarray]:
+                    original_shape: Tuple[int]) -> List[np.ndarray]:
     """
     Close holes in each roi
     Parameters
@@ -378,10 +380,10 @@ def merge_rois(roi_list: List,
     """
     A = np.zeros([original_2d_vol.shape[0], len(roi_list)], dtype=bool)
     for num, cluster in enumerate(roi_list):
-        A[cluster,num] = True
-    A_graph = np.matmul(A.transpose(),A)
+        A[cluster, num] = True
+    A_graph = np.matmul(A.transpose(), A)
     A_csr = csr_matrix(A_graph)
-    connected = connected_components_graph(A_csr,False,return_labels=True)
+    connected = connected_components_graph(A_csr, False, return_labels=True)
     roi_groups = [[] for _ in range(len(roi_list))]
     for num in range(len(roi_list)):
         roi_groups[connected[1][num]].append(roi_list[num])
@@ -390,18 +392,23 @@ def merge_rois(roi_list: List,
     for group in roi_groups:
         group_zipped = list(enumerate(group))
         timetraces = [np.mean(original_2d_vol[roi], axis=0) for roi in group]
-        while len(group_zipped)>0:
+        while len(group_zipped) > 0:
             first_num, first_roi = group_zipped.pop(0)
             rois_to_merge = []
             for num, roi in enumerate(group_zipped):
-                if compare_time_traces(timetraces[first_num],timetraces[roi[0]])>temporal_coefficient:
+                if compare_time_traces(timetraces[first_num],
+                                       timetraces[roi[0]]) > temporal_coefficient:
                     rois_to_merge.append(num)
-            first_roi = list(reduce(combine_rois, [first_roi]+[group_zipped[x][1] for x in rois_to_merge]))
+            first_roi = list(reduce(combine_rois,
+                                    [first_roi] + [group_zipped[x][1] for x in
+                                                   rois_to_merge]))
             for num in rois_to_merge[::-1]:
                 group_zipped.pop(num)
             new_rois.append(np.array(first_roi))
 
     return new_rois
+
+
 def compare_time_traces(trace_1, trace_2):
     """
     Compares two timetraces based on person correlation
@@ -416,16 +423,17 @@ def compare_time_traces(trace_1, trace_2):
     """
     trace_1_mean = np.mean(trace_1)
     trace_2_mean = np.mean(trace_2)
-    trace_1_sub_mean = (trace_1-trace_1_mean)
-    trace_2_sub_mean = (trace_2-trace_2_mean)
+    trace_1_sub_mean = (trace_1 - trace_1_mean)
+    trace_2_sub_mean = (trace_2 - trace_2_mean)
     top = np.dot(trace_1_sub_mean, trace_2_sub_mean)
-    bottom = (np.dot(trace_1_sub_mean, trace_1_sub_mean)*
-              np.dot(trace_2_sub_mean,trace_2_sub_mean))**.5
-    return top/bottom
+    bottom = (np.dot(trace_1_sub_mean, trace_1_sub_mean) *
+              np.dot(trace_2_sub_mean, trace_2_sub_mean)) ** .5
+    return top / bottom
+
 
 def compare_roi(roi1: List[int],
-                    roi2: List[int], temporal_coefficient: int,
-                    original_2d_vol: np.ndarray) -> bool:
+                roi2: List[int], temporal_coefficient: int,
+                original_2d_vol: np.ndarray) -> bool:
     """
     Compares two rois and sees if they meet the standards for being combined #calculate average time trace given spacial support correlation is above a certain factor
     Parameters
@@ -441,7 +449,7 @@ def compare_roi(roi1: List[int],
 
     if any([x in roi2 for x in roi1]):  # check spacial simlarity
         roi1_time_trace_avg = np.mean(original_2d_vol[roi1],
-                                          axis=0)  # TODO Do I zscore the time trace
+                                      axis=0)  # TODO Do I zscore the time trace
         roi2_time_trace_avg = np.mean(original_2d_vol[roi2], axis=0)
         roi1_time_trace_avg_z_scored = (roi1_time_trace_avg - np.mean(
             roi1_time_trace_avg)) / np.std(roi1_time_trace_avg)

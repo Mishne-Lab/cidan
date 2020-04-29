@@ -1,12 +1,14 @@
-from CIDAN.LSSC.functions.embeddings import calc_D_sqrt, calc_D_neg_sqrt, calc_D_inv
+import logging
+import os
+
 import numpy as np
+from PIL import Image
 from dask import delayed
 from scipy.sparse import linalg
-import os
-from PIL import Image
+
 from CIDAN.LSSC.SpatialBox import combine_images
-from CIDAN.LSSC.functions.pickle_funcs import pickle_save, pickle_exist, pickle_load
-import logging
+from CIDAN.LSSC.functions.embeddings import calc_D_sqrt, calc_D_neg_sqrt, calc_D_inv
+from CIDAN.LSSC.functions.pickle_funcs import pickle_save, pickle_load
 
 logger1 = logging.getLogger("CIDAN.LSSC.eigen")
 
