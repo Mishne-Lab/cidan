@@ -1,4 +1,5 @@
 import logging
+import os
 
 from CIDAN.GUI.Data_Interaction.DataHandler import DataHandler
 from CIDAN.GUI.Inputs.FileInput import createFileDialog
@@ -29,8 +30,9 @@ def load_new_dataset(main_widget, file_input, save_dir_input, trials=None):
     #     main_widget.data_handler.__del__()
     if not trials:
         try:
-
-            main_widget.data_handler = DataHandler(data_path=file_path, trials=[""],
+            dir_path = os.path.dirname(file_path)
+            main_widget.data_handler = DataHandler(data_path=dir_path,
+                                                   trials=[os.path.basename(file_path)],
                                                    save_dir_path=save_dir_path,
                                                    save_dir_already_created=False)
             main_widget.init_w_data()

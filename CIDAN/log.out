@@ -518,3 +518,8 @@ DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
 DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 12943
 DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
 DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 12943
+DEBUG:CIDAN:Program started
+DEBUG:CIDAN:Program started
+DEBUG:CIDAN:Program started
+DEBUG:CIDAN:Program started
+DEBUG:CIDAN:Program started
