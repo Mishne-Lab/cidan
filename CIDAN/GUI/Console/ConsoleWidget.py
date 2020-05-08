@@ -1,20 +1,25 @@
-from PySide2 import QtCore
-from PySide2.QtCore import Slot
-from PySide2.QtWidgets import *
-from PySide2 import QtGui
 import sys
+
+from PySide2 import QtCore
+from PySide2 import QtGui
+from PySide2.QtWidgets import *
+
+
 class Stream(QtCore.QObject):
     newText = QtCore.Signal(str)
+
     def __init__(self):
         super().__init__()
 
         # print(type(self.newText))
         # self.connect(self.newText)
+
     def write(self, text):
         self.newText.emit(str(text))
 
     def flush(self):
         pass
+
 
 class ConsoleWidget(QWidget):
     def __init__(self):
@@ -30,12 +35,10 @@ class ConsoleWidget(QWidget):
         self.process.setLineWrapColumnOrWidth(500)
         self.process.setLineWrapMode(QTextEdit.FixedPixelWidth)
 
-
         self.layout.addWidget(self.process)
         self.setLayout(self.layout)
         sys.stdout = Stream()
         sys.stdout.newText.connect(self.onUpdateText)
-
 
     def onUpdateText(self, text):
         cursor = self.process.textCursor()

@@ -1,9 +1,11 @@
 from PySide2 import QtGui, QtCore
-from PySide2.QtWidgets import *
 from PySide2.QtGui import *
+from PySide2.QtWidgets import *
+
+
 class ROIItemWidget(QWidget):
-    def __init__(self, roi_tab, color, roi_list, roi_num,parent=None):
-        self.roi_tab= roi_tab
+    def __init__(self, roi_tab, color, roi_list, roi_num, parent=None):
+        self.roi_tab = roi_tab
         self.roi_list = roi_list
         self.roi_num = roi_num
         super(ROIItemWidget, self).__init__(parent)
@@ -66,7 +68,7 @@ QPushButton:selected {
         lay = QtGui.QHBoxLayout(self)
         lay.addWidget(self.check_box, alignment=QtCore.Qt.AlignLeft)
         # lay.addWidget(label_pix, alignment=QtCore.Qt.AlignLeft)
-        lay.addWidget(QLabel(text="#"+str(roi_num)), alignment=QtCore.Qt.AlignLeft)
+        lay.addWidget(QLabel(text="#" + str(roi_num)), alignment=QtCore.Qt.AlignLeft)
         lay.addWidget(QLabel())
         lay.addWidget(QLabel())
         lay.addWidget(QLabel())
@@ -77,6 +79,7 @@ QPushButton:selected {
         # lay.addWidget(self.button2, alignment=QtCore.Qt.AlignRight)
         # lay.addWidget(self.button3, alignment=QtCore.Qt.AlignRight)
         lay.setContentsMargins(0, 0, 0, 0)
+
     def select_check_box(self):
         if not self.check_box.checkState():
             for x in self.roi_list.roi_item_list:
@@ -91,11 +94,11 @@ QPushButton:selected {
 
     def select_time_check_box(self):
         self.check_box_time_trace.setChecked(not self.check_box_time_trace.checkState())
+
     def check_box_toggled(self):
         if self.check_box.checkState():
 
             self.roi_tab.selectRoi(self.roi_num)
-
 
             for x in self.roi_list.roi_item_list:
                 if x != self:
@@ -105,8 +108,10 @@ QPushButton:selected {
         else:
             self.roi_list.current_selected_roi = None
             self.roi_tab.deselectRoi(self.roi_num)
+
     def time_check_box_toggled(self):
-        self.roi_list.roi_time_check_list[self.roi_num- 1] = self.check_box_time_trace.checkState()
+        self.roi_list.roi_time_check_list[
+            self.roi_num - 1] = self.check_box_time_trace.checkState()
         if self.check_box_time_trace.checkState():
             self.roi_tab.selectRoiTime(self.roi_num)
         else:

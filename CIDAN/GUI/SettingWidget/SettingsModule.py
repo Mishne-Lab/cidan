@@ -1,11 +1,13 @@
 import sys
+
 import qdarkstyle
+
 from CIDAN.GUI.SettingWidget.SettingBlockModule import *
+
 
 class SettingsModule(QFrame):
     def __init__(self, name, *args, show_name=True):
         super().__init__()
-
 
         self.setting_block_list = args
         self.layout = QVBoxLayout()
@@ -22,17 +24,25 @@ class SettingsModule(QFrame):
             self.setting_block_layout.addItem(block, block.name)
         self.layout.addWidget(self.setting_block_layout)
         self.setLayout(self.layout)
+
+
 def preprocessing_settings(main_widget):
-    return SettingsModule( "Preprocessing Settings", dataset_setting_block(main_widget),
+    return SettingsModule("Preprocessing Settings", dataset_setting_block(main_widget),
                           filter_setting_block(main_widget))
+
+
 def roi_extraction_settings(main_widget):
-    return SettingsModule( "ROI Extraction Settings", multiprocessing_settings_block(main_widget), roi_extraction_settings_block(main_widget), roi_advanced_settings_block(main_widget), show_name=False)
+    return SettingsModule("ROI Extraction Settings",
+                          multiprocessing_settings_block(main_widget),
+                          roi_extraction_settings_block(main_widget),
+                          roi_advanced_settings_block(main_widget), show_name=False)
+
+
 if __name__ == "__main__":
     app = QApplication([])
 
     widget = preprocessing_settings()
     widget.setStyleSheet(qdarkstyle.load_stylesheet())
     widget.show()
-
 
     sys.exit(app.exec_())

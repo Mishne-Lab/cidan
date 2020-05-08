@@ -1,9 +1,9 @@
-from PySide2.QtWidgets import *
-from PySide2.QtGui import *
-from PySide2.QtCore import *
+import numpy as np
+
 from CIDAN.GUI.Data_Interaction.Signals import *
 from CIDAN.GUI.Data_Interaction.Thread import Thread
-import numpy as np
+
+
 class ROIExtractionThread(Thread):
     def __init__(self, main_widget, button, roi_list_module, roi_tab):
         super().__init__(main_widget.data_handler)

@@ -1,7 +1,10 @@
-from PySide2.QtWidgets import *
-from PySide2.QtGui import *
-from PySide2 import QtCore
 import os
+
+from PySide2 import QtCore
+from PySide2.QtGui import *
+from PySide2.QtWidgets import *
+
+
 class TrialListWidget(QWidget):
     def __init__(self):
 
@@ -25,6 +28,7 @@ class TrialListWidget(QWidget):
         self.layout.addWidget(self.list)
         self.roi_item_list = []
         self.setLayout(self.layout)
+
     def setItems(self, path):
         """
         Takes in a  path to a folder or a single file and adds the trials to the list view
@@ -43,9 +47,9 @@ class TrialListWidget(QWidget):
         else:
             self.trial_paths = sorted(os.listdir(path))
         for path in self.trial_paths:
-
-            self.trial_items.append(QListWidgetItem(path,self.list))
-            self.trial_items[-1].setFlags(self.trial_items[-1].flags() | QtCore.Qt.ItemIsUserCheckable)
+            self.trial_items.append(QListWidgetItem(path, self.list))
+            self.trial_items[-1].setFlags(
+                self.trial_items[-1].flags() | QtCore.Qt.ItemIsUserCheckable)
             self.trial_items[-1].setCheckState(QtCore.Qt.Checked)
 
     def selectedTrials(self):

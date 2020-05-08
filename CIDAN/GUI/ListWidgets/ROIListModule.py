@@ -1,8 +1,11 @@
-from PySide2.QtWidgets import *
-from PySide2.QtGui import *
 from PySide2 import QtCore
+from PySide2.QtGui import *
+from PySide2.QtWidgets import *
+
 from CIDAN.GUI.ListWidgets.ROIItemModule import ROIItemModule
 from CIDAN.GUI.ListWidgets.ROIItemWidget import ROIItemWidget
+
+
 class ROIListModule(QFrame):
     def __init__(self, data_handler, roi_tab):
         super().__init__()
@@ -11,10 +14,10 @@ class ROIListModule(QFrame):
         self.roi_tab = roi_tab
         self.color_list = data_handler.color_list
         self.list = QListView()
-        self.setStyleSheet( "QListView::item { border-bottom: 1px solid rgb(50, 65, "+
-                           "75); }" )
+        self.setStyleSheet("QListView::item { border-bottom: 1px solid rgb(50, 65, " +
+                           "75); }")
         self.top_labels_layout = QHBoxLayout()
-        label1=QLabel(text="ROI Selected")
+        label1 = QLabel(text="ROI Selected")
         label1.setMaximumWidth(100)
         self.top_labels_layout.addWidget(label1, alignment=QtCore.Qt.AlignRight)
         label2 = QLabel(text="ROI Num")
@@ -32,14 +35,14 @@ class ROIListModule(QFrame):
         self.layout = QVBoxLayout()
         self.layout.addLayout(self.top_labels_layout)
         self.layout.addWidget(self.list)
-        self.roi_item_list =[]
+        self.roi_item_list = []
         self.setLayout(self.layout)
-    def set_current_select(self,num):
-        self.list.setCurrentIndex(self.model.index(int(num-1),0))
-        self.roi_time_check_list[num - 1] = not self.roi_time_check_list[num - 1]
-        self.roi_item_list[num-1].select_check_box()
-        self.roi_item_list[num-1].select_time_check_box()
 
+    def set_current_select(self, num):
+        self.list.setCurrentIndex(self.model.index(int(num - 1), 0))
+        self.roi_time_check_list[num - 1] = not self.roi_time_check_list[num - 1]
+        self.roi_item_list[num - 1].select_check_box()
+        self.roi_item_list[num - 1].select_time_check_box()
 
     def set_list_items(self, clusters):
         self.cluster_list = clusters
@@ -47,12 +50,15 @@ class ROIListModule(QFrame):
             self.model.removeRow(0)
         self.roi_item_list = []
         for num in range(len(self.cluster_list)):
-            item = ROIItemWidget(self.roi_tab,self.color_list[num%len(self.color_list)],self, num+1)
-            item1 = ROIItemModule(self.color_list[num%len(self.color_list)],num+1,self.roi_tab)
+            item = ROIItemWidget(self.roi_tab,
+                                 self.color_list[num % len(self.color_list)], self,
+                                 num + 1)
+            item1 = ROIItemModule(self.color_list[num % len(self.color_list)], num + 1,
+                                  self.roi_tab)
             self.roi_item_list.append(item)
             self.model.appendRow(item1)
             self.list.setIndexWidget(item1.index(), item)
-        self.roi_time_check_list = [False]*len(self.roi_item_list)
+        self.roi_time_check_list = [False] * len(self.roi_item_list)
         self.roi_item_list[0].select_check_box()
         self.roi_item_list[0].select_time_check_box()
     # def change(self):
@@ -65,6 +71,3 @@ class ROIListModule(QFrame):
     #                 self.roi_tab.selectRoi(num)
     #             else:
     #                 self.roi_tab.deselectRoi(num)
-
-
-

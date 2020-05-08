@@ -1,7 +1,8 @@
-from CIDAN.GUI.Tabs.Tab import Tab
 from PySide2.QtWidgets import *
+
 from CIDAN.GUI.Data_Interaction.PreprocessThread import PreprocessThread
 from CIDAN.GUI.SettingWidget.SettingsModule import preprocessing_settings
+from CIDAN.GUI.Tabs.Tab import Tab
 
 
 class PreprocessingTab(Tab):
@@ -25,7 +26,7 @@ class PreprocessingTab(Tab):
         process_button = QPushButton()
         process_button.setText("Apply Settings")
         thread = PreprocessThread(main_widget, process_button)
-        main_widget.thread_list.append(thread) # Appends the thread to the main
+        main_widget.thread_list.append(thread)  # Appends the thread to the main
         # widget thread list
         process_button.clicked.connect(lambda: thread.runThread())
         # This assumes that the data is already loaded in
