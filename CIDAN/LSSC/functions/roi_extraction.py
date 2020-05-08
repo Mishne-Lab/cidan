@@ -34,7 +34,7 @@ def roi_extract_image(*, e_vectors: np.ndarray,
         A flattened 2d volume of the original image, used for mergestep
     num_rois
         Number of rois
-    refinement
+    refinement 
         If to do roi refinement step
     num_eigen_vector_select
         Number of eigen values to project into
