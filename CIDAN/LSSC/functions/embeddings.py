@@ -8,15 +8,16 @@ os.environ["NUMEXPR_NUM_THREADS"] = "10"  # export NUMEXPR_NUM_THREADS=6
 import scipy.sparse as sparse
 import hnswlib as hnsw
 import numpy as np
+from typing import Tuple
 
 from dask import delayed
 
 
 @delayed
-def calc_affinity_matrix(*, pixel_list: np.matrix, metric: str, knn: int,
-                         accuracy: int, connections: int, normalize_w_k: int,
-                         num_threads:
-                         int, spatial_box_num: int, temporal_box_num: int):
+def calcAffinityMatrix(*, pixel_list: np.matrix, metric: str, knn: int,
+                       accuracy: int, connections: int, normalize_w_k: int,
+                       num_threads:
+                       int, spatial_box_num: int, temporal_box_num: int):
     """
     Calculates an pairwise affinity matrix for the image stack
     Parameters
@@ -44,16 +45,16 @@ def calc_affinity_matrix(*, pixel_list: np.matrix, metric: str, knn: int,
                  M=connections)
     p.add_items(pixel_list, num_threads=num_threads)
     indices, distances = p.knn_query(pixel_list, k=knn,
-                                     num_threads=num_threads)  # lazy random walk means it returns distance of zero for same point
+                                     num_threads=num_threads)
+    # lazy random walk means it returns distance of zero for same point
 
     reformat_indicies_x = np.repeat(np.arange(0, num_elements, 1), knn)
     reformat_indicies_y = np.reshape(indices, (-1))
-    reformat_distances = np.reshape(distances, (-1))  # this might have broke stuff idk
+    reformat_distances = np.reshape(distances, (-1))
 
     scale_factor_indices = np.repeat(distances[:, normalize_w_k], knn)
     scale_factor_2_per_distances = scale_factor_indices[reformat_indicies_x] * \
-                                   scale_factor_indices[
-                                       reformat_indicies_y]
+                                   scale_factor_indices[reformat_indicies_y]
     reformat_distances_scaled = np.exp(
         -reformat_distances / scale_factor_2_per_distances)
 
@@ -64,7 +65,7 @@ def calc_affinity_matrix(*, pixel_list: np.matrix, metric: str, knn: int,
         shape=(num_elements, num_elements)))
 
 
-def calc_D_inv(K):
+def calcDInv(K: sparse.csr_matrix):
     """Calculates a scaling diagonal matrix D to rescale eigen vectors
 
     Parameters
@@ -84,13 +85,37 @@ def calc_D_inv(K):
     return sparse.csr_matrix(D_sparse), D_diag
 
 
-def calc_laplacian(P_sparse, dim):
+def calcLaplacian(P_sparse: sparse.csr_matrix, dim: Tuple[int, int]):
+    """
+    Calculates the Laplacian
+    Parameters
+    ----------
+    P_sparse
+        A sparse matrix of the normalized affinity matrix
+    dim
+        dimensions of P_sparse
+    Returns
+    -------
+    Laplacian matrix
+    # TODO I'm a little unsure what are the dimensions here
+    """
     I_sparse = sparse.identity(dim, format="csr")
     laplacian_sparse = I_sparse - P_sparse
     return laplacian_sparse
 
 
-def calc_D_sqrt(D_diag):
+def calcDSqrt(D_diag: np.ndarray):
+    """
+    Calculates sparse matrix of the sqrt of D
+    Parameters
+    ----------
+    D_diag
+        A list of the diagonal indices of D a the normalization matrix for P
+
+    Returns
+    -------
+    A sparse CSR matrix of the sqrt of D
+    """
     dim = D_diag.shape[0]
     D_sqrt = sparse.csr_matrix(
         sparse.dia_matrix((np.reshape(np.power(D_diag, .5), [1, -1]), [0]),
@@ -98,7 +123,18 @@ def calc_D_sqrt(D_diag):
     return D_sqrt
 
 
-def calc_D_neg_sqrt(D_diag):
+def calcDNegSqrt(D_diag):
+    """
+    Calculates sparse matrix of the neg sqrt of D
+    Parameters
+    ----------
+    D_diag
+        A list of the diagonal indices of D a the normalization matrix for P
+
+    Returns
+    -------
+    A sparse CSR matrix of the neg sqrt of D
+    """
     dim = D_diag.shape[0]
     D_neg_sqrt = sparse.csr_matrix(
         sparse.dia_matrix(
@@ -107,7 +143,17 @@ def calc_D_neg_sqrt(D_diag):
     return D_neg_sqrt
 
 
-def embed_eigen_norm(eigen_vectors):  # embedding norm not just embeding
+def embedEigenNorm(eigen_vectors: np.ndarray) -> np.ndarray:
+    """
+    Embeds all pixels in image to a set of eigen vectors
+    Parameters
+    ----------
+    eigen_vectors A set of eigen vectors
+
+    Returns
+    -------
+    A list of pixel values if they where represented by those eigen vectors
+    """
     pixel_embedings = np.sum(np.power(eigen_vectors, 2),
                              axis=1)
     return pixel_embedings
