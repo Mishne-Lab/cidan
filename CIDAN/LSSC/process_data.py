@@ -1,23 +1,20 @@
-from CIDAN.LSSC.functions.data_manipulation import load_filter_tif_stack, filter_stack, \
-    reshape_to_2d_over_time
-from CIDAN.LSSC.functions.roi_extraction import roi_extract_image, merge_rois
-from CIDAN.LSSC.functions.embeddings import calc_affinity_matrix
-from CIDAN.LSSC.functions.pickle_funcs import pickle_save, pickle_load, pickle_clear, \
-    pickle_set_dir, pickle_exist
-from CIDAN.LSSC.functions.temporal_correlation import *
-from CIDAN.LSSC.functions.eigen import gen_eigen_vectors, save_eigen_vectors, \
-    load_eigen_vectors, save_embeding_norm_image, create_embeding_norm_multiple
-from dask import delayed
+import logging
 from functools import reduce
+from typing import Tuple
 
 import numpy as np
-from typing import Union, Any, List, Optional, cast, Tuple, Dict
+from dask import delayed
+
 from CIDAN.LSSC.SpatialBox import SpatialBox
-from CIDAN.LSSC.functions.save_test_images import save_eigen_images, save_volume_images, \
+from CIDAN.LSSC.functions.data_manipulation import load_filter_tif_stack, \
+    reshape_to_2d_over_time
+from CIDAN.LSSC.functions.eigen import generateEigenVectors, saveEigenVectors, \
+    loadEigenVectors, saveEmbedingNormImage, createEmbedingNormImageFromMultiple
+from CIDAN.LSSC.functions.embeddings import calcAffinityMatrix
+from CIDAN.LSSC.functions.roi_extraction import roi_extract_image, merge_rois
+from CIDAN.LSSC.functions.save_test_images import save_volume_images, \
     save_roi_images
 
-from dask.distributed import performance_report
-import logging
 logger1 =logging.getLogger("CIDAN.LSSC.process_data")
 def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                  save_dir: str, save_intermediate_steps: bool,
@@ -112,18 +109,23 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                 time_box_data = spatial_box_data[start:end, :, :]
                 time_box_data_2d = reshape_to_2d_over_time(time_box_data)
                 logger1.debug("Time box {0}, start {1}, end {2}, time_box shape {3}, 2d shape {4}".format(temporal_box_num, start,end,time_box_data.shape,time_box_data_2d.shape))
-                k = calc_affinity_matrix(pixel_list=time_box_data_2d, metric=metric,
-                                         knn=knn, accuracy=accuracy,
-                                         connections=connections,
-                                         normalize_w_k=normalize_w_k,
-                                         num_threads=num_threads,spatial_box_num=spatial_box.box_num, temporal_box_num=temporal_box_num)
-                eigen_vectors = gen_eigen_vectors(K=k,
-                                                  num_eig=num_eig //
-                                                          total_num_time_steps,spatial_box_num=spatial_box.box_num, temporal_box_num=temporal_box_num)
+                k = calcAffinityMatrix(pixel_list=time_box_data_2d, metric=metric,
+                                       knn=knn, accuracy=accuracy,
+                                       connections=connections,
+                                       normalize_w_k=normalize_w_k,
+                                       num_threads=num_threads,
+                                       spatial_box_num=spatial_box.box_num,
+                                       temporal_box_num=temporal_box_num)
+                eigen_vectors = generateEigenVectors(K=k,
+                                                     num_eig=num_eig //
+                                                             total_num_time_steps,
+                                                     spatial_box_num=spatial_box.box_num,
+                                                     temporal_box_num=temporal_box_num)
                 if save_intermediate_steps:
-                    eigen_vectors = save_eigen_vectors(e_vectors=eigen_vectors,
-                                                       spatial_box_num=spatial_box.box_num,
-                                                       time_box_num=temporal_box_num, save_dir= save_dir)
+                    eigen_vectors = saveEigenVectors(e_vectors=eigen_vectors,
+                                                     spatial_box_num=spatial_box.box_num,
+                                                     time_box_num=temporal_box_num,
+                                                     save_dir=save_dir)
 
                 all_eigen_vectors_list.append(eigen_vectors)
                 if test_images:
@@ -135,17 +137,18 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
 
         else:
             for temporal_box_num in range(total_num_time_steps):
-                all_eigen_vectors_list.append(load_eigen_vectors(spatial_box_num=spatial_box.box_num,
-                                                                 time_box_num=temporal_box_num,
-                                                                 save_dir=save_dir))
+                all_eigen_vectors_list.append(
+                    loadEigenVectors(spatial_box_num=spatial_box.box_num,
+                                     time_box_num=temporal_box_num,
+                                     save_dir=save_dir))
 
         all_eigen_vectors = delayed(np.hstack)(all_eigen_vectors_list)
         all_boxes_eigen_vectors.append(all_eigen_vectors)
         if save_embedding_images:
-            all_eigen_vectors = save_embeding_norm_image(e_vectors=all_eigen_vectors,
-                                                     image_shape=spatial_box.shape,
-                                                     save_dir=save_dir,
-                                                     spatial_box_num=spatial_box.box_num)
+            all_eigen_vectors = saveEmbedingNormImage(e_vectors=all_eigen_vectors,
+                                                      image_shape=spatial_box.shape,
+                                                      save_dir=save_dir,
+                                                      spatial_box_num=spatial_box.box_num)
 
         rois = roi_extract_image(e_vectors=all_eigen_vectors,
                                  original_shape=spatial_box_data.shape,
@@ -183,7 +186,9 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                                      output_dir=test_output_dir,
                                      image_shape=shape, box_num="all").compute()
     if save_embedding_images and save_intermediate_steps:
-        create_embeding_norm_multiple( spatial_box_list=spatial_boxes,save_dir=save_dir, num_time_steps=total_num_time_steps)
+        createEmbedingNormImageFromMultiple(spatial_box_list=spatial_boxes,
+                                            save_dir=save_dir,
+                                            num_time_steps=total_num_time_steps)
 
 
     return all_rois_merged

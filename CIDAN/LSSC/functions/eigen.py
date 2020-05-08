@@ -1,19 +1,21 @@
-from CIDAN.LSSC.functions.embeddings import calc_D_sqrt, calc_D_neg_sqrt, calc_D_inv
-import numpy as np
-from dask import delayed
-from scipy.sparse import linalg
-import os
-from PIL import Image
-from CIDAN.LSSC.SpatialBox import combine_images
-from CIDAN.LSSC.functions.pickle_funcs import pickle_save, pickle_exist, pickle_load
 import logging
+import os
+
+import numpy as np
+from PIL import Image
+from dask import delayed
+from scipy import sparse
+from scipy.sparse import linalg
+
+from CIDAN.LSSC.SpatialBox import combine_images
+from CIDAN.LSSC.functions.embeddings import calcDSqrt, calcDNegSqrt, calcDInv
+from CIDAN.LSSC.functions.pickle_funcs import pickle_save, pickle_load
 
 logger1 = logging.getLogger("CIDAN.LSSC.eigen")
 
 
 @delayed
-def gen_eigen_vectors(*, K: np.ndarray, num_eig: int, spatial_box_num: int,
-                      temporal_box_num: int) -> np.ndarray:
+def generateEigenVectors(*, K: sparse.csr_matrix, num_eig: int) -> np.ndarray:
     """Calculate Eigen Vectors given parts of the affinity matrix
 
     Parameters
@@ -28,10 +30,10 @@ def gen_eigen_vectors(*, K: np.ndarray, num_eig: int, spatial_box_num: int,
     -------
     A matrix of eigen vectors
     """
-    D_inv, D_diag = calc_D_inv(K=K)
+    D_inv, D_diag = calcDInv(K=K)
     P = D_inv * K
-    D_neg_sqrt = calc_D_neg_sqrt(D_diag)
-    P_transformed = calc_D_sqrt(D_diag) * P * D_neg_sqrt
+    D_neg_sqrt = calcDNegSqrt(D_diag)
+    P_transformed = calcDSqrt(D_diag) * P * D_neg_sqrt
     eig_values, eig_vectors_scaled = linalg.eigsh(
         P_transformed, num_eig, which="LM",
         return_eigenvectors=True)
@@ -43,7 +45,7 @@ def gen_eigen_vectors(*, K: np.ndarray, num_eig: int, spatial_box_num: int,
 
 
 @delayed
-def save_eigen_vectors(*, e_vectors, spatial_box_num: int, time_box_num: int, save_dir:
+def saveEigenVectors(*, e_vectors, spatial_box_num: int, time_box_num: int, save_dir:
 str):
     eigen_dir = os.path.join(save_dir, "eigen_vectors")
     if not os.path.isdir(eigen_dir):
@@ -55,7 +57,7 @@ str):
 
 
 @delayed
-def load_eigen_vectors(*, spatial_box_num: int, time_box_num: int, save_dir: str):
+def loadEigenVectors(*, spatial_box_num: int, time_box_num: int, save_dir: str):
     eigen_dir = os.path.join(save_dir, "eigen_vectors")
     name = "eigen_vectors_box_{}_{}.pickle".format(spatial_box_num, time_box_num)
     logger1.debug(
@@ -70,7 +72,7 @@ def load_eigen_vectors(*, spatial_box_num: int, time_box_num: int, save_dir: str
 
 
 @delayed
-def save_embeding_norm_image(*, e_vectors, image_shape, save_dir, spatial_box_num):
+def saveEmbedingNormImage(*, e_vectors, image_shape, save_dir, spatial_box_num):
     # print(save_dir)
     # embed_dir = os.path.join(save_dir, "embedding_norm_images")
     # e_vectors_squared = np.power(e_vectors, 2)
@@ -88,8 +90,20 @@ def save_embeding_norm_image(*, e_vectors, image_shape, save_dir, spatial_box_nu
     return e_vectors
 
 
-def create_embeding_norm_multiple(*, spatial_box_list, save_dir, num_time_steps):
-    # print(save_dir)
+def createEmbedingNormImageFromMultiple(*, spatial_box_list, save_dir, num_time_steps):
+    """
+    This function takes in a place where eigen vectors are stored and creates a full
+    image for the entire image instead of just each spatial box
+    Parameters
+    ----------
+    spatial_box_list list of spatial boxes
+    save_dir where eigen vectors are stored
+    num_time_steps number of timesteps used
+
+    Returns
+    -------
+
+    """
     eigen_dir = os.path.join(save_dir, "eigen_vectors")
     e_vectors_list = []
     for spatial_box in spatial_box_list:
