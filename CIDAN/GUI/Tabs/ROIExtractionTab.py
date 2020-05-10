@@ -273,7 +273,7 @@ class ROIExtractionTab(Tab):
         -------
         Nothing
         """
-        if roi_num == None:
+        if roi_num is None:
             print("Please select an roi")
             return
         shape = self.main_widget.data_handler.edge_roi_image_flat.shape
@@ -311,7 +311,7 @@ class ROIExtractionTab(Tab):
 
     def intensity_slider_changed(self):
         self.current_foreground_intensity = 10 - (
-                    float(self.foreground_slider.value()) / 10)
+                float(self.foreground_slider.value()) / 10)
         self.updateImageDisplay()
 
     def set_background(self, name, func_name, update_image=True):

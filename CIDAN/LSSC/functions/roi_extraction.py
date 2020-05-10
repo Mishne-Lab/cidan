@@ -160,7 +160,8 @@ def roi_extract_image(*, e_vectors: np.ndarray,
                                                         rf_pixels_in_roi,
                                                         rf_initial_point)
             rf_pixels_in_roi_filled = \
-            fill_holes_func([rf_pixels_in_roi_comp], pixel_length, original_shape)[0]
+                fill_holes_func([rf_pixels_in_roi_comp], pixel_length, original_shape)[
+                    0]
             pixels_in_roi_final = rf_pixels_in_roi_filled
 
         # checks if roi is big enough

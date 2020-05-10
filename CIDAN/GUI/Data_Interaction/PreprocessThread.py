@@ -1,3 +1,5 @@
+import sys
+
 from CIDAN.GUI.Data_Interaction.Signals import *
 from CIDAN.GUI.Data_Interaction.Thread import Thread
 
@@ -14,7 +16,7 @@ class PreprocessThread(Thread):
             self.signal.sig.emit(self.data_handler.calculate_filters())
         except:
             print("Unexpected error:", sys.exc_info()[0])
-            self.signal.sig.emit(np.matrix([0]))
+            self.signal.sig.emit(np.ndarray([0]))
 
     def runThread(self):
 

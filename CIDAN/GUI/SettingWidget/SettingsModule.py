@@ -41,7 +41,7 @@ def roi_extraction_settings(main_widget):
 if __name__ == "__main__":
     app = QApplication([])
 
-    widget = preprocessing_settings()
+    widget = preprocessing_settings()  # noqa
     widget.setStyleSheet(qdarkstyle.load_stylesheet())
     widget.show()
 

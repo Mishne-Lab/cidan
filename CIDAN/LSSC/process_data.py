@@ -15,7 +15,9 @@ from CIDAN.LSSC.functions.roi_extraction import roi_extract_image, merge_rois
 from CIDAN.LSSC.functions.save_test_images import save_volume_images, \
     save_roi_images
 
-logger1 =logging.getLogger("CIDAN.LSSC.process_data")
+logger1 = logging.getLogger("CIDAN.LSSC.process_data")
+
+
 def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                  save_dir: str, save_intermediate_steps: bool,
                  load_data: bool, data_path: str,
@@ -53,31 +55,35 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                  elbow_threshold_method {33}, elbow_threshold_value {34},
                  eigen_threshold_method {35},
                  eigen_threshold_value {36}, merge_temporal_coef {37},
-                 roi_size_max {38}""".format(num_threads,test_images , test_output_dir,
-                 save_dir, save_intermediate_steps,
-                 load_data, data_path,
-                 image_data,
-                 eigen_vectors_already_generated,
-                 save_embedding_images,
-                 total_num_time_steps, total_num_spatial_boxes,
-                 spatial_overlap, filter, median_filter,
-                 median_filter_size,
-                 z_score, slice_stack,
-                 slice_every, slice_start, metric, knn,
-                 accuracy, connections, normalize_w_k, num_eig,
-                 merge,
-                 num_rois, refinement, num_eigen_vector_select,
-                 max_iter, roi_size_min, fill_holes,
-                 elbow_threshold_method, elbow_threshold_value,
-                 eigen_threshold_method,
-                 eigen_threshold_value, merge_temporal_coef,
-                 roi_size_max))
+                 roi_size_max {38}""".format(num_threads, test_images, test_output_dir,
+                                             save_dir, save_intermediate_steps,
+                                             load_data, data_path,
+                                             image_data,
+                                             eigen_vectors_already_generated,
+                                             save_embedding_images,
+                                             total_num_time_steps,
+                                             total_num_spatial_boxes,
+                                             spatial_overlap, filter, median_filter,
+                                             median_filter_size,
+                                             z_score, slice_stack,
+                                             slice_every, slice_start, metric, knn,
+                                             accuracy, connections, normalize_w_k,
+                                             num_eig,
+                                             merge,
+                                             num_rois, refinement,
+                                             num_eigen_vector_select,
+                                             max_iter, roi_size_min, fill_holes,
+                                             elbow_threshold_method,
+                                             elbow_threshold_value,
+                                             eigen_threshold_method,
+                                             eigen_threshold_value, merge_temporal_coef,
+                                             roi_size_max))
     # TODO Make after eigen vector make function to save intermediate embeding norm
     #  for each spatial box
     # TODO Rewrite to take in a list of loaded datasets
 
     # TODO add assertions to make sure input splits work for dataset
-    if load_data == True:
+    if load_data:
         image = load_filter_tif_stack(path=data_path, filter=filter,
                                       median_filter=median_filter,
                                       median_filter_size=median_filter_size,
@@ -109,7 +115,10 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                 time_box_data = spatial_box_data[start:end, :,
                                 :]  # TODO make sure memory doesn't take more than 2x
                 time_box_data_2d = reshape_to_2d_over_time(time_box_data)
-                logger1.debug("Time box {0}, start {1}, end {2}, time_box shape {3}, 2d shape {4}".format(temporal_box_num, start,end,time_box_data.shape,time_box_data_2d.shape))
+                logger1.debug(
+                    "Time box {0}, start {1}, end {2}, time_box shape {3}, 2d shape {4}".format(
+                        temporal_box_num, start, end, time_box_data.shape,
+                        time_box_data_2d.shape))
                 k = calcAffinityMatrix(pixel_list=time_box_data_2d, metric=metric,
                                        knn=knn, accuracy=accuracy,
                                        connections=connections,
@@ -178,19 +187,18 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
     all_rois = delayed(reduce)(lambda x, y: x + y, all_rois)
     all_rois = all_rois.compute()
     all_rois_merged = delayed(merge_rois)(roi_list=all_rois,
-                                              temporal_coefficient=merge_temporal_coef,
-                                              original_2d_vol=reshape_to_2d_over_time(
-                                                      image)).compute()
+                                          temporal_coefficient=merge_temporal_coef,
+                                          original_2d_vol=reshape_to_2d_over_time(
+                                              image)).compute()
 
     if test_images:
         delayed(save_roi_images)(roi_list=all_rois_merged,
-                                     output_dir=test_output_dir,
-                                     image_shape=shape, box_num="all").compute()
+                                 output_dir=test_output_dir,
+                                 image_shape=shape, box_num="all").compute()
     if save_embedding_images and save_intermediate_steps:
         createEmbedingNormImageFromMultiple(spatial_box_list=spatial_boxes,
                                             save_dir=save_dir,
                                             num_time_steps=total_num_time_steps)
-
 
     return all_rois_merged
 

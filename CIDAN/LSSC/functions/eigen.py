@@ -66,7 +66,7 @@ def loadEigenVectors(*, spatial_box_num: int, time_box_num: int, save_dir: str):
     logger1.debug(
         "Eigen spatial box {0}, time box {1} shape: {2}".format(spatial_box_num,
                                                                 time_box_num,
-                                                                vector.shape))
+                                                                vector.shape))  # noqa
     return vector
 
 
@@ -120,6 +120,7 @@ def createEmbedingNormImageFromMultiple(*, spatial_box_list, save_dir, num_time_
         e_vectors_sum = np.sum(e_vectors_squared, axis=1)
         e_vectors_sum_rescaled = e_vectors_sum * (
                 9.0 / e_vectors_sum.max())  # add histogram equalization
+        # noqa
         e_vectors_shaped = np.reshape(e_vectors_sum,
                                       spatial_box.shape[1:])
         eigen_images.append(e_vectors_shaped)

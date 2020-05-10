@@ -1,7 +1,6 @@
 import json
 import logging
 
-
 import dask
 import numpy as np
 from PIL import Image
@@ -101,7 +100,6 @@ class DataHandler:
             self.trials_all = sorted(os.listdir(data_path))
             self.dataset_params["trials_all"] = self.trials_all
 
-
             self.filter_params = DataHandler.filter_params_default.copy()
             self.box_params = DataHandler.box_params_default.copy()
             self.box_params["total_num_time_steps"] = len(trials)
@@ -114,6 +112,7 @@ class DataHandler:
             self.time_traces = []
         self.trials_loaded_indices = [num for num, x in enumerate(self.trials_all)
                                       if x in self.trials_loaded]
+
     def __del__(self):
         for x in self.__dict__.items():
             self.__dict__[x] = None
@@ -285,8 +284,6 @@ class DataHandler:
 
         print("Finished Calculating Dataset")
 
-
-
     def calculate_filters(self):
 
         if self.global_params["need_recalc_filter_params"] or self.global_params[
@@ -298,14 +295,14 @@ class DataHandler:
                 self.dataset_trials_filtered[trial_num] = dask.delayed(filter_stack)(
                     stack=
                     self.dataset_trials[trial_num],
-                                                 median_filter_size=(1,
-                                                                     self.filter_params[
-                                                                         "median_filter_size"],
-                                                                     self.filter_params[
-                                                                         "median_filter_size"]),
-                                                 median_filter=self.filter_params[
-                                                     "median_filter"],
-                                                 z_score=self.filter_params["z_score"])
+                    median_filter_size=(1,
+                                        self.filter_params[
+                                            "median_filter_size"],
+                                        self.filter_params[
+                                            "median_filter_size"]),
+                    median_filter=self.filter_params[
+                        "median_filter"],
+                    z_score=self.filter_params["z_score"])
             self.dataset_trials_filtered = dask.compute(*self.dataset_trials_filtered)
             self.mean_image = np.mean(self.dataset_filtered, axis=0)
             self.max_image = np.max(self.dataset_filtered, axis=0)
