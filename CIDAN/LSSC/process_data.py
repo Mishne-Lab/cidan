@@ -106,7 +106,8 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
             for temporal_box_num, start_end in enumerate(time_boxes):
                 start, end = start_end
 
-                time_box_data = spatial_box_data[start:end, :, :]
+                time_box_data = spatial_box_data[start:end, :,
+                                :]  # TODO make sure memory doesn't take more than 2x
                 time_box_data_2d = reshape_to_2d_over_time(time_box_data)
                 logger1.debug("Time box {0}, start {1}, end {2}, time_box shape {3}, 2d shape {4}".format(temporal_box_num, start,end,time_box_data.shape,time_box_data_2d.shape))
                 k = calcAffinityMatrix(pixel_list=time_box_data_2d, metric=metric,
@@ -119,8 +120,7 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                 eigen_vectors = generateEigenVectors(K=k,
                                                      num_eig=num_eig //
                                                              total_num_time_steps,
-                                                     spatial_box_num=spatial_box.box_num,
-                                                     temporal_box_num=temporal_box_num)
+                                                     )
                 if save_intermediate_steps:
                     eigen_vectors = saveEigenVectors(e_vectors=eigen_vectors,
                                                      spatial_box_num=spatial_box.box_num,
@@ -165,7 +165,8 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                                  eigen_threshold_method=eigen_threshold_method,
                                  eigen_threshold_value=eigen_threshold_value,
                                  merge_temporal_coef=merge_temporal_coef,
-                                 roi_size_limit=roi_size_max, box_num=spatial_box.box_num)
+                                 roi_size_limit=roi_size_max,
+                                 box_num=spatial_box.box_num)
         if test_images:
             pass
             # delayed(save_roi_images)(

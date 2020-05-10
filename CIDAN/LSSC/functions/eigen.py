@@ -25,7 +25,6 @@ def generateEigenVectors(*, K: sparse.csr_matrix, num_eig: int) -> np.ndarray:
         An affinity matrix K for the image
     num_eig
         number of eigen values to generate
-
     Returns
     -------
     A matrix of eigen vectors
@@ -36,10 +35,10 @@ def generateEigenVectors(*, K: sparse.csr_matrix, num_eig: int) -> np.ndarray:
     P_transformed = calcDSqrt(D_diag) * P * D_neg_sqrt
     eig_values, eig_vectors_scaled = linalg.eigsh(
         P_transformed, num_eig, which="LM",
-        return_eigenvectors=True)
+        return_eigenvectors=True)  # this returns normalized eigen vectors
+    # TODO make first eigen vector be sanity check since all elements are the same this isn't the case
     eig_vectors = np.flip(
-        D_neg_sqrt * eig_vectors_scaled, axis=1)
-    # print("Spatial Box {}, Time Step {}: Finished ".format(spatial_box_num, temporal_box_num))
+        D_neg_sqrt * eig_vectors_scaled, axis=1)  # this preforms matrix multiplication
 
     return eig_vectors
 

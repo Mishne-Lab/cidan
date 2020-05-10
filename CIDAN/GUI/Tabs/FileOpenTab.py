@@ -54,6 +54,7 @@ class FileOpenTab(Tab):
                                 column_2_display=False,
                                 column_1=[save_dir_load, prev_session_open_button])
         self.tab_selector = QTabWidget()
+
         self.tab_selector.addTab(file_open, file_open.name)
         self.tab_selector.addTab(folder_open, folder_open.name)
         self.tab_selector.addTab(prev_session_open, prev_session_open.name)

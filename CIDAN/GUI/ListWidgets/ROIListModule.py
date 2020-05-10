@@ -59,8 +59,9 @@ class ROIListModule(QFrame):
             self.model.appendRow(item1)
             self.list.setIndexWidget(item1.index(), item)
         self.roi_time_check_list = [False] * len(self.roi_item_list)
-        self.roi_item_list[0].select_check_box()
-        self.roi_item_list[0].select_time_check_box()
+        self.roi_tab.tab_selector_roi.setCurrentIndex(1)
+        # self.roi_item_list[0].select_check_box()
+        # self.roi_item_list[0].select_time_check_box()
     # def change(self):
     #     # This is a way of running the select roi function when a checkbox is clicked there
     #     # needed to be a work around because can't just connect a signal to it

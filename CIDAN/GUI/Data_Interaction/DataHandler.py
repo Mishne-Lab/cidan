@@ -1,6 +1,7 @@
 import json
 import logging
 
+import numpy as np
 from PIL import Image
 from skimage import feature
 
@@ -44,9 +45,9 @@ class DataHandler:
     eigen_params_default = {
         "eigen_vectors_already_generated": False,
         "num_eig": 50,
-        "normalize_w_k": 2,
+        "normalize_w_k": 16,
         "metric": "l2",
-        "knn": 20,
+        "knn": 30,
         "accuracy": 39,
         "connections": 40,
 
@@ -55,7 +56,7 @@ class DataHandler:
         "elbow_threshold_method": True,
         "elbow_threshold_value": 1,
         "eigen_threshold_method": True,
-        "eigen_threshold_value": .5,
+        "eigen_threshold_value": .1,
         "num_eigen_vector_select": 10,
         "merge_temporal_coef": .95,
         "roi_size_min": 30,
@@ -385,7 +386,7 @@ class DataHandler:
                 self.calculate_time_traces()
 
                 self.rois_loaded = True
-            except Exception as e:
+            except IndexError as e:
                 self.global_params["need_recalc_eigen_params"] = False
                 logger1.error(e)
                 print(

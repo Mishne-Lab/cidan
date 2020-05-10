@@ -8,7 +8,7 @@ from scipy.sparse import csr_matrix
 from scipy.sparse.csgraph import connected_components as connected_components_graph
 from skimage import measure
 
-from CIDAN.LSSC.functions.embeddings import embedEigenNorm
+from CIDAN.LSSC.functions.embeddings import embedEigenSqrdNorm
 
 
 @delayed
@@ -25,7 +25,6 @@ def roi_extract_image(*, e_vectors: np.ndarray,
     eigen vectors
     Parameters
     ----------
-
     e_vectors
         Eigen vector in 2D numpy array
     original_shape
@@ -34,7 +33,7 @@ def roi_extract_image(*, e_vectors: np.ndarray,
         A flattened 2d volume of the original image, used for mergestep
     num_rois
         Number of rois
-    refinement 
+    refinement
         If to do roi refinement step
     num_eigen_vector_select
         Number of eigen values to project into
@@ -69,7 +68,7 @@ def roi_extract_image(*, e_vectors: np.ndarray,
     """
     print("Spatial Box {}: Starting ROI selection process".format(box_num))
     pixel_length = e_vectors.shape[0]
-    pixel_embedings = embedEigenNorm(
+    pixel_embedings = embedEigenSqrdNorm(
         e_vectors)  # embeds the pixels in the eigen space
     initial_pixel_list = np.flip(np.argsort(
         pixel_embedings))  # creates a list of pixels with the highest values
@@ -89,7 +88,7 @@ def roi_extract_image(*, e_vectors: np.ndarray,
         initial_pixel = initial_pixel_list[0]  # Select initial point
         # select eigen vectors to project into
         small_eigen_vectors = select_eigen_vectors(e_vectors,
-                                                   np.ndarray([initial_pixel]),
+                                                   [initial_pixel],
                                                    num_eigen_vector_select,
                                                    threshold_method=
                                                    eigen_threshold_method,
@@ -97,7 +96,7 @@ def roi_extract_image(*, e_vectors: np.ndarray,
         # print("original",small_eigen_vectors.shape)
         # TODO Find way to auto determin threshold value automatically max values
         # project into new eigen space
-        small_pixel_embeding_norm = embedEigenNorm(small_eigen_vectors)
+        small_pixel_embeding_norm = embedEigenSqrdNorm(small_eigen_vectors)
 
         # calculate the distance between the initial point and each pixel
         # in the new eigen space
@@ -114,6 +113,7 @@ def roi_extract_image(*, e_vectors: np.ndarray,
                                                  original_shape,
                                                  pixels_in_roi,
                                                  initial_pixel)
+
         pixels_in_roi_final = pixels_in_roi_comp
 
         # runs refinement step if enabled and if enough pixels in roi
@@ -129,7 +129,7 @@ def roi_extract_image(*, e_vectors: np.ndarray,
 
             # print("rf",rf_eigen_vectors.shape)
             # embeds all pixels in this new eigen space
-            rf_pixel_embedding_norm = embedEigenNorm(rf_eigen_vectors)
+            rf_pixel_embedding_norm = embedEigenSqrdNorm(rf_eigen_vectors)
 
             # selects the initial point based on the pixel with max in
             # the new embedding space
@@ -159,7 +159,9 @@ def roi_extract_image(*, e_vectors: np.ndarray,
                                                         original_shape,
                                                         rf_pixels_in_roi,
                                                         rf_initial_point)
-            pixels_in_roi_final = rf_pixels_in_roi_comp
+            rf_pixels_in_roi_filled = \
+            fill_holes_func([rf_pixels_in_roi_comp], pixel_length, original_shape)[0]
+            pixels_in_roi_final = rf_pixels_in_roi_filled
 
         # checks if roi is big enough
         # print("roi size:", len(pixels_in_roi_final))
@@ -183,6 +185,7 @@ def roi_extract_image(*, e_vectors: np.ndarray,
             initial_pixel_list = np.delete(
                 np.append(initial_pixel_list, initial_pixel_list[0]), 0)
     if fill_holes:
+        # TODO combine into connected component function
         roi_list = fill_holes_func(roi_list, pixel_length, original_shape)
     # Merges rois
     if merge:
@@ -269,7 +272,6 @@ def connected_component(pixel_length: int, original_shape: Tuple[int, int, int],
     original_zeros = np.zeros(pixel_length)
     original_zeros[pixels_in_roi] = 1
     pixel_image = np.reshape(original_zeros, original_shape[1:])
-
     # runs connected component analysis on image
     blobs_labels = np.reshape(measure.label(pixel_image, background=0),
                               (-1))
@@ -307,8 +309,7 @@ def select_eigen_vectors(eigen_vectors: np.ndarray,
         dimensions number of pixels in image by numb_eigen_vector_select
 
     """
-    pixel_eigen_vec_values = np.abs(np.sum(eigen_vectors[pixels_in_roi],
-                                           axis=0))
+    pixel_eigen_vec_values = np.abs(np.sum(eigen_vectors[pixels_in_roi], axis=0))
     pixel_eigen_vec_values_sort_indices = np.flip(
         np.argsort(pixel_eigen_vec_values))
     if threshold_method:
@@ -412,7 +413,8 @@ def merge_rois(roi_list: List,
     temporal_coefficient
         The coefficient limiting merging based of temporal information, 0 merge all
         1 merge none
-
+    original_2d_vol
+        Volume of each pixel's time trace
     Returns
     -------
         List of new rois in format: [[np.array of pixels roi 1],

@@ -40,24 +40,26 @@ def calcAffinityMatrix(*, pixel_list: np.matrix, metric: str, knn: int,
     num_elements = pixel_list.shape[0]
     print("Spatial Box {}, Time Step {}: Started Processing".format(spatial_box_num,
                                                                     temporal_box_num))
-    p = hnsw.Index(space=metric, dim=dim)
-    p.init_index(max_elements=num_elements, ef_construction=accuracy,
+    knn_graph = hnsw.Index(space=metric, dim=dim)
+    knn_graph.init_index(max_elements=num_elements, ef_construction=accuracy,
                  M=connections)
-    p.add_items(pixel_list, num_threads=num_threads)
-    indices, distances = p.knn_query(pixel_list, k=knn,
+    knn_graph.add_items(pixel_list, num_threads=num_threads)
+    indices, distances = knn_graph.knn_query(pixel_list, k=knn,
                                      num_threads=num_threads)
     # lazy random walk means it returns distance of zero for same point
-
+    # TODO add comments here
     reformat_indicies_x = np.repeat(np.arange(0, num_elements, 1), knn)
     reformat_indicies_y = np.reshape(indices, (-1))
     reformat_distances = np.reshape(distances, (-1))
-
+    # Self tuning adaptive bandwidth
     scale_factor_indices = np.repeat(distances[:, normalize_w_k], knn)
-    scale_factor_2_per_distances = scale_factor_indices[reformat_indicies_x] * \
-                                   scale_factor_indices[reformat_indicies_y]
+    scale_factor_2_per_distances = np.power(scale_factor_indices[reformat_indicies_x],
+                                            .5) * \
+                                   np.power(scale_factor_indices[reformat_indicies_y],
+                                            .5)
     reformat_distances_scaled = np.exp(
         -reformat_distances / scale_factor_2_per_distances)
-
+    # TODO change to go direct to csr matrix
     return sparse.csr_matrix(sparse.coo_matrix(
         (
             reformat_distances_scaled,
@@ -143,7 +145,7 @@ def calcDNegSqrt(D_diag):
     return D_neg_sqrt
 
 
-def embedEigenNorm(eigen_vectors: np.ndarray) -> np.ndarray:
+def embedEigenSqrdNorm(eigen_vectors: np.ndarray) -> np.ndarray:
     """
     Embeds all pixels in image to a set of eigen vectors
     Parameters
