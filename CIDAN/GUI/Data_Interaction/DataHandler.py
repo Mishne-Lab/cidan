@@ -1,6 +1,8 @@
 import json
 import logging
 
+
+import dask
 import numpy as np
 from PIL import Image
 from skimage import feature
@@ -26,6 +28,8 @@ class DataHandler:
 
     dataset_params_default = {
         "dataset_path": "",
+        "trials_loaded": [],
+        "trials_all": [],
         "slice_stack": False,
         "slice_every": 3,
         "slice_start": 0
@@ -70,6 +74,7 @@ class DataHandler:
 
     def __init__(self, data_path, save_dir_path, save_dir_already_created, trials=[]):
         # TODO add loaded trials and all trials parameter here
+        # TODO make sure if trial list includes files that aren't valid it works
         self.color_list = [(218, 67, 34),
                            (132, 249, 22), (22, 249, 140), (22, 245, 249),
                            (22, 132, 249), (224, 22, 249), (249, 22, 160)]
@@ -91,8 +96,11 @@ class DataHandler:
 
             self.dataset_params = DataHandler.dataset_params_default.copy()
             self.dataset_params["dataset_path"] = data_path
-            self.dataset_params["trials"] = trials
-            self.trials = trials
+            self.dataset_params["trials_loaded"] = trials
+            self.trials_loaded = trials
+            self.trials_all = sorted(os.listdir(data_path))
+            self.dataset_params["trials_all"] = self.trials_all
+
 
             self.filter_params = DataHandler.filter_params_default.copy()
             self.box_params = DataHandler.box_params_default.copy()
@@ -104,7 +112,8 @@ class DataHandler:
                 raise FileNotFoundError("Please chose an empty directory for your " +
                                         "save directory")
             self.time_traces = []
-
+        self.trials_loaded_indices = [num for num, x in enumerate(self.trials_all)
+                                      if x in self.trials_loaded]
     def __del__(self):
         for x in self.__dict__.items():
             self.__dict__[x] = None
@@ -147,7 +156,8 @@ class DataHandler:
             self.box_params = all_params["box_params"]
             self.eigen_params = all_params["eigen_params"]
             self.roi_extraction_params = all_params["roi_extraction_params"]
-            self.trials = self.dataset_params["trials"]
+            self.trials_loaded = self.dataset_params["trials_loaded"]
+            self.trials_all = self.dataset_params["trials_all"]
             return True
         except KeyError:
             raise KeyError("Please Choose a valid parameter file")
@@ -254,34 +264,40 @@ class DataHandler:
         """
         # TODO make it so it does't load the dataset every time
 
-        self.dataset = load_filter_tif_stack(path=[os.path.join(self.dataset_params[
-                                                                    "dataset_path"], x)
-                                                   for x in self.dataset_params[
-                                                       "trials"]], filter=False,
-                                             median_filter=False,
-                                             median_filter_size=(1, 3, 3),
-                                             z_score=False,
-                                             slice_stack=self.dataset_params[
-                                                 "slice_stack"],
-                                             slice_start=self.dataset_params[
-                                                 "slice_start"],
+        self.dataset_trials = [False] * len(self.trials_all)
+        for trial_num in self.trials_loaded_indices:
+            self.dataset_trials[trial_num] = load_filter_tif_stack(
+                path=os.path.join(self.dataset_params["dataset_path"],
+                                  self.trials_all[trial_num]),
+                filter=False,
+                median_filter=False,
+                median_filter_size=(1, 3, 3),
+                z_score=False,
+                slice_stack=self.dataset_params[
+                    "slice_stack"],
+                slice_start=self.dataset_params[
+                    "slice_start"],
 
-                                             slice_every=self.dataset_params[
-                                                 "slice_every"])
+                slice_every=self.dataset_params[
+                    "slice_every"])
         self.global_params["need_recalc_dataset_params"] = False
-        self.shape = self.dataset.shape
+        self.shape = self.dataset_trials[0]
 
         print("Finished Calculating Dataset")
 
-        return self.dataset
+
 
     def calculate_filters(self):
 
         if self.global_params["need_recalc_filter_params"] or self.global_params[
             "need_recalc_dataset_params"] or \
-                not hasattr(self, "dataset_filtered"):
+                not hasattr(self, "dataset_trials_filtered"):
             dataset = self.calculate_dataset()
-            self.dataset_filtered = filter_stack(stack=dataset,
+            self.dataset_trials_filtered = [False] * len(self.trials_all)
+            for trial_num in self.trials_loaded_indices:
+                self.dataset_trials_filtered[trial_num] = dask.delayed(filter_stack)(
+                    stack=
+                    self.dataset_trials[trial_num],
                                                  median_filter_size=(1,
                                                                      self.filter_params[
                                                                          "median_filter_size"],
@@ -290,7 +306,7 @@ class DataHandler:
                                                  median_filter=self.filter_params[
                                                      "median_filter"],
                                                  z_score=self.filter_params["z_score"])
-            del dataset
+            self.dataset_trials_filtered = dask.compute(*self.dataset_trials_filtered)
             self.mean_image = np.mean(self.dataset_filtered, axis=0)
             self.max_image = np.max(self.dataset_filtered, axis=0)
             # self.temporal_correlation_image = calculate_temporal_correlation(self.dataset_filtered)
@@ -377,9 +393,8 @@ class DataHandler:
                 self.save_rois(self.clusters)
                 print("Calculating Time Traces:")
                 self.time_traces = []
+                data_2d = reshape_to_2d_over_time(self.dataset_filtered)
                 for cluster in self.clusters:
-                    # TODO maybe make this be a class variable
-                    data_2d = reshape_to_2d_over_time(self.dataset_filtered)
                     time_trace = np.average(data_2d[cluster], axis=0)
                     self.time_traces.append(time_trace)
                 self.gen_roi_display_variables()
@@ -422,7 +437,7 @@ class DataHandler:
             print("Can't generate eigen Norm image please try again")
 
     def calculate_time_traces(self):
-        self.time_traces = [[]] * len(self.clusters)
+        self.time_traces = [[[] * len(self.trials_all)]] * len(self.clusters)
         for cluster in range(len(self.clusters)):
             self.calculate_time_trace(cluster + 1)
 
@@ -432,12 +447,13 @@ class DataHandler:
         self.gen_roi_display_variables()
         self.rois_loaded = True
 
-    def calculate_time_trace(self, roi_num):
+    def calculate_time_trace(self, roi_num, trial_num):
         """
         Calculates a time trace for a certain ROI and save to time trace list
         Parameters
         ----------
-        roi_num roi to calculate for
+        roi_num roi to calculate for this starts at [1..number of rois]
+        trial_num indice of trial in trials_all
 
         Returns
         -------

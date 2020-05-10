@@ -136,11 +136,9 @@ class MainWidget(QWidget):
             # auto loads a small dataset
             self.data_handler = DataHandler(
 
-                "/Users/sschickler/Code Devel/LSSC-python/input_images/small_dataset.tif",
+                "/Users/sschickler/Code Devel/LSSC-python/input_images/",
                 "/Users/sschickler/Code Devel/LSSC-python/input_images/test31",
-                trials=[""
-
-                        ],
+                trials=["small_dataset.tif"],
                 save_dir_already_created=False)
             self.init_w_data()
         if False and dev:
