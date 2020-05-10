@@ -62,8 +62,8 @@ class ROIExtractionTab(Tab):
         self.image_item.mouseClickEvent = lambda x: self.roi_view_click(x)
         self.image_item.mouseDragEvent = lambda x: self.roi_view_drag(x)
         # This part creates the top left settings/roi list view in two tabs
-        tab_selector_roi = QTabWidget()
-        tab_selector_roi.setStyleSheet("QTabWidget {font-size: 20px;}")
+        self.tab_selector_roi = QTabWidget()
+        self.tab_selector_roi.setStyleSheet("QTabWidget {font-size: 20px;}")
         # This is the second tab
         roi_modification_tab = QWidget()
         roi_modification_tab.setStyleSheet("margin:0px; padding: 0px;")
@@ -149,8 +149,8 @@ class ROIExtractionTab(Tab):
         self.roi_settings_layout.addWidget(roi_extraction_settings(main_widget))
         self.roi_settings_layout.addWidget(process_button)
         # adding the tabs to the
-        tab_selector_roi.addTab(self.roi_settings, "ROI Creation")
-        tab_selector_roi.addTab(roi_modification_tab, "ROI Modification")
+        self.tab_selector_roi.addTab(self.roi_settings, "ROI Creation")
+        self.tab_selector_roi.addTab(roi_modification_tab, "ROI Modification")
 
         # Initialization of the background and rois
         self.current_foreground_intensity = 1
@@ -239,7 +239,7 @@ class ROIExtractionTab(Tab):
         roi_view_tabs.addTab(display_settings, "Display Settings")
         self.column_2 = [roi_view_tabs, tab_selector_time_trace]
         super().__init__("ROI Extraction",
-                         column_1=[tab_selector_roi],
+                         column_1=[self.tab_selector_roi],
                          column_2=self.column_2, column_2_display=True)
         # self.setStyleSheet("SettingsModule { border:1px solid rgb(50, 65, "
         #                    "75);} ")
@@ -493,12 +493,13 @@ class ROIExtractionTab(Tab):
         if event.button() == QtCore.Qt.RightButton:
             if self.image_item.raiseContextMenu(event):
                 event.accept()
-        event.accept()
+
         pos = event.pos()
 
         x = int(pos.x())
         y = int(pos.y())
         if self.select_pixel_on:
+            event.accept()
             self.pixel_paint(x, y)
         else:
             self.click_event = True
@@ -507,18 +508,20 @@ class ROIExtractionTab(Tab):
             roi_num = int(pixel_with_rois_flat[shape[2] * x + y])
             # TODO change to int
             if roi_num != 0:
+                event.accept()
                 self.roi_list_module.set_current_select(roi_num)
 
     def roi_view_drag(self, event):
         # if event.button() == QtCore.Qt.RightButton:
         #     if self.image_item.raiseContextMenu(event):
         #         event.accept()
-        event.accept()
+
         pos = event.pos()
 
         x = int(pos.x())
         y = int(pos.y())
         if self.select_pixel_on:
+            event.accept()
             self.pixel_paint(x, y)
 
     def pixel_paint(self, x, y):
