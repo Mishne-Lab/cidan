@@ -51,9 +51,9 @@ class DataHandler:
         "num_eig": 50,
         "normalize_w_k": 16,
         "metric": "l2",
-        "knn": 30,
-        "accuracy": 39,
-        "connections": 40,
+        "knn": 35,
+        "accuracy": 50,
+        "connections": 51,
 
     }
     _roi_extraction_params_default = {
@@ -286,7 +286,8 @@ class DataHandler:
             self.dataset_trials[trial_num] = self.load_trial_dataset_step(trial_num)
         self.dataset_trials = dask.compute(*self.dataset_trials)
         self.global_params["need_recalc_dataset_params"] = False
-        self.shape = [self.dataset_trials[0].shape[1], self.dataset_trials[0].shape[2]]
+        self.shape = [self.dataset_trials_loaded[0].shape[1],
+                      self.dataset_trials_loaded[0].shape[2]]
 
         print("Finished Calculating Dataset")
 
@@ -343,6 +344,7 @@ class DataHandler:
 
             # self.temporal_correlation_image = calculate_temporal_correlation(self.dataset_filtered)
             self.global_params["need_recalc_filter_params"] = False
+            self.global_params["need_recalc_box_params"] = True
         return self.dataset_trials_filtered
 
     def calculate_roi_extraction(self):

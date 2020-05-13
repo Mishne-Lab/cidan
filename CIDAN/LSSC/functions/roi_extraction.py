@@ -80,9 +80,11 @@ def roi_extract_image(*, e_vectors: np.ndarray,
     # iter_counter is used to limit the amount of pixels it tries
     # from initial_pixel_list
     iter_counter = 0
+    total_counter = 0
     while len(roi_list) < num_rois and len(
             initial_pixel_list) > 0 and iter_counter < max_iter:
         iter_counter += 1
+        total_counter += 1
         # print(iter_counter, len(roi_list),
         #       len(roi_list[-1]) if len(roi_list) > 0 else 0)
         initial_pixel = initial_pixel_list[0]  # Select initial point
@@ -94,7 +96,7 @@ def roi_extract_image(*, e_vectors: np.ndarray,
                                                    eigen_threshold_method,
                                                    threshold=eigen_threshold_value)
         # print("original",small_eigen_vectors.shape)
-        # TODO Find way to auto determin threshold value automatically max values
+        # TODO Find way to auto determine threshold value automatically max values
         # project into new eigen space
         small_pixel_embeding_norm = embedEigenSqrdNorm(small_eigen_vectors)
 
@@ -170,7 +172,7 @@ def roi_extract_image(*, e_vectors: np.ndarray,
         if roi_size_min < len(
                 pixels_in_roi_final) < roi_size_limit:
             roi_list.append(pixels_in_roi_final)
-
+            iter_counter = 0
             # takes all pixels in current roi out of initial_pixel_list
             initial_pixel_list = np.extract(
                 np.in1d(initial_pixel_list, pixels_in_roi_final,
@@ -195,6 +197,7 @@ def roi_extract_image(*, e_vectors: np.ndarray,
                               original_2d_vol=original_2d_vol)
         if fill_holes:
             roi_list = fill_holes_func(roi_list, pixel_length, original_shape)
+    print("Went through " + str(total_counter) + " iterations")
     return roi_list
 
 
@@ -320,7 +323,6 @@ def select_eigen_vectors(eigen_vectors: np.ndarray,
         small_eigen_vectors = eigen_vectors[:, np.nonzero(threshold_filter)[0]]
 
     if not threshold_method or small_eigen_vectors.shape[1] < num_eigen_vector_select:
-        print("made more eigen vectors")
         pixel_eigen_vec_values_sort_indices = np.flip(
             np.argsort(
                 pixel_eigen_vec_values))

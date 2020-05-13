@@ -4,6 +4,7 @@ from typing import Tuple
 import matplotlib.pyplot as plt
 import numpy as np
 import tifffile
+from PIL import Image
 from dask import delayed
 from scipy import ndimage
 
@@ -158,3 +159,15 @@ def join_data_list(data_list):
     List of data stacked over 1st dimension
     """
     return np.vstack(data_list)
+
+
+@delayed
+def saveTempImage(data, save_dir, spatial_box_num):
+    print(save_dir)
+    temp_dir = os.path.join(save_dir, "temp_images")
+    print(data[60, :, :].shape)
+    img = Image.fromarray(data[3, :, :] * 255).convert('L')
+    image_path = os.path.join(temp_dir, "embedding_norm_image_box_{}.png".format(
+        spatial_box_num))
+    img.save(image_path)
+    return data
