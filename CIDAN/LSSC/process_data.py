@@ -7,7 +7,7 @@ from dask import delayed
 
 from CIDAN.LSSC.SpatialBox import SpatialBox
 from CIDAN.LSSC.functions.data_manipulation import reshape_to_2d_over_time, \
-    join_data_list
+    join_data_list, saveTempImage
 from CIDAN.LSSC.functions.eigen import generateEigenVectors, saveEigenVectors, \
     loadEigenVectors, saveEmbedingNormImage, createEmbedingNormImageFromMultiple
 from CIDAN.LSSC.functions.embeddings import calcAffinityMatrix
@@ -94,6 +94,8 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
         if not eigen_vectors_already_generated:
             for temporal_box_num, time_box_data in enumerate(spatial_box_data_list):
                 # TODO make sure memory doesn't take more than 2x
+                time_box_data = saveTempImage(time_box_data, save_dir,
+                                              spatial_box.box_num)
                 time_box_data_2d = reshape_to_2d_over_time(time_box_data)
                 logger1.debug(
                     "Time box {0}, start {1}, end {2}, time_box shape {3}, 2d shape {4}".format(

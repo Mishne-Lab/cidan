@@ -36,7 +36,7 @@ def load_new_dataset(main_widget, file_input, save_dir_input, trials=None):
                                                    save_dir_path=save_dir_path,
                                                    save_dir_already_created=False)
             main_widget.init_w_data()
-        except Exception as e:
+        except IndentationError as e:
             logger1.error(e)
             print("Loading Failed please make sure it is a valid file")
     if trials:
@@ -48,7 +48,7 @@ def load_new_dataset(main_widget, file_input, save_dir_input, trials=None):
                                                    save_dir_path=save_dir_path,
                                                    save_dir_already_created=False)
             main_widget.init_w_data()
-        except AttributeError as e:
+        except IndentationError as e:
             logger1.error(e)
             print("Loading Failed please make sure it is a valid folder and all trials"
                   + " are valid files")

@@ -24,8 +24,8 @@ class FileOpenTab(Tab):
                                         "Select a place to save outputs", isFolder=1,
                                         forOpen=False)
 
-        save_dir_load = FileInput("Previous Session Location:", "", "", None,
-                                  "Select the save directory for a previous session",
+        save_dir_load = FileInput("Previous Session Location:", "", None, "",
+                                  tool_tip="Select the save directory for a previous session",
                                   isFolder=1, forOpen=True)
         file_open_button = QPushButton()
         file_open_button.setContentsMargins(0, 0, 0, 11)

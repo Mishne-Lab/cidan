@@ -220,7 +220,7 @@ def roi_advanced_settings_block(main_widget):
                                           data_handler.roi_extraction_params[
                                               "elbow_threshold_value"],
                                           tool_tip="Number of eigen vectors to select at each point",
-                                          min=0, max=1, step=.01),
+                                          min=0, max=1.5, step=.01),
                                BoolInput(
                                    display_name="Merge ROIs:",
                                    program_name="merge",
@@ -231,6 +231,52 @@ def roi_advanced_settings_block(main_widget):
                                    data_handler.roi_extraction_params[
                                        "merge"],
                                    tool_tip="Whether to merge rois with similar time traces"),
+                               IntInput(display_name="Number of connections:",
+                                        program_name="connections",
+                                        on_change_function=lambda x,
+                                                                  y: data_handler.change_eigen_param(
+                                            x, y),
+                                        default_val=data_handler.eigen_params[
+                                            "connections"],
+                                        tool_tip="Number of eigen vectors to generate",
+                                        min=1, max=1000, step=1),
+                               IntInput(display_name="accuracy:",
+                                        program_name="accuracy",
+                                        on_change_function=lambda x,
+                                                                  y: data_handler.change_eigen_param(
+                                            x, y),
+                                        default_val=data_handler.eigen_params[
+                                            "accuracy"],
+                                        tool_tip="Number of eigen vectors to generate",
+                                        min=1, max=1000, step=1),
+                               IntInput(display_name="Number of knn:",
+                                        program_name="knn",
+                                        on_change_function=lambda x,
+                                                                  y: data_handler.change_eigen_param(
+                                            x, y),
+                                        default_val=data_handler.eigen_params[
+                                            "knn"],
+                                        tool_tip="Number of eigen vectors to generate",
+                                        min=1, max=1000, step=1),
+                               IntInput(display_name="Normalize w k :",
+                                        program_name="normalize_w_k",
+                                        on_change_function=lambda x,
+                                                                  y: data_handler.change_eigen_param(
+                                            x, y),
+                                        default_val=data_handler.eigen_params[
+                                            "normalize_w_k"],
+                                        tool_tip="Number of eigen vectors to generate",
+                                        min=1, max=1000, step=1),
+                               IntInput(display_name="max iter:",
+                                        program_name="max_iter",
+                                        on_change_function=lambda x,
+                                                                  y: data_handler.change_roi_extraction_param(
+                                            x, y),
+                                        default_val=data_handler.roi_extraction_params[
+                                            "max_iter"],
+                                        tool_tip="Number of eigen vectors to generate",
+                                        min=1, max=1000, step=1),
+
                                # IntInput(display_name="Number of time steps:",
                                #          program_name="total_num_time_steps",
                                #          on_change_function=lambda x,
