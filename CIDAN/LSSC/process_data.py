@@ -1,34 +1,30 @@
 import logging
 from functools import reduce
-from typing import Tuple
+from typing import List
 
 import numpy as np
 from dask import delayed
 
 from CIDAN.LSSC.SpatialBox import SpatialBox
-from CIDAN.LSSC.functions.data_manipulation import load_filter_tif_stack, \
-    reshape_to_2d_over_time
+from CIDAN.LSSC.functions.data_manipulation import reshape_to_2d_over_time, \
+    join_data_list
 from CIDAN.LSSC.functions.eigen import generateEigenVectors, saveEigenVectors, \
     loadEigenVectors, saveEmbedingNormImage, createEmbedingNormImageFromMultiple
 from CIDAN.LSSC.functions.embeddings import calcAffinityMatrix
 from CIDAN.LSSC.functions.roi_extraction import roi_extract_image, merge_rois
-from CIDAN.LSSC.functions.save_test_images import save_volume_images, \
-    save_roi_images
+from CIDAN.LSSC.functions.save_test_images import save_roi_images
 
 logger1 = logging.getLogger("CIDAN.LSSC.process_data")
 
 
 def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                  save_dir: str, save_intermediate_steps: bool,
-                 load_data: bool, data_path: str,
-                 image_data: np.ndarray,
+
+                 image_data: List[np.ndarray],
                  eigen_vectors_already_generated: bool,
                  save_embedding_images: bool,
                  total_num_time_steps: int, total_num_spatial_boxes: int,
-                 spatial_overlap: int, filter: bool, median_filter: bool,
-                 median_filter_size: Tuple[int],
-                 z_score: bool, slice_stack: bool,
-                 slice_every, slice_start: int, metric: str, knn: int,
+                 spatial_overlap: int, metric: str, knn: int,
                  accuracy: int, connections: int, normalize_w_k: int, num_eig=25,
                  merge: bool,
                  num_rois: int, refinement: bool, num_eigen_vector_select: int,
@@ -57,16 +53,15 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                  eigen_threshold_value {36}, merge_temporal_coef {37},
                  roi_size_max {38}""".format(num_threads, test_images, test_output_dir,
                                              save_dir, save_intermediate_steps,
-                                             load_data, data_path,
+                                             "", "",
                                              image_data,
                                              eigen_vectors_already_generated,
                                              save_embedding_images,
                                              total_num_time_steps,
                                              total_num_spatial_boxes,
-                                             spatial_overlap, filter, median_filter,
-                                             median_filter_size,
-                                             z_score, slice_stack,
-                                             slice_every, slice_start, metric, knn,
+                                             spatial_overlap, "", "", "", "", "", "",
+                                             "",
+                                             "", metric, knn,
                                              accuracy, connections, normalize_w_k,
                                              num_eig,
                                              merge,
@@ -83,18 +78,8 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
     # TODO Rewrite to take in a list of loaded datasets
 
     # TODO add assertions to make sure input splits work for dataset
-    if load_data:
-        image = load_filter_tif_stack(path=data_path, filter=filter,
-                                      median_filter=median_filter,
-                                      median_filter_size=median_filter_size,
-                                      z_score=z_score, slice_stack=slice_stack,
-                                      slice_start=slice_start,
-                                      slice_every=slice_every)
-    else:
-        image = image_data
-    if test_images:
-        save_volume_images(volume=image, output_dir=test_output_dir)
-    shape = image.shape
+
+    shape = [image_data[0].shape[1], image_data[0].shape[2]]
     logger1.debug("image shape {0}".format(shape))
     print("Creating {} spatial boxes".format(total_num_spatial_boxes))
     spatial_boxes = [SpatialBox(box_num=x, total_boxes=total_num_spatial_boxes,
@@ -103,21 +88,16 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
     all_rois = []
     all_boxes_eigen_vectors = []
     for spatial_box in spatial_boxes:
-        spatial_box_data = spatial_box.extract_box(image)
-        time_boxes = [(x * (shape[0] // total_num_time_steps), (x + 1) * (shape[0] //
-                                                                          total_num_time_steps))
-                      for x in range(total_num_time_steps)]
+        spatial_box_data_list = [spatial_box.extract_box(x) for x in image_data]
+
         all_eigen_vectors_list = []
         if not eigen_vectors_already_generated:
-            for temporal_box_num, start_end in enumerate(time_boxes):
-                start, end = start_end
-
-                time_box_data = spatial_box_data[start:end, :,
-                                :]  # TODO make sure memory doesn't take more than 2x
+            for temporal_box_num, time_box_data in enumerate(spatial_box_data_list):
+                # TODO make sure memory doesn't take more than 2x
                 time_box_data_2d = reshape_to_2d_over_time(time_box_data)
                 logger1.debug(
                     "Time box {0}, start {1}, end {2}, time_box shape {3}, 2d shape {4}".format(
-                        temporal_box_num, start, end, time_box_data.shape,
+                        temporal_box_num, 0, 0, time_box_data.shape,
                         time_box_data_2d.shape))
                 k = calcAffinityMatrix(pixel_list=time_box_data_2d, metric=metric,
                                        knn=knn, accuracy=accuracy,
@@ -145,7 +125,7 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                     #                            box_num=spatial_box.box_num).compute()
 
         else:
-            for temporal_box_num in range(total_num_time_steps):
+            for temporal_box_num in range(len(image_data)):
                 all_eigen_vectors_list.append(
                     loadEigenVectors(spatial_box_num=spatial_box.box_num,
                                      time_box_num=temporal_box_num,
@@ -158,11 +138,11 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                                                       image_shape=spatial_box.shape,
                                                       save_dir=save_dir,
                                                       spatial_box_num=spatial_box.box_num)
-
+        spatial_box_data_all = join_data_list(spatial_box_data_list)
         rois = roi_extract_image(e_vectors=all_eigen_vectors,
-                                 original_shape=spatial_box_data.shape,
+                                 original_shape=spatial_box_data_all.shape,
                                  original_2d_vol=reshape_to_2d_over_time(
-                                     spatial_box_data),
+                                     spatial_box_data_all),
                                  merge=merge,
                                  num_rois=num_rois, refinement=refinement,
                                  num_eigen_vector_select=num_eigen_vector_select,
@@ -186,10 +166,11 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
         all_rois.append(spatial_box.redefine_spatial_cord_1d(rois))
     all_rois = delayed(reduce)(lambda x, y: x + y, all_rois)
     all_rois = all_rois.compute()
+
     all_rois_merged = delayed(merge_rois)(roi_list=all_rois,
                                           temporal_coefficient=merge_temporal_coef,
                                           original_2d_vol=reshape_to_2d_over_time(
-                                              image)).compute()
+                                              join_data_list(image_data))).compute()
 
     if test_images:
         delayed(save_roi_images)(roi_list=all_rois_merged,
@@ -198,7 +179,7 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
     if save_embedding_images and save_intermediate_steps:
         createEmbedingNormImageFromMultiple(spatial_box_list=spatial_boxes,
                                             save_dir=save_dir,
-                                            num_time_steps=total_num_time_steps)
+                                            num_time_steps=len(image_data))
 
     return all_rois_merged
 

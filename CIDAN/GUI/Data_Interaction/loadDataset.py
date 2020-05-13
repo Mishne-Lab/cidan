@@ -4,7 +4,7 @@ import os
 from CIDAN.GUI.Data_Interaction.DataHandler import DataHandler
 from CIDAN.GUI.Inputs.FileInput import createFileDialog
 
-logger1 = logging.getLogger("CIDAN.fileHandling")
+logger1 = logging.getLogger("CIDAN.loadDataset")
 
 
 # def loadImageWrapper(main_widget):
@@ -48,10 +48,10 @@ def load_new_dataset(main_widget, file_input, save_dir_input, trials=None):
                                                    save_dir_path=save_dir_path,
                                                    save_dir_already_created=False)
             main_widget.init_w_data()
-        except Exception as e:
+        except AttributeError as e:
             logger1.error(e)
             print("Loading Failed please make sure it is a valid folder and all trials"
-                  + "are valid files")
+                  + " are valid files")
 
 
 def load_prev_session(main_widget, save_dir_input):

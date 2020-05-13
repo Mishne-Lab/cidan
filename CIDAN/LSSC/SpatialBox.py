@@ -1,12 +1,14 @@
 import logging
+from typing import Tuple
 
+import numpy as np
 from dask import delayed
 
 logger1 = logging.getLogger("CIDAN.LSSC.SpatialBox")
 
 
 class SpatialBox:
-    def __init__(self, box_num: int, total_boxes: int, image_shape: int,
+    def __init__(self, box_num: int, total_boxes: int, image_shape: Tuple[int, int],
                  spatial_overlap: int):
         logger1.debug(
             "Spatial Box creation inputs: box num {0}, total boxes {1}, image shape {2}, spatial overlap {3}".format(
@@ -20,24 +22,24 @@ class SpatialBox:
         self.y_box_num = box_num // self.boxes_per_row
         self.x_box_num = box_num - (self.y_box_num * self.boxes_per_row)
 
-        self.box_cord_1 = [((image_shape[1] // self.boxes_per_row) *
+        self.box_cord_1 = [((image_shape[0] // self.boxes_per_row) *
                             self.x_box_num) - spatial_overlap,
-                           (image_shape[2] // self.boxes_per_row) *
+                           (image_shape[1] // self.boxes_per_row) *
                            self.y_box_num - spatial_overlap]
-        self.box_cord_2 = [(image_shape[1] // self.boxes_per_row) * (
+        self.box_cord_2 = [(image_shape[0] // self.boxes_per_row) * (
                 self.x_box_num + 1) + spatial_overlap,
-                           (image_shape[2] // self.boxes_per_row) * (
+                           (image_shape[1] // self.boxes_per_row) * (
                                    self.y_box_num + 1) + spatial_overlap]
 
         self.box_cord_1[0] = 0 if self.box_cord_1[0] < 0 else self.box_cord_1[0]
         self.box_cord_1[1] = 0 if self.box_cord_1[1] < 0 \
             else self.box_cord_1[1]
-        self.box_cord_2[0] = image_shape[1] if self.box_cord_2[0] > image_shape[1] \
+        self.box_cord_2[0] = image_shape[0] if self.box_cord_2[0] > image_shape[0] \
             else \
             self.box_cord_2[0]
-        self.box_cord_2[1] = image_shape[2] if self.box_cord_2[1] > image_shape[2] \
+        self.box_cord_2[1] = image_shape[1] if self.box_cord_2[1] > image_shape[1] \
             else self.box_cord_2[1]
-        self.shape = (image_shape[0], self.box_cord_2[0] - self.box_cord_1[0],
+        self.shape = (self.box_cord_2[0] - self.box_cord_1[0],
                       self.box_cord_2[
                           1] - self.box_cord_1[1])
         logger1.debug(("Spatial box creation: Boxes per row {0}, y_box_num {1}, " +
@@ -60,7 +62,7 @@ class SpatialBox:
 
         def change_1_cord(x):
             return ((x // box_length) + self.box_cord_1[0]) * self.image_shape[
-                2] + self.box_cord_1[1] + x % box_length
+                1] + self.box_cord_1[1] + x % box_length
 
         return list(map(change_1_cord, cord_list))
 
@@ -81,26 +83,26 @@ class SpatialBox:
         """
         if self.total_boxes == 1:
             return data
-        x = [0, self.shape[1]]
-        y = [0, self.shape[2]]
+        x = [0, self.shape[0]]
+        y = [0, self.shape[1]]
         # This uses which column each box is in to determin overlap parts, first, last,
         # any other column
         if self.box_num % self.boxes_per_row == 0:
-            x[1] = self.shape[1] - self.spatial_overlap
+            x[1] = self.shape[0] - self.spatial_overlap
         elif self.box_num % self.boxes_per_row == self.boxes_per_row - 1:
             x[0] = self.spatial_overlap
         else:
             x[0] = self.spatial_overlap
-            x[1] = self.shape[1] - self.spatial_overlap
+            x[1] = self.shape[0] - self.spatial_overlap
         # This uses which row each box is in to determin overlap parts, first, last,
         # any other row
         if self.box_num // self.boxes_per_row == 0:
-            y[1] = self.shape[2] - self.spatial_overlap
+            y[1] = self.shape[1] - self.spatial_overlap
         elif self.box_num // self.boxes_per_row == self.boxes_per_row - 1:
             y[0] = self.spatial_overlap
         else:
             y[0] = self.spatial_overlap
-            y[1] = self.shape[2] - self.spatial_overlap
+            y[1] = self.shape[1] - self.spatial_overlap
         return data[x[0]:x[1], y[0]:y[1]]
 
 
@@ -126,7 +128,8 @@ def combine_images(spatial_box_list, data_list):
             current_spatial_box = spatial_box_list[y * spatial_box_root + x]
             current_data = data_list[y * spatial_box_root + x]
             temp.append(current_spatial_box.data_w_out_spatial_overlap(current_data))
-        data_matched.append(np.vstack(temp))
+        stacked = np.vstack(temp)
+        data_matched.append(stacked)
     all_data = np.hstack(data_matched)
 
     return all_data
@@ -136,7 +139,6 @@ if __name__ == '__main__':
     test = SpatialBox(box_num=0, total_boxes=9, image_shape=[1, 9, 9],
                       spatial_overlap=0)
     pixel_list = test.redefine_spatial_cord_1d([0, 4, 8]).compute()
-    import numpy as np
 
     zeros = np.zeros((9 * 9))
     zeros[pixel_list] = 1

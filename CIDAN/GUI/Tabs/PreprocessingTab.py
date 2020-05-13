@@ -1,6 +1,8 @@
+from PySide2 import QtCore
 from PySide2.QtWidgets import *
 
 from CIDAN.GUI.Data_Interaction.PreprocessThread import PreprocessThread
+from CIDAN.GUI.Inputs.OptionInput import OptionInput
 from CIDAN.GUI.SettingWidget.SettingsModule import preprocessing_settings
 from CIDAN.GUI.Tabs.Tab import Tab
 
@@ -25,44 +27,97 @@ class PreprocessingTab(Tab):
         # This part initializes the button to process the data
         process_button = QPushButton()
         process_button.setText("Apply Settings")
-        thread = PreprocessThread(main_widget, process_button)
+        process_button_layout = QVBoxLayout()
+        process_button_widget = QWidget()
+        process_button_widget.setLayout(process_button_layout)
+        process_button_layout.addWidget(process_button)
+        process_button_layout.setContentsMargins(2, 2, 2, 2)
+        thread = PreprocessThread(main_widget, process_button, self)
         main_widget.thread_list.append(thread)  # Appends the thread to the main
         # widget thread list
         process_button.clicked.connect(lambda: thread.runThread())
         # This assumes that the data is already loaded in
-        self.main_widget.preprocess_image_view.setImage(
-            self.data_handler.calculate_filters())
+        self.data_handler.calculate_filters()
 
         # Section that creates all the buttons to change which image is displayed
         image_buttons = QWidget()
-        image_buttons_layout = QHBoxLayout()
-        image_buttons.setLayout(image_buttons_layout)
+        self._image_buttons_layout = QHBoxLayout()
+        self._image_buttons_layout.setContentsMargins(2, 0, 2, 0)
+        image_buttons.setLayout(self._image_buttons_layout)
         max_image_button = QPushButton()
         max_image_button.setText("Max Image")
         max_image_button.clicked.connect(
-            lambda: self.main_widget.preprocess_image_view.setImage(
+            lambda: self.set_image_display(
                 self.data_handler.max_image))
         stack_button = QPushButton()
         stack_button.setText("Filtered Stack")
         stack_button.clicked.connect(
-            lambda: self.main_widget.preprocess_image_view.setImage(
-                self.data_handler.dataset_filtered))
+            lambda: self.set_image_display_list(self.data_handler.trials_loaded,
+                                                self.data_handler.dataset_trials_filtered_loaded))
         orig_stack_button = QPushButton()
         orig_stack_button.setText("Original Stack")
         orig_stack_button.clicked.connect(
-            lambda: self.main_widget.preprocess_image_view.setImage(
-                self.data_handler.dataset))
+            lambda: self.set_image_display_list(self.data_handler.trials_loaded,
+                                                self.data_handler.dataset_trials_loaded))
         mean_image_button = QPushButton()
         mean_image_button.setText("Mean Image")
         mean_image_button.clicked.connect(
-            lambda: self.main_widget.preprocess_image_view.setImage(
+            lambda: self.set_image_display(
                 self.data_handler.mean_image))
-        image_buttons_layout.addWidget(orig_stack_button)
-        image_buttons_layout.addWidget(stack_button)
-        image_buttons_layout.addWidget(max_image_button)
-        image_buttons_layout.addWidget(mean_image_button)
+        self._image_buttons_layout.addWidget(orig_stack_button)
+        self._image_buttons_layout.addWidget(stack_button)
+        self._image_buttons_layout.addWidget(max_image_button)
+        self._image_buttons_layout.addWidget(mean_image_button)
+        self.set_image_display_list(self.data_handler.trials_loaded,
+                                    self.data_handler.dataset_trials_filtered_loaded)
 
+        main_widget.preprocess_image_view.setContentsMargins(0, 0, 0, 0)
+        # main_widget.preprocess_image_view.setMargin(0)
+        preprocessing_settings_widget = preprocessing_settings(main_widget)
+        preprocessing_settings_widget.setContentsMargins(0, 0, 0, 0)
         # Initialize the tab with the necessary columns
-        super().__init__("Preprocessing", column_1=[preprocessing_settings(main_widget),
-                                                    process_button], column_2=[
-            main_widget.preprocess_image_view, image_buttons])
+        super().__init__("Preprocessing", column_1=[preprocessing_settings_widget
+                                                    ],
+                         column_2=[main_widget.preprocess_image_view
+                                   ])
+        self.column_1_layout.addWidget(process_button_widget,
+                                       alignment=QtCore.Qt.AlignBottom)
+        self.column_2_layout.addWidget(image_buttons, alignment=QtCore.Qt.AlignBottom)
+
+    def set_image_display_list(self, trial_names, data_list):
+        """
+        Sets the preprocessing image display to use an option input and set data list
+        Parameters
+        ----------
+        trial_names : List[str]
+            the names of each trial
+        data_list : List[np.ndarray]
+            Corresponding data for each trial
+        Returns
+        -------
+        Nothing
+        """
+
+        def set_image(x, trial_name):
+            self.main_widget.preprocess_image_view.setImage(
+                data_list[trial_names.index(trial_name)])
+
+        if hasattr(self, "trial_selector_input"):
+            self.trial_selector_input.setParent(None)
+        self.trial_selector_input = OptionInput("", "", set_image, val_list=trial_names,
+                                                tool_tip="Select Trial to display",
+                                                display_tool_tip=False, default_index=0,
+                                                show_name=False)
+        self._image_buttons_layout.addWidget(self.trial_selector_input)
+        set_image("", trial_names[0])
+
+    def set_image_display(self, data):
+        self.trial_selector_input.setParent(None)
+        self.trial_selector_input = OptionInput("", "", lambda x, y: 3,
+                                                val_list=["All"],
+                                                tool_tip="Select Trial to display",
+                                                display_tool_tip=False, default_index=0,
+                                                show_name=False)
+        self._image_buttons_layout.addWidget(self.trial_selector_input)
+        self.main_widget.preprocess_image_view.setImage(
+            data)

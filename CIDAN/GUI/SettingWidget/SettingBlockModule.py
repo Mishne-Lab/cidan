@@ -152,16 +152,16 @@ def roi_extraction_settings_block(main_widget):
                                           "roi_size_max"],
                                       tool_tip="Maximum size in pixels for a region of interest",
                                       min=1, max=100000, step=1),
-                                  BoolInput(
-                                      display_name="Run refinement step:",
-                                      program_name="refinement",
-                                      on_change_function=lambda x,
-                                                                y: data_handler.change_roi_extraction_param(
-                                          x, y),
-                                      default_val=
-                                      data_handler.roi_extraction_params[
-                                          "refinement"],
-                                      tool_tip="Whether to run the refinement step, greatly improves results"),
+                                  # BoolInput(
+                                  #     display_name="Run refinement step:",
+                                  #     program_name="refinement",
+                                  #     on_change_function=lambda x,
+                                  #                               y: data_handler.change_roi_extraction_param(
+                                  #         x, y),
+                                  #     default_val=
+                                  #     data_handler.roi_extraction_params[
+                                  #         "refinement"],
+                                  #     tool_tip="Whether to run the refinement step, greatly improves results"),
                                   FloatInput(
                                       display_name="Merge temporal coefficient:",
                                       program_name="merge_temporal_coef",
@@ -172,18 +172,18 @@ def roi_extraction_settings_block(main_widget):
                                       data_handler.roi_extraction_params[
                                           "merge_temporal_coef"],
                                       tool_tip="The coefficient that determines if two overlapping regions are merged based on their temporal correlation",
-                                      min=0, max=1, step=.01),
-                                  BoolInput(
-                                      display_name="Fill holes:",
-                                      program_name="fill_holes",
-                                      on_change_function=lambda x,
-                                                                y: data_handler.change_roi_extraction_param(
-                                          x, y),
-                                      default_val=
-                                      data_handler.roi_extraction_params[
-                                          "fill_holes"],
-                                      tool_tip="Whether to fill holes in each cluster"),
-
+                                      min=0, max=1, step=.01)
+                                  #     BoolInput(
+                                  #         display_name="Fill holes:",
+                                  #         program_name="fill_holes",
+                                  #         on_change_function=lambda x,
+                                  #                                   y: data_handler.change_roi_extraction_param(
+                                  #             x, y),
+                                  #         default_val=
+                                  #         data_handler.roi_extraction_params[
+                                  #             "fill_holes"],
+                                  #         tool_tip="Whether to fill holes in each cluster"),
+                                  #
                               ]
                               )
 
@@ -231,16 +231,18 @@ def roi_advanced_settings_block(main_widget):
                                    data_handler.roi_extraction_params[
                                        "merge"],
                                    tool_tip="Whether to merge rois with similar time traces"),
-                               IntInput(display_name="Number of timesteps:",
-                                        program_name="total_num_time_steps",
-                                        on_change_function=lambda x,
-                                                                  y: data_handler.change_box_param(
-                                            x, y),
-                                        default_val=data_handler.box_params[
-                                            "total_num_time_steps"],
-                                        tool_tip="Number of timesteps to break the processing into",
-                                        min=1, max=1000, step=1),
-
+                               # IntInput(display_name="Number of time steps:",
+                               #          program_name="total_num_time_steps",
+                               #          on_change_function=lambda x,
+                               #          y: data_handler.change_box_param(
+                               #              x, y),
+                               #          default_val=data_handler.box_params[
+                               #              "total_num_time_steps"],
+                               #          tool_tip=
+                               #          "Number of time steps to break"+
+                               #          "the processing into",
+                               #          min=1, max=1000, step=1),
+                               #
                                ]
                               )
 # TODO add fill holes/number rois per spatial box to inputs

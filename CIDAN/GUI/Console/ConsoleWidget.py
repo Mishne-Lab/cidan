@@ -25,6 +25,7 @@ class ConsoleWidget(QWidget):
     def __init__(self):
         super().__init__()
         self.layout = QVBoxLayout()
+        self.layout.setContentsMargins(2, 2, 2, 2)
         self.label = QLabel()
         self.label.setText("Console:")
         self.layout.addWidget(self.label)
