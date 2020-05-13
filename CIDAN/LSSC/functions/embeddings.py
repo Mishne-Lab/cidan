@@ -14,7 +14,7 @@ from dask import delayed
 
 
 @delayed
-def calcAffinityMatrix(*, pixel_list: np.matrix, metric: str, knn: int,
+def calcAffinityMatrix(*, pixel_list: np.ndarray, metric: str, knn: int,
                        accuracy: int, connections: int, normalize_w_k: int,
                        num_threads:
                        int, spatial_box_num: int, temporal_box_num: int):
@@ -42,10 +42,10 @@ def calcAffinityMatrix(*, pixel_list: np.matrix, metric: str, knn: int,
                                                                     temporal_box_num))
     knn_graph = hnsw.Index(space=metric, dim=dim)
     knn_graph.init_index(max_elements=num_elements, ef_construction=accuracy,
-                 M=connections)
+                         M=connections)
     knn_graph.add_items(pixel_list, num_threads=num_threads)
     indices, distances = knn_graph.knn_query(pixel_list, k=knn,
-                                     num_threads=num_threads)
+                                             num_threads=num_threads)
     # lazy random walk means it returns distance of zero for same point
     # TODO add comments here
     reformat_indicies_x = np.repeat(np.arange(0, num_elements, 1), knn)

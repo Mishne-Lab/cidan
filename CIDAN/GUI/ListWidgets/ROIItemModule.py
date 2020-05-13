@@ -25,7 +25,7 @@ class ROIItemModule(QStandardItem):
         # self.setCheckable(True)
 
     def toggle_check_state(self):
-        if self.checkState() == False:
+        if not self.checkState():
             self.roi_tab.selectRoi(self.num)
             self.setCheckState(QtCore.Qt.CheckState.Checked)
         else:

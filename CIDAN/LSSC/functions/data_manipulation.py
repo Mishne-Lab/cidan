@@ -4,6 +4,7 @@ from typing import Tuple
 import matplotlib.pyplot as plt
 import numpy as np
 import tifffile
+from dask import delayed
 from scipy import ndimage
 
 
@@ -120,7 +121,7 @@ def filter_stack(*, stack: np.ndarray, median_filter: bool,
     return stack
 
 
-def pixel_num_to_2d_cord(pixel_list, volume_shape):
+def pixel_num_to_2d_cord(pixel_list, volume_shape: Tuple[int, int]):
     """
     Takes a list of pixels and converts it to a list of cords for each pixel
 
@@ -129,7 +130,7 @@ def pixel_num_to_2d_cord(pixel_list, volume_shape):
     pixel_list : np.ndarray
         list of pixel numbers
     volume_shape : tuple
-        shape of the original dataset
+        shape of the original dataset [x,y]
 
     Returns
     -------
@@ -138,6 +139,22 @@ def pixel_num_to_2d_cord(pixel_list, volume_shape):
     """
 
     def convert_one(num):
-        return num % volume_shape[2], num // volume_shape[2]
+        return num % volume_shape[1], num // volume_shape[1]
 
     return np.apply_along_axis(convert_one, axis=0, arr=pixel_list)
+
+
+@delayed
+def join_data_list(data_list):
+    """
+    Joins a list of trials with the same dimensions
+    Parameters
+    ----------
+    data_list
+        Data to stack
+
+    Returns
+    -------
+    List of data stacked over 1st dimension
+    """
+    return np.vstack(data_list)

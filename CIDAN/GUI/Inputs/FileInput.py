@@ -1,4 +1,3 @@
-from PySide2 import QtCore
 from PySide2.QtWidgets import *
 
 from CIDAN.GUI.Inputs.Input import Input
@@ -25,7 +24,7 @@ class FileInput(Input):
         self.path = createFileDialog(directory="~/Desktop", forOpen=self.forOpen,
                                      isFolder=self.isFolder)
         self.current_location.setText(self.path)
-        if self.on_change_function != None:
+        if self.on_change_function is not None:
             self.on_change_function(self.path)
 
     def current_state(self):
@@ -40,7 +39,7 @@ def createFileDialog(directory='', forOpen=True, fmt='', isFolder=0):
     dialog = QFileDialog()
     dialog.setOptions(options)
 
-    dialog.setFilter(dialog.filter() | QtCore.QDir.Hidden)
+    dialog.setFilter(dialog.filter())
 
     # ARE WE TALKING ABOUT FILES OR FOLDERS
     if isFolder == 1:

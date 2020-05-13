@@ -21,7 +21,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.title = 'CIDAN'
         self.width = 900
-        self.height = 400
+        self.height = 800
         self.setWindowTitle(self.title)
         self.setMinimumSize(self.width, self.height)
         self.main_menu = self.menuBar()
@@ -139,7 +139,7 @@ class MainWidget(QWidget):
                 "/Users/sschickler/Code Devel/LSSC-python/input_images/",
                 "/Users/sschickler/Code Devel/LSSC-python/input_images/test31",
                 trials=["small_dataset.tif"],
-                save_dir_already_created=False)
+                save_dir_already_created=True)
             self.init_w_data()
         if False and dev:
             # auto loads a large dataset
@@ -168,10 +168,11 @@ class MainWidget(QWidget):
         for tab in self.tabs:
             self.tab_widget.addTab(tab, tab.name)
         self.tab_widget.setCurrentIndex(1)
-        self.tab_widget.currentChanged.connect(lambda x: self.tabs[1].set_background("",
-                                                                                     self.tabs[
-                                                                                         1].background_chooser.current_state(),
-                                                                                     update_image=True))
+        self.tab_widget.currentChanged.connect(
+            lambda x: self.tabs[1].set_background("",
+                                                  self.tabs[
+                                                      1].background_chooser.current_state(),
+                                                  update_image=True))
 
         if not hasattr(self, "export_menu"):
             self.export_menu = self.main_menu.addMenu("&Export")

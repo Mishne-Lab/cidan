@@ -160,7 +160,8 @@ def roi_extract_image(*, e_vectors: np.ndarray,
                                                         rf_pixels_in_roi,
                                                         rf_initial_point)
             rf_pixels_in_roi_filled = \
-            fill_holes_func([rf_pixels_in_roi_comp], pixel_length, original_shape)[0]
+                fill_holes_func([rf_pixels_in_roi_comp], pixel_length, original_shape)[
+                    0]
             pixels_in_roi_final = rf_pixels_in_roi_filled
 
         # checks if roi is big enough
@@ -313,13 +314,13 @@ def select_eigen_vectors(eigen_vectors: np.ndarray,
     pixel_eigen_vec_values_sort_indices = np.flip(
         np.argsort(pixel_eigen_vec_values))
     if threshold_method:
-
         threshold_filter = pixel_eigen_vec_values > threshold * \
                            pixel_eigen_vec_values[
                                pixel_eigen_vec_values_sort_indices[0]]
         small_eigen_vectors = eigen_vectors[:, np.nonzero(threshold_filter)[0]]
 
-    else:
+    if not threshold_method or small_eigen_vectors.shape[1] < num_eigen_vector_select:
+        print("made more eigen vectors")
         pixel_eigen_vec_values_sort_indices = np.flip(
             np.argsort(
                 pixel_eigen_vec_values))

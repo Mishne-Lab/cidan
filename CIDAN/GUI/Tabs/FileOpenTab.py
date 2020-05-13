@@ -17,28 +17,31 @@ class FileOpenTab(Tab):
                                          lambda x: self.add_trial_selection(x), "",
                                          "Select a folder to load in", isFolder=1,
                                          forOpen=True)
-        save_dir_new_file = FileInput("Save Directory Location:", None, "", "",
+        save_dir_new_file = FileInput("Save Directory Location:", "", None, "",
                                       "Select a place to save outputs", isFolder=1,
                                       forOpen=False)
-        save_dir_new_folder = FileInput("Save Directory Location:", None, "", "",
+        save_dir_new_folder = FileInput("Save Directory Location:", "", None, "",
                                         "Select a place to save outputs", isFolder=1,
                                         forOpen=False)
 
-        save_dir_load = FileInput("Previous Session Location:", "", "", "",
+        save_dir_load = FileInput("Previous Session Location:", "", "", None,
                                   "Select the save directory for a previous session",
                                   isFolder=1, forOpen=True)
         file_open_button = QPushButton()
+        file_open_button.setContentsMargins(0, 0, 0, 11)
         file_open_button.setText("Load")
         file_open_button.clicked.connect(
             lambda: load_new_dataset(main_widget, dataset_file_input,
                                      save_dir_new_file))
         folder_open_button = QPushButton()
+        folder_open_button.setContentsMargins(0, 0, 0, 11)
         folder_open_button.setText("Load")
         folder_open_button.clicked.connect(
             lambda: load_new_dataset(main_widget, dataset_folder_input,
                                      save_dir_new_folder,
                                      trials=self.trial_list_widget.selectedTrials()))
         prev_session_open_button = QPushButton()
+        prev_session_open_button.setContentsMargins(0, 0, 0, 11)
         prev_session_open_button.setText("Load")
         prev_session_open_button.clicked.connect(
             lambda: load_prev_session(main_widget, save_dir_load))
@@ -63,4 +66,4 @@ class FileOpenTab(Tab):
                          column_2_display=False)
 
     def add_trial_selection(self, path):
-        self.trial_list_widget.setItems(path)
+        self.trial_list_widget.set_items_from_path(path)

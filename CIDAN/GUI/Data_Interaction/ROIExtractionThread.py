@@ -1,5 +1,3 @@
-import numpy as np
-
 from CIDAN.GUI.Data_Interaction.Signals import *
 from CIDAN.GUI.Data_Interaction.Thread import Thread
 
@@ -7,7 +5,6 @@ from CIDAN.GUI.Data_Interaction.Thread import Thread
 class ROIExtractionThread(Thread):
     def __init__(self, main_widget, button, roi_list_module, roi_tab):
         super().__init__(main_widget.data_handler)
-        self.signal = BoolSignal()
         self.roi_tab = roi_tab
         self.main_widget = main_widget
         self.roi_list_module = roi_list_module

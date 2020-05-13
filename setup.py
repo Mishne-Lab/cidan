@@ -13,7 +13,10 @@ setup(
     author_email='sschickl@ucsd.edu',
     # url="http://www.foopackage.com/",
     packages=find_packages(),
-    install_requires=["QtPy","QDarkStyle", "pyqtgraph==0.11.0rc0", "Pyside2","numpy", "dask[complete]", "matplotlib","scipy","tiffile","scikit-image","hnswlib", "pillow"],  # TODO add external packages as dependencies
+    install_requires=["QtPy", "QDarkStyle", "pyqtgraph==0.11.0rc0", "Pyside2", "numpy",
+                      "dask[complete]", "matplotlib", "scipy", "tiffile",
+                      "scikit-image", "hnswlib", "pillow",
+                      'tifffile'],  # TODO add external packages as dependencies
     scripts=[
         "CIDAN/LSSC/process_data.py",
         "CIDAN/LSSC/SpatialBox.py",

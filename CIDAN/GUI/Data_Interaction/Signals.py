@@ -6,7 +6,7 @@ class MatrixSignal(QObject):
     def __init__(self):
         super().__init__()
 
-    sig = Signal(np.matrix)
+    sig = Signal(np.ndarray)
 
 
 class StrSignal(QObject):

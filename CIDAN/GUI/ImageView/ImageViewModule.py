@@ -14,6 +14,7 @@ class ImageViewModule(QFrame):
         self.setStyleSheet("ImageViewModule {margin:0px; border:0px  solid rgb(50, 65, "
                            "75); padding: 0px;} ")
         self.layout = QHBoxLayout()
+        self.layout.setContentsMargins(0, 0, 0, 0)
 
         # self.layout.setAlignment(Qt.AlignHCenter)
 
@@ -23,6 +24,7 @@ class ImageViewModule(QFrame):
         # self.no_image_message.clicked.connect(main_widget.open_file_dialog)
         # self.no_image_message.setStyleSheet("QPushButton {font-size:80;}")
         self.image_view = ImageView()
+        self.image_view.ui.layoutWidget.setContentsMargins(0, 0, 0, 0)
         # self.image_view.ui.roiBtn.hide()
         self.image_view.ui.menuBtn.hide()
         if not histogram:
