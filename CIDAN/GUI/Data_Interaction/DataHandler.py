@@ -7,8 +7,10 @@ from PIL import Image
 from dask import delayed
 from skimage import feature
 
+from CIDAN.LSSC.SpatialBox import SpatialBox
 from CIDAN.LSSC.functions.data_manipulation import load_filter_tif_stack, filter_stack, \
     reshape_to_2d_over_time, pixel_num_to_2d_cord
+from CIDAN.LSSC.functions.eigen import loadEigenVectors
 from CIDAN.LSSC.functions.pickle_funcs import *
 from CIDAN.LSSC.process_data import process_data
 
@@ -247,9 +249,9 @@ class DataHandler:
             # if param_name == "total_num_spatial_boxes":
             #     assert (int(new_value**.5))**2 == new_value, "Please make sure Number of Spatial Boxes is a square number"
             self.box_params[param_name] = new_value
-            self.global_params["need_recalc_box_params"] = True
+            # self.global_params["need_recalc_box_params"] = True
             self.global_params["need_recalc_eigen_params"] = True
-            self.global_params["need_recalc_roi_extraction_params"] = True
+            # self.global_params["need_recalc_roi_extraction_params"] = True
             self.save_new_param_json()
             return True
         else:
@@ -359,6 +361,7 @@ class DataHandler:
                        "total_num_spatial_boxes"], "Please make sure Number of Spatial Boxes is a square number"
             try:
                 self.calculate_filters()
+
                 self.clusters = process_data(num_threads=self.global_params[
                     "num_threads"], test_images=False, test_output_dir="",
                                              save_dir=self.save_dir_path,
@@ -541,3 +544,12 @@ class DataHandler:
 
             if trial_num not in new_selected and trial_num in self.trials_loaded_time_trace_indices:
                 self.trials_loaded_time_trace_indices.remove(trial_num)
+
+    def get_eigen_vector(self, box_num, vector_num, trial_num):
+        vector = loadEigenVectors(spatial_box_num=box_num, time_box_num=trial_num,
+                                  save_dir=self.save_dir_path).compute()
+        spatial_box = SpatialBox(box_num,
+                                 total_boxes=self.box_params["total_num_spatial_boxes"],
+                                 image_shape=self.shape,
+                                 spatial_overlap=self.box_params["spatial_overlap"])
+        return vector[:, vector_num].reshape(spatial_box.shape)

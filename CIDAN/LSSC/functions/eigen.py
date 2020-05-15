@@ -30,15 +30,18 @@ def generateEigenVectors(*, K: sparse.csr_matrix, num_eig: int) -> np.ndarray:
     A matrix of eigen vectors
     """
     D_inv, D_diag = calcDInv(K=K)
-    P = D_inv * K
+    P = D_inv.dot(K)
     D_neg_sqrt = calcDNegSqrt(D_diag)
-    P_transformed = calcDSqrt(D_diag) * P * D_neg_sqrt
+    P_transformed = calcDSqrt(D_diag).dot(P).dot(D_neg_sqrt)
     eig_values, eig_vectors_scaled = linalg.eigsh(
         P_transformed, num_eig, which="LM",
         return_eigenvectors=True)  # this returns normalized eigen vectors
-    # TODO make first eigen vector be sanity check since all elements are the same this isn't the case
+    # TODO make first eigen vector be sanity check since all elements are the same
+    #  this isn't the case
+    print(eig_values)
     eig_vectors = np.flip(
-        D_neg_sqrt * eig_vectors_scaled, axis=1)  # this preforms matrix multiplication
+        D_neg_sqrt.dot(eig_vectors_scaled),
+        axis=1)  # this preforms matrix multiplication
 
     return eig_vectors
 

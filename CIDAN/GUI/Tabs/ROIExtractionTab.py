@@ -7,6 +7,7 @@ from PySide2.QtCore import *
 from PySide2.QtWidgets import *
 
 from CIDAN.GUI.Data_Interaction.ROIExtractionThread import ROIExtractionThread
+from CIDAN.GUI.Inputs.IntInput import IntInput
 from CIDAN.GUI.Inputs.OptionInput import OptionInput
 from CIDAN.GUI.ListWidgets.ROIListModule import ROIListModule
 from CIDAN.GUI.ListWidgets.TrialListWidget import TrialListWidget
@@ -160,6 +161,23 @@ class ROIExtractionTab(Tab):
         # adding the tabs to the
         self.tab_selector_roi.addTab(self.roi_settings, "ROI Creation")
         self.tab_selector_roi.addTab(roi_modification_tab, "ROI Modification")
+        if self.main_widget.dev:
+            self.eigen_view = QWidget()
+            self.eigen_view_layout = QVBoxLayout()
+            self.eigen_view_box_input = IntInput("Box Number", "", None, 0, "", 0, 100,
+                                                 1, False)
+            self.eigen_view_number_input = IntInput("Vector Number", "", None, 0, "", 0,
+                                                    100, 1, False)
+            self.eigen_view_trial_input = IntInput("Trial Number", "", None, 0, "", 0,
+                                                   100, 1, False)
+            view_eigen_vector_button = QPushButton("View Eigen Vector")
+            view_eigen_vector_button.clicked.connect(lambda x: self.view_eigen_vector())
+            self.eigen_view_layout.addWidget(self.eigen_view_box_input)
+            self.eigen_view_layout.addWidget(self.eigen_view_number_input)
+            self.eigen_view_layout.addWidget(self.eigen_view_trial_input)
+            self.eigen_view_layout.addWidget(view_eigen_vector_button)
+            self.eigen_view.setLayout(self.eigen_view_layout)
+            self.tab_selector_roi.addTab(self.eigen_view, "View Eigen Vectors")
 
         # Initialization of the background and rois
         self.current_foreground_intensity = 1
@@ -645,3 +663,15 @@ class ROIExtractionTab(Tab):
         nothing
         """
         self.brush_size = int((int(size) - 1) / 2)
+
+    def view_eigen_vector(self):
+        vector_num = self.eigen_view_number_input.current_state()
+        trial_num = self.eigen_view_trial_input.current_state()
+        box_num = self.eigen_view_box_input.current_state()
+        try:
+            vector = self.data_handler.get_eigen_vector(box_num, trial_num=trial_num,
+                                                        vector_num=vector_num)
+            self.image_item.image = vector
+            self.image_item.updateImage(autoLevels=True)
+        except FileNotFoundError:
+            print("Invalid location")

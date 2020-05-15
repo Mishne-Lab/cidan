@@ -97,7 +97,7 @@ class MainWidget(QWidget):
         self.thread_list = []
         self.preprocess_image_view = ImageViewModule(self, roi=False)
         self.roi_image_view = ImageViewModule(self, histogram=False, roi=False)
-
+        self.dev = dev
         self.tab_widget = QTabWidget()
         self.fileOpenTab = FileOpenTab(self)
         self.tab_widget.addTab(self.fileOpenTab, "Open Dataset")
@@ -132,14 +132,14 @@ class MainWidget(QWidget):
 
         # Below here in this function is just code for testing
         # TODO check if it can load data twice
-        if True and dev:
+        if False and dev:
             # auto loads a small dataset
             self.data_handler = DataHandler(
 
                 "/Users/sschickler/Code Devel/LSSC-python/input_images/",
                 "/Users/sschickler/Code Devel/LSSC-python/input_images/test31",
                 trials=["small_dataset.tif"],
-                save_dir_already_created=True)
+                save_dir_already_created=False)
             self.init_w_data()
         if False and dev:
             # auto loads a large dataset
