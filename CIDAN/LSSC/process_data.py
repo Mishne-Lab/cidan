@@ -89,11 +89,16 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
     all_boxes_eigen_vectors = []
     for spatial_box in spatial_boxes:
         spatial_box_data_list = [spatial_box.extract_box(x) for x in image_data]
-
+        if total_num_time_steps != 1:
+            time_boxes = [(x * (image_data[0].shape[0] // total_num_time_steps), (x + 1) * (image_data[0].shape[0] //
+                                                                              total_num_time_steps))
+                          for x in range(total_num_time_steps)]
         all_eigen_vectors_list = []
         if not eigen_vectors_already_generated:
-            for temporal_box_num, time_box_data in enumerate(spatial_box_data_list):
+            for temporal_box_num, time_box_data in enumerate(spatial_box_data_list if total_num_time_steps==1 else time_boxes):
                 # TODO make sure memory doesn't take more than 2x
+                if total_num_time_steps==1:
+                    time_box_data = spatial_box_data_list[0][time_box_data[0]:time_box_data[1], :, :]
                 time_box_data = saveTempImage(time_box_data, save_dir,
                                               spatial_box.box_num)
                 time_box_data_2d = reshape_to_2d_over_time(time_box_data)

@@ -30,7 +30,8 @@ class Input(QFrame):
 
     def on_change(self, *args, **kwargs):
         try:
-            self.on_change_function(self.program_name, self.current_state())
+            if(not self.on_change_function==None):
+                self.on_change_function(self.program_name, self.current_state())
         except AssertionError as e:
             print(e)
             self.set_default_val()

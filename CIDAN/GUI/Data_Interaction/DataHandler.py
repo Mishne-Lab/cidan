@@ -71,7 +71,7 @@ class DataHandler:
         "num_rois": 25,
         "fill_holes": True,
         "refinement": True,
-        "max_iter": 1000,
+        "max_iter": 40,
     }
 
     def __init__(self, data_path, save_dir_path, save_dir_already_created, trials=[]):
@@ -92,7 +92,7 @@ class DataHandler:
                                                      if x in self.trials_loaded]
             self.calculate_filters()
 
-            if self.rois_exist:
+            if self.rois_exist and False:
                 self.load_rois()
                 self.calculate_time_traces()
                 self.rois_loaded = True
@@ -105,9 +105,12 @@ class DataHandler:
             self.dataset_params["dataset_path"] = data_path
             self.dataset_params["trials_loaded"] = trials
             self.trials_loaded = trials
-
-            self.trials_all = sorted(os.listdir(data_path))
-            self.trials_all = [x for x in self.trials_all if ".tif" in x]
+            if(data_path==""):
+                self.trials_all = trials
+            else:
+                self.trials_all = sorted(os.listdir(data_path))
+                if not os.path.isdir(os.path.join(data_path,trials[0])):
+                    self.trials_all = [x for x in self.trials_all if ".tif" in x]
             self.dataset_params["trials_all"] = self.trials_all
 
             self.filter_params = DataHandler._filter_params_default.copy()
@@ -317,7 +320,8 @@ class DataHandler:
             stack=self.dataset_trials[trial_num] if type(self.dataset_trials[
                                                              trial_num]) != bool else self.load_trial_dataset_step(
                 trial_num).compute(),
-            median_filter_size=(1,
+            median_filter_size=(self.filter_params[
+                                    "median_filter_size"],
                                 self.filter_params[
                                     "median_filter_size"],
                                 self.filter_params[
@@ -551,5 +555,5 @@ class DataHandler:
         spatial_box = SpatialBox(box_num,
                                  total_boxes=self.box_params["total_num_spatial_boxes"],
                                  image_shape=self.shape,
-                                 spatial_overlap=self.box_params["spatial_overlap"])
+                                 spatial_overlap=self.box_params["spatial_overlap"]//2)
         return vector[:, vector_num].reshape(spatial_box.shape)

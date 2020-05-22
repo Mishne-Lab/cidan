@@ -168,7 +168,8 @@ def roi_extract_image(*, e_vectors: np.ndarray,
 
         # checks if roi is big enough
         # print("roi size:", len(pixels_in_roi_final))
-
+        print( len(
+                pixels_in_roi_final))
         if roi_size_min < len(
                 pixels_in_roi_final) < roi_size_limit:
             roi_list.append(pixels_in_roi_final)

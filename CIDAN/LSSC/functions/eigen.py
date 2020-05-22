@@ -38,7 +38,7 @@ def generateEigenVectors(*, K: sparse.csr_matrix, num_eig: int) -> np.ndarray:
         return_eigenvectors=True)  # this returns normalized eigen vectors
     # TODO make first eigen vector be sanity check since all elements are the same
     #  this isn't the case
-    print(eig_values)
+    # print("Eigvalues",eig_values[0], eig_vectors_scaled,np.max(eig_vectors_scaled),eig_vectors_scaled.shape, num_eig)
     eig_vectors = np.flip(
         D_neg_sqrt.dot(eig_vectors_scaled),
         axis=1)  # this preforms matrix multiplication

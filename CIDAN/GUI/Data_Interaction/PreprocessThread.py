@@ -15,7 +15,7 @@ class PreprocessThread(Thread):
         try:
             self.data_handler.calculate_filters()
             self.signal.sig.emit(True)
-        except:
+        except AttributeError:
             print("Unexpected error:", sys.exc_info()[0])
             self.signal.sig.emit(False)
 
