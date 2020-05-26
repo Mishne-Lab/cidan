@@ -27,11 +27,12 @@ def load_filter_tif_stack(*, path, filter: bool, median_filter: bool,
     a 3D numpy array with the tiff files together
 
     """
+    print(path)
 
     if   os.path.isdir(path):
         volumes = []
         paths = path if type(path) == list else sorted(os.listdir(path))
-
+        print(paths)
         for num, x in enumerate(paths):
             file_path = x if type(path) == list else os.path.join(path, x)
             image = tifffile.imread(file_path)
@@ -44,7 +45,7 @@ def load_filter_tif_stack(*, path, filter: bool, median_filter: bool,
                                      median_filter_size=median_filter_size,
                                      z_score=z_score)
             volumes.append(image)
-            print("Loading: " + x)
+            # print("Loading: " + x)
 
         image = np.vstack(volumes)
         del volumes
