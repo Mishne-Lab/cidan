@@ -24,6 +24,7 @@ logger1 = logging.getLogger("CIDAN.loadDataset")
 
 def load_new_dataset(main_widget, file_input, save_dir_input, trials=None, single=False):
     print(trials)
+
     file_path = file_input.current_state()
     save_dir_path = save_dir_input.current_state()
     # if hasattr(main_widget, "data_handler"):

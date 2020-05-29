@@ -1,4 +1,4 @@
-from PySide2.QtWidgets import *
+from qtpy.QtWidgets import *
 
 from CIDAN.GUI.Inputs.Input import Input
 

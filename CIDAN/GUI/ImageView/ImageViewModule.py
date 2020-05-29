@@ -1,5 +1,5 @@
-from PySide2.QtWidgets import *
 from pyqtgraph import ImageView
+from qtpy.QtWidgets import *
 
 
 class ImageViewModule(QFrame):

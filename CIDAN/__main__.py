@@ -1,29 +1,43 @@
+import argparse
 import logging
 import sys
 
-from PySide2.QtWidgets import QApplication
+from qtpy.QtWidgets import QApplication
 
 from CIDAN.GUI import MainWindow
 
-LEVELS = {'debug': logging.DEBUG,
-          'info': logging.INFO,
-          'warning': logging.WARNING,
-          'error': logging.ERROR,
-          'critical': logging.CRITICAL}
 
-if len(sys.argv) > 2:
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-d", "--dev", type=bool, default=False, required=False,
+                        help="Enable Developement mode")
     LOG_FILENAME = 'log.out'
-    level_name = sys.argv[2]
-    level = LEVELS.get(level_name, logging.NOTSET)
-    logging.basicConfig(filename=LOG_FILENAME, level=level)
+    parser.add_argument("-lp", "--logpath", type=str, default=LOG_FILENAME,
+                        required=False, help="Path to save log file")
+    parser.add_argument("-ll", "--loglevel", type=str, default="error",
+                        required=False,
+                        choices=['debug', 'info', 'warning', 'error', 'critical'])
+    args = parser.parse_args()
+    LEVELS = {'debug': logging.DEBUG,
+              'info': logging.INFO,
+              'warning': logging.WARNING,
+              'error': logging.ERROR,
+              'critical': logging.CRITICAL}
+
+    level = LEVELS.get(args.loglevel, logging.NOTSET)
+    logging.basicConfig(filename=args.logpath, level=level)
     logger = logging.getLogger("CIDAN")
     logger.debug("Program started")
-dev = False
-if len(sys.argv) > 1:
-    dev = True if sys.argv[1] == "True" else False
-print(dev)
-app = QApplication([])
-app.setApplicationName("CIDAN")
-widget = MainWindow.MainWindow(dev=dev)
+    dev = False
+    if len(sys.argv) > 1:
+        dev = True if sys.argv[1] == "True" else False
+    print(dev)
+    app = QApplication([])
+    app.setApplicationName("CIDAN")
+    widget = MainWindow.MainWindow(dev=dev)
 
-sys.exit(app.exec_())
+    sys.exit(app.exec_())
+
+
+if __name__ == '__main__':
+    main()

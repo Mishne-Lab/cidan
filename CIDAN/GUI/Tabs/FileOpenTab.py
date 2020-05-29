@@ -1,10 +1,11 @@
-from PySide2.QtWidgets import *
+from qtpy.QtWidgets import *
 
 from CIDAN.GUI.Data_Interaction.loadDataset import *
+from CIDAN.GUI.Inputs.BoolInput import BoolInput
 from CIDAN.GUI.Inputs.FileInput import FileInput
 from CIDAN.GUI.ListWidgets.TrialListWidget import TrialListWidget
 from CIDAN.GUI.Tabs.Tab import Tab
-from CIDAN.GUI.Inputs.BoolInput import BoolInput
+
 
 class FileOpenTab(Tab):
     def __init__(self, main_widget):

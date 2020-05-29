@@ -2,12 +2,13 @@ import logging
 from functools import reduce
 from typing import List
 
+import dask
 import numpy as np
 from dask import delayed
 
 from CIDAN.LSSC.SpatialBox import SpatialBox
 from CIDAN.LSSC.functions.data_manipulation import reshape_to_2d_over_time, \
-    join_data_list, saveTempImage
+    join_data_list
 from CIDAN.LSSC.functions.eigen import generateEigenVectors, saveEigenVectors, \
     loadEigenVectors, saveEmbedingNormImage, createEmbedingNormImageFromMultiple
 from CIDAN.LSSC.functions.embeddings import calcAffinityMatrix
@@ -89,18 +90,23 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
     all_boxes_eigen_vectors = []
     for spatial_box in spatial_boxes:
         spatial_box_data_list = [spatial_box.extract_box(x) for x in image_data]
-        if total_num_time_steps != 1:
+        if len(spatial_box_data_list) == 1:
+            spatial_box_data_list = dask.compute(*spatial_box_data_list)
+        if total_num_time_steps != 1 and len(spatial_box_data_list) == 1:
             time_boxes = [(x * (image_data[0].shape[0] // total_num_time_steps), (x + 1) * (image_data[0].shape[0] //
                                                                               total_num_time_steps))
                           for x in range(total_num_time_steps)]
         all_eigen_vectors_list = []
         if not eigen_vectors_already_generated:
-            for temporal_box_num, time_box_data in enumerate(spatial_box_data_list if total_num_time_steps==1 else time_boxes):
+            for temporal_box_num, time_box_data in enumerate(
+                    time_boxes if total_num_time_steps != 1 and len(
+                            spatial_box_data_list) == 1 else spatial_box_data_list):
                 # TODO make sure memory doesn't take more than 2x
-                if total_num_time_steps==1:
-                    time_box_data = spatial_box_data_list[0][time_box_data[0]:time_box_data[1], :, :]
-                time_box_data = saveTempImage(time_box_data, save_dir,
-                                              spatial_box.box_num)
+                if total_num_time_steps != 1 and len(spatial_box_data_list) == 1:
+                    time_box_data = sliceData(spatial_box_data_list,
+                                              start_end=time_box_data)
+                # time_box_data = saveTempImage(time_box_data, save_dir,
+                #                               spatial_box.box_num)
                 time_box_data_2d = reshape_to_2d_over_time(time_box_data)
                 logger1.debug(
                     "Time box {0}, start {1}, end {2}, time_box shape {3}, 2d shape {4}".format(
@@ -114,8 +120,7 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                                        spatial_box_num=spatial_box.box_num,
                                        temporal_box_num=temporal_box_num)
                 eigen_vectors = generateEigenVectors(K=k,
-                                                     num_eig=num_eig //
-                                                             total_num_time_steps,
+                                                     num_eig=num_eig,
                                                      )
                 if save_intermediate_steps:
                     eigen_vectors = saveEigenVectors(e_vectors=eigen_vectors,
@@ -242,3 +247,8 @@ if __name__ == '__main__':
     #              eigen_threshold_value=.5,
     #              merge_temporal_coef=.01,
     #              roi_size_max=600)
+
+
+@delayed
+def sliceData(data, start_end):
+    return data[0][start_end[0]:start_end[1], :, :]

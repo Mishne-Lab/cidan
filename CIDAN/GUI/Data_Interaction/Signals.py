@@ -1,5 +1,5 @@
 import numpy as np
-from PySide2.QtCore import *
+from qtpy.QtCore import *
 
 
 class MatrixSignal(QObject):

@@ -1,7 +1,9 @@
+import logging
+
 from CIDAN.GUI.Data_Interaction.Signals import *
 from CIDAN.GUI.Data_Interaction.Thread import Thread
 
-
+logger = logging.getLogger("CIDAN.GUI.Data_Interaction.ROIExctractionThread")
 class ROIExtractionThread(Thread):
     def __init__(self, main_widget, button, roi_list_module, roi_tab):
         super().__init__(main_widget.data_handler)
@@ -15,7 +17,9 @@ class ROIExtractionThread(Thread):
         try:
             self.data_handler.calculate_roi_extraction()
             self.signal.sig.emit(True)
-        except AssertionError as e:
+        except Exception as e:
+            print("Something weird happened please reload and try again")
+            logger.error(e)
             self.signal.sig.emit(False)
 
     def runThread(self):

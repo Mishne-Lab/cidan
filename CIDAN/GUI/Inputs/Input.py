@@ -1,4 +1,4 @@
-from PySide2.QtWidgets import *
+from qtpy.QtWidgets import *
 
 
 class Input(QFrame):

@@ -1,5 +1,5 @@
-from PySide2 import QtCore
-from PySide2.QtGui import *
+from qtpy import QtCore
+from qtpy.QtGui import *
 
 
 class ROIItemModule(QStandardItem):

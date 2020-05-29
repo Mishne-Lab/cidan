@@ -1,8 +1,8 @@
 import sys
 
-from PySide2 import QtCore
-from PySide2 import QtGui
-from PySide2.QtWidgets import *
+from qtpy import QtCore
+from qtpy import QtGui
+from qtpy.QtWidgets import *
 
 
 class Stream(QtCore.QObject):

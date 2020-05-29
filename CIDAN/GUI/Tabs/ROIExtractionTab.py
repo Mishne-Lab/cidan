@@ -2,9 +2,9 @@ import logging
 
 import numpy as np
 import pyqtgraph as pg
-from PySide2 import QtCore
-from PySide2.QtCore import *
-from PySide2.QtWidgets import *
+from qtpy import QtCore
+from qtpy.QtCore import *
+from qtpy.QtWidgets import *
 
 from CIDAN.GUI.Data_Interaction.ROIExtractionThread import ROIExtractionThread
 from CIDAN.GUI.Inputs.IntInput import IntInput

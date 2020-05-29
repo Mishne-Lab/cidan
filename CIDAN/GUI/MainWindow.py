@@ -1,7 +1,7 @@
 import os
 
 os.environ['QT_API'] = 'pyside2'
-from PySide2.QtWidgets import QTabWidget
+from qtpy.QtWidgets import QTabWidget
 from CIDAN.GUI.Tabs.Tab import AnalysisTab
 from CIDAN.GUI.Tabs.FileOpenTab import FileOpenTab
 from CIDAN.GUI.Tabs.ROIExtractionTab import *
@@ -132,14 +132,14 @@ class MainWidget(QWidget):
 
         # Below here in this function is just code for testing
         # TODO check if it can load data twice
-        if False and dev:
+        if True and dev:
             # auto loads a small dataset
             self.data_handler = DataHandler(
 
                 "/Users/sschickler/Code Devel/LSSC-python/input_images/",
                 "C:\\Users\\gadge\\Downloads\\dELETE",
                 trials=["small_dataset.tif"],
-                save_dir_already_created=True)
+                save_dir_already_created=False)
             self.init_w_data()
         if False and dev:
             # auto loads a large dataset

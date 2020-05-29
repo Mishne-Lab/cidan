@@ -29,17 +29,17 @@ def load_filter_tif_stack(*, path, filter: bool, median_filter: bool,
     """
     print(path)
 
-    if   os.path.isdir(path):
+    if os.path.isdir(path):
         volumes = []
         paths = path if type(path) == list else sorted(os.listdir(path))
         print(paths)
         for num, x in enumerate(paths):
             file_path = x if type(path) == list else os.path.join(path, x)
             image = tifffile.imread(file_path)
-            if len(image.shape)==2:
+            if len(image.shape) == 2:
                 image = image.reshape((1,image.shape[0],image.shape[1]))
             if slice_stack:
-                image = image[slice_start::slice_every, :200, :200]
+                image = image[slice_start::slice_every]
             if filter:
                 image = filter_stack(stack=image, median_filter=median_filter,
                                      median_filter_size=median_filter_size,
@@ -49,7 +49,7 @@ def load_filter_tif_stack(*, path, filter: bool, median_filter: bool,
 
         image = np.vstack(volumes)
         del volumes
-        return image
+        return image.astype(np.float64)
     if os.path.isfile(path):
         # return ScanImageTiffReader(path).data()
         image = tifffile.imread(path)
@@ -59,7 +59,7 @@ def load_filter_tif_stack(*, path, filter: bool, median_filter: bool,
         if filter:
             image = filter_stack(stack=image, median_filter=median_filter,
                                  median_filter_size=median_filter_size, z_score=z_score)
-        return image
+        return image.astype(np.float64)
     raise Exception("Invalid Inputs folders not allowed currently ")
     # vol=ScanImageTiffReader(file_path).data()
 
@@ -113,15 +113,17 @@ def save_image(volume: np.ndarray, name: str, directory: str, shape: tuple,
 def filter_stack(*, stack: np.ndarray, median_filter: bool,
                  median_filter_size: Tuple[int, int, int],
                  z_score: bool):
+    if median_filter:
+        # stack = ndimage.median_filter(stack, median_filter_size)
+        stack = ndimage.filters.convolve(stack, np.full((3, 3, 3), 1.0 / 27))
     if z_score:
         stack_t = np.transpose(stack, (1, 2, 0))
-        shape = (1, stack_t.shape[1], stack_t.shape[2])
-        std = np.std(stack_t, axis=0).reshape(shape)
-        mean = np.mean(stack_t, axis=0).reshape(shape)
+        shape = (stack.shape[1], stack.shape[2], 1)
+        std = np.std(stack_t, axis=2).reshape(shape)
+        mean = np.mean(stack_t, axis=2).reshape(shape)
         stack_t = (stack_t - mean) / std
         stack = np.transpose(stack_t, (2, 0, 1))
-    if median_filter:
-        stack = ndimage.median_filter(stack, median_filter_size)
+
     return stack
 
 

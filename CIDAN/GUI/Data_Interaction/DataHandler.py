@@ -51,9 +51,9 @@ class DataHandler:
     _eigen_params_default = {
         "eigen_vectors_already_generated": False,
         "num_eig": 50,
-        "normalize_w_k": 16,
+        "normalize_w_k": 35,
         "metric": "l2",
-        "knn": 35,
+        "knn": 45,
         "accuracy": 50,
         "connections": 51,
 
@@ -63,12 +63,12 @@ class DataHandler:
         "elbow_threshold_value": 1,
         "eigen_threshold_method": True,
         "eigen_threshold_value": .1,
-        "num_eigen_vector_select": 7,
+        "num_eigen_vector_select": 2,
         "merge_temporal_coef": .95,
         "roi_size_min": 30,
         "roi_size_max": 600,
         "merge": True,
-        "num_rois": 25,
+        "num_rois": 60,
         "fill_holes": True,
         "refinement": True,
         "max_iter": 40,
@@ -130,8 +130,11 @@ class DataHandler:
                                                      if x in self.trials_loaded]
 
     def __del__(self):
-        for x in self.__dict__.items():
-            self.__dict__[x] = None
+        try:
+            for x in self.__dict__.items():
+                self.__dict__[x] = None
+        except TypeError:
+            pass
 
     @property
     def dataset_trials_filtered_loaded(self):

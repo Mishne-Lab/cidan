@@ -1,6 +1,6 @@
-from PySide2 import QtGui, QtCore
-from PySide2.QtGui import *
-from PySide2.QtWidgets import *
+from qtpy import QtGui, QtCore
+from qtpy.QtGui import *
+from qtpy.QtWidgets import *
 
 
 class ROIItemWidget(QWidget):

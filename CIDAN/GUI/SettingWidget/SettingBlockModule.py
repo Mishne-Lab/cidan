@@ -1,4 +1,4 @@
-from PySide2.QtWidgets import *
+from qtpy.QtWidgets import *
 
 from CIDAN.GUI.Inputs.BoolInput import BoolInput
 from CIDAN.GUI.Inputs.FloatInput import FloatInput
@@ -56,7 +56,7 @@ def filter_setting_block(main_widget):
 
 def dataset_setting_block(main_widget):
     data_handler = main_widget.data_handler
-    return SettingBlockModule("Dataset Settings",
+    return SettingBlockModule("Advanced Settings",
                               [BoolInput(display_name="Slice stack:",
                                          program_name="slice_stack",
                                          on_change_function=lambda x,
@@ -65,8 +65,8 @@ def dataset_setting_block(main_widget):
                                          default_val=data_handler.dataset_params[
                                              "slice_stack"],
                                          tool_tip="Used to Select only "
-                                                  "certain timepoints from a dataset",
-                                         display_tool_tip=True),
+                                                  "every x timestep",
+                                         display_tool_tip=False),
                                IntInput(display_name="Slice every:",
                                         program_name="slice_every",
                                         on_change_function=lambda x,
