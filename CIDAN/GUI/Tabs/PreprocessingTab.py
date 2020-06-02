@@ -1,5 +1,5 @@
-from PySide2 import QtCore
-from PySide2.QtWidgets import *
+from qtpy import QtCore
+from qtpy.QtWidgets import *
 
 from CIDAN.GUI.Data_Interaction.PreprocessThread import PreprocessThread
 from CIDAN.GUI.Inputs.OptionInput import OptionInput

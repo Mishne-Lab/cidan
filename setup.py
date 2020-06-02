@@ -5,7 +5,7 @@ with open("README.md", 'r') as f:
 
 setup(
     name='CIDAN',
-    version='0.1.9',
+    version='0.1.10',
     description='CIDAN-Calcium Imaging Data ANalysis',
     license="MIT",
     long_description=long_description,
@@ -13,10 +13,11 @@ setup(
     author_email='sschickl@ucsd.edu',
     # url="http://www.foopackage.com/",
     packages=find_packages(),
-    install_requires=["QtPy", "QDarkStyle", "pyqtgraph==0.11.0rc0", "Pyside2", "numpy",
+    install_requires=["numpy", "QtPy", "QDarkStyle", "pybind11", "pyqtgraph==0.11.0rc0",
+                      "Pyside2",
                       "dask[complete]", "matplotlib", "scipy", "tiffile",
                       "scikit-image", "hnswlib", "pillow",
-                      'tifffile'],  # TODO add external packages as dependencies
+                      'tifffile'],
     scripts=[
         "CIDAN/LSSC/process_data.py",
         "CIDAN/LSSC/SpatialBox.py",

@@ -22,15 +22,17 @@ logger1 = logging.getLogger("CIDAN.loadDataset")
 #     return loadImage
 
 
-def load_new_dataset(main_widget, file_input, save_dir_input, trials=None):
+def load_new_dataset(main_widget, file_input, save_dir_input, trials=None, single=False):
     print(trials)
+
     file_path = file_input.current_state()
     save_dir_path = save_dir_input.current_state()
     # if hasattr(main_widget, "data_handler"):
     #     main_widget.data_handler.__del__()
-    if not trials:
+    if single:
         try:
             dir_path = os.path.dirname(file_path)
+
             main_widget.data_handler = DataHandler(data_path=dir_path,
                                                    trials=[os.path.basename(file_path)],
                                                    save_dir_path=save_dir_path,
@@ -39,7 +41,19 @@ def load_new_dataset(main_widget, file_input, save_dir_input, trials=None):
         except IndentationError as e:
             logger1.error(e)
             print("Loading Failed please make sure it is a valid file")
-    if trials:
+    elif not trials:
+            try:
+                dir_path = os.path.dirname(file_path)
+
+                main_widget.data_handler = DataHandler(data_path=dir_path,
+                                                       trials=[os.path.basename(file_path)],
+                                                       save_dir_path=save_dir_path,
+                                                       save_dir_already_created=False)
+                main_widget.init_w_data()
+            except IndentationError as e:
+                logger1.error(e)
+                print("Loading Failed please make sure it is a valid file")
+    elif trials:
         logger1.debug("Trials:" + str(trials))
         if len(trials) == 0:
             print("Please select at least one trial")

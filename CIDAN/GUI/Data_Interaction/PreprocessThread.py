@@ -1,6 +1,9 @@
+import logging
 import sys
 
 from CIDAN.GUI.Data_Interaction.Thread import Thread
+
+logger = logging.getLogger("CIDAN.GUI.Data_Interaction.PreprocessThread")
 
 
 class PreprocessThread(Thread):
@@ -15,7 +18,8 @@ class PreprocessThread(Thread):
         try:
             self.data_handler.calculate_filters()
             self.signal.sig.emit(True)
-        except:
+        except Exception as e:
+            logger.error(e)
             print("Unexpected error:", sys.exc_info()[0])
             self.signal.sig.emit(False)
 
@@ -23,7 +27,7 @@ class PreprocessThread(Thread):
 
         if not any([x.isRunning() for x in self.main_widget.thread_list]):
             print("Starting preprocessing sequence")
-            self.button.setEnabled(False)
+            # self.button.setEnabled(False)
             self.start()
         else:
             print(

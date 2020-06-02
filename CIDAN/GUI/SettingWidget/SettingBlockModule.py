@@ -1,8 +1,9 @@
-from PySide2.QtWidgets import *
+from qtpy.QtWidgets import *
 
 from CIDAN.GUI.Inputs.BoolInput import BoolInput
 from CIDAN.GUI.Inputs.FloatInput import FloatInput
 from CIDAN.GUI.Inputs.IntInput import IntInput
+from CIDAN.GUI.Inputs.IntRangeInput import IntRangeInput
 
 
 class SettingBlockModule(QFrame):
@@ -56,7 +57,7 @@ def filter_setting_block(main_widget):
 
 def dataset_setting_block(main_widget):
     data_handler = main_widget.data_handler
-    return SettingBlockModule("Dataset Settings",
+    return SettingBlockModule("Advanced Settings",
                               [BoolInput(display_name="Slice stack:",
                                          program_name="slice_stack",
                                          on_change_function=lambda x,
@@ -65,8 +66,8 @@ def dataset_setting_block(main_widget):
                                          default_val=data_handler.dataset_params[
                                              "slice_stack"],
                                          tool_tip="Used to Select only "
-                                                  "certain timepoints from a dataset",
-                                         display_tool_tip=True),
+                                                  "every x timestep",
+                                         display_tool_tip=False),
                                IntInput(display_name="Slice every:",
                                         program_name="slice_every",
                                         on_change_function=lambda x,
@@ -84,9 +85,53 @@ def dataset_setting_block(main_widget):
                                         tool_tip="Start selecting on x timestep",
                                         default_val=data_handler.dataset_params[
                                             "slice_start"],
-                                        min=0, max=1000, step=1)
+                                        min=0, max=10000, step=1)
                                ])
 
+
+def dataset_setting_block_crop(main_widget):
+    data_handler = main_widget.data_handler
+    return SettingBlockModule("Crop Settings",
+                              [BoolInput(display_name="Crop stack:",
+                                         program_name="crop_stack",
+                                         on_change_function=lambda x,
+                                                                   y: data_handler.change_dataset_param(
+                                             x, y),
+                                         default_val=data_handler.dataset_params[
+                                             "crop_stack"],
+                                         tool_tip="Used to crop image stack",
+                                         display_tool_tip=False),
+                               IntRangeInput(display_name="Crop X:",
+                                             program_name="crop_x",
+                                             on_change_function=lambda x,
+                                                                       y: data_handler.change_dataset_param(
+                                                 x, y),
+                                             default_val=data_handler.dataset_params[
+                                                 "crop_x"],
+                                             tool_tip="Crop in x direction",
+                                             min=0, max=100000, step=1),
+                               IntRangeInput(display_name="Crop Y:",
+                                             program_name="crop_y",
+                                             on_change_function=lambda x,
+                                                                       y: data_handler.change_dataset_param(
+                                                 x, y),
+                                             default_val=data_handler.dataset_params[
+                                                 "crop_y"],
+                                             tool_tip="Crop in y direction",
+                                             min=0, max=10000, step=1),
+                               # IntRangeInput(display_name="Crop Z:",
+                               #               program_name="crop_z",
+                               #               on_change_function=lambda x,
+                               #                                         y: data_handler.change_dataset_param(
+                               #                   x, y),
+                               #               default_val=data_handler.dataset_params[
+                               #                   "crop_z"],
+                               #               tool_tip="Note this crops it for each trial",
+                               #               display_tool_tip=True,
+                               #               min=data_handler.dataset_params[
+                               #                   "crop_z"][0], max=data_handler.dataset_params[
+                               #                   "crop_z"][1], step=1)
+                               ])
 
 def multiprocessing_settings_block(main_widget):
     data_handler = main_widget.data_handler
@@ -101,7 +146,7 @@ def multiprocessing_settings_block(main_widget):
             data_handler.box_params[
                 "total_num_spatial_boxes"],
             tool_tip="Number of boxes to break the calculation into, please make sure it is a sqaure",
-            min=1, max=1000, step=1)
+            min=1, max=10000, step=1)
         ,
         IntInput(
             display_name="Spatial overlap:",
@@ -111,7 +156,7 @@ def multiprocessing_settings_block(main_widget):
             data_handler.box_params[
                 "spatial_overlap"],
             tool_tip="Number of pixels to overlap each box",
-            min=1, max=1000, step=1)])
+            min=1, max=10000, step=1)])
 
 
 def roi_extraction_settings_block(main_widget):
@@ -128,7 +173,7 @@ def roi_extraction_settings_block(main_widget):
                                       default_val=data_handler.roi_extraction_params[
                                           "num_rois"],
                                       tool_tip="Max number of ROIs to select for each spatial box",
-                                      min=1, max=1000, step=1),
+                                      min=0, max=10000, step=1),
                                   IntInput(
                                       display_name="ROI size minimum:",
                                       program_name="roi_size_min",
@@ -139,7 +184,7 @@ def roi_extraction_settings_block(main_widget):
                                       data_handler.roi_extraction_params[
                                           "roi_size_min"],
                                       tool_tip="Minimum size in pixels for a region of interest",
-                                      min=1, max=1000, step=1)
+                                      min=1, max=10000, step=1)
                                   ,
                                   IntInput(
                                       display_name="ROI size maximum:",
@@ -151,7 +196,7 @@ def roi_extraction_settings_block(main_widget):
                                       data_handler.roi_extraction_params[
                                           "roi_size_max"],
                                       tool_tip="Maximum size in pixels for a region of interest",
-                                      min=1, max=100000, step=1),
+                                      min=1, max=1000000, step=1),
                                   # BoolInput(
                                   #     display_name="Run refinement step:",
                                   #     program_name="refinement",
@@ -200,7 +245,7 @@ def roi_advanced_settings_block(main_widget):
                                         default_val=data_handler.eigen_params[
                                             "num_eig"],
                                         tool_tip="Number of eigen vectors to generate",
-                                        min=1, max=1000, step=1),
+                                        min=1, max=10000, step=1),
                                FloatInput(display_name="Eigen threshold value:",
                                           program_name="eigen_threshold_value",
                                           on_change_function=lambda x,
@@ -231,6 +276,16 @@ def roi_advanced_settings_block(main_widget):
                                    data_handler.roi_extraction_params[
                                        "merge"],
                                    tool_tip="Whether to merge rois with similar time traces"),
+                               FloatInput(display_name="ROI Circuity Threshold:",
+                                          program_name="roi_circ_threshold",
+                                          on_change_function=lambda x,
+                                                                    y: data_handler.change_roi_extraction_param(
+                                              x, y),
+                                          default_val=
+                                          data_handler.roi_extraction_params[
+                                              "roi_circ_threshold"],
+                                          tool_tip="Thresholds the rois based on how circular they are",
+                                          min=0, max=1.0, step=.01),
                                IntInput(display_name="Number of connections:",
                                         program_name="connections",
                                         on_change_function=lambda x,
@@ -239,7 +294,7 @@ def roi_advanced_settings_block(main_widget):
                                         default_val=data_handler.eigen_params[
                                             "connections"],
                                         tool_tip="Number of eigen vectors to generate",
-                                        min=1, max=1000, step=1),
+                                        min=1, max=10000, step=1),
                                IntInput(display_name="accuracy:",
                                         program_name="accuracy",
                                         on_change_function=lambda x,
@@ -248,7 +303,7 @@ def roi_advanced_settings_block(main_widget):
                                         default_val=data_handler.eigen_params[
                                             "accuracy"],
                                         tool_tip="Number of eigen vectors to generate",
-                                        min=1, max=1000, step=1),
+                                        min=1, max=10000, step=1),
                                IntInput(display_name="Number of knn:",
                                         program_name="knn",
                                         on_change_function=lambda x,
@@ -257,7 +312,7 @@ def roi_advanced_settings_block(main_widget):
                                         default_val=data_handler.eigen_params[
                                             "knn"],
                                         tool_tip="Number of eigen vectors to generate",
-                                        min=1, max=1000, step=1),
+                                        min=1, max=10000, step=1),
                                IntInput(display_name="Normalize w k :",
                                         program_name="normalize_w_k",
                                         on_change_function=lambda x,
@@ -266,7 +321,7 @@ def roi_advanced_settings_block(main_widget):
                                         default_val=data_handler.eigen_params[
                                             "normalize_w_k"],
                                         tool_tip="Number of eigen vectors to generate",
-                                        min=1, max=1000, step=1),
+                                        min=1, max=10000, step=1),
                                IntInput(display_name="max iter:",
                                         program_name="max_iter",
                                         on_change_function=lambda x,
@@ -275,19 +330,19 @@ def roi_advanced_settings_block(main_widget):
                                         default_val=data_handler.roi_extraction_params[
                                             "max_iter"],
                                         tool_tip="Number of eigen vectors to generate",
-                                        min=1, max=1000, step=1),
+                                        min=1, max=10000, step=1),
 
-                               # IntInput(display_name="Number of time steps:",
-                               #          program_name="total_num_time_steps",
-                               #          on_change_function=lambda x,
-                               #          y: data_handler.change_box_param(
-                               #              x, y),
-                               #          default_val=data_handler.box_params[
-                               #              "total_num_time_steps"],
-                               #          tool_tip=
-                               #          "Number of time steps to break"+
-                               #          "the processing into",
-                               #          min=1, max=1000, step=1),
+                               IntInput(display_name="Number of time steps:",
+                                        program_name="total_num_time_steps",
+                                        on_change_function=lambda x,
+                                        y: data_handler.change_box_param(
+                                            x, y),
+                                        default_val=data_handler.box_params[
+                                            "total_num_time_steps"],
+                                        tool_tip=
+                                        "Number of time steps to break"+
+                                        "the processing into",
+                                        min=1, max=10000, step=1),
                                #
                                ]
                               )

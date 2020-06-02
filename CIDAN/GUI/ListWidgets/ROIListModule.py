@@ -1,6 +1,6 @@
-from PySide2 import QtCore
-from PySide2.QtGui import *
-from PySide2.QtWidgets import *
+from qtpy import QtCore
+from qtpy.QtGui import *
+from qtpy.QtWidgets import *
 
 from CIDAN.GUI.ListWidgets.ROIItemModule import ROIItemModule
 from CIDAN.GUI.ListWidgets.ROIItemWidget import ROIItemWidget

@@ -1,5 +1,6 @@
 import json
 import logging
+from functools import reduce
 
 import dask
 import numpy as np
@@ -12,7 +13,11 @@ from CIDAN.LSSC.functions.data_manipulation import load_filter_tif_stack, filter
     reshape_to_2d_over_time, pixel_num_to_2d_cord
 from CIDAN.LSSC.functions.eigen import loadEigenVectors
 from CIDAN.LSSC.functions.pickle_funcs import *
+from CIDAN.LSSC.functions.roi_extraction import roi_extract_image, combine_rois
+from CIDAN.LSSC.functions.roi_filter import filterRoiList
 from CIDAN.LSSC.process_data import process_data
+from CIDAN.TimeTrace.deltaFOverF import calculateDeltaFOverF
+from CIDAN.TimeTrace.mean import calculateMeanTrace
 
 logger1 = logging.getLogger("CIDAN.DataHandler")
 
@@ -34,7 +39,10 @@ class DataHandler:
         "trials_all": [],
         "slice_stack": False,
         "slice_every": 3,
-        "slice_start": 0
+        "slice_start": 0,
+        "crop_stack": False,
+        "crop_x": [0, 0],
+        "crop_y": [0, 0]
     }
 
     _filter_params_default = {
@@ -51,9 +59,9 @@ class DataHandler:
     _eigen_params_default = {
         "eigen_vectors_already_generated": False,
         "num_eig": 50,
-        "normalize_w_k": 16,
+        "normalize_w_k": 35,
         "metric": "l2",
-        "knn": 35,
+        "knn": 45,
         "accuracy": 50,
         "connections": 51,
 
@@ -63,15 +71,19 @@ class DataHandler:
         "elbow_threshold_value": 1,
         "eigen_threshold_method": True,
         "eigen_threshold_value": .1,
-        "num_eigen_vector_select": 7,
+        "num_eigen_vector_select": 2,
         "merge_temporal_coef": .95,
         "roi_size_min": 30,
         "roi_size_max": 600,
         "merge": True,
-        "num_rois": 25,
+        "num_rois": 60,
         "fill_holes": True,
         "refinement": True,
-        "max_iter": 1000,
+        "max_iter": 40,
+        "roi_circ_threshold": .9
+    }
+    _time_trace_params_default = {
+        "time_trace_type": "Mean"
     }
 
     def __init__(self, data_path, save_dir_path, save_dir_already_created, trials=[]):
@@ -105,16 +117,21 @@ class DataHandler:
             self.dataset_params["dataset_path"] = data_path
             self.dataset_params["trials_loaded"] = trials
             self.trials_loaded = trials
-
-            self.trials_all = sorted(os.listdir(data_path))
-            self.trials_all = [x for x in self.trials_all if ".tif" in x]
+            if (data_path == ""):
+                self.trials_all = trials
+            else:
+                self.trials_all = sorted(os.listdir(data_path))
+                if not os.path.isdir(os.path.join(data_path, trials[0])):
+                    self.trials_all = [x for x in self.trials_all if ".tif" in x]
             self.dataset_params["trials_all"] = self.trials_all
 
             self.filter_params = DataHandler._filter_params_default.copy()
             self.box_params = DataHandler._box_params_default.copy()
+            self.box_params_processed = DataHandler._box_params_default.copy()
             self.box_params["total_num_time_steps"] = len(trials)
             self.eigen_params = DataHandler._eigen_params_default.copy()
             self.roi_extraction_params = DataHandler._roi_extraction_params_default.copy()
+            self.time_trace_params = DataHandler._time_trace_params_default.copy()
             valid = self.create_new_save_dir()
             if not valid:
                 raise FileNotFoundError("Please chose an empty directory for your " +
@@ -127,8 +144,11 @@ class DataHandler:
                                                      if x in self.trials_loaded]
 
     def __del__(self):
-        for x in self.__dict__.items():
-            self.__dict__[x] = None
+        try:
+            for x in self.__dict__.items():
+                self.__dict__[x] = None
+        except TypeError:
+            pass
 
     @property
     def dataset_trials_filtered_loaded(self):
@@ -137,6 +157,7 @@ class DataHandler:
     @property
     def dataset_trials_loaded(self):
         return [self.dataset_trials[x] for x in self._trials_loaded_indices]
+
     @property
     def param_path(self):
         return os.path.join(self.save_dir_path, "parameters.json")
@@ -173,7 +194,9 @@ class DataHandler:
             self.dataset_params = all_params["dataset_params"]
             self.filter_params = all_params["filter_params"]
             self.box_params = all_params["box_params"]
+            self.box_params_processed = all_params["box_params"].copy()
             self.eigen_params = all_params["eigen_params"]
+            self.time_trace_params = all_params["time_trace_params"]
             self.roi_extraction_params = all_params["roi_extraction_params"]
             self.trials_loaded = self.dataset_params["trials_loaded"]
             self.trials_all = self.dataset_params["trials_all"]
@@ -192,9 +215,10 @@ class DataHandler:
                     "global_params": self.global_params,
                     "dataset_params": self.dataset_params,
                     "filter_params": self.filter_params,
-                    "box_params": self.box_params,
+                    "box_params": self.box_params_processed,
                     "eigen_params": self.eigen_params,
-                    "roi_extraction_params": self.roi_extraction_params
+                    "roi_extraction_params": self.roi_extraction_params,
+                    "time_trace_params": self.time_trace_params
                 }
                 f.truncate(0)
                 f.write(json.dumps(all_params))
@@ -290,7 +314,9 @@ class DataHandler:
         self.global_params["need_recalc_dataset_params"] = False
         self.shape = [self.dataset_trials_loaded[0].shape[1],
                       self.dataset_trials_loaded[0].shape[2]]
-
+        if self.dataset_params["crop_x"][1] == 0:
+            self.dataset_params["crop_x"][1] = self.shape[0]
+            self.dataset_params["crop_y"][1] = self.shape[1]
         print("Finished Calculating Dataset")
 
     @delayed
@@ -308,7 +334,14 @@ class DataHandler:
                 "slice_start"],
 
             slice_every=self.dataset_params[
-                "slice_every"])
+                "slice_every"],
+            crop_stack=self.dataset_params[
+                "crop_stack"],
+            crop_x=self.dataset_params[
+                "crop_x"],
+            crop_y=self.dataset_params[
+                "crop_y"]
+        )
 
     @delayed
     def load_trial_filter_step(self, trial_num):
@@ -317,7 +350,8 @@ class DataHandler:
             stack=self.dataset_trials[trial_num] if type(self.dataset_trials[
                                                              trial_num]) != bool else self.load_trial_dataset_step(
                 trial_num).compute(),
-            median_filter_size=(1,
+            median_filter_size=(self.filter_params[
+                                    "median_filter_size"],
                                 self.filter_params[
                                     "median_filter_size"],
                                 self.filter_params[
@@ -339,10 +373,10 @@ class DataHandler:
             self.dataset_trials_filtered = dask.compute(*self.dataset_trials_filtered)
             self.mean_image = np.mean(np.dstack(
                 [np.mean(x, axis=0) for x in self.dataset_trials_filtered_loaded]),
-                                      axis=2)
+                axis=2)
             self.max_image = np.max(np.dstack(
                 [np.max(x, axis=0) for x in self.dataset_trials_filtered_loaded]),
-                                    axis=2)
+                axis=2)
 
             # self.temporal_correlation_image = calculate_temporal_correlation(self.dataset_filtered)
             self.global_params["need_recalc_filter_params"] = False
@@ -361,7 +395,8 @@ class DataHandler:
                        "total_num_spatial_boxes"], "Please make sure Number of Spatial Boxes is a square number"
             try:
                 self.calculate_filters()
-
+                eigen_need_recalc = self.global_params["need_recalc_eigen_params"]
+                self.global_params["need_recalc_eigen_params"] = False
                 self.clusters = process_data(num_threads=self.global_params[
                     "num_threads"], test_images=False, test_output_dir="",
                                              save_dir=self.save_dir_path,
@@ -369,8 +404,7 @@ class DataHandler:
                                                  "save_intermediate_steps"],
                                              image_data=self.dataset_trials_filtered_loaded,
                                              eigen_vectors_already_generated=(not
-                                                                              self.global_params[
-                                                                                  "need_recalc_eigen_params"]) and
+                                                                              eigen_need_recalc) and
                                                                              self.global_params[
                                                                                  "save_intermediate_steps"] and self.eigen_vectors_exist,
                                              save_embedding_images=True,
@@ -421,8 +455,12 @@ class DataHandler:
                                                  "merge_temporal_coef"],
                                              roi_size_max=self.roi_extraction_params[
                                                  "roi_size_max"])
-
-                self.global_params["need_recalc_eigen_params"] = False
+                self.box_params_processed = self.box_params
+                self.save_new_param_json()
+                roi_valid_list = filterRoiList(self.clusters, self.shape)
+                self.clusters = [x for x, y in zip(self.clusters, roi_valid_list) if
+                                 y > self.roi_extraction_params[
+                                     "roi_circ_threshold"]]
                 self.save_rois(self.clusters)
                 print("Calculating Time Traces:")
                 self.gen_roi_display_variables()
@@ -437,6 +475,10 @@ class DataHandler:
                 raise AssertionError()
 
     def gen_roi_display_variables(self):
+
+        self.roi_circ_list = filterRoiList(self.clusters, self.shape,
+                                           self.roi_extraction_params[
+                                               "roi_circ_threshold"])
         cluster_list_2d_cord = [
             pixel_num_to_2d_cord(x, volume_shape=self.shape) for x in
             self.clusters]
@@ -503,7 +545,11 @@ class DataHandler:
             if type(self.dataset_trials_filtered[trial_num]) == bool:
                 self.load_trial_filter_step(trial_num)
             data_2d = reshape_to_2d_over_time(self.dataset_trials_filtered[trial_num])
-            time_trace = np.mean(data_2d[cluster], axis=0)
+            if self.time_trace_params["time_trace_type"] == "DeltaF/F":
+                time_trace = calculateDeltaFOverF(cluster, data_2d)
+            else:
+                time_trace = calculateMeanTrace(cluster, data_2d)
+            calculateDeltaFOverF(cluster, data_2d)
             self.time_traces[roi_num - 1][trial_num] = time_trace
         if os.path.isdir(self.save_dir_path):
             pickle_save(self.time_traces, "time_traces",
@@ -551,5 +597,76 @@ class DataHandler:
         spatial_box = SpatialBox(box_num,
                                  total_boxes=self.box_params["total_num_spatial_boxes"],
                                  image_shape=self.shape,
-                                 spatial_overlap=self.box_params["spatial_overlap"])
+                                 spatial_overlap=self.box_params[
+                                                     "spatial_overlap"] // 2)
         return vector[:, vector_num].reshape(spatial_box.shape)
+
+    def genRoiFromPoint(self, point, growth_factor=1):
+        """
+        Generates an roi from an initial point in the image
+        Parameters
+        ----------
+        point 2d cordinates of a point in the image
+        growth_factor how much to grow the roi
+
+        Returns
+        -------
+        the pixels in said roi
+        """
+        spatial_boxes = [SpatialBox(box_num=x,
+                                    total_boxes=self.box_params_processed[
+                                        "total_num_spatial_boxes"],
+                                    image_shape=self.shape,
+                                    spatial_overlap=self.box_params_processed[
+                                        "spatial_overlap"]) for x in
+                         range(self.box_params_processed["total_num_spatial_boxes"])]
+        boxes_point_in = [x for x in spatial_boxes if x.pointInBox(point)]
+
+        rois = []
+        for box in boxes_point_in:
+            all_eigen_vectors_list = []
+            for temporal_box_num in range(
+                    self.box_params_processed["total_num_time_steps"]):
+                all_eigen_vectors_list.append(
+                    loadEigenVectors(spatial_box_num=box.box_num,
+                                     time_box_num=temporal_box_num,
+                                     save_dir=self.save_dir_path).compute())
+
+            all_eigen_vectors = np.hstack(all_eigen_vectors_list)
+            box_point = box.point_to_box_point(point)
+            box_point_1d = box_point[0] * box.shape[1] + box_point[1]
+            roi = roi_extract_image(e_vectors=all_eigen_vectors,
+                                    original_shape=box.shape, original_2d_vol=None,
+                                    merge=False, box_num=box.box_num,
+                                    num_rois=1, refinement=True,
+                                    num_eigen_vector_select=
+                                    self.roi_extraction_params[
+                                        "num_eigen_vector_select"],
+                                    max_iter=1,
+                                    roi_size_min=0,
+                                    fill_holes=self.roi_extraction_params[
+                                        "fill_holes"],
+
+                                    elbow_threshold_method=True,
+                                    elbow_threshold_value=growth_factor,
+                                    eigen_threshold_method=
+                                    self.roi_extraction_params[
+                                        "eigen_threshold_method"],
+                                    eigen_threshold_value=
+                                    self.roi_extraction_params[
+                                        "eigen_threshold_value"],
+                                    merge_temporal_coef=
+                                    self.roi_extraction_params[
+                                        "merge_temporal_coef"],
+                                    roi_size_limit=1000,
+                                    initial_pixel=box_point_1d,
+                                    print_info=False).compute()
+
+            if len(roi) > 0 and box_point_1d in roi[0]:
+                rois.append(box.redefine_spatial_cord_1d(roi).compute()[0])
+        if len(rois) > 0:
+            final_roi = reduce(combine_rois, rois)
+        else:
+            return []
+
+        return final_roi

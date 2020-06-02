@@ -19,7 +19,9 @@ def roi_extract_image(*, e_vectors: np.ndarray,
                       elbow_threshold_method: bool, elbow_threshold_value: float,
                       eigen_threshold_method: bool,
                       eigen_threshold_value: float, merge_temporal_coef: float,
-                      roi_size_limit: int, box_num: int) -> List[np.ndarray]:
+                      roi_size_limit: int, box_num: int, initial_pixel=-1,
+                      print_info=True) -> List[
+    np.ndarray]:
     """
     Computes the Local Selective Spectral roi_extraction algorithm on an set of
     eigen vectors
@@ -60,21 +62,27 @@ def roi_extract_image(*, e_vectors: np.ndarray,
     merge_temporal_coef
         The coefficient limiting merging based of temporal information, 0 merge all
         1 merge none
+    initial_pixel
+        used if you want to generate an roi from a specific pixel
     Returns
     -------
     2D list of rois [[np.array of pixels roi 1], [
                           np.array  of pixels roi 2] ... ]
     It will have length num_rois unless max_iter amount is surpassed
     """
-    print("Spatial Box {}: Starting ROI selection process".format(box_num))
+    if print_info:
+        print("Spatial Box {}: Starting ROI selection process".format(box_num))
     pixel_length = e_vectors.shape[0]
+    if len(original_shape) == 2:
+        original_shape = (1, original_shape[0], original_shape[1])
     pixel_embedings = embedEigenSqrdNorm(
         e_vectors)  # embeds the pixels in the eigen space
     initial_pixel_list = np.flip(np.argsort(
         pixel_embedings))  # creates a list of pixels with the highest values
     # in the eigenspace this list is used to decide on the initial point
     # for the roi
-
+    if initial_pixel != -1:
+        initial_pixel_list = np.array([initial_pixel])
     roi_list = []  # output list of rois
 
     # iter_counter is used to limit the amount of pixels it tries
@@ -168,7 +176,8 @@ def roi_extract_image(*, e_vectors: np.ndarray,
 
         # checks if roi is big enough
         # print("roi size:", len(pixels_in_roi_final))
-
+        # print( len(
+        #         pixels_in_roi_final))
         if roi_size_min < len(
                 pixels_in_roi_final) < roi_size_limit:
             roi_list.append(pixels_in_roi_final)
@@ -197,7 +206,7 @@ def roi_extract_image(*, e_vectors: np.ndarray,
                               original_2d_vol=original_2d_vol)
         if fill_holes:
             roi_list = fill_holes_func(roi_list, pixel_length, original_shape)
-    print("Went through " + str(total_counter) + " iterations")
+    # print("Went through " + str(total_counter) + " iterations")
     return roi_list
 
 

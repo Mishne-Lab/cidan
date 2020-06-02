@@ -1,7 +1,7 @@
 import os
 
 os.environ['QT_API'] = 'pyside2'
-from PySide2.QtWidgets import QTabWidget
+from qtpy.QtWidgets import QTabWidget
 from CIDAN.GUI.Tabs.Tab import AnalysisTab
 from CIDAN.GUI.Tabs.FileOpenTab import FileOpenTab
 from CIDAN.GUI.Tabs.ROIExtractionTab import *
@@ -137,9 +137,9 @@ class MainWidget(QWidget):
             self.data_handler = DataHandler(
 
                 "/Users/sschickler/Code Devel/LSSC-python/input_images/",
-                "/Users/sschickler/Code Devel/LSSC-python/input_images/test31",
+                "C:\\Users\\gadge\\Downloads\\dELETE",
                 trials=["small_dataset.tif"],
-                save_dir_already_created=False)
+                save_dir_already_created=True)
             self.init_w_data()
         if False and dev:
             # auto loads a large dataset
