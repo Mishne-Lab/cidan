@@ -5,7 +5,7 @@ with open("README.md", 'r') as f:
 
 setup(
     name='CIDAN',
-    version='0.1.10',
+    version='0.1.11',
     description='CIDAN-Calcium Imaging Data ANalysis',
     license="MIT",
     long_description=long_description,
@@ -20,7 +20,10 @@ setup(
                       'tifffile'],
     scripts=[
         "CIDAN/LSSC/process_data.py",
+        "CIDAN/TimeTrace/deltaFOverF.py",
+        "CIDAN/TimeTrace/mean.py",
         "CIDAN/LSSC/SpatialBox.py",
+        "CIDAN/LSSC/functions/roi_filter.py"
         'CIDAN/LSSC/functions/data_manipulation.py',
         "CIDAN/LSSC/functions/eigen.py",
         "CIDAN/LSSC/functions/embeddings.py",
