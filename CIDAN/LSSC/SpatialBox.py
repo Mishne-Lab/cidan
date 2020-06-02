@@ -56,6 +56,32 @@ class SpatialBox:
     def redefine_spatial_cord_2d(self, cord_list):
         return [(x + self.box_cord_1[0], y + self.box_cord_1[1]) for x, y in cord_list]
 
+    def pointInBox(self, point):
+        """
+        Checks if a point is in the box
+        Parameters
+        ----------
+        point
+
+        Returns
+        -------
+
+        """
+        return self.box_cord_1[0] <= point[0] <= self.box_cord_2[0] \
+               and self.box_cord_1[1] <= point[1] <= self.box_cord_2[1]
+
+    def point_to_box_point(self, point):
+        """
+        Converts a point in the image to its cords in the box
+        Parameters
+        ----------
+        point 2d point
+
+        Returns
+        -------
+        tuple of new cords
+        """
+        return (point[0] - self.box_cord_1[0], point[1] - self.box_cord_1[1])
     @delayed
     def redefine_spatial_cord_1d(self, cord_list):
         box_length = self.box_cord_2[1] - self.box_cord_1[1]

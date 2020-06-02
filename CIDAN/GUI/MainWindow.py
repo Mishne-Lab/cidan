@@ -132,14 +132,14 @@ class MainWidget(QWidget):
 
         # Below here in this function is just code for testing
         # TODO check if it can load data twice
-        if True and dev:
+        if False and dev:
             # auto loads a small dataset
             self.data_handler = DataHandler(
 
                 "/Users/sschickler/Code Devel/LSSC-python/input_images/",
                 "C:\\Users\\gadge\\Downloads\\dELETE",
                 trials=["small_dataset.tif"],
-                save_dir_already_created=False)
+                save_dir_already_created=True)
             self.init_w_data()
         if False and dev:
             # auto loads a large dataset

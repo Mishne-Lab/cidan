@@ -17,8 +17,11 @@ class ROIExtractionThread(Thread):
         try:
             self.data_handler.calculate_roi_extraction()
             self.signal.sig.emit(True)
-        except Exception as e:
-            print("Something weird happened please reload and try again")
+        except AssertionError as e:
+            if (type(e) == AssertionError):
+                print(e.args[0])
+            else:
+                print("Something weird happened please reload and try again")
             logger.error(e)
             self.signal.sig.emit(False)
 
@@ -26,7 +29,7 @@ class ROIExtractionThread(Thread):
 
         if not any([x.isRunning() for x in self.main_widget.thread_list]):
             print("Starting ROI extraction")
-            self.button.setEnabled(False)
+            # self.button.setEnabled(False)
             self.start()
         else:
             print(

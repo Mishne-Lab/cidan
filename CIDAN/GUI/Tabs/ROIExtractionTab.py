@@ -38,7 +38,7 @@ class ROIExtractionTab(Tab):
         thread : ROIExtractionThread
             The thread that runs the roi extraction process
         foreground_slider : QSlider
-            slider that determines intensity of background image+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+            slider that determines intensity of background image
 
         """
 
@@ -116,33 +116,39 @@ class ROIExtractionTab(Tab):
         on_button = QRadioButton(text="Add to Selection")
         # on_button.connect(lambda x: self.setSelectorBrushType("Add to Selection"))
         sub_button = QRadioButton(text="Subtract from Selection")
+        magic_wand = QRadioButton(text="Magic Wand")
         # sub_button.connect(lambda x: self.setSelectorBrushType("off"))
         painter_button_group.addButton(off_button)
         painter_button_group.addButton(on_button)
         painter_button_group.addButton(sub_button)
+        painter_button_group.addButton(magic_wand)
         off_button.clicked.connect(
             lambda x: self.setSelectorBrushType("off"))
         on_button.clicked.connect(
             lambda x: self.setSelectorBrushType("add"))
         sub_button.clicked.connect(
             lambda x: self.setSelectorBrushType("subtract"))
+        magic_wand.clicked.connect(
+            lambda x: self.setSelectorBrushType("magic"))
 
         painter_layout = QHBoxLayout()
         painter_layout.addWidget(QLabel(text="Selector Brush: "))
         painter_layout.addWidget(off_button)
         painter_layout.addWidget(on_button)
         painter_layout.addWidget(sub_button)
+        painter_layout.addWidget(magic_wand)
         roi_modification_tab_layout.addLayout(painter_layout)
         clear_from_selection = QPushButton(text="Clear Selection")
         clear_from_selection.clicked.connect(lambda x: self.clearPixelSelection())
         roi_modification_tab_layout.addWidget(clear_from_selection)
-        brush_size_options = OptionInput("Brush Size:", "",
-                                         lambda x, y: self.setBrushSize(y), 1,
+        self._brush_size_options = OptionInput("Brush Size:", "",
+                                               lambda x, y: self.setBrushSize(y), 1,
                                          "Sets the brush size",
-                                         ["1", "3", "5", "7", "9",
+                                               ["1", "3", "5", "7", "9",
                                           "11", "15", "21", "27",
                                           "35"])
-        roi_modification_tab_layout.addWidget(brush_size_options)
+
+        roi_modification_tab_layout.addWidget(self._brush_size_options)
 
         # ROI Settings Tab
         process_button = QPushButton()
@@ -243,12 +249,12 @@ class ROIExtractionTab(Tab):
 
         # time_trace_settings.setStyleSheet("padding:0px; margin:2px;")
         time_trace_settings.setLayout(time_trace_settings_layout)
-        time_trace_settings_layout.addWidget(OptionInput("Time Trace Type", "",
-                                                         lambda x: x + x,
-                                                         default_index=0,
-                                                         tool_tip="Select way to calculate time trace",
-                                                         val_list=["Normal", "DeltaF/F",
-                                                                   "More"]),
+        self.time_trace_type = OptionInput("Time Trace Type", "",
+                                           lambda x, y: x + y,
+                                           default_index=0,
+                                           tool_tip="Select way to calculate time trace",
+                                           val_list=["Mean", "DeltaF/F"])
+        time_trace_settings_layout.addWidget(self.time_trace_type,
                                              stretch=1)
         self._time_trace_trial_select_list = TrialListWidget()
         self._time_trace_trial_select_list.setMinimumHeight(115)
@@ -298,6 +304,7 @@ class ROIExtractionTab(Tab):
 
         if type == "off":
             self.select_pixel_on = False
+            self.select_mode = type
         else:
             self.select_pixel_on = True
             self.select_mode = type
@@ -309,6 +316,9 @@ class ROIExtractionTab(Tab):
         -------
 
         """
+        if len(self.current_selected_pixels_list) == 0:
+            print("Please select some pixels")
+            return
         shape = self.main_widget.data_handler.edge_roi_image_flat.shape
         self.data_handler.clusters.append(np.array(self.current_selected_pixels_list))
         self.data_handler.gen_roi_display_variables()
@@ -333,12 +343,15 @@ class ROIExtractionTab(Tab):
 
         """
         roi_num = roi_num - 1
-        self.data_handler.clusters.pop(roi_num)
-        self.data_handler.gen_roi_display_variables()
-        self.data_handler.time_traces.pop(roi_num)
-        self.update_roi()
-        self.roi_list_module.set_list_items(self.data_handler.clusters)
-        self.deselectRoiTime(2)
+        try:
+            self.data_handler.clusters.pop(roi_num)
+            self.data_handler.gen_roi_display_variables()
+            self.data_handler.time_traces.pop(roi_num)
+            self.update_roi()
+            self.roi_list_module.set_list_items(self.data_handler.clusters)
+            self.deselectRoiTime(2)
+        except IndexError:
+            print("Invalid ROI Selected")
     def modify_roi(self, roi_num, add_subtract="add"):
         """
         Add/subtracts the currently selected pixels from an ROI
@@ -355,7 +368,9 @@ class ROIExtractionTab(Tab):
             print("Please select an roi")
             return
         roi_num = roi_num - 1
-
+        if len(self.current_selected_pixels_list) == 0:
+            print("Please select some pixels")
+            return
         if add_subtract == "add":
             print("Adding Selection to ROI #" + str(roi_num + 1))
             self.data_handler.clusters[roi_num] = combine_rois(
@@ -375,7 +390,7 @@ class ROIExtractionTab(Tab):
     def update_roi(self):
         """Resets the roi image display"""
         shape = self.main_widget.data_handler.edge_roi_image_flat.shape
-
+        self.data_handler.save_rois(self.data_handler.clusters)
         if self.outlines:
             self.roi_image_flat = np.hstack([self.data_handler.edge_roi_image_flat,
                                              np.zeros(shape),
@@ -542,6 +557,11 @@ class ROIExtractionTab(Tab):
             print("No ROIs have been generated yet")
 
     def update_time_traces(self):
+        if (self.data_handler.time_trace_params[
+            "time_trace_type"] != self.time_trace_type.current_state()):
+            self.data_handler.time_trace_params[
+                "time_trace_type"] = self.time_trace_type.current_state()
+            self.data_handler.calculate_time_traces()
         self.data_handler.update_selected_trials(
             self._time_trace_trial_select_list.selectedTrials())
         self.deselectRoiTime(0)
@@ -577,9 +597,29 @@ class ROIExtractionTab(Tab):
 
             x = int(pos.x())
             y = int(pos.y())
-            if self.select_pixel_on:
+            if self.select_mode == "magic":
+                shape = self.data_handler.shape
+                # self.clearPixelSelection(update_display=False)
+                print("Generating ROI")
+                new_roi = self.data_handler.genRoiFromPoint((x, y))
+                if len(new_roi) == 0:
+                    print(
+                        "Please try again with a bigger growth factor or a different point, we couldn't find an roi where you last selected")
+                    return
+
+                for cord_1d in new_roi:
+                    x_new, y_new = cord_1d // shape[1], cord_1d - (
+                            cord_1d // shape[1]) * shape[1]
+                    self.image_item.image[x_new, y_new] += [0, 255, 0]
+                    self.current_selected_pixels_list.append(
+                        shape[1] * x_new + y_new)
+                    self.current_selected_pixels_mask[x_new, y_new] = True
+                self.image_item.updateImage()
+                print("Done generating ROI")
+            elif self.select_pixel_on:
                 event.accept()
                 self.pixel_paint(x, y)
+
             else:
                 self.click_event = True
                 pixel_with_rois_flat = self.main_widget.data_handler.pixel_with_rois_flat
@@ -599,7 +639,7 @@ class ROIExtractionTab(Tab):
 
             x = int(pos.x())
             y = int(pos.y())
-            if self.select_pixel_on:
+            if self.select_pixel_on and self.select_mode != "magic":
                 event.accept()
                 self.pixel_paint(x, y)
 
@@ -631,6 +671,7 @@ class ROIExtractionTab(Tab):
                             self.current_selected_pixels_list.remove(
                                 shape[1] * x_new + y_new)
                             self.current_selected_pixels_mask[x_new, y_new] = False
+
             self.image_item.updateImage()
         except IndexError:
             pass

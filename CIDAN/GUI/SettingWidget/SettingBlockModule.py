@@ -3,6 +3,7 @@ from qtpy.QtWidgets import *
 from CIDAN.GUI.Inputs.BoolInput import BoolInput
 from CIDAN.GUI.Inputs.FloatInput import FloatInput
 from CIDAN.GUI.Inputs.IntInput import IntInput
+from CIDAN.GUI.Inputs.IntRangeInput import IntRangeInput
 
 
 class SettingBlockModule(QFrame):
@@ -88,6 +89,50 @@ def dataset_setting_block(main_widget):
                                ])
 
 
+def dataset_setting_block_crop(main_widget):
+    data_handler = main_widget.data_handler
+    return SettingBlockModule("Crop Settings",
+                              [BoolInput(display_name="Crop stack:",
+                                         program_name="crop_stack",
+                                         on_change_function=lambda x,
+                                                                   y: data_handler.change_dataset_param(
+                                             x, y),
+                                         default_val=data_handler.dataset_params[
+                                             "crop_stack"],
+                                         tool_tip="Used to crop image stack",
+                                         display_tool_tip=False),
+                               IntRangeInput(display_name="Crop X:",
+                                             program_name="crop_x",
+                                             on_change_function=lambda x,
+                                                                       y: data_handler.change_dataset_param(
+                                                 x, y),
+                                             default_val=data_handler.dataset_params[
+                                                 "crop_x"],
+                                             tool_tip="Crop in x direction",
+                                             min=0, max=100000, step=1),
+                               IntRangeInput(display_name="Crop Y:",
+                                             program_name="crop_y",
+                                             on_change_function=lambda x,
+                                                                       y: data_handler.change_dataset_param(
+                                                 x, y),
+                                             default_val=data_handler.dataset_params[
+                                                 "crop_y"],
+                                             tool_tip="Crop in y direction",
+                                             min=0, max=10000, step=1),
+                               # IntRangeInput(display_name="Crop Z:",
+                               #               program_name="crop_z",
+                               #               on_change_function=lambda x,
+                               #                                         y: data_handler.change_dataset_param(
+                               #                   x, y),
+                               #               default_val=data_handler.dataset_params[
+                               #                   "crop_z"],
+                               #               tool_tip="Note this crops it for each trial",
+                               #               display_tool_tip=True,
+                               #               min=data_handler.dataset_params[
+                               #                   "crop_z"][0], max=data_handler.dataset_params[
+                               #                   "crop_z"][1], step=1)
+                               ])
+
 def multiprocessing_settings_block(main_widget):
     data_handler = main_widget.data_handler
     return SettingBlockModule("Multiprocessing Settings", [
@@ -128,7 +173,7 @@ def roi_extraction_settings_block(main_widget):
                                       default_val=data_handler.roi_extraction_params[
                                           "num_rois"],
                                       tool_tip="Max number of ROIs to select for each spatial box",
-                                      min=1, max=10000, step=1),
+                                      min=0, max=10000, step=1),
                                   IntInput(
                                       display_name="ROI size minimum:",
                                       program_name="roi_size_min",
@@ -231,6 +276,16 @@ def roi_advanced_settings_block(main_widget):
                                    data_handler.roi_extraction_params[
                                        "merge"],
                                    tool_tip="Whether to merge rois with similar time traces"),
+                               FloatInput(display_name="ROI Circuity Threshold:",
+                                          program_name="roi_circ_threshold",
+                                          on_change_function=lambda x,
+                                                                    y: data_handler.change_roi_extraction_param(
+                                              x, y),
+                                          default_val=
+                                          data_handler.roi_extraction_params[
+                                              "roi_circ_threshold"],
+                                          tool_tip="Thresholds the rois based on how circular they are",
+                                          min=0, max=1.0, step=.01),
                                IntInput(display_name="Number of connections:",
                                         program_name="connections",
                                         on_change_function=lambda x,

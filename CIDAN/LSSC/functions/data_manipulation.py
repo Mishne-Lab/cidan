@@ -1,5 +1,5 @@
 import os
-from typing import Tuple
+from typing import Tuple, List
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -14,7 +14,8 @@ from scipy import ndimage
 def load_filter_tif_stack(*, path, filter: bool, median_filter: bool,
                           median_filter_size: Tuple[int, int, int],
                           z_score: bool, slice_stack: bool,
-                          slice_every, slice_start: int):
+                          slice_every, slice_start: int, crop_stack: bool,
+                          crop_x: List[int], crop_y: List[int]):
     """
     This function reads a tiff stack file
     Parameters
@@ -40,6 +41,8 @@ def load_filter_tif_stack(*, path, filter: bool, median_filter: bool,
                 image = image.reshape((1,image.shape[0],image.shape[1]))
             if slice_stack:
                 image = image[slice_start::slice_every]
+            if crop_stack:
+                image = image[:, crop_x[0]:crop_x[1], crop_y[0]:crop_y[1]]
             if filter:
                 image = filter_stack(stack=image, median_filter=median_filter,
                                      median_filter_size=median_filter_size,
@@ -53,9 +56,12 @@ def load_filter_tif_stack(*, path, filter: bool, median_filter: bool,
     if os.path.isfile(path):
         # return ScanImageTiffReader(path).data()
         image = tifffile.imread(path)
-
+        if len(image.shape) == 2:
+            image = image.reshape((1, image.shape[0], image.shape[1]))
         if slice_stack:
-            image = image[slice_start::slice_every, :200, :200]
+            image = image[slice_start::slice_every]
+        if crop_stack:
+            image = image[:, crop_x[0]:crop_x[1], crop_y[0]:crop_y[1]]
         if filter:
             image = filter_stack(stack=image, median_filter=median_filter,
                                  median_filter_size=median_filter_size, z_score=z_score)

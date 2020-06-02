@@ -1,4 +1,4 @@
-from qtpy import QtGui, QtCore
+from qtpy import QtCore
 from qtpy.QtGui import *
 from qtpy.QtWidgets import *
 
@@ -65,14 +65,15 @@ QPushButton:selected {
         label_pix = QLabel()
         label_pix.setPixmap(pm)
         label_pix.setMaximumWidth(10)
-        lay = QtGui.QHBoxLayout(self)
+        lay = QHBoxLayout(self)
         lay.addWidget(self.check_box, alignment=QtCore.Qt.AlignLeft)
         # lay.addWidget(label_pix, alignment=QtCore.Qt.AlignLeft)
         lay.addWidget(QLabel(text="#" + str(roi_num)), alignment=QtCore.Qt.AlignLeft)
         lay.addWidget(QLabel())
         lay.addWidget(QLabel())
         lay.addWidget(QLabel())
-        lay.addWidget(QLabel())
+        lay.addWidget(
+            QLabel(str(round(self.roi_tab.data_handler.roi_circ_list[roi_num - 1], 3))))
         lay.addWidget(self.zoom_button, alignment=QtCore.Qt.AlignRight)
         lay.addWidget(self.check_box_time_trace, alignment=QtCore.Qt.AlignRight)
         # lay.addWidget(self.button, alignment=QtCore.Qt.AlignRight)
