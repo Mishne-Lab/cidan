@@ -23,6 +23,7 @@ setup(
         "CIDAN/TimeTrace/deltaFOverF.py",
         "CIDAN/TimeTrace/mean.py",
         "CIDAN/LSSC/SpatialBox.py",
+        "CIDAN/TimeTrace/__init__.py",
         "CIDAN/LSSC/functions/roi_filter.py",
         'CIDAN/LSSC/functions/data_manipulation.py',
         "CIDAN/LSSC/functions/eigen.py",
