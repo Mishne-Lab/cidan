@@ -5,7 +5,7 @@ with open("README.md", 'r') as f:
 
 setup(
     name='CIDAN',
-    version='0.1.12',
+    version='0.1.13',
     description='CIDAN-Calcium Imaging Data ANalysis',
     license="MIT",
     long_description=long_description,
