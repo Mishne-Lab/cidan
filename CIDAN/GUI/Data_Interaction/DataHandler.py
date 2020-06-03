@@ -618,7 +618,8 @@ class DataHandler:
                                         "total_num_spatial_boxes"],
                                     image_shape=self.shape,
                                     spatial_overlap=self.box_params_processed[
-                                        "spatial_overlap"]) for x in
+                                                        "spatial_overlap"] // 2) for x
+                         in
                          range(self.box_params_processed["total_num_spatial_boxes"])]
         boxes_point_in = [x for x in spatial_boxes if x.pointInBox(point)]
 

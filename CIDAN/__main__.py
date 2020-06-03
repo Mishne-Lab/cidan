@@ -28,13 +28,10 @@ def main():
     logging.basicConfig(filename=args.logpath, level=level)
     logger = logging.getLogger("CIDAN")
     logger.debug("Program started")
-    dev = False
-    if len(sys.argv) > 1:
-        dev = True if sys.argv[1] == "True" else False
-    print(dev)
+
     app = QApplication([])
     app.setApplicationName("CIDAN")
-    widget = MainWindow.MainWindow(dev=dev)
+    widget = MainWindow.MainWindow(dev=args.dev)
 
     sys.exit(app.exec_())
 
