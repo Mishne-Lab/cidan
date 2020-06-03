@@ -80,7 +80,7 @@ class DataHandler:
         "fill_holes": True,
         "refinement": True,
         "max_iter": 40,
-        "roi_circ_threshold": .9
+        "roi_circ_threshold": .2
     }
     _time_trace_params_default = {
         "time_trace_type": "Mean"

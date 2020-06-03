@@ -132,7 +132,7 @@ class MainWidget(QWidget):
 
         # Below here in this function is just code for testing
         # TODO check if it can load data twice
-        if True and dev:
+        if False and dev:
             # auto loads a small dataset
             self.data_handler = DataHandler(
 

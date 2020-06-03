@@ -84,7 +84,7 @@ def roi_extract_image(*, e_vectors: np.ndarray,
     if initial_pixel != -1:
         initial_pixel_list = np.array([initial_pixel])
     roi_list = []  # output list of rois
-
+    # print(len(initial_pixel_list))
     # iter_counter is used to limit the amount of pixels it tries
     # from initial_pixel_list
     iter_counter = 0
@@ -103,6 +103,7 @@ def roi_extract_image(*, e_vectors: np.ndarray,
                                                    threshold_method=
                                                    eigen_threshold_method,
                                                    threshold=eigen_threshold_value)
+        # print(small_eigen_vectors.shape)
         # print("original",small_eigen_vectors.shape)
         # TODO Find way to auto determine threshold value automatically max values
         # project into new eigen space
@@ -176,6 +177,7 @@ def roi_extract_image(*, e_vectors: np.ndarray,
 
         # checks if roi is big enough
         # print("roi size:", len(pixels_in_roi_final))
+        # print("iter counter: ", iter_counter)
         # print( len(
         #         pixels_in_roi_final))
         if roi_size_min < len(
@@ -326,7 +328,7 @@ def select_eigen_vectors(eigen_vectors: np.ndarray,
     pixel_eigen_vec_values_sort_indices = np.flip(
         np.argsort(pixel_eigen_vec_values))
     if threshold_method:
-        threshold_filter = pixel_eigen_vec_values > threshold * \
+        threshold_filter = pixel_eigen_vec_values > (1-threshold) * \
                            pixel_eigen_vec_values[
                                pixel_eigen_vec_values_sort_indices[0]]
         small_eigen_vectors = eigen_vectors[:, np.nonzero(threshold_filter)[0]]

@@ -120,8 +120,8 @@ def filter_stack(*, stack: np.ndarray, median_filter: bool,
                  median_filter_size: Tuple[int, int, int],
                  z_score: bool):
     if median_filter:
-        # stack = ndimage.median_filter(stack, median_filter_size)
-        stack = ndimage.filters.convolve(stack, np.full((3, 3, 3), 1.0 / 27))
+        stack = ndimage.median_filter(stack, median_filter_size)
+        # stack = ndimage.filters.convolve(stack, np.full((3, 3, 3), 1.0 / 27))
     if z_score:
         stack_t = np.transpose(stack, (1, 2, 0))
         shape = (stack.shape[1], stack.shape[2], 1)
