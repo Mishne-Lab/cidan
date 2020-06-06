@@ -51,9 +51,9 @@ def calcAffinityMatrix(*, pixel_list: np.ndarray, metric: str, knn: int,
     #                  n_neighbors=10).fit(pixel_list)
     # distances, indices = nbrs.kneighbors(pixel_list)
     # TODO add comments here
-    reformat_indicies_x = np.repeat(np.arange(0, num_elements, 1), knn-1)
-    reformat_indicies_y = np.reshape(indices[:,1:], (-1))
-    reformat_distances = np.reshape(distances[:,1:], (-1))
+    reformat_indicies_x = np.repeat(np.arange(0, num_elements, 1), knn - 1)
+    reformat_indicies_y = np.reshape(indices[:, 1:], (-1))
+    reformat_distances = np.reshape(distances[:, 1:], (-1))
     # Self tuning adaptive bandwidth
     scale_factor_indices = np.repeat(distances[:, normalize_w_k], knn)
     scale_factor_2_per_distances = np.power(scale_factor_indices[reformat_indicies_x],
@@ -65,8 +65,9 @@ def calcAffinityMatrix(*, pixel_list: np.ndarray, metric: str, knn: int,
     # TODO change to go direct to csr matrix
     return sparse.csr_matrix(sparse.coo_matrix(
         (
-            np.hstack([reformat_distances_scaled,np.ones((num_elements))]),
-            (np.hstack([reformat_indicies_x,np.arange(0, num_elements, 1)]),np.hstack( [reformat_indicies_y,np.arange(0, num_elements, 1)]))),
+            np.hstack([reformat_distances_scaled, np.ones((num_elements))]),
+            (np.hstack([reformat_indicies_x, np.arange(0, num_elements, 1)]),
+             np.hstack([reformat_indicies_y, np.arange(0, num_elements, 1)]))),
         shape=(num_elements, num_elements)))
 
 
@@ -82,7 +83,8 @@ def calcDInv(K: sparse.csr_matrix):
     a sparse matrix with type csr, and D's diagonal values
     """
     dim = K.shape[0]
-    D_diag = np.nan_to_num(1/K.sum(axis=1), nan=0.000001, posinf =0.0000001, neginf=0.0000001) #add small epsilon to each row in K.sum()
+    D_diag = np.nan_to_num(1 / K.sum(axis=1), nan=0.000001, posinf=0.0000001,
+                           neginf=0.0000001)  # add small epsilon to each row in K.sum()
     # D_diag = 1 / K.sum(axis=1)
     # print("D_diag",D_diag)
     D_sparse = sparse.dia_matrix((np.reshape(D_diag, [1, -1]), [0]),

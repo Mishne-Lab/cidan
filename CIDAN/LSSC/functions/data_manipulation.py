@@ -38,7 +38,7 @@ def load_filter_tif_stack(*, path, filter: bool, median_filter: bool,
             file_path = x if type(path) == list else os.path.join(path, x)
             image = tifffile.imread(file_path)
             if len(image.shape) == 2:
-                image = image.reshape((1,image.shape[0],image.shape[1]))
+                image = image.reshape((1, image.shape[0], image.shape[1]))
             if slice_stack:
                 image = image[slice_start::slice_every]
             if crop_stack:

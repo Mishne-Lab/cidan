@@ -44,12 +44,12 @@ class ROIListModule(QFrame):
         self.roi_item_list[num - 1].select_check_box()
         self.roi_item_list[num - 1].select_time_check_box()
 
-    def set_list_items(self, clusters):
-        self.cluster_list = clusters
+    def set_list_items(self, rois):
+        self.roi_list = rois
         for x in range(self.model.rowCount()):
             self.model.removeRow(0)
         self.roi_item_list = []
-        for num in range(len(self.cluster_list)):
+        for num in range(len(self.roi_list)):
             item = ROIItemWidget(self.roi_tab,
                                  self.color_list[num % len(self.color_list)], self,
                                  num + 1)

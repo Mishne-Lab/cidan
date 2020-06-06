@@ -328,7 +328,7 @@ def select_eigen_vectors(eigen_vectors: np.ndarray,
     pixel_eigen_vec_values_sort_indices = np.flip(
         np.argsort(pixel_eigen_vec_values))
     if threshold_method:
-        threshold_filter = pixel_eigen_vec_values > (1-threshold) * \
+        threshold_filter = pixel_eigen_vec_values > (1 - threshold) * \
                            pixel_eigen_vec_values[
                                pixel_eigen_vec_values_sort_indices[0]]
         small_eigen_vectors = eigen_vectors[:, np.nonzero(threshold_filter)[0]]
@@ -435,8 +435,8 @@ def merge_rois(roi_list: List,
         [np.array  of pixels roi 2] ... ]
     """
     A = np.zeros([original_2d_vol.shape[0], len(roi_list)], dtype=bool)
-    for num, cluster in enumerate(roi_list):
-        A[cluster, num] = True
+    for num, roi in enumerate(roi_list):
+        A[roi, num] = True
     A_graph = np.matmul(A.transpose(), A)
     A_csr = csr_matrix(A_graph)
     connected = connected_components_graph(A_csr, False, return_labels=True)
@@ -494,11 +494,11 @@ def compare_time_traces(trace_1: np.ndarray, trace_2: np.ndarray) -> float:
 
 def combine_rois(roi1: List[int], roi2: List[int]) -> List[np.ndarray]:
     """
-    Combines two lists of clusters into one
+    Combines two lists of rois into one
     Parameters
     ----------
     roi1
-        One list of pixels in cluster each pixel # is based on 1d representation of
+        One list of pixels in roi each pixel # is based on 1d representation of
         image
     roi2
         List for other ROI

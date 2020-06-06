@@ -93,14 +93,15 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
         if len(spatial_box_data_list) == 1:
             spatial_box_data_list = dask.compute(*spatial_box_data_list)
         if total_num_time_steps != 1 and len(spatial_box_data_list) == 1:
-            time_boxes = [(x * (image_data[0].shape[0] // total_num_time_steps), (x + 1) * (image_data[0].shape[0] //
-                                                                              total_num_time_steps))
+            time_boxes = [(x * (image_data[0].shape[0] // total_num_time_steps),
+                           (x + 1) * (image_data[0].shape[0] //
+                                      total_num_time_steps))
                           for x in range(total_num_time_steps)]
         all_eigen_vectors_list = []
         if not eigen_vectors_already_generated:
             for temporal_box_num, time_box_data in enumerate(
                     time_boxes if total_num_time_steps != 1 and len(
-                            spatial_box_data_list) == 1 else spatial_box_data_list):
+                        spatial_box_data_list) == 1 else spatial_box_data_list):
                 # TODO make sure memory doesn't take more than 2x
                 if total_num_time_steps != 1 and len(spatial_box_data_list) == 1:
                     time_box_data = sliceData(spatial_box_data_list,

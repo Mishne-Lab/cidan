@@ -82,6 +82,7 @@ class SpatialBox:
         tuple of new cords
         """
         return (point[0] - self.box_cord_1[0], point[1] - self.box_cord_1[1])
+
     @delayed
     def redefine_spatial_cord_1d(self, cord_list):
         box_length = self.box_cord_2[1] - self.box_cord_1[1]

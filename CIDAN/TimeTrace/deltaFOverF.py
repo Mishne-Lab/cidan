@@ -1,4 +1,6 @@
 import numpy as np
+
+
 def calculateDeltaFOverF(roi, data):
     """
     Calcualtes the deltaf/f time trace for a given roi and data
@@ -11,9 +13,9 @@ def calculateDeltaFOverF(roi, data):
     -------
     A 1d nd array with the time trace for the ROI
     """
-    pixels_in_cluster = data[roi]
-    pixel_sum = np.sum(pixels_in_cluster, axis=1)
+    pixels_in_roi = data[roi]
+    pixel_sum = np.sum(pixels_in_roi, axis=1)
     bottom_10_number = np.percentile(pixel_sum, 10)
-    bottom_10_pixels = pixels_in_cluster[pixel_sum < bottom_10_number]
+    bottom_10_pixels = pixels_in_roi[pixel_sum < bottom_10_number]
     bottom_10_avg = np.mean(bottom_10_pixels, axis=0)
-    return (np.mean(pixels_in_cluster, axis=0) - bottom_10_avg) / bottom_10_avg
+    return (np.mean(pixels_in_roi, axis=0) - bottom_10_avg) / bottom_10_avg

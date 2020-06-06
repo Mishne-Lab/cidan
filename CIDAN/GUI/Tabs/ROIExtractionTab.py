@@ -143,10 +143,10 @@ class ROIExtractionTab(Tab):
         roi_modification_tab_layout.addWidget(clear_from_selection)
         self._brush_size_options = OptionInput("Brush Size:", "",
                                                lambda x, y: self.setBrushSize(y), 1,
-                                         "Sets the brush size",
+                                               "Sets the brush size",
                                                ["1", "3", "5", "7", "9",
-                                          "11", "15", "21", "27",
-                                          "35"])
+                                                "11", "15", "21", "27",
+                                                "35"])
 
         roi_modification_tab_layout.addWidget(self._brush_size_options)
 
@@ -320,14 +320,14 @@ class ROIExtractionTab(Tab):
             print("Please select some pixels")
             return
         shape = self.main_widget.data_handler.edge_roi_image_flat.shape
-        self.data_handler.clusters.append(np.array(self.current_selected_pixels_list))
+        self.data_handler.rois.append(np.array(self.current_selected_pixels_list))
         self.data_handler.gen_roi_display_variables()
         self.data_handler.time_traces.append([])
         for _ in range(len(self.data_handler.trials_all)):
             self.data_handler.time_traces[-1].append(False)
-        self.data_handler.calculate_time_trace(len(self.data_handler.clusters))
+        self.data_handler.calculate_time_trace(len(self.data_handler.rois))
         self.update_roi()
-        self.roi_list_module.set_list_items(self.data_handler.clusters)
+        self.roi_list_module.set_list_items(self.data_handler.rois)
         self.deselectRoiTime(2)
 
     def delete_roi(self, roi_num):
@@ -344,14 +344,15 @@ class ROIExtractionTab(Tab):
         """
         roi_num = roi_num - 1
         try:
-            self.data_handler.clusters.pop(roi_num)
+            self.data_handler.rois.pop(roi_num)
             self.data_handler.gen_roi_display_variables()
             self.data_handler.time_traces.pop(roi_num)
             self.update_roi()
-            self.roi_list_module.set_list_items(self.data_handler.clusters)
+            self.roi_list_module.set_list_items(self.data_handler.rois)
             self.deselectRoiTime(2)
         except IndexError:
             print("Invalid ROI Selected")
+
     def modify_roi(self, roi_num, add_subtract="add"):
         """
         Add/subtracts the currently selected pixels from an ROI
@@ -373,16 +374,16 @@ class ROIExtractionTab(Tab):
             return
         if add_subtract == "add":
             print("Adding Selection to ROI #" + str(roi_num + 1))
-            self.data_handler.clusters[roi_num] = combine_rois(
-                self.data_handler.clusters[roi_num], self.current_selected_pixels_list)
+            self.data_handler.rois[roi_num] = combine_rois(
+                self.data_handler.rois[roi_num], self.current_selected_pixels_list)
             self.data_handler.gen_roi_display_variables()
             self.data_handler.calculate_time_trace(roi_num)
         if add_subtract == "subtract":
             print("Subtracting Selection from ROI #" + str(roi_num + 1))
-            self.data_handler.clusters[roi_num] = [x for x in
-                                                   self.data_handler.clusters[roi_num]
-                                                   if
-                                                   x not in self.current_selected_pixels_list]
+            self.data_handler.rois[roi_num] = [x for x in
+                                               self.data_handler.rois[roi_num]
+                                               if
+                                               x not in self.current_selected_pixels_list]
             self.data_handler.gen_roi_display_variables()
             self.data_handler.calculate_time_trace(roi_num)
         self.update_roi()
@@ -390,7 +391,7 @@ class ROIExtractionTab(Tab):
     def update_roi(self):
         """Resets the roi image display"""
         shape = self.main_widget.data_handler.edge_roi_image_flat.shape
-        self.data_handler.save_rois(self.data_handler.clusters)
+        self.data_handler.save_rois(self.data_handler.rois)
         if self.outlines:
             self.roi_image_flat = np.hstack([self.data_handler.edge_roi_image_flat,
                                              np.zeros(shape),
@@ -403,6 +404,7 @@ class ROIExtractionTab(Tab):
         self.select_image_flat = np.zeros([shape[0], 3])
         self.clearPixelSelection(update_display=False)
         self.updateImageDisplay()
+
     def draw(self, pos):
         pass
 
@@ -508,7 +510,7 @@ class ROIExtractionTab(Tab):
             color_roi = self.main_widget.data_handler.color_list[
                 (num - 1) % len(self.main_widget.data_handler.color_list)]
             self.select_image_flat[
-                self.main_widget.data_handler.clusters[num - 1]] = color_select
+                self.main_widget.data_handler.rois[num - 1]] = color_select
             self.updateImageDisplay()
         except AttributeError:
             pass
@@ -518,12 +520,12 @@ class ROIExtractionTab(Tab):
         color = self.main_widget.data_handler.color_list[
             (num - 1) % len(self.main_widget.data_handler.color_list)]
         shape_flat = self.data_handler.edge_roi_image_flat.shape
-        self.select_image_flat[self.main_widget.data_handler.clusters[
+        self.select_image_flat[self.main_widget.data_handler.rois[
             num - 1]] = color if not self.outlines \
             else np.hstack([self.data_handler.edge_roi_image_flat,
                             np.zeros(shape_flat),
                             np.zeros(shape_flat)])[
-            self.main_widget.data_handler.clusters[num - 1]]
+            self.main_widget.data_handler.rois[num - 1]]
         self.updateImageDisplay()
 
     def selectRoiTime(self, num):
@@ -565,6 +567,7 @@ class ROIExtractionTab(Tab):
         self.data_handler.update_selected_trials(
             self._time_trace_trial_select_list.selectedTrials())
         self.deselectRoiTime(0)
+
     def zoomRoi(self, num):
         """
         Zooms in to a certain roi
@@ -579,9 +582,9 @@ class ROIExtractionTab(Tab):
         """
         num = num - 1
 
-        max_cord = self.main_widget.data_handler.cluster_max_cord_list[num] + 15
+        max_cord = self.main_widget.data_handler.roi_max_cord_list[num] + 15
 
-        min_cord = self.main_widget.data_handler.cluster_min_cord_list[num] - 15
+        min_cord = self.main_widget.data_handler.roi_min_cord_list[num] - 15
 
         self.main_widget.roi_image_view.image_view.getView().setXRange(min_cord[1],
                                                                        max_cord[1])
@@ -647,7 +650,6 @@ class ROIExtractionTab(Tab):
         try:
             shape = self.main_widget.data_handler.shape
             if self.select_mode == "add":
-
 
                 for x_dif in range(self.brush_size * 2 + 1):
                     for y_dif in range(self.brush_size * 2 + 1):

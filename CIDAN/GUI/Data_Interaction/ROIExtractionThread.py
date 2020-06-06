@@ -4,6 +4,8 @@ from CIDAN.GUI.Data_Interaction.Signals import *
 from CIDAN.GUI.Data_Interaction.Thread import Thread
 
 logger = logging.getLogger("CIDAN.GUI.Data_Interaction.ROIExctractionThread")
+
+
 class ROIExtractionThread(Thread):
     def __init__(self, main_widget, button, roi_list_module, roi_tab):
         super().__init__(main_widget.data_handler)
@@ -39,7 +41,7 @@ class ROIExtractionThread(Thread):
         self.button.setEnabled(True)
         if success:
             print("Finished ROI extraction")
-            self.roi_list_module.set_list_items(self.main_widget.data_handler.clusters)
+            self.roi_list_module.set_list_items(self.main_widget.data_handler.rois)
             shape = self.main_widget.data_handler.edge_roi_image_flat.shape
             self.roi_tab.roi_image_flat = np.hstack(
                 [self.main_widget.data_handler.edge_roi_image_flat,

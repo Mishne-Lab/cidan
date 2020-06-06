@@ -40,8 +40,10 @@ class FileOpenTab(Tab):
         folder_open_button.clicked.connect(
             lambda: load_new_dataset(main_widget, dataset_folder_input,
                                      save_dir_new_folder,
-                                     trials=self.trial_list_widget.selectedTrials(), single=self.folder_open_single_trial.current_state()))
-        self.folder_open_single_trial = BoolInput("Open folder as single trial","",None,False,"")
+                                     trials=self.trial_list_widget.selectedTrials(),
+                                     single=self.folder_open_single_trial.current_state()))
+        self.folder_open_single_trial = BoolInput("Open folder as single trial", "",
+                                                  None, False, "")
         prev_session_open_button = QPushButton()
         prev_session_open_button.setContentsMargins(0, 0, 0, 11)
         prev_session_open_button.setText("Load")
@@ -52,7 +54,8 @@ class FileOpenTab(Tab):
                                   file_open_button])
         folder_open = Tab("Folder Open", column_2=[self.trial_list_widget],
                           column_2_display=True,
-                          column_1=[dataset_folder_input, save_dir_new_folder,self.folder_open_single_trial,
+                          column_1=[dataset_folder_input, save_dir_new_folder,
+                                    self.folder_open_single_trial,
                                     folder_open_button]
                           )
         prev_session_open = Tab("Previous Session Open", column_2=[],

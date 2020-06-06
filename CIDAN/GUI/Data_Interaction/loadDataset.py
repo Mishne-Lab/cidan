@@ -7,28 +7,26 @@ from CIDAN.GUI.Inputs.FileInput import createFileDialog
 logger1 = logging.getLogger("CIDAN.loadDataset")
 
 
-# def loadImageWrapper(main_widget):
-#     def loadImage():
-#         path_to_file = createFileDialog("~/Desktop", forOpen=True, fmt='', isFolder=0)
-#         path_to_save_dir = createFileDialog("~/Desktop", forOpen=False, fmt='',
-#                                             isFolder=1)
-#         if hasattr(main_widget, "data_handler"):
-#             main_widget.data_handler.__del__()
-#         main_widget.data_handler = DataHandler(data_path=path_to_file,
-#                                                save_dir_path=path_to_save_dir,
-#                                                save_dir_already_created=False)
-#         main_widget.image_view.setImage(main_widget.data_handler.calculate_filters())
-#
-#     return loadImage
+def load_new_dataset(main_widget, file_input, save_dir_input, trials=None,
+                     single=False):
+    """
+    
+    Parameters
+    ----------
+    main_widget
+    file_input
+    save_dir_input
+    trials
+    single
 
+    Returns
+    -------
 
-def load_new_dataset(main_widget, file_input, save_dir_input, trials=None, single=False):
-    print(trials)
+    """
 
     file_path = file_input.current_state()
     save_dir_path = save_dir_input.current_state()
-    # if hasattr(main_widget, "data_handler"):
-    #     main_widget.data_handler.__del__()
+
     if single:
         try:
             dir_path = os.path.dirname(file_path)
@@ -42,17 +40,17 @@ def load_new_dataset(main_widget, file_input, save_dir_input, trials=None, singl
             logger1.error(e)
             print("Loading Failed please make sure it is a valid file")
     elif not trials:
-            try:
-                dir_path = os.path.dirname(file_path)
+        try:
+            dir_path = os.path.dirname(file_path)
 
-                main_widget.data_handler = DataHandler(data_path=dir_path,
-                                                       trials=[os.path.basename(file_path)],
-                                                       save_dir_path=save_dir_path,
-                                                       save_dir_already_created=False)
-                main_widget.init_w_data()
-            except IndentationError as e:
-                logger1.error(e)
-                print("Loading Failed please make sure it is a valid file")
+            main_widget.data_handler = DataHandler(data_path=dir_path,
+                                                   trials=[os.path.basename(file_path)],
+                                                   save_dir_path=save_dir_path,
+                                                   save_dir_already_created=False)
+            main_widget.init_w_data()
+        except IndentationError as e:
+            logger1.error(e)
+            print("Loading Failed please make sure it is a valid file")
     elif trials:
         logger1.debug("Trials:" + str(trials))
         if len(trials) == 0:

@@ -13,16 +13,16 @@ def test_process_data():
                  z_score=False, slice_stack=False, slice_every=1, slice_start=0,
                  metric="l2", knn=50, accuracy=50, connections=60,
                  num_eig=25, normalize_w_k=2,merge=True,
-                          num_clusters=100, refinement=True,
+                          num_rois=100, refinement=True,
                           num_eigen_vector_select=5,
-                          max_iter=1000, cluster_size_threshold=30,
+                          max_iter=1000, roi_size_threshold=30,
                           fill_holes=True,
                           elbow_threshold_method=True,
                           elbow_threshold_value=1,
                           eigen_threshold_method=True,
                           eigen_threshold_value=.5,
                           merge_temporal_coef=.01,
-                          cluster_size_limit=600)
+                          roi_size_limit=600)
     process_data(num_threads=1, load_data=True,
                  data_path="/home/sam/Desktop/LSSC-python/input_images" +
                            "/small_dataset.tif",
@@ -34,13 +34,13 @@ def test_process_data():
                  z_score=True, slice_stack=True, slice_every=1, slice_start=0,
                  metric="l2", knn=50, accuracy=50, connections=60,
                  num_eig=25, normalize_w_k=2, merge=True,
-                 num_clusters=100, refinement=True,
+                 num_rois=100, refinement=True,
                  num_eigen_vector_select=5,
-                 max_iter=1000, cluster_size_threshold=30,
+                 max_iter=1000, roi_size_threshold=30,
                  fill_holes=True,
                  elbow_threshold_method=False,
                  elbow_threshold_value=1,
                  eigen_threshold_method=False,
                  eigen_threshold_value=.5,
                  merge_temporal_coef=.01,
-                 cluster_size_limit=600)
+                 roi_size_limit=600)
