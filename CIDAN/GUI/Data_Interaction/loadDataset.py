@@ -10,18 +10,24 @@ logger1 = logging.getLogger("CIDAN.loadDataset")
 def load_new_dataset(main_widget, file_input, save_dir_input, trials=None,
                      single=False):
     """
-    
+    Function to load a initialize a new DataHandler object and the GUI with the data
     Parameters
     ----------
-    main_widget
-    file_input
-    save_dir_input
-    trials
+    main_widget : MainWidget
+        The main widget for the GUI
+    file_input : str
+        Either the folder that contains the trials or the file to load
+    save_dir_input : str
+        The path to the save directory
+    trials : List[str]
+        A list of trials either paths to files or folders
     single
+        Whether to load the list of trials as a single one, ie like they are each only
+        one time point so load the entire folder as one.
 
     Returns
     -------
-
+    Nothing
     """
 
     file_path = file_input.current_state()
@@ -67,7 +73,19 @@ def load_new_dataset(main_widget, file_input, save_dir_input, trials=None,
 
 
 def load_prev_session(main_widget, save_dir_input):
-    # TODO add error handling here to ensure valid inputs
+    """
+    Loads a previous session into Datahandler and initializes GUI
+    Parameters
+    ----------
+    main_widget : MainWidget
+        The main widget of the application
+    save_dir_input : str
+        Path of the save directory
+
+    Returns
+    -------
+    Nothing
+    """
     save_dir_path = save_dir_input.current_state()
     try:
         main_widget.data_handler = DataHandler(data_path="",

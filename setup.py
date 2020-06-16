@@ -20,8 +20,10 @@ setup(
                       'tifffile'],
     scripts=[
         "CIDAN/LSSC/process_data.py",
+
         "CIDAN/TimeTrace/deltaFOverF.py",
         "CIDAN/TimeTrace/mean.py",
+        "CIDAN/GUI/Tabs/AnalysisTab.py",
         "CIDAN/LSSC/SpatialBox.py",
         "CIDAN/TimeTrace/__init__.py",
         "CIDAN/LSSC/functions/roi_filter.py",

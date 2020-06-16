@@ -6,7 +6,11 @@ from qtpy.QtWidgets import *
 
 
 class TrialListWidget(QWidget):
-    def __init__(self):
+    """
+    List module for a list of trials used in both time trace settings and folder input
+    """
+
+    def __init__(self, show_buttons=True):
 
         self.trial_paths = []
         self.trial_items = []
@@ -27,9 +31,26 @@ class TrialListWidget(QWidget):
 
         self.layout.addLayout(self.top_labels_layout)
         self.layout.addWidget(self.list)
+        if show_buttons:
+            select_buttons = QHBoxLayout()
+            select_all = QPushButton("Select All")
+            select_all.clicked.connect(lambda x: self.selectAll())
+            select_buttons.addWidget(select_all)
+            deselect_all = QPushButton("Deselect All")
+            deselect_all.clicked.connect(lambda x: self.deselectAll())
+            select_buttons.addWidget(deselect_all)
+            self.layout.addLayout(select_buttons)
+
         self.roi_item_list = []
         self.setLayout(self.layout)
 
+    def selectAll(self):
+        for x in self.trial_items:
+            x.setCheckState(QtCore.Qt.Checked)
+
+    def deselectAll(self):
+        for x in self.trial_items:
+            x.setCheckState(QtCore.Qt.Unchecked)
     def set_items_from_path(self, path):
         """
         Takes in a  path to a folder or a single file and adds the trials to the list view

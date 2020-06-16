@@ -6,6 +6,9 @@ from CIDAN.GUI.SettingWidget.SettingBlockModule import *
 
 
 class SettingsModule(QFrame):
+    """
+    A Module that contains multiple SettingBlockModule each displayed as a tab
+    """
     def __init__(self, name, *args, show_name=True):
         super().__init__()
 

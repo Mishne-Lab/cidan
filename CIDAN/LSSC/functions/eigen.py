@@ -8,7 +8,7 @@ from scipy import sparse
 from scipy.sparse import linalg
 
 from CIDAN.LSSC.SpatialBox import combine_images
-from CIDAN.LSSC.functions.embeddings import calcDSqrt, calcDNegSqrt, calcDInv
+from CIDAN.LSSC.functions.embeddings import calcDInv
 from CIDAN.LSSC.functions.pickle_funcs import pickle_save, pickle_load
 
 logger1 = logging.getLogger("CIDAN.LSSC.eigen")
@@ -31,19 +31,20 @@ def generateEigenVectors(*, K: sparse.csr_matrix, num_eig: int) -> np.ndarray:
     """
     D_inv, D_diag = calcDInv(K=K)
     P = D_inv.dot(K)
-    D_neg_sqrt = calcDNegSqrt(D_diag)
-    P_transformed = calcDSqrt(D_diag).dot(P).dot(D_neg_sqrt)
-    eig_values, eig_vectors_scaled = linalg.eigsh(
-        P_transformed, num_eig, which="LM",
+    # D_neg_sqrt = calcDNegSqrt(D_diag)
+    # P_transformed = calcDSqrt(D_diag).dot(P).dot(D_neg_sqrt)
+    # eig_values,eig_vectors = eig(P.todense())
+    eig_values, eig_vectors = linalg.eigs(
+        P, num_eig, which="LR",
         return_eigenvectors=True)  # this returns normalized eigen vectors
-    # TODO make first eigen vector be sanity check since all elements are the same
-    #  this isn't the case
-    # print("Eigvalues",eig_values[0], eig_vectors_scaled,np.max(eig_vectors_scaled),eig_vectors_scaled.shape, num_eig)
-    eig_vectors = np.flip(
-        D_neg_sqrt.dot(eig_vectors_scaled),
-        axis=1)  # this preforms matrix multiplication
+    # # TODO make first eigen vector be sanity check since all elements are the same
+    # #  this isn't the case
+    # # print("Eigvalues",eig_values[0], eig_vectors_scaled,np.max(eig_vectors_scaled),eig_vectors_scaled.shape, num_eig)
+    # eig_vectors = np.flip(
+    #     calcDSqrt(D_diag).dot(eig_vectors_scaled),
+    #     axis=1)  # this preforms matrix multiplication
 
-    return eig_vectors
+    return np.real(eig_vectors)
 
 
 @delayed
@@ -81,7 +82,7 @@ def saveEmbedingNormImage(*, e_vectors, image_shape, save_dir, spatial_box_num):
     e_vectors_sum = np.sum(e_vectors_squared, axis=1)
 
     e_vectors_sum_rescaled = e_vectors_sum * (
-            10.0 / e_vectors_sum.max())  # add histogram equalization
+            10.0 / e_vectors_sum.mean())  # add histogram equalization
 
     img = Image.fromarray(
         np.reshape(e_vectors_sum_rescaled,
@@ -122,15 +123,15 @@ def createEmbedingNormImageFromMultiple(*, spatial_box_list, save_dir, num_time_
         e_vectors_squared = np.power(e_vectors, 2)
         e_vectors_sum = np.sum(e_vectors_squared, axis=1)
         e_vectors_sum_rescaled = e_vectors_sum * (
-                9.0 / e_vectors_sum.max())  # add histogram equalization
+                9.0 / e_vectors_sum.mean())  # add histogram equalization
         # noqa
-        e_vectors_shaped = np.reshape(e_vectors_sum,
+        e_vectors_shaped = np.reshape(e_vectors_sum_rescaled,
                                       spatial_box.shape)
         eigen_images.append(e_vectors_shaped)
     image = combine_images(spatial_box_list, eigen_images)
 
     img = Image.fromarray(image * (
-            3.0 / image.max()) * 255).convert('L')
+            3.0 / image.mean()) * 255).convert('L')
     image_path = os.path.join(embed_dir, "embedding_norm_image.png")
     img.save(image_path)
     return e_vectors_list

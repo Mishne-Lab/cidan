@@ -2,6 +2,10 @@ from qtpy.QtWidgets import *
 
 
 class Input(QFrame):
+    """
+    Default Input class implemeneted by all other input classes, all have same args and
+    functions
+    """
     def __init__(self, display_name, program_name, on_change_function, default_val,
                  tool_tip, display_tool_tip=False, show_name=True):
         super().__init__()

@@ -46,6 +46,13 @@ def calcAffinityMatrix(*, pixel_list: np.ndarray, metric: str, knn: int,
     knn_graph.add_items(pixel_list, num_threads=num_threads)
     indices, distances = knn_graph.knn_query(pixel_list, k=knn,
                                              num_threads=num_threads)
+    # import faiss  # make faiss available
+    # index = faiss.IndexFlatL2(dim)
+    # pixel_list = np.ascontiguousarray(pixel_list.astype('float32'))
+    # index.add(pixel_list)  # add vectors to the index
+    # distances, indices = index.search(pixel_list, knn)
+    # distances = np.power(distances,2)
+
     # lazy random walk means it returns distance of zero for same point
     # nbrs = LSHForest(n_estimators=20, n_candidates=200,
     #                  n_neighbors=10).fit(pixel_list)
@@ -60,6 +67,7 @@ def calcAffinityMatrix(*, pixel_list: np.ndarray, metric: str, knn: int,
                                             .5) * \
                                    np.power(scale_factor_indices[reformat_indicies_y],
                                             .5)
+    scale_factor_2_per_distances[scale_factor_2_per_distances == 0] = 1
     reformat_distances_scaled = np.exp(
         -reformat_distances / scale_factor_2_per_distances)
     # TODO change to go direct to csr matrix

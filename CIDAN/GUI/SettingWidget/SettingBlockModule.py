@@ -7,7 +7,22 @@ from CIDAN.GUI.Inputs.IntRangeInput import IntRangeInput
 
 
 class SettingBlockModule(QFrame):
+    """
+    A tab of settings in SettingsModule
+
+    These are all the tabs in each of the settings area in the GUI, just specify each
+    input in a list and it will add them together
+    """
     def __init__(self, name, input_list):
+        """
+        Initializes the list
+        Parameters
+        ----------
+        name : str
+            Name of the list of modules
+        input_list : List[Input]
+            The list of inputs that are part of this section of settings
+        """
         super().__init__()
         self.name = name
         self.input_list = input_list
@@ -51,7 +66,16 @@ def filter_setting_block(main_widget):
                                    default_val=
                                    data_handler.filter_params["z_score"],
                                    tool_tip="Whether to apply a z-score for each pixel across all the timesteps",
-                               )
+                               ),
+                               BoolInput(display_name="Histogram Equalization Method:",
+                                         program_name="hist_eq",
+                                         on_change_function=lambda x,
+                                                                   y: data_handler.change_filter_param(
+                                             x, y),
+                                         default_val=data_handler.filter_params[
+                                             "hist_eq"],
+                                         tool_tip="Whether to apply our histogram equalization method",
+                                         )
                                ])
 
 
@@ -277,16 +301,16 @@ def roi_advanced_settings_block(main_widget):
                                    data_handler.roi_extraction_params[
                                        "merge"],
                                    tool_tip="Whether to merge rois with similar time traces"),
-                               FloatInput(display_name="ROI Circuity Threshold:",
-                                          program_name="roi_circ_threshold",
-                                          on_change_function=lambda x,
+                               IntInput(display_name="ROI Circuity Threshold:",
+                                        program_name="roi_circ_threshold",
+                                        on_change_function=lambda x,
                                                                     y: data_handler.change_roi_extraction_param(
                                               x, y),
-                                          default_val=
+                                        default_val=
                                           data_handler.roi_extraction_params[
                                               "roi_circ_threshold"],
-                                          tool_tip="Thresholds the rois based on how circular they are",
-                                          min=0, max=1.0, step=.01),
+                                        tool_tip="Thresholds the rois based on how circular they are",
+                                        min=0, max=100, step=1),
                                IntInput(display_name="Number of connections:",
                                         program_name="connections",
                                         on_change_function=lambda x,

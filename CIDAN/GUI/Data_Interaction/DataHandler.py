@@ -63,7 +63,8 @@ class DataHandler:
     _filter_params_default = {
         "median_filter": False,
         "median_filter_size": 3,
-        "z_score": False
+        "z_score": False,
+        "hist_eq": False
 
     }
     _box_params_default = {
@@ -87,7 +88,7 @@ class DataHandler:
         "eigen_threshold_method": True,
         "eigen_threshold_value": .1,
         "num_eigen_vector_select": 2,
-        "merge_temporal_coef": .95,
+        "merge_temporal_coef": .90,
         "roi_size_min": 30,
         "roi_size_max": 600,
         "merge": True,
@@ -95,7 +96,7 @@ class DataHandler:
         "fill_holes": True,
         "refinement": True,
         "max_iter": 40,
-        "roi_circ_threshold": .2
+        "roi_circ_threshold": 50
     }
     _time_trace_params_default = {
         "time_trace_type": "Mean"
@@ -140,9 +141,12 @@ class DataHandler:
             # if there are ROIs saved in the save dir load them and calculate time
             # traces
             if self.rois_exist:
-                self.load_rois()
-                self.calculate_time_traces()
-                self.rois_loaded = True
+                try:
+                    self.load_rois()
+                    self.calculate_time_traces()
+                    self.rois_loaded = True
+                except:
+                    print("ROI loading Failed")
             if not valid:
                 raise FileNotFoundError("Save directory not valid")
         else:
@@ -530,7 +534,8 @@ class DataHandler:
                                     "median_filter_size"]),
             median_filter=self.filter_params[
                 "median_filter"],
-            z_score=self.filter_params["z_score"])
+            z_score=self.filter_params["z_score"],
+            hist_eq=self.filter_params["hist_eq"])
 
     def calculate_filters(self):
         """
@@ -544,6 +549,7 @@ class DataHandler:
             "need_recalc_dataset_params"] or \
                 not hasattr(self, "dataset_trials_filtered"):
             self.calculate_dataset()
+            print("Started Calculating Filters")
             self.dataset_trials_filtered = [False] * len(self.trials_all)
             for trial_num in self._trials_loaded_indices:
                 self.dataset_trials_filtered[trial_num] = self.load_trial_filter_step(
@@ -559,6 +565,7 @@ class DataHandler:
             # self.temporal_correlation_image = calculate_temporal_correlation(self.dataset_filtered)
             self.global_params["need_recalc_filter_params"] = False
             self.global_params["need_recalc_box_params"] = True
+            self.global_params["need_recalc_eigen_params"] = True
         return self.dataset_trials_filtered
 
     def calculate_roi_extraction(self):
@@ -578,6 +585,7 @@ class DataHandler:
                 self.calculate_filters()
                 eigen_need_recalc = self.global_params["need_recalc_eigen_params"]
                 self.global_params["need_recalc_eigen_params"] = False
+                temp_params = self.box_params.copy()
                 self.rois = process_data(num_threads=self.global_params[
                     "num_threads"], test_images=False, test_output_dir="",
                                          save_dir=self.save_dir_path,
@@ -636,11 +644,11 @@ class DataHandler:
                                              "merge_temporal_coef"],
                                          roi_size_max=self.roi_extraction_params[
                                              "roi_size_max"])
-                self.box_params_processed = self.box_params
+                self.box_params_processed = temp_params
                 self.save_new_param_json()
                 roi_valid_list = filterRoiList(self.rois, self.shape)
                 self.rois = [x for x, y in zip(self.rois, roi_valid_list) if
-                             y > self.roi_extraction_params[
+                             y >= self.roi_extraction_params[
                                  "roi_circ_threshold"]]
                 self.save_rois(self.rois)
                 print("Calculating Time Traces")
@@ -749,7 +757,7 @@ class DataHandler:
         np.ndarray of the time trace
         """
         num = num - 1
-        output = np.ndarray([])
+        output = np.ndarray(shape=(0))
         for trial_num in self.trials_loaded_time_trace_indices:
             if type(self.time_traces[num][trial_num]) == bool:
                 self.calculate_time_trace(num + 1, trial_num)

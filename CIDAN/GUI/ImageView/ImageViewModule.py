@@ -3,10 +3,15 @@ from qtpy.QtWidgets import *
 
 
 class ImageViewModule(QFrame):
-    def __init__(self, main_widget, histogram=True, roi=True):
+    """
+    This class wraps the pyqt imageview model, takes care of configuring it and adds
+    a set image method to it
+    """
+
+    def __init__(self, main_widget, histogram=True, crop_selector=False):
         super().__init__()
 
-        self.main_window = main_widget
+        self.main_widget = main_widget
         # self.setMinimumWidth(600)
         # self.setMinimumHeight(300)
         # self.setStyleSheet("ImageViewModule {margin:5px; border:1px solid rgb(50, 65, "
@@ -29,7 +34,7 @@ class ImageViewModule(QFrame):
         self.image_view.ui.menuBtn.hide()
         if not histogram:
             self.image_view.ui.histogram.hide()
-        if not roi:
+        if not crop_selector:
             self.image_view.ui.roiBtn.hide()
         # self.image_view.getRoiPlot().hide()
 

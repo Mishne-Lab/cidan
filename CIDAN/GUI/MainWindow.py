@@ -1,8 +1,9 @@
 import os
 
+from CIDAN.GUI.Tabs.AnalysisTab import AnalysisTab
+
 os.environ['QT_API'] = 'pyside2'
 from qtpy.QtWidgets import QTabWidget
-from CIDAN.GUI.Tabs.Tab import AnalysisTab
 from CIDAN.GUI.Tabs.FileOpenTab import FileOpenTab
 from CIDAN.GUI.Tabs.ROIExtractionTab import *
 from CIDAN.GUI.Tabs.PreprocessingTab import *
@@ -95,8 +96,7 @@ class MainWidget(QWidget):
         self.layout = QVBoxLayout(self)
         self.data_handler = None
         self.thread_list = []
-        self.preprocess_image_view = ImageViewModule(self, roi=False)
-        self.roi_image_view = ImageViewModule(self, histogram=False, roi=False)
+
         self.dev = dev
         self.tab_widget = QTabWidget()
         self.fileOpenTab = FileOpenTab(self)
@@ -158,9 +158,11 @@ class MainWidget(QWidget):
         -------
 
         """
+        self.preprocess_image_view = ImageViewModule(self)
+
         for num, _ in enumerate(self.tabs):
             self.tab_widget.removeTab(1)
-        # TODO actually delete the tabs not just remove them
+
         # TODO add to export tab to export all time traces or just currently caclulated ones
         self.tabs = [PreprocessingTab(self), ROIExtractionTab(self), AnalysisTab(self)]
 
@@ -169,11 +171,15 @@ class MainWidget(QWidget):
             self.tab_widget.addTab(tab, tab.name)
         self.tab_widget.setCurrentIndex(1)
         self.tab_widget.currentChanged.connect(
-            lambda x: self.tabs[1].set_background("",
-                                                  self.tabs[
-                                                      1].background_chooser.current_state(),
-                                                  update_image=True))
-
+            lambda x: self.tabs[1].image_view.set_background("",
+                                                             self.tabs[
+                                                                 1].image_view.background_chooser.current_state(),
+                                                             update_image=True))
+        self.tab_widget.currentChanged.connect(
+            lambda x: self.tabs[2].image_view.set_background("",
+                                                             self.tabs[
+                                                                 1].image_view.background_chooser.current_state(),
+                                                             update_image=True))
         if not hasattr(self, "export_menu"):
             self.export_menu = self.main_menu.addMenu("&Export")
             export_action = QAction("Export Time Traces/ROIs", self)

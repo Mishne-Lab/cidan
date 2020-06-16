@@ -3,6 +3,10 @@ from qtpy.QtGui import *
 
 
 class ROIItemModule(QStandardItem):
+    """
+    An item in the ROI list, this part just takes care of the color part, the rest is
+    handeled by roi item widget
+    """
     def __init__(self, color, num, roi_tab):
         self.roi_tab = roi_tab
         out_img = QImage(100, 100, QImage.Format_ARGB32)

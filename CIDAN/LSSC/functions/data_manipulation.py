@@ -28,12 +28,9 @@ def load_filter_tif_stack(*, path, filter: bool, median_filter: bool,
     a 3D numpy array with the tiff files together
 
     """
-    print(path)
-
     if os.path.isdir(path):
         volumes = []
         paths = path if type(path) == list else sorted(os.listdir(path))
-        print(paths)
         for num, x in enumerate(paths):
             file_path = x if type(path) == list else os.path.join(path, x)
             image = tifffile.imread(file_path)
@@ -118,17 +115,32 @@ def save_image(volume: np.ndarray, name: str, directory: str, shape: tuple,
 
 def filter_stack(*, stack: np.ndarray, median_filter: bool,
                  median_filter_size: Tuple[int, int, int],
-                 z_score: bool):
-    if median_filter:
+                 z_score: bool, hist_eq=False):
+    if median_filter and not hist_eq:
         stack = ndimage.median_filter(stack, median_filter_size)
         # stack = ndimage.filters.convolve(stack, np.full((3, 3, 3), 1.0 / 27))
-    if z_score:
+    if z_score and not hist_eq:
         stack_t = np.transpose(stack, (1, 2, 0))
         shape = (stack.shape[1], stack.shape[2], 1)
         std = np.std(stack_t, axis=2).reshape(shape)
         mean = np.mean(stack_t, axis=2).reshape(shape)
         stack_t = (stack_t - mean) / std
         stack = np.transpose(stack_t, (2, 0, 1))
+    if hist_eq:
+        stack_t = np.transpose(stack, (1, 2, 0))
+        quant_5 = np.percentile(stack_t, 5, axis=2)
+        quant_95 = np.percentile(stack_t, 95, axis=2)
+        quant_5_filtered = ndimage.filters.gaussian_filter(quant_5, 1.5)
+        quant_95_filtered = ndimage.filters.gaussian_filter(quant_95, 1.5)
+        stack_equalized = np.divide(
+            np.subtract(stack_t, quant_5_filtered[..., np.newaxis]), (
+                    quant_95_filtered - quant_5_filtered)[..., np.newaxis])
+        stack_equalized[stack_equalized > 1] = 1
+        stack_equalized[stack_equalized < 0] = 0
+        stack_equalized_squared = np.power(stack_equalized, 2)
+        stack_equalized_filtered = ndimage.median_filter(stack_equalized_squared,
+                                                         (1, 1, 3))
+        stack = np.transpose(stack_equalized_filtered, (2, 0, 1))
 
     return stack
 

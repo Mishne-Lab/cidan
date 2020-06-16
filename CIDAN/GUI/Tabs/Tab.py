@@ -25,7 +25,10 @@ class Tab(QWidget):
         self.column_1_widget.setStyleSheet("Column { border:1px solid rgb(50, 65, "
                                            "75);} ")
         for module in column_1:
-            self.column_1_layout.addWidget(module)
+            if issubclass(module.__class__, QWidget):
+                self.column_1_layout.addWidget(module)
+            else:
+                self.column_1_layout.addLayout(module)
         self.layout.addWidget(self.column_1_widget, stretch=1)
         if column_2_display:
             self.column_2_layout = QVBoxLayout()  # Layout for column 2
@@ -39,8 +42,3 @@ class Tab(QWidget):
                 self.column_2_layout.addWidget(module)
             self.layout.addWidget(self.column_2_widget, stretch=2)
         self.setLayout(self.layout)
-
-
-class AnalysisTab(Tab):
-    def __init__(self, main_widget):
-        super().__init__("Analysis", column_1=[], column_2=[])

@@ -7,6 +7,9 @@ from CIDAN.GUI.ListWidgets.ROIItemWidget import ROIItemWidget
 
 
 class ROIListModule(QFrame):
+    """
+    Its the roi list in the ROI modification tab
+    """
     def __init__(self, data_handler, roi_tab):
         super().__init__()
         self.current_selected_roi = 0
@@ -59,7 +62,8 @@ class ROIListModule(QFrame):
             self.model.appendRow(item1)
             self.list.setIndexWidget(item1.index(), item)
         self.roi_time_check_list = [False] * len(self.roi_item_list)
-        self.roi_tab.tab_selector_roi.setCurrentIndex(1)
+        if hasattr(self.roi_tab, "tab_selector_roi"):
+            self.roi_tab.tab_selector_roi.setCurrentIndex(1)
         # self.roi_item_list[0].select_check_box()
         # self.roi_item_list[0].select_time_check_box()
     # def change(self):
