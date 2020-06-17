@@ -44,6 +44,14 @@ class AnalysisTab(Tab):
                                          default_index=0, tool_tip="",
                                          display_tool_tip=False,
                                          val_list=["Neuron", "Trial"])
+        plot_settings_layout.addWidget(self.plot_by_input)
+        self.time_trace_type = OptionInput("Time Trace Type", "",
+                                           lambda x, y: self.update_time_traces(),
+                                           default_index=0,
+                                           tool_tip="Select way to calculate time trace",
+                                           val_list=["Mean", "DeltaF/F"])
+        plot_settings_layout.addWidget(self.time_trace_type,
+                                       stretch=1)
 
         time_trace_settings = QWidget()
         time_trace_settings_layout = QVBoxLayout()
@@ -62,6 +70,7 @@ class AnalysisTab(Tab):
         time_trace_settings_layout.addWidget(time_trace_update_button)
         time_trace_update_button.clicked.connect(
             lambda x: self.update_time_traces())
+
 
         self.plot_widget = GraphDisplayWidget(self.main_widget)
         self.deselect_all_button = QPushButton("Deselect All")
@@ -88,41 +97,41 @@ class AnalysisTab(Tab):
         self.update_time = True
         self.deselectRoiTime()
     def selectRoiTime(self, num):
-        if self.update_time:
-            try:
-                data_list = []
-                roi_names = []
-                for num2, x in zip(
-                        range(1, len(self.roi_list_module.roi_time_check_list)),
-                        self.roi_list_module.roi_time_check_list):
-                    if x:
-                        data_list.append(
-                            self.main_widget.data_handler.get_time_trace(num2))
-                        roi_names.append(num2)
-                self.plot_widget.set_list_items(data_list, roi_names, [],
-                                                p_color=self.plot_type_input.current_state() == "Color Mesh",
-                                                type="neuron")
-
-            except AttributeError:
-                print("No ROIs have been generated yet")
+        self.deselectRoiTime()
 
     def deselectRoiTime(self):
         if self.update_time:
-            try:
-                data_list = []
-                roi_names = []
-                for num2, x in zip(
-                        range(1, len(self.roi_list_module.roi_time_check_list)),
-                        self.roi_list_module.roi_time_check_list):
-                    if x:
-                        data_list.append(
-                            self.main_widget.data_handler.get_time_trace(num2))
-                        roi_names.append(num2)
-                self.plot_widget.set_list_items(data_list, roi_names, [],
-                                                p_color=self.plot_type_input.current_state() == "Color Mesh",
-                                                type="neuron")
-            except AttributeError:
-                print("No ROIs have been generated yet")
+            if self.plot_by_input.current_state() == "Neuron":
+                try:
+                    data_list = []
+                    roi_names = []
+                    for num2, x in zip(
+                            range(1, len(self.roi_list_module.roi_time_check_list)),
+                            self.roi_list_module.roi_time_check_list):
+                        if x:
+                            data_list.append(
+                                self.main_widget.data_handler.get_time_trace(num2))
+                            roi_names.append(num2)
+                    self.plot_widget.set_list_items(data_list, roi_names, [],
+                                                    p_color=self.plot_type_input.current_state() == "Color Mesh",
+                                                    type="neuron")
+                except AttributeError:
+                    print("No ROIs have been generated yet")
+            else:
+                try:
+                    if self.roi_list_module.current_selected_roi is not None:
+                        roi = self.roi_list_module.current_selected_roi
+                        data_list = []
+                        roi_names = [roi]
+                        for x in self.data_handler.trials_loaded_time_trace_indices:
+                            data_list.append(
+                                self.main_widget.data_handler.get_time_trace(roi, x))
+                        self.plot_widget.set_list_items(data_list, roi_names,
+                                                        self.data_handler.trials_loaded_time_trace_indices,
+                                                        p_color=self.plot_type_input.current_state() == "Color Mesh",
+                                                        type="trial")
+                except AttributeError:
+                    print("No ROIs have been generated yet")
 
     def update_time_traces(self):
         if (self.data_handler.time_trace_params[

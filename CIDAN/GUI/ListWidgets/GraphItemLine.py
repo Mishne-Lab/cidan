@@ -47,7 +47,7 @@ class GraphItemLine(QWidget):
                     self.graph.plot(x)
             if (display_roi_labels):
                 for num, name in enumerate(roi_labels):
-                    text_box = pg.TextItem("ROI" + str(name), anchor=(0, .5),
+                    text_box = pg.TextItem(y_label + "_" + str(name), anchor=(0, .5),
                                            fill=pg.mkBrush(color=(0, 0, 0)))
 
                     self.graph.addItem(text_box)

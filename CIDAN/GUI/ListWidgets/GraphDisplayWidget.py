@@ -66,13 +66,54 @@ class GraphDisplayWidget(QWidget):
                     # data = np.vstack(data_list_processed)
                     self.current_graph = GraphItemLine(data=data_list_processed,
                                                        x_label="Time(Slices)",
-                                                       y_label="ROIs", x_ticks=None,
+                                                       y_label="ROI", x_ticks=None,
                                                        y_ticks=roi_names,
                                                        display_y_axis_ticks=True,
                                                        display_roi_labels=True,
                                                        roi_labels=roi_names, colors=[
                             self.color_list[x % len(self.color_list)] for x in
                             roi_names])
+                    self.layout.addWidget(self.current_graph)
+                else:
+                    self.current_graph = QWidget()
+                    self.layout.addWidget(self.current_graph)
+
+            self.p_color = p_color
+        if (type == "trial"):
+            if p_color:
+
+                if len(data_list) > 0:
+                    data = np.vstack(data_list)
+                    self.current_graph = GraphItemPColor(data=data,
+                                                         x_label="Time(For ROI %s)" % str(
+                                                             roi_names[0]),
+                                                         y_label="Trial", x_ticks=None,
+                                                         y_ticks=trial_names,
+                                                         display_y_axis_ticks=True)
+                    self.layout.addWidget(self.current_graph)
+
+                    # for num, data, roi_num in zip(range(len(data_list)),data_list, roi_names):
+                else:
+                    self.current_graph = QWidget()
+                    self.layout.addWidget(self.current_graph)
+            else:
+
+                if len(data_list) > 0:
+                    data_list_processed = [
+                        (((x - np.mean(x)) / (np.std(x) * self.std)) + num) for num, x
+                        in
+                        enumerate(data_list)]
+                    # data = np.vstack(data_list_processed)
+                    self.current_graph = GraphItemLine(data=data_list_processed,
+                                                       x_label="Time(For ROI %s)" % str(
+                                                           roi_names[0]),
+                                                       y_label="Trial", x_ticks=None,
+                                                       y_ticks=trial_names,
+                                                       display_y_axis_ticks=True,
+                                                       display_roi_labels=True,
+                                                       roi_labels=trial_names, colors=[
+                            self.color_list[x % len(self.color_list)] for x in
+                            range(len(trial_names))])
                     self.layout.addWidget(self.current_graph)
                 else:
                     self.current_graph = QWidget()

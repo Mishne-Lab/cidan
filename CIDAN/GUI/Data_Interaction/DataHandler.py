@@ -744,7 +744,7 @@ class DataHandler:
             pickle_save(self.time_traces, "time_traces",
                         output_directory=self.save_dir_path)
 
-    def get_time_trace(self, num):
+    def get_time_trace(self, num, trial=None):
         """
         Returns the time trace for a certain roi over all currently selected trials
         Parameters
@@ -756,13 +756,18 @@ class DataHandler:
         -------
         np.ndarray of the time trace
         """
-        num = num - 1
-        output = np.ndarray(shape=(0))
-        for trial_num in self.trials_loaded_time_trace_indices:
-            if type(self.time_traces[num][trial_num]) == bool:
-                self.calculate_time_trace(num + 1, trial_num)
-            output = np.hstack([output, self.time_traces[num][trial_num]])
-
+        if (trial == None):
+            num = num - 1
+            output = np.ndarray(shape=(0))
+            for trial_num in self.trials_loaded_time_trace_indices:
+                if type(self.time_traces[num][trial_num]) == bool:
+                    self.calculate_time_trace(num + 1, trial_num)
+                output = np.hstack([output, self.time_traces[num][trial_num]])
+        else:
+            num = num - 1
+            if type(self.time_traces[num][trial]) == bool:
+                self.calculate_time_trace(num + 1, trial)
+            output = self.time_traces[num][trial]
         return output
 
     def update_selected_trials(self, selected_trials):
