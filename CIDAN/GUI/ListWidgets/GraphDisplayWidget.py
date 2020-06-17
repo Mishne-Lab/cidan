@@ -83,6 +83,8 @@ class GraphDisplayWidget(QWidget):
             if p_color:
 
                 if len(data_list) > 0:
+                    median_length = np.median([x.shape[0] for x in data_list])
+                    data_list = [np.pad(x, [(0,int(median_length-x.shape[0]))], mode="constant") for x in data_list]
                     data = np.vstack(data_list)
                     self.current_graph = GraphItemPColor(data=data,
                                                          x_label="Time(For ROI %s)" % str(

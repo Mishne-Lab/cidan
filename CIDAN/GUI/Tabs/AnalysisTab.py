@@ -17,6 +17,8 @@ class AnalysisTab(Tab):
     def __init__(self, main_widget):
         self.main_widget = main_widget
         self.data_handler = main_widget.data_handler
+        self.cur_plot_type = "neuron"
+
         self.image_view = ROIImageViewModule(self.main_widget, self, True)
         self.roi_list_module = ROIListModule(main_widget.data_handler, self,
                                              select_multiple=True, display_time=False)
@@ -66,7 +68,6 @@ class AnalysisTab(Tab):
         time_trace_settings_layout.addWidget(self._time_trace_trial_select_list,
                                              stretch=5)
         time_trace_update_button = QPushButton("Update Time Traces")
-
         time_trace_settings_layout.addWidget(time_trace_update_button)
         time_trace_update_button.clicked.connect(
             lambda x: self.update_time_traces())
@@ -102,6 +103,11 @@ class AnalysisTab(Tab):
     def deselectRoiTime(self):
         if self.update_time:
             if self.plot_by_input.current_state() == "Neuron":
+                if self.cur_plot_type != "neuron":
+                    self.cur_plot_type = "neuron"
+                    self.roi_list_module.select_multiple = True
+
+
                 try:
                     data_list = []
                     roi_names = []
@@ -118,7 +124,13 @@ class AnalysisTab(Tab):
                 except AttributeError:
                     print("No ROIs have been generated yet")
             else:
+                if self.cur_plot_type != "trial":
+                    self.roi_list_module.select_multiple = False
+                    self.cur_plot_type = "trial"
+                    self.selectAll(False)
+
                 try:
+                    print(self.roi_list_module.current_selected_roi)
                     if self.roi_list_module.current_selected_roi is not None:
                         roi = self.roi_list_module.current_selected_roi
                         data_list = []
@@ -128,6 +140,11 @@ class AnalysisTab(Tab):
                                 self.main_widget.data_handler.get_time_trace(roi, x))
                         self.plot_widget.set_list_items(data_list, roi_names,
                                                         self.data_handler.trials_loaded_time_trace_indices,
+                                                        p_color=self.plot_type_input.current_state() == "Color Mesh",
+                                                        type="trial")
+                    else:
+                        self.plot_widget.set_list_items([], [],
+                                                        [],
                                                         p_color=self.plot_type_input.current_state() == "Color Mesh",
                                                         type="trial")
                 except AttributeError:
@@ -142,3 +159,7 @@ class AnalysisTab(Tab):
         self.data_handler.update_selected_trials(
             self._time_trace_trial_select_list.selectedTrials())
         self.deselectRoiTime()
+    def reset_view(self):
+        self.selectAll(False)
+        if self.main_widget.data_handler.rois_loaded:
+            self.thread.endThread(True)

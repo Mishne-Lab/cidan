@@ -59,8 +59,8 @@ class ROIListModule(QFrame):
         for num in range(len(self.roi_list)):
             item = ROIItemWidget(self.roi_tab,
                                  self.color_list[num % len(self.color_list)], self,
-                                 num + 1, display_time=self.display_time,
-                                 select_multiple=self.select_multiple)
+                                 num + 1, display_time=self.display_time
+                                 )
             item1 = ROIItemModule(self.color_list[num % len(self.color_list)], num + 1,
                                   self.roi_tab)
             self.roi_item_list.append(item)

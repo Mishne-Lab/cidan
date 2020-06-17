@@ -8,6 +8,7 @@ from CIDAN.GUI.Tabs.FileOpenTab import FileOpenTab
 from CIDAN.GUI.Tabs.ROIExtractionTab import *
 from CIDAN.GUI.Tabs.PreprocessingTab import *
 import qdarkstyle
+from dask.distributed import Client
 from CIDAN.GUI.ImageView.ImageViewModule import ImageViewModule
 from CIDAN.GUI.Data_Interaction.DataHandler import DataHandler
 from CIDAN.GUI.Console.ConsoleWidget import ConsoleWidget
@@ -133,14 +134,17 @@ class MainWidget(QWidget):
         # Below here in this function is just code for testing
         # TODO check if it can load data twice
         if True and dev:
-            # auto loads a small dataset
-            self.data_handler = DataHandler(
+            try:
+                # auto loads a small dataset
+                self.data_handler = DataHandler(
 
-                "/Users/sschickler/Code Devel/LSSC-python/input_images/",
-                "/Users/sschickler/Code Devel/LSSC-python/input_images/test",
-                trials=["small_dataset.tif"],
-                save_dir_already_created=True)
-            self.init_w_data()
+                    "/Users/sschickler/Code Devel/LSSC-python/input_images/",
+                    "/Users/sschickler/Code Devel/LSSC-python/input_images/test",
+                    trials=["small_dataset.tif"],
+                    save_dir_already_created=True)
+                self.init_w_data()
+            except:
+                pass
         if False and dev:
             # auto loads a large dataset
             self.data_handler = DataHandler(
@@ -176,10 +180,9 @@ class MainWidget(QWidget):
                                                                  1].image_view.background_chooser.current_state(),
                                                              update_image=True))
         self.tab_widget.currentChanged.connect(
-            lambda x: self.tabs[2].image_view.set_background("",
-                                                             self.tabs[
-                                                                 1].image_view.background_chooser.current_state(),
-                                                             update_image=True))
+            lambda x: self.tabs[2].image_view.reset_view())
+        self.tab_widget.currentChanged.connect(
+            lambda x: self.tabs[2].reset_view())
         if not hasattr(self, "export_menu"):
             self.export_menu = self.main_menu.addMenu("&Export")
             export_action = QAction("Export Time Traces/ROIs", self)
@@ -200,9 +203,9 @@ class MainWidget(QWidget):
 
 
 if __name__ == "__main__":
-    # client = Client(processes=False, threads_per_worker=8,
-    #                 n_workers=1, memory_limit='16GB')
-    # print(client)
+    client = Client(processes=False, threads_per_worker=16,
+                    n_workers=1, memory_limit='32GB')
+    print(client)
     LOG_FILENAME = 'log.out'
     logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG)
     logger = logging.getLogger("CIDAN")

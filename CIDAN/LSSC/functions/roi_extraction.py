@@ -104,7 +104,7 @@ def roi_extract_image(*, e_vectors: np.ndarray,
                                                    eigen_threshold_method,
                                                    threshold=eigen_threshold_value)
         # print(small_eigen_vectors.shape)
-        # print("original",small_eigen_vectors.shape)
+        # print("original",smam nm ll_eigen_vectors.shape)
         # TODO Find way to auto determine threshold value automatically max values
         # project into new eigen space
         small_pixel_embeding_norm = embedEigenSqrdNorm(small_eigen_vectors)

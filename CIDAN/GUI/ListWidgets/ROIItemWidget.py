@@ -9,9 +9,8 @@ class ROIItemWidget(QWidget):
     """
 
     def __init__(self, roi_tab, color, roi_list, roi_num, parent=None,
-                 select_multiple=False, display_time=True):
+                  display_time=True):
         self.roi_tab = roi_tab
-        self.select_multiple = select_multiple
         self.roi_list = roi_list
         self.display_time = display_time
         self.roi_num = roi_num
@@ -67,7 +66,7 @@ class ROIItemWidget(QWidget):
 
     def select_check_box(self):
         if not self.check_box.checkState():
-            if not self.select_multiple:
+            if not self.roi_list.select_multiple:
                 for x in self.roi_list.roi_item_list:
                     if x != self:
                         x.check_box.setChecked(False)
@@ -92,7 +91,7 @@ class ROIItemWidget(QWidget):
             self.check_box_time_trace.setChecked(True)
             if not self.display_time:
                 self.roi_tab.image_view.selectRoi(self.roi_num)
-            if not self.select_multiple:
+            if not self.roi_list.select_multiple:
                 for x in self.roi_list.roi_item_list:
                     if x != self:
                         x.check_box.setChecked(False)
