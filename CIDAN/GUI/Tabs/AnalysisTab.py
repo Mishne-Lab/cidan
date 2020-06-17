@@ -18,17 +18,14 @@ class AnalysisTab(Tab):
         self.main_widget = main_widget
         self.data_handler = main_widget.data_handler
         self.image_view = ROIImageViewModule(self.main_widget, self, True)
-        self.roi_list_module = ROIListModule(main_widget.data_handler, self)
+        self.roi_list_module = ROIListModule(main_widget.data_handler, self,
+                                             select_multiple=True, display_time=False)
         self.thread = ROIExtractionThread(main_widget, QPushButton(),
                                           self.roi_list_module, self)
         self.main_widget.thread_list.append(self.thread)
-        top_half = QHBoxLayout()
-        top_half.addWidget(self.roi_list_module)
-        top_half.addWidget(self.image_view)
-        bottom_half = QHBoxLayout()
 
+        self.update_time = True
         settings_tabs = QTabWidget()
-        bottom_half.addWidget(settings_tabs, stretch=1)
         plot_settings_widget = QWidget()
         plot_settings_layout = QVBoxLayout()
         plot_settings_widget.setLayout(plot_settings_layout)
@@ -67,45 +64,65 @@ class AnalysisTab(Tab):
             lambda x: self.update_time_traces())
 
         self.plot_widget = GraphDisplayWidget(self.main_widget)
+        self.deselect_all_button = QPushButton("Deselect All")
+        self.deselect_all_button.clicked.connect(lambda x: self.selectAll(False))
+        self.select_all_button = QPushButton("Select All")
+        self.select_all_button.clicked.connect(lambda x: self.selectAll(True))
+        button_layout = QHBoxLayout()
+        button_layout.addWidget(self.select_all_button)
+        button_layout.addWidget(self.deselect_all_button)
 
-        bottom_half.addWidget(self.plot_widget, stretch=2)
+        # bottom_half.addWidget(self.plot_widget, stretch=2)
         if self.main_widget.data_handler.rois_loaded:
             self.thread.endThread(True)
             # self.plot_widget.set_list_items([self.data_handler.get_time_trace(x) for x in range(20)], [x for x in range(20)], None)
-        super().__init__("Analysis", column_1=[top_half, bottom_half], column_2=[],
-                         column_2_display=False)
+        super().__init__("Analysis",
+                         column_1=[self.roi_list_module, button_layout, settings_tabs],
+                         column_2=[self.image_view, self.plot_widget],
+                         column_2_display=True, column2_moveable=True)
 
+    def selectAll(self, select):
+        self.update_time = False
+        for x in self.roi_list_module.roi_item_list:
+            x.check_box.setChecked(select)
+        self.update_time = True
+        self.deselectRoiTime()
     def selectRoiTime(self, num):
-        try:
-            data_list = []
-            roi_names = []
-            for num2, x in zip(range(1, len(self.roi_list_module.roi_time_check_list)),
-                               self.roi_list_module.roi_time_check_list):
-                if x:
-                    data_list.append(self.main_widget.data_handler.get_time_trace(num2))
-                    roi_names.append(num2)
-            self.plot_widget.set_list_items(data_list, roi_names, [],
-                                            p_color=self.plot_type_input.current_state() == "Color Mesh",
-                                            type="neuron")
+        if self.update_time:
+            try:
+                data_list = []
+                roi_names = []
+                for num2, x in zip(
+                        range(1, len(self.roi_list_module.roi_time_check_list)),
+                        self.roi_list_module.roi_time_check_list):
+                    if x:
+                        data_list.append(
+                            self.main_widget.data_handler.get_time_trace(num2))
+                        roi_names.append(num2)
+                self.plot_widget.set_list_items(data_list, roi_names, [],
+                                                p_color=self.plot_type_input.current_state() == "Color Mesh",
+                                                type="neuron")
 
-        except AttributeError:
-            print("No ROIs have been generated yet")
+            except AttributeError:
+                print("No ROIs have been generated yet")
 
     def deselectRoiTime(self):
-
-        try:
-            data_list = []
-            roi_names = []
-            for num2, x in zip(range(1, len(self.roi_list_module.roi_time_check_list)),
-                               self.roi_list_module.roi_time_check_list):
-                if x:
-                    data_list.append(self.main_widget.data_handler.get_time_trace(num2))
-                    roi_names.append(num2)
-            self.plot_widget.set_list_items(data_list, roi_names, [],
-                                            p_color=self.plot_type_input.current_state() == "Color Mesh",
-                                            type="neuron")
-        except AttributeError:
-            print("No ROIs have been generated yet")
+        if self.update_time:
+            try:
+                data_list = []
+                roi_names = []
+                for num2, x in zip(
+                        range(1, len(self.roi_list_module.roi_time_check_list)),
+                        self.roi_list_module.roi_time_check_list):
+                    if x:
+                        data_list.append(
+                            self.main_widget.data_handler.get_time_trace(num2))
+                        roi_names.append(num2)
+                self.plot_widget.set_list_items(data_list, roi_names, [],
+                                                p_color=self.plot_type_input.current_state() == "Color Mesh",
+                                                type="neuron")
+            except AttributeError:
+                print("No ROIs have been generated yet")
 
     def update_time_traces(self):
         if (self.data_handler.time_trace_params[

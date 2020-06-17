@@ -8,7 +8,7 @@ from scipy import sparse
 from scipy.sparse import linalg
 
 from CIDAN.LSSC.SpatialBox import combine_images
-from CIDAN.LSSC.functions.embeddings import calcDInv
+from CIDAN.LSSC.functions.embeddings import calcDInv, calcDSqrt, calcDNegSqrt
 from CIDAN.LSSC.functions.pickle_funcs import pickle_save, pickle_load
 
 logger1 = logging.getLogger("CIDAN.LSSC.eigen")
@@ -31,20 +31,20 @@ def generateEigenVectors(*, K: sparse.csr_matrix, num_eig: int) -> np.ndarray:
     """
     D_inv, D_diag = calcDInv(K=K)
     P = D_inv.dot(K)
-    # D_neg_sqrt = calcDNegSqrt(D_diag)
-    # P_transformed = calcDSqrt(D_diag).dot(P).dot(D_neg_sqrt)
+    D_neg_sqrt = calcDNegSqrt(D_diag)
+    P_transformed = calcDSqrt(D_diag).dot(P).dot(D_neg_sqrt)
     # eig_values,eig_vectors = eig(P.todense())
-    eig_values, eig_vectors = linalg.eigs(
-        P, num_eig, which="LR",
+    eig_values, eig_vectors_scaled = linalg.eigsh(
+        P_transformed, num_eig, which="LM",
         return_eigenvectors=True)  # this returns normalized eigen vectors
     # # TODO make first eigen vector be sanity check since all elements are the same
     # #  this isn't the case
     # # print("Eigvalues",eig_values[0], eig_vectors_scaled,np.max(eig_vectors_scaled),eig_vectors_scaled.shape, num_eig)
-    # eig_vectors = np.flip(
-    #     calcDSqrt(D_diag).dot(eig_vectors_scaled),
-    #     axis=1)  # this preforms matrix multiplication
+    eig_vectors = np.flip(
+        D_neg_sqrt.dot(eig_vectors_scaled),
+        axis=1)  # this preforms matrix multiplication
 
-    return np.real(eig_vectors)
+    return eig_vectors
 
 
 @delayed

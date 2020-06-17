@@ -12,6 +12,7 @@ logger1 = logging.getLogger("CIDAN.ImageView.ROIImageViewModule")
 
 
 class ROIImageViewModule(ImageViewModule):
+    # QApplication.mouseButtons() == Qt.LeftButton
     def __init__(self, main_widget, tab, settings_tab=True):
         super(ROIImageViewModule, self).__init__(main_widget, histogram=False)
         self.tab = tab
@@ -22,9 +23,12 @@ class ROIImageViewModule(ImageViewModule):
         self.set_background("", "Max Image", update_image=False)
         self.image_item = self.image_view.getImageItem()
         self.image_item.mouseClickEvent = lambda x: self.roi_view_click(x)
+        self.image_item.mouseDragEvent = lambda x: self.roi_view_drag(x)
+
         shape = main_widget.data_handler.shape
         self.select_image_flat = np.zeros([shape[0] * shape[1], 3])
-
+        self.box_selector_enabled = False
+        self.box_selector_cords = [(0, 0), (0, 0)]
         if settings_tab:
             self.layout.removeWidget(self.image_view)
             self.layout.addWidget(self.createTabLayout())
@@ -253,6 +257,116 @@ class ROIImageViewModule(ImageViewModule):
             if roi_num != 0:
                 event.accept()
                 self.tab.roi_list_module.set_current_select(roi_num)
+
+    def roi_view_drag(self, event):
+        prev = True
+        pos = event.pos()
+
+        x = int(pos.x())
+        y = int(pos.y())
+        modifiers = QApplication.keyboardModifiers()
+        if modifiers == QtCore.Qt.ShiftModifier and not self.box_selector_enabled:
+            self.box_selector_enabled = True
+            self.box_selector_cords = [(x, y), (x, y)]
+            prev = False
+        if self.box_selector_enabled:
+            event.accept()
+            if prev:
+                try:
+
+                    if (self.box_selector_cords[0][0] < self.box_selector_cords[1][0]):
+                        self.image_item.image[
+                        self.box_selector_cords[0][0]:self.box_selector_cords[1][0],
+                        self.box_selector_cords[0][1]] -= [255, 255, 255]
+                        self.image_item.image[
+                        self.box_selector_cords[0][0]:self.box_selector_cords[1][0],
+                        self.box_selector_cords[1][1]] -= [255, 255, 255]
+                    else:
+                        self.image_item.image[
+                        self.box_selector_cords[1][0]:self.box_selector_cords[0][0],
+                        self.box_selector_cords[0][1]] -= [255, 255, 255]
+                        self.image_item.image[
+                        self.box_selector_cords[1][0]:self.box_selector_cords[0][0],
+                        self.box_selector_cords[1][1]] -= [255, 255, 255]
+                    if self.box_selector_cords[0][1] < self.box_selector_cords[1][1]:
+                        self.image_item.image[self.box_selector_cords[0][0],
+                        self.box_selector_cords[0][1]:self.box_selector_cords[1][1]] -= \
+                            [255, 255, 255]
+                        self.image_item.image[self.box_selector_cords[1][0],
+                        self.box_selector_cords[0][1]:self.box_selector_cords[1][1]] -= \
+                            [255, 255, 255]
+                    else:
+                        self.image_item.image[self.box_selector_cords[0][0],
+                        self.box_selector_cords[1][1]:self.box_selector_cords[0][1]] -= \
+                            [255, 255, 255]
+                        self.image_item.image[self.box_selector_cords[1][0],
+                        self.box_selector_cords[1][1]:self.box_selector_cords[0][1]] -= \
+                            [255, 255, 255]
+                except IndexError:
+                    pass
+            if QApplication.mouseButtons() != Qt.LeftButton:
+                self.box_selector_enabled = False
+                shape = self.main_widget.data_handler.shape
+                rois_image = np.reshape(
+                    self.main_widget.data_handler.pixel_with_rois_flat, shape)
+                if (self.box_selector_cords[0][0] < self.box_selector_cords[1][0]):
+                    rois_image = rois_image[self.box_selector_cords[0][0]:
+                                            self.box_selector_cords[1][0]]
+                else:
+                    rois_image = rois_image[self.box_selector_cords[1][0]:
+                                            self.box_selector_cords[0][0]]
+                if self.box_selector_cords[0][1] < self.box_selector_cords[1][1]:
+                    rois_image = rois_image[:, self.box_selector_cords[0][1]:
+                                               self.box_selector_cords[1][1]]
+                else:
+                    rois_image = rois_image[:, self.box_selector_cords[1][1]:
+                                               self.box_selector_cords[0][1]]
+                rois_selected = np.unique(rois_image)[1:]
+                self.tab.update_time = False
+                for x in rois_selected:
+                    self.tab.roi_list_module.roi_item_list[
+                        int(x) - 1].check_box.setChecked(True)
+                self.tab.update_time = True
+                self.tab.deselectRoiTime()
+                self.box_selector_cords = [(0, 0), (0, 0)]
+
+            else:
+                self.box_selector_cords[1] = (x, y)
+                try:
+                    if (self.box_selector_cords[0][0] < self.box_selector_cords[1][0]):
+                        self.image_item.image[
+                        self.box_selector_cords[0][0]:self.box_selector_cords[1][0],
+                        self.box_selector_cords[0][1]] += [255, 255, 255]
+                        self.image_item.image[
+                        self.box_selector_cords[0][0]:self.box_selector_cords[1][0],
+                        self.box_selector_cords[1][1]] += [255, 255, 255]
+                    else:
+                        self.image_item.image[
+                        self.box_selector_cords[1][0]:self.box_selector_cords[0][0],
+                        self.box_selector_cords[0][1]] += [255, 255, 255]
+                        self.image_item.image[
+                        self.box_selector_cords[1][0]:self.box_selector_cords[0][0],
+                        self.box_selector_cords[1][1]] += [255, 255, 255]
+                    if self.box_selector_cords[0][1] < self.box_selector_cords[1][1]:
+                        self.image_item.image[self.box_selector_cords[0][0],
+                        self.box_selector_cords[0][1]:self.box_selector_cords[1][1]] += \
+                            [255, 255, 255]
+                        self.image_item.image[self.box_selector_cords[1][0],
+                        self.box_selector_cords[0][1]:self.box_selector_cords[1][1]] += \
+                            [255, 255, 255]
+                    else:
+                        self.image_item.image[self.box_selector_cords[0][0],
+                        self.box_selector_cords[1][1]:self.box_selector_cords[0][1]] += \
+                            [255, 255, 255]
+                        self.image_item.image[self.box_selector_cords[1][0],
+                        self.box_selector_cords[1][1]:self.box_selector_cords[0][1]] += \
+                            [255, 255, 255]
+
+                except IndexError:
+                    pass
+            self.image_item.updateImage()
+
+
 
     def reset_view(self, updateDisplay=True):
         if hasattr(self.main_widget.data_handler, "edge_roi_image_flat"):

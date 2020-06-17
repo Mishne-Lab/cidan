@@ -91,13 +91,14 @@ def calcDInv(K: sparse.csr_matrix):
     a sparse matrix with type csr, and D's diagonal values
     """
     dim = K.shape[0]
-    D_diag = np.nan_to_num(1 / K.sum(axis=1), nan=0.000001, posinf=0.0000001,
-                           neginf=0.0000001)  # add small epsilon to each row in K.sum()
+    D_diag_inv = np.nan_to_num(1 / K.sum(axis=1), nan=0.000001, posinf=0.0000001,
+                               neginf=0.0000001)  # add small epsilon to each row in K.sum()
+
     # D_diag = 1 / K.sum(axis=1)
     # print("D_diag",D_diag)
-    D_sparse = sparse.dia_matrix((np.reshape(D_diag, [1, -1]), [0]),
+    D_sparse = sparse.dia_matrix((np.reshape(D_diag_inv, [1, -1]), [0]),
                                  (dim, dim))
-    return sparse.csr_matrix(D_sparse), D_diag
+    return sparse.csr_matrix(D_sparse), K.sum(axis=1)
 
 
 def calcLaplacian(P_sparse: sparse.csr_matrix, dim: Tuple[int, int]):

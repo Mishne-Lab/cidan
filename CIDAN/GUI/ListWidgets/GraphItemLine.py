@@ -18,7 +18,8 @@ class MplCanvas(FigureCanvasQTAgg):
 class GraphItemLine(QWidget):
     def __init__(self, *, data, x_label, y_label, x_ticks, y_ticks,
                  display_y_axis_ticks=True, display_axis_labels=True, aspect_ratio_x=9,
-                 aspect_ratio_y=1):
+                 display_roi_labels=False, roi_labels=[],
+                 aspect_ratio_y=1, colors=False):
         super(GraphItemLine, self).__init__()
 
         self.setStyleSheet("""
@@ -27,6 +28,7 @@ class GraphItemLine(QWidget):
                                 }""")
         layout = QVBoxLayout()
         layout_h = QHBoxLayout()
+
         self.data = data
         self.y_label = y_label
         # if len(data.shape) ==1:
@@ -35,9 +37,24 @@ class GraphItemLine(QWidget):
         self.graph = pg.PlotWidget()
 
         self.graph.showGrid(x=True, y=True, alpha=0.3)
-        self.graph.enableMouse(False)
-        self.graph.plot(data)
-        self.graph.getPlotItem().getViewBox().setMouseEnabled(False, False)
+        if (type(data) == list):
+            if type(colors) == list:
+                for x, color in zip(data, colors):
+                    pen = pg.mkPen(color=color, width=2)
+                    self.graph.plot(x, pen=pen)
+            else:
+                for x in data:
+                    self.graph.plot(x)
+            if (display_roi_labels):
+                for num, name in enumerate(roi_labels):
+                    text_box = pg.TextItem("ROI" + str(name), anchor=(0, .5),
+                                           fill=pg.mkBrush(color=(0, 0, 0)))
+
+                    self.graph.addItem(text_box)
+                    text_box.setPos(-5, num)
+        else:
+            self.graph.plot(data)
+        self.graph.getPlotItem().getViewBox().setMouseEnabled(True, False)
         self.graph.getPlotItem().setLabel("left", y_label)
         self.graph.getPlotItem().setLabel("bottom", x_label)
         # self.graph.axes.xticks(ticks=list(range(data.shape[0])), labels=x_ticks)
