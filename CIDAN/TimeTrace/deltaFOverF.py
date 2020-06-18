@@ -3,7 +3,7 @@ import numpy as np
 
 def calculateDeltaFOverF(roi, data):
     """
-    Calcualtes the deltaf/f time trace for a given roi and data
+    Calcualtes the DeltaF Over F time trace for a given roi and data
     Parameters
     ----------
     roi list of pixels for data (1D cords)

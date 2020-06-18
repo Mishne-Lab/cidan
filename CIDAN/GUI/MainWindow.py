@@ -8,7 +8,6 @@ from CIDAN.GUI.Tabs.FileOpenTab import FileOpenTab
 from CIDAN.GUI.Tabs.ROIExtractionTab import *
 from CIDAN.GUI.Tabs.PreprocessingTab import *
 import qdarkstyle
-from dask.distributed import Client
 from CIDAN.GUI.ImageView.ImageViewModule import ImageViewModule
 from CIDAN.GUI.Data_Interaction.DataHandler import DataHandler
 from CIDAN.GUI.Console.ConsoleWidget import ConsoleWidget
@@ -195,17 +194,41 @@ class MainWidget(QWidget):
         self.fileOpenTab.tab_selector.setCurrentIndex(index)
 
     def exportStuff(self):
-        msg = QMessageBox()
-        msg.setWindowTitle("Export data")
-        msg.setText("Data Exported to save directory")
-        msg.setIcon(QMessageBox.Information)
-        x = msg.exec_()
+        dialog = QDialog()
+        dialog.setStyleSheet(qdarkstyle.load_stylesheet())
+        dialog.layout = QVBoxLayout()
+        dialog.setWindowTitle("Select Trials to Export")
+        trial_dialog = TrialListWidget()
+        trial_dialog.set_items_from_list(self.data_handler.trials_all,
+                                         trials_selected_indices=self.data_handler.trials_loaded_time_trace_indices)
+
+        def export_func():
+            self.data_handler.update_selected_trials(
+                trial_dialog.selectedTrials())
+            self.data_handler.export()
+            dialog.close()
+            msg = QMessageBox()
+            msg.setStyleSheet(qdarkstyle.load_stylesheet())
+            msg.setWindowTitle("Export data")
+
+            msg.setText("Data Exported to save directory")
+            msg.setIcon(QMessageBox.Information)
+            x = msg.exec_()
+
+        dialog.layout.addWidget(trial_dialog)
+        export_button = QPushButton("Export")
+        export_button.clicked.connect(lambda x: export_func())
+
+        dialog.layout.addWidget(export_button)
+        dialog.setLayout(dialog.layout)
+        dialog.show()
+
 
 
 if __name__ == "__main__":
-    client = Client(processes=False, threads_per_worker=16,
-                    n_workers=1, memory_limit='32GB')
-    print(client)
+    # client = Client(processes=False, threads_per_worker=16,
+    #                 n_workers=1, memory_limit='32GB')
+    # print(client)
     LOG_FILENAME = 'log.out'
     logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG)
     logger = logging.getLogger("CIDAN")

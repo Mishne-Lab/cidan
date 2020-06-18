@@ -1,3 +1,5 @@
+import logging
+from functools import reduce
 import json
 import logging
 from functools import reduce
@@ -102,7 +104,8 @@ class DataHandler:
         "time_trace_type": "Mean"
     }
 
-    def __init__(self, data_path, save_dir_path, save_dir_already_created, trials=[]):
+    def __init__(self, data_path, save_dir_path, save_dir_already_created, trials=[],
+                 parameter_file=False):
         """
         Initializes the object
         Parameters
@@ -119,6 +122,7 @@ class DataHandler:
             The list of either names of folders that contain many tiff files or a
             list of tiff files
         """
+        self.parameter_file_name = "parameters.json"
         # TODO add loaded trials and all trials parameter here
         # TODO make sure if trial list includes files that aren't valid it works
         self.color_list = [(218, 67, 34),
@@ -127,8 +131,26 @@ class DataHandler:
 
         self.save_dir_path = save_dir_path
         self.rois_loaded = False  # whether roi variables have been created
-        if save_dir_already_created:  # this loads everything from the save dir
+        if parameter_file:
+            self.parameter_file_name = os.path.basename(parameter_file)
+            self.save_dir_path = os.path.dirname(parameter_file)
+            self.create_new_save_dir()
             valid = self.load_param_json()
+            self.global_params = DataHandler._global_params_default.copy()
+            # these indices are used for which trials to use for roi extract
+            self._trials_loaded_indices = [num for num, x in enumerate(self.trials_all)
+                                           if x in self.trials_loaded]
+            # these are used to determine which trials to calculate time_traces for
+            self.trials_loaded_time_trace_indices = [num for num, x in
+                                                     enumerate(self.trials_all)
+                                                     if x in self.trials_loaded]
+
+
+        elif save_dir_already_created:  # this loads everything from the save dir
+            valid = self.load_param_json()
+            self.time_trace_params = DataHandler._time_trace_params_default.copy()
+            # time trace params are not currently saved
+
             # these indices are used for which trials to use for roi extract
             self._trials_loaded_indices = [num for num, x in enumerate(self.trials_all)
                                            if x in self.trials_loaded]
@@ -186,7 +208,7 @@ class DataHandler:
 
     def __del__(self):
         try:
-            for x in self.__dict__.items():
+            for x in list(self.__dict__.items()):
                 self.__dict__[x] = None
         except TypeError:
             pass
@@ -210,7 +232,7 @@ class DataHandler:
         """
         Returns the path to the parameter file
         """
-        return os.path.join(self.save_dir_path, "parameters.json")
+        return os.path.join(self.save_dir_path, self.parameter_file_name)
 
     @property
     def eigen_vectors_exist(self):
@@ -585,7 +607,11 @@ class DataHandler:
                 self.calculate_filters()
                 eigen_need_recalc = self.global_params["need_recalc_eigen_params"]
                 self.global_params["need_recalc_eigen_params"] = False
+                self.global_params[
+                    "need_recalc_roi_extraction_params"] = False
                 temp_params = self.box_params.copy()
+                self.global_params[
+                    "need_recalc_box_parmas"] = False
                 self.rois = process_data(num_threads=self.global_params[
                     "num_threads"], test_images=False, test_output_dir="",
                                          save_dir=self.save_dir_path,
@@ -711,7 +737,8 @@ class DataHandler:
                 self.calculate_time_trace(roi + 1, trial_num)
 
         if os.path.isdir(self.save_dir_path):
-            pickle_save(self.time_traces, "time_traces",
+            pickle_save(self.time_traces,
+                        "time_traces_" + self.time_trace_params["time_trace_type"],
                         output_directory=self.save_dir_path)
         self.rois_loaded = True
 
@@ -734,15 +761,13 @@ class DataHandler:
             if type(self.dataset_trials_filtered[trial_num]) == bool:
                 self.load_trial_filter_step(trial_num)
             data_2d = reshape_to_2d_over_time(self.dataset_trials_filtered[trial_num])
-            if self.time_trace_params["time_trace_type"] == "DeltaF/F":
+            if self.time_trace_params["time_trace_type"] == "DeltaF Over F":
                 time_trace = calculateDeltaFOverF(roi, data_2d)
             else:
                 time_trace = calculateMeanTrace(roi, data_2d)
             calculateDeltaFOverF(roi, data_2d)
             self.time_traces[roi_num - 1][trial_num] = time_trace
-        if os.path.isdir(self.save_dir_path):
-            pickle_save(self.time_traces, "time_traces",
-                        output_directory=self.save_dir_path)
+
 
     def get_time_trace(self, num, trial=None):
         """
@@ -782,7 +807,7 @@ class DataHandler:
                         y in selected_trials]
         for trial_num, _ in enumerate(self.trials_all):
             if trial_num in new_selected and trial_num not in self.trials_loaded_time_trace_indices:
-                self.dataset_trials_filtered = self.load_trial_filter_step(
+                self.dataset_trials_filtered[trial_num] = self.load_trial_filter_step(
                     trial_num).compute()
                 self.trials_loaded_time_trace_indices.append(trial_num)
             if trial_num not in new_selected and trial_num in self.trials_loaded_time_trace_indices \
@@ -874,3 +899,25 @@ class DataHandler:
             return []
 
         return final_roi
+
+    def export(self):
+        temp_type = self.time_trace_params["time_trace_type"]
+        for time_type in ["Mean", "DeltaF Over F"]:
+            self.time_trace_params["time_trace_type"] = time_type
+            self.calculate_time_traces()
+        self.time_trace_params["time_trace_type"] = temp_type
+        self.save_rois(self.rois)
+        roi_save_object = []
+        spatial_box = SpatialBox(0, 1, image_shape=self.shape, spatial_overlap=0)
+        for num, roi in enumerate(self.rois):
+            if self.dataset_params["crop_stack"]:
+
+                cords = [[x[0] + self.dataset_params["crop_x"][0],
+                          x[1] + self.dataset_params["crop_y"][0]] for x in
+                         spatial_box.convert_1d_to_2d(roi)]
+            else:
+                cords = spatial_box.convert_1d_to_2d(roi)
+            curr_roi = {"id": num, "cordinates": cords}
+            roi_save_object.append(curr_roi)
+        with open(os.path.join(self.save_dir_path, "roi_list"), "w") as f:
+            json.dump(roi_save_object, f)

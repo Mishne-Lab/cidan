@@ -55,7 +55,8 @@ class ROIExtractionTab(Tab):
         roi_modification_tab_layout = QVBoxLayout()
         roi_modification_tab_layout.setContentsMargins(2, 2, 2, 2)
         roi_modification_tab.setLayout(roi_modification_tab_layout)
-        self.roi_list_module = ROIListModule(main_widget.data_handler, self)
+        self.roi_list_module = ROIListModule(main_widget.data_handler, self,
+                                             select_multiple=False, display_time=False)
         roi_modification_tab_layout.addWidget(self.roi_list_module)
         roi_modification_button_top_layout = QHBoxLayout()
         roi_modification_tab_layout.addLayout(roi_modification_button_top_layout)
@@ -167,6 +168,7 @@ class ROIExtractionTab(Tab):
         tab_selector_time_trace.setMaximumHeight(220)
         # plot of time traces
         self.time_plot = pg.PlotWidget()
+        self.time_plot.getPlotItem().getViewBox().setMouseEnabled(True, False)
         self.time_plot.showGrid(x=True, y=True, alpha=0.3)
 
         tab_selector_time_trace.addTab(self.time_plot, "Time Trace Plot")
@@ -179,7 +181,7 @@ class ROIExtractionTab(Tab):
                                            lambda x, y: x + y,
                                            default_index=0,
                                            tool_tip="Select way to calculate time trace",
-                                           val_list=["Mean", "DeltaF/F"])
+                                           val_list=["Mean", "DeltaF Over F"])
         time_trace_settings_layout.addWidget(self.time_trace_type,
                                              stretch=1)
         # A list widget to select what trials to calculate/display time traces for

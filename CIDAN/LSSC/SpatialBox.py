@@ -93,9 +93,12 @@ class SpatialBox:
 
         return list(map(change_1_cord, cord_list))
 
-    def convert_1d_to_2d(self):
-        # TODO implement this
-        pass
+    def convert_1d_to_2d(self, cord_list):
+        def change_1_cord(cord_1d):
+            return int(cord_1d // self.shape[1]), int(cord_1d - (
+                    cord_1d // self.shape[1]) * self.shape[1])
+
+        return list(map(change_1_cord, cord_list))
 
     def data_w_out_spatial_overlap(self, data):
         """

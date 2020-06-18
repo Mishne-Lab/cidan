@@ -11,7 +11,12 @@ class TrialListWidget(QWidget):
     """
 
     def __init__(self, show_buttons=True):
+        """
 
+        Returns
+        -------
+
+        """
         self.trial_paths = []
         self.trial_items = []
 

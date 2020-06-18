@@ -88,15 +88,17 @@ class ROIItemWidget(QWidget):
 
     def check_box_toggled(self):
         if self.check_box.checkState():
-            self.check_box_time_trace.setChecked(True)
-            if not self.display_time:
-                self.roi_tab.image_view.selectRoi(self.roi_num)
+
             if not self.roi_list.select_multiple:
                 for x in self.roi_list.roi_item_list:
                     if x != self:
                         x.check_box.setChecked(False)
 
             self.roi_list.current_selected_roi = self.roi_num
+            self.check_box_time_trace.setChecked(True)
+
+            if not self.display_time:
+                self.roi_tab.image_view.selectRoi(self.roi_num)
         else:
             self.roi_list.current_selected_roi = None
             if not self.display_time:

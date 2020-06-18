@@ -26,6 +26,8 @@ def pickle_save(obj, name, trial_num=0, output_directory=None):
     if ".pickle" not in name:
         name = name + ".pickle"
 
+    name = name.replace(" ", "_")
+
     if output_directory:
         dir_full_path = output_directory
     else:
@@ -50,6 +52,7 @@ def pickle_exist(name, trial_num=0, output_directory=None):
     -------
     None
     """
+    name = name.replace(" ", "_")
     if not output_directory:
         dir_full_path = os.path.join(dir_name, str(trial_num) + "/")
     else:
@@ -71,6 +74,7 @@ def pickle_load(name, trial_num=0, output_directory=None):
     -------
     object
     """
+    name = name.replace(" ", "_")
     if not output_directory:
         dir_full_path = os.path.join(dir_name, str(trial_num) + "/")
     else:

@@ -51,9 +51,8 @@ class AnalysisTab(Tab):
                                            lambda x, y: self.update_time_traces(),
                                            default_index=0,
                                            tool_tip="Select way to calculate time trace",
-                                           val_list=["Mean", "DeltaF/F"])
-        plot_settings_layout.addWidget(self.time_trace_type,
-                                       stretch=1)
+                                           val_list=["Mean", "DeltaF Over F"])
+        plot_settings_layout.addWidget(self.time_trace_type)
 
         time_trace_settings = QWidget()
         time_trace_settings_layout = QVBoxLayout()
