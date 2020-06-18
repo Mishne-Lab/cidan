@@ -39,7 +39,7 @@ python -m CIDAN
 7. To export the results use the top bar and select export. Note there is a small error where if you can't select the top bar just select another window then go back and select CIDAN again and it should let you. 
 # Guide to call CIDAN in the terminal 
 Warning this is significantly more complicated than using the GUI, it is recomended that you have some experience with json files and running terminal applications. 
-1. Download the default parameter.json file from the github repo. Place it in the folder you want to save the results in. 
+1. Download the default parameter.json file from the github repo. Place it in the folder you want to save the results in. The other option is to use the parameter.json file from a save directory of another similar dataset. This will use all the settings from that dataset.
 2. Next use a program of your choice like text-edit to edit the parameter.json file. Here are the settings that you should look into changing. 
     - "dataset_folder_path": change to the folder containing the dataset you want to process. 
     - "trials_loaded": this is a list of all file or folder names in said folder that you want to process
@@ -51,11 +51,11 @@ Warning this is significantly more complicated than using the GUI, it is recomen
 python -m CIDAN -headless True --parameter <path to parameter.json file> 
 ~~~
 4. This will export everything into the directory of the parameter file, see the export section to understand each of the export files. To easily view the results you can use the open previous save dir option in the GUI to open this directory.
-# Export Files 
+# Export Files
 This is an explanation of all the files exported by CIDAN into the specified save directory. 
-    -  parameters.json: file containing all the settings for the algorithm
-    - time_traces_DeltaF_Over_F.pickle: A file with a list of the deltaF/F for each roi in order. In this format: [  [  [time trace for ROI#1 trial 1],[time trace for ROI#1 trial 2]],  [[time trace for ROI#2 trial 1],[time trace for ROI#2 trial 2]  ] ]. Each time trace is stored as numpy ndarray. 
-    - time_traces_Mean.pickle: Same format as previous file except for using the mean flourences of ROI at each time point for time trace. 
-    - rois.pickle: Internal use
-    - eigen_vectors folder: Internal use
-    - embedding_norm_images: Internal use
+- parameters.json: file containing all the settings for the algorithm
+- time_traces_DeltaF_Over_F.pickle: A file with a list of the deltaF/F for each roi in order. In this format: [  [  [time trace for ROI#1 trial 1],[time trace for ROI#1 trial 2]],  [[time trace for ROI#2 trial 1],[time trace for ROI#2 trial 2]  ] ]. Each time trace is stored as numpy ndarray. 
+- time_traces_Mean.pickle: Same format as previous file except for using the mean flourences of ROI at each time point for time trace. 
+- rois.pickle: Internal use
+- eigen_vectors folder: Internal use
+- embedding_norm_images: Internal use
