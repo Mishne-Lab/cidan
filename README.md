@@ -52,4 +52,10 @@ python -m CIDAN -headless True --parameter <path to parameter.json file>
 ~~~
 4. This will export everything into the directory of the parameter file, see the export section to understand each of the export files. To easily view the results you can use the open previous save dir option in the GUI to open this directory.
 # Export Files 
-This is an explanation of all the files exported by CIDAN. 
+This is an explanation of all the files exported by CIDAN into the specified save directory. 
+    -  parameters.json: file containing all the settings for the algorithm
+    - time_traces_DeltaF_Over_F.pickle: A file with a list of the deltaF/F for each roi in order. In this format: [  [  [time trace for ROI#1 trial 1],[time trace for ROI#1 trial 2]],  [[time trace for ROI#2 trial 1],[time trace for ROI#2 trial 2]  ] ]. Each time trace is stored as numpy ndarray. 
+    - time_traces_Mean.pickle: Same format as previous file except for using the mean flourences of ROI at each time point for time trace. 
+    - rois.pickle: Internal use
+    - eigen_vectors folder: Internal use
+    - embedding_norm_images: Internal use
