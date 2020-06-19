@@ -125,10 +125,8 @@ def createEmbedingNormImageFromMultiple(*, spatial_box_list, save_dir, num_time_
     embed_dir = os.path.join(save_dir, "embedding_norm_images")
     eigen_images = []
     for e_vectors, spatial_box in zip(e_vectors_list, spatial_box_list):
-        e_vectors_squared = np.power(e_vectors, 2)
-        e_vectors_sum = np.sum(e_vectors_squared, axis=1)
-        e_vectors_sum_rescaled = e_vectors_sum * (
-                9.0 / e_vectors_sum.mean())  # add histogram equalization
+        e_vectors_sum_rescaled = e_vectors * (
+                9.0 / e_vectors.mean())  # add histogram equalization
         # noqa
         e_vectors_shaped = np.reshape(e_vectors_sum_rescaled,
                                       spatial_box.shape)
