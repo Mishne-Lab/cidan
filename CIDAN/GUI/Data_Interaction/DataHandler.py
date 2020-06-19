@@ -495,6 +495,7 @@ class DataHandler:
         self.global_params["need_recalc_dataset_params"] = False
         self.shape = [dataset_trials[0].shape[1],
                       dataset_trials[0].shape[2]]
+        print(dataset_trials[0])
         if self.dataset_params["crop_x"][1] == 0:
             self.dataset_params["crop_x"][1] = self.shape[0]
             self.dataset_params["crop_y"][1] = self.shape[1]
@@ -583,9 +584,9 @@ class DataHandler:
                 self.dataset_trials_filtered[trial_num] = self.load_trial_filter_step(
                     trial_num, dataset_trials[trial_num])
             self.dataset_trials_filtered = dask.compute(*self.dataset_trials_filtered)
-            # self.mean_image = np.mean(np.dstack(
-            #     [np.mean(x, axis=0) for x in self.dataset_trials_filtered_loaded]),
-            #     axis=2)
+            self.mean_image = np.mean(np.dstack(
+                [np.mean(x, axis=0) for x in self.dataset_trials_filtered_loaded]),
+                axis=2)
             self.max_image =np.max(self.dataset_trials_filtered_loaded[0], axis=0)
 
             # self.temporal_correlation_image = calculate_temporal_correlation(self.dataset_filtered)

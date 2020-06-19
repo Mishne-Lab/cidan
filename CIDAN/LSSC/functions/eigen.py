@@ -112,11 +112,16 @@ def createEmbedingNormImageFromMultiple(*, spatial_box_list, save_dir, num_time_
     for spatial_box in spatial_box_list:
         temp = []
         for time_box_num in range(num_time_steps):
-            temp.append(pickle_load(
+            e_vectors = pickle_load(
                 "eigen_vectors_box_{}_{}.pickle".format(spatial_box.box_num,
                                                         time_box_num),
-                output_directory=eigen_dir))
-        e_vectors_list.append(np.hstack(temp))
+                output_directory=eigen_dir)
+
+            e_vectors_squared = np.power(e_vectors, 2)
+            e_vectors_sum = np.sum(e_vectors_squared, axis=1)
+            temp.append(e_vectors_sum)
+
+        e_vectors_list.append(np.max(temp, axis=0))
     embed_dir = os.path.join(save_dir, "embedding_norm_images")
     eigen_images = []
     for e_vectors, spatial_box in zip(e_vectors_list, spatial_box_list):
