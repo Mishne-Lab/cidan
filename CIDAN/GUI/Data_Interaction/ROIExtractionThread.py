@@ -18,8 +18,9 @@ class ROIExtractionThread(Thread):
     def run(self):
         try:
             self.data_handler.calculate_roi_extraction()
+            print("Finished ROI extraction")
             self.signal.sig.emit(True)
-        except EnvironmentError as e:
+        except AssertionError as e:
             if (type(e) == AssertionError):
                 print(e.args[0])
             else:
@@ -40,7 +41,7 @@ class ROIExtractionThread(Thread):
     def endThread(self, success):
         self.button.setEnabled(True)
         if success:
-            print("Finished ROI extraction")
+
             self.roi_list_module.set_list_items(self.main_widget.data_handler.rois)
             shape = self.main_widget.data_handler.edge_roi_image_flat.shape
             self.roi_tab.image_view.roi_image_flat = np.hstack(

@@ -15,13 +15,13 @@ class PreprocessThread(Thread):
         self.signal.sig.connect(lambda x: self.endThread(x))
 
     def run(self):
-        try:
-            self.data_handler.calculate_filters()
-            self.signal.sig.emit(True)
-        except Exception as e:
-            logger.error(e)
-            print("Unexpected error:", sys.exc_info()[0])
-            self.signal.sig.emit(False)
+        # try:
+        self.data_handler.calculate_filters()
+        self.signal.sig.emit(True)
+        # except Exception as e:
+        #     logger.error(e)
+        #     print("Unexpected error:", sys.exc_info()[0])
+        #     self.signal.sig.emit(False)
 
     def runThread(self):
 

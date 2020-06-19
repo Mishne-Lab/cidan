@@ -19,6 +19,8 @@ def filterRoiList(roi_list, image_shape, threshold=.7):
     -------
     list of threshold_values
     """
+    if len(roi_list)==0:
+        return []
     out_list = [filterRoi(x, image_shape=image_shape, threshold=threshold) for x in
                 roi_list]
     out = dask.compute(*out_list)

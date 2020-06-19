@@ -212,8 +212,11 @@ class ROIPaintImageViewModule(ROIImageViewModule):
             self.select_mode = type
 
     def reset_view(self):
-        super().reset_view(updateDisplay=False)
-        self.select_image_flat = np.zeros([self.shape[0] * self.shape[1], 3])
+        if not any([x.isRunning() for x in self.main_widget.thread_list]) and self.reseting_view:
+            super().reset_view(updateDisplay=False)
+            self.reseting_view = True
+            self.select_image_flat = np.zeros([self.shape[0] * self.shape[1], 3])
 
-        self.clearPixelSelection()
-        self.updateImageDisplay()
+            self.clearPixelSelection()
+            self.updateImageDisplay()
+            self.reseting_view = False

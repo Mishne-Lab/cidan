@@ -13,6 +13,12 @@ from CIDAN.GUI.Data_Interaction.DataHandler import DataHandler
 from CIDAN.GUI.Console.ConsoleWidget import ConsoleWidget
 import sys
 import logging
+sys._excepthook = sys.excepthook
+def exception_hook(exctype, value, traceback):
+    print(exctype, value, traceback)
+    sys._excepthook(exctype, value, traceback)
+    sys.exit(1)
+sys.excepthook = exception_hook
 
 
 class MainWindow(QMainWindow):
@@ -211,7 +217,7 @@ class MainWidget(QWidget):
             msg.setStyleSheet(qdarkstyle.load_stylesheet())
             msg.setWindowTitle("Export data")
 
-            msg.setText("Data Exported to save directory")
+            msg.setText("Data Exported to save directory: "+  self.data_handler.save_dir_path)
             msg.setIcon(QMessageBox.Information)
             x = msg.exec_()
 

@@ -27,7 +27,7 @@ def main():
               'info': logging.INFO,
               'warning': logging.WARNING,
               'error': logging.ERROR,
-              'critical': logging.CRITICAL}
+             'critical': logging.CRITICAL}
 
     level = LEVELS.get(args.loglevel, logging.NOTSET)
     logging.basicConfig(filename=args.logpath, level=level)

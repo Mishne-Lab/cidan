@@ -380,6 +380,8 @@ class DataHandler:
         if param_name in self.dataset_params:
             self.dataset_params[param_name] = new_value
             self.global_params["need_recalc_dataset_params"] = True
+            self.global_params["need_recalc_box_params"] = True
+
             self.save_new_param_json()
             return True
         else:
@@ -402,6 +404,8 @@ class DataHandler:
         if param_name in self.filter_params:
             self.filter_params[param_name] = new_value
             self.global_params["need_recalc_filter_params"] = True
+            self.global_params["need_recalc_box_params"] = True
+
             self.save_new_param_json()
             return True
         else:
@@ -425,7 +429,7 @@ class DataHandler:
             # if param_name == "total_num_spatial_boxes":
             #     assert (int(new_value**.5))**2 == new_value, "Please make sure Number of Spatial Boxes is a square number"
             self.box_params[param_name] = new_value
-            # self.global_params["need_recalc_box_params"] = True
+            self.global_params["need_recalc_box_params"] = True
             self.global_params["need_recalc_eigen_params"] = True
             # self.global_params["need_recalc_roi_extraction_params"] = True
             self.save_new_param_json()
@@ -484,17 +488,18 @@ class DataHandler:
         """
         # TODO make it so it does't load the dataset every time
 
-        self.dataset_trials = [False] * len(self.trials_all)
+        dataset_trials = [False] * len(self.trials_all)
         for trial_num in self._trials_loaded_indices:
-            self.dataset_trials[trial_num] = self.load_trial_dataset_step(trial_num)
-        self.dataset_trials = dask.compute(*self.dataset_trials)
+            dataset_trials[trial_num] = self.load_trial_dataset_step(trial_num)
+        dataset_trials = dask.compute(*dataset_trials)
         self.global_params["need_recalc_dataset_params"] = False
-        self.shape = [self.dataset_trials_loaded[0].shape[1],
-                      self.dataset_trials_loaded[0].shape[2]]
+        self.shape = [dataset_trials[0].shape[1],
+                      dataset_trials[0].shape[2]]
         if self.dataset_params["crop_x"][1] == 0:
             self.dataset_params["crop_x"][1] = self.shape[0]
             self.dataset_params["crop_y"][1] = self.shape[1]
         print("Finished Calculating Dataset")
+        return dataset_trials
 
     @delayed
     def load_trial_dataset_step(self, trial_num):
@@ -532,21 +537,22 @@ class DataHandler:
         )
 
     @delayed
-    def load_trial_filter_step(self, trial_num):
+    def load_trial_filter_step(self, trial_num,dataset=False):
         """
         Delayed function step that applies filter to a single trial
         Parameters
         ----------
         trial_num : int
             trial num to load in trials_all
+        dataset : ndarray
+            Dataset to process if false load dataset
 
         Returns
         -------
         Filtered trial as a np.ndarray
         """
         return filter_stack(
-            stack=self.dataset_trials[trial_num] if type(self.dataset_trials[
-                                                             trial_num]) != bool else self.load_trial_dataset_step(
+            stack=dataset if type(dataset) != bool else self.load_trial_dataset_step(
                 trial_num).compute(),
             median_filter_size=(self.filter_params[
                                     "median_filter_size"],
@@ -570,19 +576,17 @@ class DataHandler:
         if self.global_params["need_recalc_filter_params"] or self.global_params[
             "need_recalc_dataset_params"] or \
                 not hasattr(self, "dataset_trials_filtered"):
-            self.calculate_dataset()
+            dataset_trials = self.calculate_dataset()
             print("Started Calculating Filters")
             self.dataset_trials_filtered = [False] * len(self.trials_all)
             for trial_num in self._trials_loaded_indices:
                 self.dataset_trials_filtered[trial_num] = self.load_trial_filter_step(
-                    trial_num)
+                    trial_num, dataset_trials[trial_num])
             self.dataset_trials_filtered = dask.compute(*self.dataset_trials_filtered)
-            self.mean_image = np.mean(np.dstack(
-                [np.mean(x, axis=0) for x in self.dataset_trials_filtered_loaded]),
-                axis=2)
-            self.max_image = np.max(np.dstack(
-                [np.max(x, axis=0) for x in self.dataset_trials_filtered_loaded]),
-                axis=2)
+            # self.mean_image = np.mean(np.dstack(
+            #     [np.mean(x, axis=0) for x in self.dataset_trials_filtered_loaded]),
+            #     axis=2)
+            self.max_image =np.max(self.dataset_trials_filtered_loaded[0], axis=0)
 
             # self.temporal_correlation_image = calculate_temporal_correlation(self.dataset_filtered)
             self.global_params["need_recalc_filter_params"] = False

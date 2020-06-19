@@ -16,6 +16,7 @@ class ROIImageViewModule(ImageViewModule):
     def __init__(self, main_widget, tab, settings_tab=True):
         super(ROIImageViewModule, self).__init__(main_widget, histogram=False)
         self.tab = tab
+        self.reseting_view = False # Way to prevent infinite loops of reset_view
         self.data_handler = main_widget.data_handler
         self.current_foreground_intensity = 80
         self.click_event = False
@@ -369,20 +370,23 @@ class ROIImageViewModule(ImageViewModule):
 
 
     def reset_view(self, updateDisplay=True):
-        if hasattr(self.main_widget.data_handler, "edge_roi_image_flat"):
-            shape = self.main_widget.data_handler.edge_roi_image_flat.shape
-            self.data_handler.save_rois(self.data_handler.rois)
-            self.select_image_flat = np.zeros([shape[0] * shape[1], 3])
+        if not any([x.isRunning() for x in self.main_widget.thread_list]) and not self.reseting_view:
+            self.reseting_view=True
+            if hasattr(self.main_widget.data_handler, "edge_roi_image_flat"):
+                shape = self.main_widget.data_handler.edge_roi_image_flat.shape
+                self.data_handler.save_rois(self.data_handler.rois)
+                self.select_image_flat = np.zeros([shape[0] * shape[1], 3])
 
-            if self.outlines:
-                self.roi_image_flat = np.hstack(
-                    [self.data_handler.edge_roi_image_flat,
-                     np.zeros(shape),
-                     np.zeros(shape)])
+                if self.outlines:
+                    self.roi_image_flat = np.hstack(
+                        [self.data_handler.edge_roi_image_flat,
+                         np.zeros(shape),
+                         np.zeros(shape)])
 
 
-            else:
-                self.roi_image_flat = self.main_widget.data_handler.pixel_with_rois_color_flat
+                else:
+                    self.roi_image_flat = self.main_widget.data_handler.pixel_with_rois_color_flat
 
-        if (updateDisplay):
-            self.updateImageDisplay()
+            if (updateDisplay):
+                self.updateImageDisplay()
+            self.reseting_view =False
