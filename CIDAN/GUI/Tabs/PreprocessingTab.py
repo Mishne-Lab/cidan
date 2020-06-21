@@ -39,6 +39,7 @@ class PreprocessingTab(Tab):
         # This assumes that the data is already loaded in
         self.data_handler.calculate_filters()
 
+
         # Section that creates all the buttons to change which image is displayed
         image_buttons = QWidget()
         self._image_buttons_layout = QHBoxLayout()
@@ -68,13 +69,14 @@ class PreprocessingTab(Tab):
         self._image_buttons_layout.addWidget(stack_button)
         self._image_buttons_layout.addWidget(max_image_button)
         self._image_buttons_layout.addWidget(mean_image_button)
-        self.set_image_display_list(self.data_handler.trials_loaded,
-                                    self.data_handler.dataset_trials_filtered_loaded)
+
 
         main_widget.preprocess_image_view.setContentsMargins(0, 0, 0, 0)
         # main_widget.preprocess_image_view.setMargin(0)
         preprocessing_settings_widget = preprocessing_settings(main_widget)
         preprocessing_settings_widget.setContentsMargins(0, 0, 0, 0)
+        # Update image view
+        self.updateTab()
         # Initialize the tab with the necessary columns
         super().__init__("Preprocessing", column_1=[preprocessing_settings_widget
                                                     ],
@@ -121,3 +123,8 @@ class PreprocessingTab(Tab):
         self._image_buttons_layout.addWidget(self.trial_selector_input)
         self.main_widget.preprocess_image_view.setImage(
             data)
+
+    def updateTab(self):
+        if (self.main_widget.checkThreadRunning()):
+            self.set_image_display_list(self.data_handler.trials_loaded,
+                                        self.data_handler.dataset_trials_filtered_loaded)

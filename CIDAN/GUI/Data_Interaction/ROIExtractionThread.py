@@ -1,6 +1,5 @@
 import logging
 
-from CIDAN.GUI.Data_Interaction.Signals import *
 from CIDAN.GUI.Data_Interaction.Thread import Thread
 
 logger = logging.getLogger("CIDAN.GUI.Data_Interaction.ROIExctractionThread")
@@ -41,13 +40,4 @@ class ROIExtractionThread(Thread):
     def endThread(self, success):
         self.button.setEnabled(True)
         if success:
-
-            self.roi_list_module.set_list_items(self.main_widget.data_handler.rois)
-            shape = self.main_widget.data_handler.edge_roi_image_flat.shape
-            self.roi_tab.image_view.roi_image_flat = np.hstack(
-                [self.main_widget.data_handler.edge_roi_image_flat,
-                 np.zeros(shape),
-                 np.zeros(shape)])
-            self.roi_tab.image_view.select_image_flat = np.zeros([shape[0], 3])
-
-            self.roi_tab.image_view.updateImageDisplay(new=True)
+            self.main_widget.updateTabs()

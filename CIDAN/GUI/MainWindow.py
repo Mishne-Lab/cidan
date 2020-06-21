@@ -143,8 +143,8 @@ class MainWidget(QWidget):
                 # auto loads a small dataset
                 self.data_handler = DataHandler(
 
-                    "/Users/sschickler/Code Devel/LSSC-python/input_images/",
-                    "/Users/sschickler/Code Devel/LSSC-python/input_images/test",
+                    "/Users/sschickler/Code_Devel/LSSC-python/input_images/",
+                    "/Users/sschickler/Code_Devel/LSSC-python/input_images/test",
                     trials=["small_dataset.tif"],
                     save_dir_already_created=True)
                 self.init_w_data()
@@ -245,6 +245,10 @@ class MainWidget(QWidget):
 
         else:
             return True
+
+    def updateTabs(self):
+        for x in self.tabs:
+            x.updateTab()
 
 
 if __name__ == "__main__":

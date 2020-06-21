@@ -16,7 +16,7 @@ class ROIImageViewModule(ImageViewModule):
     def __init__(self, main_widget, tab, settings_tab=True):
         super(ROIImageViewModule, self).__init__(main_widget, histogram=False)
         self.tab = tab
-        self.reseting_view = False # Way to prevent infinite loops of reset_view
+        self.resetting_view = False  # Way to prevent infinite loops of reset_view
         self.data_handler = main_widget.data_handler
         self.current_foreground_intensity = 80
         self.click_event = False
@@ -33,6 +33,7 @@ class ROIImageViewModule(ImageViewModule):
         if settings_tab:
             self.layout.removeWidget(self.image_view)
             self.layout.addWidget(self.createTabLayout())
+        self.current_background_name = "Max Image"
 
     def createTabLayout(self):
         # ROI view tab section
@@ -107,20 +108,25 @@ class ROIImageViewModule(ImageViewModule):
         # Background refers to the image behind the rois
         shape = self.main_widget.data_handler.shape
         if func_name == "Mean Image":
+            self.current_background_name = func_name
             self.current_background = self.main_widget.data_handler.mean_image.reshape(
                 [-1, 1])
-        if func_name == "Max Image":
-            self.current_background = self.main_widget.data_handler.max_image.reshape(
-                [-1, 1])
+
         if func_name == "Blank Image":
+            self.current_background_name = func_name
             self.current_background = np.zeros([shape[0] * shape[1], 1])
         # if func_name == "Temporal Correlation Image":
         #     self.current_background = self.data_handler.temporal_correlation_image.reshape(
         #         [-1, 1])
         if func_name == "Eigen Norm Image":
+            self.current_background_name = func_name
             self.current_background = self.data_handler.eigen_norm_image.reshape(
                 [-1, 1])
+        else:
 
+            self.current_background_name = "Max Image"
+            self.current_background = self.main_widget.data_handler.max_image.reshape(
+                [-1, 1])
         if update_image:
             self.updateImageDisplay()
 
@@ -153,8 +159,12 @@ class ROIImageViewModule(ImageViewModule):
             background_image_scaled_3_channel = np.hstack(
                 [background_image_scaled, background_image_scaled,
                  background_image_scaled])
-
-            if new:
+            if new and not hasattr(self.main_widget.data_handler,
+                                   "edge_roi_image_flat"):
+                self.image_item.image = background_image_scaled_3_channel.reshape(
+                    (shape[0], shape[1], 3))
+                self.image_item.updateImage(autoLevels=True)
+            elif new:
                 # if self.add_image:
                 combined = self.roi_image_flat + background_image_scaled_3_channel + self.select_image_flat
 
@@ -373,8 +383,9 @@ class ROIImageViewModule(ImageViewModule):
 
 
     def reset_view(self, updateDisplay=True):
-        if not any([x.isRunning() for x in self.main_widget.thread_list]) and not self.reseting_view:
-            self.reseting_view=True
+        if not any([x.isRunning() for x in
+                    self.main_widget.thread_list]) and not self.resetting_view:
+            self.resetting_view = True
             if hasattr(self.main_widget.data_handler, "edge_roi_image_flat"):
                 shape = self.main_widget.data_handler.edge_roi_image_flat.shape
                 self.data_handler.save_rois(self.data_handler.rois)
@@ -387,9 +398,10 @@ class ROIImageViewModule(ImageViewModule):
                          np.zeros(shape)])
 
 
+
                 else:
                     self.roi_image_flat = self.main_widget.data_handler.pixel_with_rois_color_flat
-
+            self.set_background("", self.current_background_name, update_image=False)
             if (updateDisplay):
-                self.updateImageDisplay()
-            self.reseting_view =False
+                self.updateImageDisplay(new=True)
+            self.resetting_view = False

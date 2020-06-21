@@ -129,8 +129,12 @@ class ROIPaintImageViewModule(ROIImageViewModule):
             background_image_scaled_3_channel = np.hstack(
                 [background_image_scaled, background_image_scaled,
                  background_image_scaled])
-
-            if new:
+            if new and not hasattr(self.main_widget.data_handler,
+                                   "edge_roi_image_flat"):
+                self.image_item.image = background_image_scaled_3_channel.reshape(
+                    (shape[0], shape[1], 3))
+                self.image_item.updateImage(autoLevels=True)
+            elif new:
                 # if self.add_image:
                 combined = self.roi_image_flat + background_image_scaled_3_channel + self.select_image_flat
 
@@ -212,11 +216,13 @@ class ROIPaintImageViewModule(ROIImageViewModule):
             self.select_mode = type
 
     def reset_view(self):
-        if not any([x.isRunning() for x in self.main_widget.thread_list]) and self.reseting_view:
+        if not any([x.isRunning() for x in
+                    self.main_widget.thread_list]) and not self.resetting_view:
             super().reset_view(updateDisplay=False)
-            self.reseting_view = True
-            self.select_image_flat = np.zeros([self.shape[0] * self.shape[1], 3])
+            self.resetting_view = True
+            self.select_image_flat = np.zeros(
+                [self.data_handler.shape[0] * self.data_handler.shape[1], 3])
 
             self.clearPixelSelection()
-            self.updateImageDisplay()
-            self.reseting_view = False
+            self.updateImageDisplay(new=True)
+            self.resetting_view = False

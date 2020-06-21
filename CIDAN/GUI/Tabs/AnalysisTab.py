@@ -83,7 +83,7 @@ class AnalysisTab(Tab):
 
         # bottom_half.addWidget(self.plot_widget, stretch=2)
         if self.main_widget.data_handler.rois_loaded:
-            self.thread.endThread(True)
+            self.updateTab()
             # self.plot_widget.set_list_items([self.data_handler.get_time_trace(x) for x in range(20)], [x for x in range(20)], None)
         super().__init__("Analysis",
                          column_1=[self.roi_list_module, button_layout, settings_tabs],
@@ -160,8 +160,10 @@ class AnalysisTab(Tab):
             self.data_handler.update_selected_trials(
                 self._time_trace_trial_select_list.selectedTrials())
             self.deselectRoiTime()
-    def reset_view(self):
+
+    def updateTab(self):
         if (self.main_widget.checkThreadRunning()):
-            self.selectAll(False)
-            if self.main_widget.data_handler.rois_loaded:
-                self.thread.endThread(True)
+            if self.data_handler.rois_loaded:
+                self.selectAll(False)
+                self.roi_list_module.set_list_items(self.main_widget.data_handler.rois)
+            self.image_view.reset_view()

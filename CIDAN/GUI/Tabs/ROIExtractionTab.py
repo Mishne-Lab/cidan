@@ -159,8 +159,7 @@ class ROIExtractionTab(Tab):
             self.tab_selector_roi.addTab(self.eigen_view, "View Eigen Vectors")
 
         # If ROIs are loaded, add them to display
-        if self.main_widget.data_handler.rois_loaded:
-            self.thread.endThread(True)
+
 
         # Tab selector for the time trace window
         tab_selector_time_trace = QTabWidget()
@@ -197,7 +196,7 @@ class ROIExtractionTab(Tab):
         time_trace_update_button.clicked.connect(
             lambda x: self.update_time_traces())
         tab_selector_time_trace.addTab(time_trace_settings, "Time Trace Settings")
-
+        self.updateTab()
 
         super().__init__("ROI Extraction",
                          column_1=[self.tab_selector_roi],
@@ -356,3 +355,11 @@ class ROIExtractionTab(Tab):
             self.image_view.image_item.updateImage(autoLevels=True)
         except FileNotFoundError:
             print("Invalid location")
+
+    def updateTab(self
+                  ):
+        if (self.main_widget.checkThreadRunning()):
+            if self.data_handler.rois_loaded:
+                self.roi_list_module.set_list_items(self.main_widget.data_handler.rois)
+
+            self.image_view.reset_view()
