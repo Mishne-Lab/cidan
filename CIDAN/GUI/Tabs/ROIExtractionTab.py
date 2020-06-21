@@ -211,18 +211,19 @@ class ROIExtractionTab(Tab):
         """
         Adds a new roi using selection(self.current_selected_pixels_list)
         """
-        if len(self.current_selected_pixels_list) == 0:
-            print("Please select some pixels")
-            return
-        self.data_handler.rois.append(np.array(self.current_selected_pixels_list))
-        self.data_handler.gen_roi_display_variables()
-        self.data_handler.time_traces.append([])
-        for _ in range(len(self.data_handler.trials_all)):
-            self.data_handler.time_traces[-1].append(False)
-        self.data_handler.calculate_time_trace(len(self.data_handler.rois))
-        self.update_roi()
-        self.roi_list_module.set_list_items(self.data_handler.rois)
-        self.deselectRoiTime()
+        if (self.main_widget.checkThreadRunning()):
+            if len(self.current_selected_pixels_list) == 0:
+                print("Please select some pixels")
+                return
+            self.data_handler.rois.append(np.array(self.current_selected_pixels_list))
+            self.data_handler.gen_roi_display_variables()
+            self.data_handler.time_traces.append([])
+            for _ in range(len(self.data_handler.trials_all)):
+                self.data_handler.time_traces[-1].append(False)
+            self.data_handler.calculate_time_trace(len(self.data_handler.rois))
+            self.update_roi()
+            self.roi_list_module.set_list_items(self.data_handler.rois)
+            self.deselectRoiTime()
 
     def delete_roi(self, roi_num):
         """
@@ -236,16 +237,17 @@ class ROIExtractionTab(Tab):
         -------
 
         """
-        roi_num = roi_num - 1
-        try:
-            self.data_handler.rois.pop(roi_num)
-            self.data_handler.gen_roi_display_variables()
-            self.data_handler.time_traces.pop(roi_num)
-            self.update_roi()
-            self.roi_list_module.set_list_items(self.data_handler.rois)
-            self.deselectRoiTime()
-        except IndexError:
-            print("Invalid ROI Selected")
+        if (self.main_widget.checkThreadRunning()):
+            roi_num = roi_num - 1
+            try:
+                self.data_handler.rois.pop(roi_num)
+                self.data_handler.gen_roi_display_variables()
+                self.data_handler.time_traces.pop(roi_num)
+                self.update_roi()
+                self.roi_list_module.set_list_items(self.data_handler.rois)
+                self.deselectRoiTime()
+            except IndexError:
+                print("Invalid ROI Selected")
 
     def modify_roi(self, roi_num, add_subtract="add"):
         """
@@ -259,32 +261,34 @@ class ROIExtractionTab(Tab):
         -------
         Nothing
         """
-        if roi_num is None:
-            print("Please select an roi")
-            return
-        roi_num = roi_num - 1
-        if len(self.current_selected_pixels_list) == 0:
-            print("Please select some pixels")
-            return
-        if add_subtract == "add":
-            print("Adding Selection to ROI #" + str(roi_num + 1))
-            self.data_handler.rois[roi_num] = combine_rois(
-                self.data_handler.rois[roi_num], self.current_selected_pixels_list)
-            self.data_handler.gen_roi_display_variables()
-            self.data_handler.calculate_time_trace(roi_num)
-        if add_subtract == "subtract":
-            print("Subtracting Selection from ROI #" + str(roi_num + 1))
-            self.data_handler.rois[roi_num] = [x for x in
-                                               self.data_handler.rois[roi_num]
-                                               if
-                                               x not in self.current_selected_pixels_list]
-            self.data_handler.gen_roi_display_variables()
-            self.data_handler.calculate_time_trace(roi_num)
-        self.update_roi()
+        if (self.main_widget.checkThreadRunning()):
+            if roi_num is None:
+                print("Please select an roi")
+                return
+            roi_num = roi_num - 1
+            if len(self.current_selected_pixels_list) == 0:
+                print("Please select some pixels")
+                return
+            if add_subtract == "add":
+                print("Adding Selection to ROI #" + str(roi_num + 1))
+                self.data_handler.rois[roi_num] = combine_rois(
+                    self.data_handler.rois[roi_num], self.current_selected_pixels_list)
+                self.data_handler.gen_roi_display_variables()
+                self.data_handler.calculate_time_trace(roi_num)
+            if add_subtract == "subtract":
+                print("Subtracting Selection from ROI #" + str(roi_num + 1))
+                self.data_handler.rois[roi_num] = [x for x in
+                                                   self.data_handler.rois[roi_num]
+                                                   if
+                                                   x not in self.current_selected_pixels_list]
+                self.data_handler.gen_roi_display_variables()
+                self.data_handler.calculate_time_trace(roi_num)
+            self.update_roi()
 
     def update_roi(self):
         """Resets the roi image display"""
-        self.image_view.reset_view()
+        if (self.main_widget.checkThreadRunning()):
+            self.image_view.reset_view()
 
 
 
@@ -292,44 +296,48 @@ class ROIExtractionTab(Tab):
 
 
     def selectRoiTime(self, num):
-        try:
-            color_roi = self.main_widget.data_handler.color_list[
-                (num - 1) % len(self.main_widget.data_handler.color_list)]
+        if (self.main_widget.checkThreadRunning()):
+            try:
+                color_roi = self.main_widget.data_handler.color_list[
+                    (num - 1) % len(self.main_widget.data_handler.color_list)]
 
-            if (self.roi_list_module.roi_time_check_list[num - 1]):
-                pen = pg.mkPen(color=color_roi, width=3)
-                self.time_plot.plot(self.main_widget.data_handler.get_time_trace(num),
-                                    pen=pen)
-                self.time_plot.enableAutoRange(axis=0)
-        except AttributeError:
-            pass
-
-    def deselectRoiTime(self):
-
-        try:
-            self.time_plot.clear()
-            self.time_plot.enableAutoRange(axis=0)
-            for num2, x in zip(range(1, len(self.roi_list_module.roi_time_check_list)),
-                               self.roi_list_module.roi_time_check_list):
-                if x:
-                    color_roi = self.main_widget.data_handler.color_list[
-                        (num2 - 1) % len(self.main_widget.data_handler.color_list)]
-
+                if (self.roi_list_module.roi_time_check_list[num - 1]):
                     pen = pg.mkPen(color=color_roi, width=3)
                     self.time_plot.plot(
-                        self.main_widget.data_handler.get_time_trace(num2), pen=pen)
-        except AttributeError:
-            print("No ROIs have been generated yet")
+                        self.main_widget.data_handler.get_time_trace(num),
+                        pen=pen)
+                    self.time_plot.enableAutoRange(axis=0)
+            except AttributeError:
+                pass
+
+    def deselectRoiTime(self):
+        if (self.main_widget.checkThreadRunning()):
+            try:
+                self.time_plot.clear()
+                self.time_plot.enableAutoRange(axis=0)
+                for num2, x in zip(
+                        range(1, len(self.roi_list_module.roi_time_check_list)),
+                        self.roi_list_module.roi_time_check_list):
+                    if x:
+                        color_roi = self.main_widget.data_handler.color_list[
+                            (num2 - 1) % len(self.main_widget.data_handler.color_list)]
+
+                        pen = pg.mkPen(color=color_roi, width=3)
+                        self.time_plot.plot(
+                            self.main_widget.data_handler.get_time_trace(num2), pen=pen)
+            except AttributeError:
+                print("No ROIs have been generated yet")
 
     def update_time_traces(self):
-        if (self.data_handler.time_trace_params[
-            "time_trace_type"] != self.time_trace_type.current_state()):
-            self.data_handler.time_trace_params[
-                "time_trace_type"] = self.time_trace_type.current_state()
-            self.data_handler.calculate_time_traces()
-        self.data_handler.update_selected_trials(
-            self._time_trace_trial_select_list.selectedTrials())
-        self.deselectRoiTime()
+        if (self.main_widget.checkThreadRunning()):
+            if (self.data_handler.time_trace_params[
+                "time_trace_type"] != self.time_trace_type.current_state()):
+                self.data_handler.time_trace_params[
+                    "time_trace_type"] = self.time_trace_type.current_state()
+                self.data_handler.calculate_time_traces()
+            self.data_handler.update_selected_trials(
+                self._time_trace_trial_select_list.selectedTrials())
+            self.deselectRoiTime()
 
 
 

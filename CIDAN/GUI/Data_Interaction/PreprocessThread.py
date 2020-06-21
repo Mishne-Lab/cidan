@@ -1,5 +1,4 @@
 import logging
-import sys
 
 from CIDAN.GUI.Data_Interaction.Thread import Thread
 
@@ -40,3 +39,6 @@ class PreprocessThread(Thread):
             print("Finished preprocessing sequence")
             self.preprocess_tab.set_image_display_list(self.data_handler.trials_loaded,
                                                        self.data_handler.dataset_trials_filtered_loaded)
+            for x in self.main_widget.image_view_list:
+                if x != self.preprocess_tab.image_view:
+                    x.reset_view()

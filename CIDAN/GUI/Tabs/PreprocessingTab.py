@@ -23,7 +23,7 @@ class PreprocessingTab(Tab):
     def __init__(self, main_widget):
         self.main_widget = main_widget
         self.data_handler = self.main_widget.data_handler
-
+        self.image_view = self.main_widget.preprocess_image_view
         # This part initializes the button to process the data
         process_button = QPushButton()
         process_button.setText("Apply Settings")

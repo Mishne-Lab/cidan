@@ -179,15 +179,16 @@ class MainWidget(QWidget):
         for tab in self.tabs:
             self.tab_widget.addTab(tab, tab.name)
         self.tab_widget.setCurrentIndex(1)
-        self.tab_widget.currentChanged.connect(
-            lambda x: self.tabs[1].image_view.set_background("",
-                                                             self.tabs[
-                                                                 1].image_view.background_chooser.current_state(),
-                                                             update_image=True))
-        self.tab_widget.currentChanged.connect(
-            lambda x: self.tabs[2].image_view.reset_view())
-        self.tab_widget.currentChanged.connect(
-            lambda x: self.tabs[2].reset_view())
+        self.image_view_list = [x.image_view for x in self.tabs]
+        # self.tab_widget.currentChanged.connect(
+        #     lambda x: self.tabs[1].image_view.set_background("",
+        #                                                      self.tabs[
+        #                                                          1].image_view.background_chooser.current_state(),
+        #                                                      update_image=True))
+        # self.tab_widget.currentChanged.connect(
+        #     lambda x: self.tabs[2].image_view.reset_view())
+        # self.tab_widget.currentChanged.connect(
+        #     lambda x: self.tabs[2].reset_view())
         if not hasattr(self, "export_menu"):
             self.export_menu = self.main_menu.addMenu("&Export")
             export_action = QAction("Export Time Traces/ROIs", self)
@@ -229,6 +230,21 @@ class MainWidget(QWidget):
         dialog.setLayout(dialog.layout)
         dialog.show()
 
+    def checkThreadRunning(self):
+        if (any([x.isRunning() for x in self.thread_list])):
+            msg = QMessageBox()
+            msg.setStyleSheet(qdarkstyle.load_stylesheet())
+            msg.setWindowTitle("Operation Denied")
+
+            msg.setText(
+                "Sorry we can't preform this operation until current process is "
+                "finished")
+            msg.setIcon(QMessageBox.Information)
+            x = msg.exec_()
+            return False
+
+        else:
+            return True
 
 
 if __name__ == "__main__":

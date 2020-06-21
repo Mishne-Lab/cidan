@@ -100,65 +100,68 @@ class AnalysisTab(Tab):
         self.deselectRoiTime()
 
     def deselectRoiTime(self):
-        if self.update_time:
-            if self.plot_by_input.current_state() == "Neuron":
-                if self.cur_plot_type != "neuron":
-                    self.cur_plot_type = "neuron"
-                    self.roi_list_module.select_multiple = True
+        if (self.main_widget.checkThreadRunning()):
+            if self.update_time:
+                if self.plot_by_input.current_state() == "Neuron":
+                    if self.cur_plot_type != "neuron":
+                        self.cur_plot_type = "neuron"
+                        self.roi_list_module.select_multiple = True
 
-
-                try:
-                    data_list = []
-                    roi_names = []
-                    for num2, x in zip(
-                            range(1, len(self.roi_list_module.roi_time_check_list)),
-                            self.roi_list_module.roi_time_check_list):
-                        if x:
-                            data_list.append(
-                                self.main_widget.data_handler.get_time_trace(num2))
-                            roi_names.append(num2)
-                    self.plot_widget.set_list_items(data_list, roi_names, [],
-                                                    p_color=self.plot_type_input.current_state() == "Color Mesh",
-                                                    type="neuron")
-                except AttributeError:
-                    print("No ROIs have been generated yet")
-            else:
-                if self.cur_plot_type != "trial":
-                    self.roi_list_module.select_multiple = False
-                    self.cur_plot_type = "trial"
-                    self.selectAll(False)
-
-                try:
-                    print(self.roi_list_module.current_selected_roi)
-                    if self.roi_list_module.current_selected_roi is not None:
-                        roi = self.roi_list_module.current_selected_roi
+                    try:
                         data_list = []
-                        roi_names = [roi]
-                        for x in self.data_handler.trials_loaded_time_trace_indices:
-                            data_list.append(
-                                self.main_widget.data_handler.get_time_trace(roi, x))
-                        self.plot_widget.set_list_items(data_list, roi_names,
-                                                        self.data_handler.trials_loaded_time_trace_indices,
+                        roi_names = []
+                        for num2, x in zip(
+                                range(1, len(self.roi_list_module.roi_time_check_list)),
+                                self.roi_list_module.roi_time_check_list):
+                            if x:
+                                data_list.append(
+                                    self.main_widget.data_handler.get_time_trace(num2))
+                                roi_names.append(num2)
+                        self.plot_widget.set_list_items(data_list, roi_names, [],
                                                         p_color=self.plot_type_input.current_state() == "Color Mesh",
-                                                        type="trial")
-                    else:
-                        self.plot_widget.set_list_items([], [],
-                                                        [],
-                                                        p_color=self.plot_type_input.current_state() == "Color Mesh",
-                                                        type="trial")
-                except AttributeError:
-                    print("No ROIs have been generated yet")
+                                                        type="neuron")
+                    except AttributeError:
+                        print("No ROIs have been generated yet")
+                else:
+                    if self.cur_plot_type != "trial":
+                        self.roi_list_module.select_multiple = False
+                        self.cur_plot_type = "trial"
+                        self.selectAll(False)
+
+                    try:
+                        print(self.roi_list_module.current_selected_roi)
+                        if self.roi_list_module.current_selected_roi is not None:
+                            roi = self.roi_list_module.current_selected_roi
+                            data_list = []
+                            roi_names = [roi]
+                            for x in self.data_handler.trials_loaded_time_trace_indices:
+                                data_list.append(
+                                    self.main_widget.data_handler.get_time_trace(roi,
+                                                                                 x))
+                            self.plot_widget.set_list_items(data_list, roi_names,
+                                                            self.data_handler.trials_loaded_time_trace_indices,
+                                                            p_color=self.plot_type_input.current_state() == "Color Mesh",
+                                                            type="trial")
+                        else:
+                            self.plot_widget.set_list_items([], [],
+                                                            [],
+                                                            p_color=self.plot_type_input.current_state() == "Color Mesh",
+                                                            type="trial")
+                    except AttributeError:
+                        print("No ROIs have been generated yet")
 
     def update_time_traces(self):
-        if (self.data_handler.time_trace_params[
-            "time_trace_type"] != self.time_trace_type.current_state()):
-            self.data_handler.time_trace_params[
-                "time_trace_type"] = self.time_trace_type.current_state()
-            self.data_handler.calculate_time_traces()
-        self.data_handler.update_selected_trials(
-            self._time_trace_trial_select_list.selectedTrials())
-        self.deselectRoiTime()
+        if (self.main_widget.checkThreadRunning()):
+            if (self.data_handler.time_trace_params[
+                "time_trace_type"] != self.time_trace_type.current_state()):
+                self.data_handler.time_trace_params[
+                    "time_trace_type"] = self.time_trace_type.current_state()
+                self.data_handler.calculate_time_traces()
+            self.data_handler.update_selected_trials(
+                self._time_trace_trial_select_list.selectedTrials())
+            self.deselectRoiTime()
     def reset_view(self):
-        self.selectAll(False)
-        if self.main_widget.data_handler.rois_loaded:
-            self.thread.endThread(True)
+        if (self.main_widget.checkThreadRunning()):
+            self.selectAll(False)
+            if self.main_widget.data_handler.rois_loaded:
+                self.thread.endThread(True)

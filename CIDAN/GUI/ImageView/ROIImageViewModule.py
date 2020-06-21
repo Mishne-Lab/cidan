@@ -100,6 +100,7 @@ class ROIImageViewModule(ImageViewModule):
     def intensitySliderChanged(self):
         self.current_foreground_intensity = 10 - (
                 float(self.background_slider.value()) / 10)
+
         self.updateImageDisplay()
 
     def set_background(self, name, func_name, update_image=True):
@@ -124,6 +125,7 @@ class ROIImageViewModule(ImageViewModule):
             self.updateImageDisplay()
 
     def set_image(self, name, func_name, update_image=True):
+
         # Background refers to the image behind the rois
         shape = self.main_widget.data_handler.edge_roi_image_flat.shape
         if func_name == "Outlines":
@@ -139,6 +141,7 @@ class ROIImageViewModule(ImageViewModule):
             self.updateImageDisplay()
 
     def updateImageDisplay(self, new=False):
+
         try:
             # new is to determine whether the zoom should be saved
             # TODO add in update with image paint layer
