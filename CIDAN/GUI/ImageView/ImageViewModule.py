@@ -1,4 +1,5 @@
 from pyqtgraph import ImageView
+from qtpy import QtCore, QtGui
 from qtpy.QtWidgets import *
 
 
@@ -29,6 +30,7 @@ class ImageViewModule(QFrame):
         # self.no_image_message.clicked.connect(main_widget.open_file_dialog)
         # self.no_image_message.setStyleSheet("QPushButton {font-size:80;}")
         self.image_view = ImageView()
+        self.image_view.keyPressEvent = self.keyPressEvent
         self.image_view.ui.layoutWidget.setContentsMargins(0, 0, 0, 0)
         # self.image_view.ui.roiBtn.hide()
         self.image_view.ui.menuBtn.hide()
@@ -40,6 +42,33 @@ class ImageViewModule(QFrame):
 
         self.layout.addWidget(self.image_view)
 
+    def keyPressEvent(self, ev):
+        if ev.key() == QtCore.Qt.Key_Space and False:
+            if self.image_view.playRate == 0:
+                fps = (self.image_view.getProcessedImage().shape[0] - 1) / (
+                            self.image_view.tVals[-1] - self.image_view.tVals[0])
+                self.image_view.play(fps)
+                # print fps
+            else:
+                self.image_view.play(0)
+            ev.accept()
+        elif ev.key() == QtCore.Qt.Key_Home:
+            self.image_view.setCurrentIndex(0)
+            self.image_view.play(0)
+            ev.accept()
+        elif ev.key() == QtCore.Qt.Key_End:
+            self.image_view.setCurrentIndex(
+                self.image_view.getProcessedImage().shape[0] - 1)
+            self.image_view.play(0)
+            ev.accept()
+        elif ev.key() in self.image_view.noRepeatKeys:
+            ev.accept()
+            if ev.isAutoRepeat():
+                return
+            self.image_view.keysPressed[ev.key()] = 1
+            self.image_view.evalKeyState()
+        else:
+            QtGui.QWidget.keyPressEvent(self.image_view, ev)
     def setImage(self, data):
 
         # if self.already_loaded == False:
