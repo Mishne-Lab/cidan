@@ -29,7 +29,7 @@ We have uploaded an example dataset to google drive which is available here. Als
 python -m CIDAN
 ~~~
 3. Use the “open dataset” tab to open the dataset. The save-dir is where we save intermediate steps and where we export all results. You can open a previous save using the “Open previous save” sub-tab.
-4. Next use the “filter” tab to apply a filter. We suggest trying at least the median filter. Z-score and histogram equalization are applied to each trial. We also suggest applying a crop to the dataset and experimenting on a small section of the data to hone in on settings before running the algorithm on the entire dataset. 
+4. Next use the “Preprocessing” tab to apply a filter. We suggest trying at least the median filter. Z-score and histogram equalization are applied to each trial. We also suggest applying a crop to the dataset and experimenting on a small section of the data to hone in on settings before running the algorithm on the entire dataset. 
 5. Use the ROI Extraction tab to extract the cells. Next we walk through the settings that are important in each section:
     - Multiprocessing Settings: The number of spatial boxes is required to be a square number. We recommend that each spatial box is about 200x200 pixels. Each spatial box is processed in parallel and then results are combined. The spatial overlap of 60 should be fine for most cases but if you experience many ROI's that have straight edges this number should be increased. 
     - ROI Extraction Settings: The settings for this section are mostly self explanatory. The “merge temporal coefficient” lets you control if two overlapping ROIs are merged based on the Pearson correlation of their time traces. The lower the number the greater the difference. 
