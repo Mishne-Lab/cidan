@@ -8,7 +8,7 @@ logger1 = logging.getLogger("CIDAN.loadDataset")
 
 
 def load_new_dataset(main_widget, file_input, save_dir_input, trials=None,
-                     single=False, override_many_files=False):
+                     single=False,  load_into_mem=True, override_load_warning=False):
     """
     Function to load a initialize a new DataHandler object and the GUI with the data
     Parameters
@@ -34,7 +34,11 @@ def load_new_dataset(main_widget, file_input, save_dir_input, trials=None,
     if (main_widget.checkThreadRunning()):
         file_path = file_input.current_state()
         save_dir_path = save_dir_input.current_state()
-
+        if main_widget.data_handler is not None:
+            main_widget.data_handler.__del__()
+            main_widget.data_handler = None
+            gc.collect(2)
+            pass
         if single:
             try:
                 dir_path = os.path.dirname(file_path)
@@ -43,7 +47,8 @@ def load_new_dataset(main_widget, file_input, save_dir_input, trials=None,
                                                        trials=[
                                                            os.path.basename(file_path)],
                                                        save_dir_path=save_dir_path,
-                                                       save_dir_already_created=False)
+                                                       save_dir_already_created=False,
+                                                       load_into_mem=load_into_mem)
                 main_widget.init_w_data()
             except IndentationError as e:
                 logger1.error(e)

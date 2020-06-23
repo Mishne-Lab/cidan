@@ -16,7 +16,6 @@ logger1 = logging.getLogger("CIDAN.AnalysisTab")
 class AnalysisTab(Tab):
     def __init__(self, main_widget):
         self.main_widget = main_widget
-        self.data_handler = main_widget.data_handler
         self.cur_plot_type = "neuron"
 
         self.image_view = ROIImageViewModule(self.main_widget, self, True)
@@ -150,6 +149,9 @@ class AnalysisTab(Tab):
                     except AttributeError:
                         print("No ROIs have been generated yet")
 
+    @property
+    def data_handler(self):
+        return self.main_widget.data_handler
     def update_time_traces(self):
         if (self.main_widget.checkThreadRunning()):
             if (self.data_handler.time_trace_params[

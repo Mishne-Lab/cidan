@@ -15,7 +15,8 @@ def load_filter_tif_stack(*, path, filter: bool, median_filter: bool,
                           median_filter_size: Tuple[int, int, int],
                           z_score: bool, slice_stack: bool,
                           slice_every, slice_start: int, crop_stack: bool,
-                          crop_x: List[int], crop_y: List[int]):
+                          crop_x: List[int], crop_y: List[int],
+                          load_into_mem: bool = True):
     """
     This function reads a tiff stack file
     Parameters
@@ -25,7 +26,7 @@ def load_filter_tif_stack(*, path, filter: bool, median_filter: bool,
 
     Returns
     -------
-    a 3D numpy array with the tiff files together
+    a 3D numpy array with the tiff files together or a zarr array if not loading into memory
 
     """
     if os.path.isdir(path):
@@ -49,8 +50,8 @@ def load_filter_tif_stack(*, path, filter: bool, median_filter: bool,
 
         image = np.vstack(volumes)
         del volumes
-        return image.astype(np.float32)
-    if os.path.isfile(path):
+        image = image.astype(np.float32)
+    elif os.path.isfile(path):
         # return ScanImageTiffReader(path).data()
         image = tifffile.imread(path)
         if len(image.shape) == 2:
@@ -62,7 +63,13 @@ def load_filter_tif_stack(*, path, filter: bool, median_filter: bool,
         if filter:
             image = filter_stack(stack=image, median_filter=median_filter,
                                  median_filter_size=median_filter_size, z_score=z_score)
-        return image.astype(np.float32)
+        image = image.astype(np.float32)
+    else:
+        raise Exception("Invalid Inputs ")
+    return image
+    # zarr_array = zarr.open('data/example.zarr', mode='w', shape=(10000, 10000),
+    #          chunks=(1000, 1000), dtype='i4')
+
     raise Exception("Invalid Inputs ")
     # vol=ScanImageTiffReader(file_path).data()
 

@@ -22,7 +22,6 @@ class PreprocessingTab(Tab):
 
     def __init__(self, main_widget):
         self.main_widget = main_widget
-        self.data_handler = self.main_widget.data_handler
         self.image_view = self.main_widget.preprocess_image_view
         # This part initializes the button to process the data
         process_button = QPushButton()
@@ -86,6 +85,9 @@ class PreprocessingTab(Tab):
                                        alignment=QtCore.Qt.AlignBottom)
         self.column_2_layout.addWidget(image_buttons, alignment=QtCore.Qt.AlignBottom)
 
+    @property
+    def data_handler(self):
+        return self.main_widget.data_handler
     def set_image_display_list(self, trial_names, data_list):
         """
         Sets the preprocessing image display to use an option input and set data list

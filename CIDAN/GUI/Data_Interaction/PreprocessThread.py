@@ -7,8 +7,7 @@ logger = logging.getLogger("CIDAN.GUI.Data_Interaction.PreprocessThread")
 
 class PreprocessThread(Thread):
     def __init__(self, main_widget, button, preprocess_tab):
-        super().__init__(main_widget.data_handler)
-        self.main_widget = main_widget
+        super().__init__(main_widget)
         self.button = button
         self.preprocess_tab = preprocess_tab
         self.signal.sig.connect(lambda x: self.endThread(x))

@@ -20,7 +20,6 @@ class GraphDisplayWidget(QWidget):
         self.current_selected_roi = 0
         self.setMinimumHeight(200)
         self.main_widget = main_widget
-        self.data_handler = main_widget.data_handler
         self.color_list = self.data_handler.color_list
         self.current_graph = QWidget()
         self.layout = QHBoxLayout()
@@ -31,7 +30,9 @@ class GraphDisplayWidget(QWidget):
         self.p_color = True
         self.std = 5
 
-
+    @property
+    def data_handler(self):
+        return self.main_widget.data_handler
     def set_list_items(self, data_list, roi_names, trial_names, p_color=True,
                        type="neuron"):
         try:

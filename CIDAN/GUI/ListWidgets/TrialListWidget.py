@@ -67,6 +67,8 @@ class TrialListWidget(QWidget):
         -------
         Nothing
         """
+        if path == "":
+            return None
         self.list.clear()
         self.trial_items = []
         if os.path.isfile(path):
