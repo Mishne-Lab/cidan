@@ -8,7 +8,6 @@ os.environ["NUMEXPR_NUM_THREADS"] = "10"  # export NUMEXPR_NUM_THREADS=6
 import scipy.sparse as sparse
 import hnswlib as hnsw
 import numpy as np
-from scipy import io
 from typing import Tuple
 
 from dask import delayed
@@ -58,15 +57,15 @@ def calcAffinityMatrix(*, pixel_list: np.ndarray, metric: str, knn: int,
     # nbrs = LSHForest(n_estimators=20, n_candidates=200,
     #                  n_neighbors=10).fit(pixel_list)
     # distances, indices = nbrs.kneighbors(pixel_list)
-    # indices = io.loadmat('C:\\Users\gadge\Documents\CIDAN\inputs\\nf_0200_indices.mat')['Inds'].transpose((1, 0))
-    # distances = io.loadmat('C:\\Users\gadge\Documents\CIDAN\inputs\\nf_0200_distances.mat')['Dis'].transpose((1, 0))
-    # print("Lodaed mat files")
+    # indices = io.loadmat('/Users/sschickler/Code_Devel/LSSC-python/inputs/nf_0200_indices.mat')['Inds'].transpose((1, 0))-1
+    # distances = io.loadmat('/Users/sschickler/Code_Devel/LSSC-python/inputs/nf_0200_distances.mat')['Dis'].transpose((1, 0))
+    print("Lodaed mat files")
     print(indices.shape)
     print(distances.shape)
     print(num_elements)
     # TODO add comments here
     reformat_indicies_x = np.repeat(np.arange(0, num_elements, 1), knn - 1)
-    reformat_indicies_y = np.reshape(indices[:, 1:], (-1))-1
+    reformat_indicies_y = np.reshape(indices[:, 1:], (-1))
     reformat_distances = np.reshape(distances[:, 1:], (-1))
     # Self tuning adaptive bandwidth
     scale_factor_indices = np.repeat(distances[:, normalize_w_k], knn)
@@ -84,7 +83,8 @@ def calcAffinityMatrix(*, pixel_list: np.ndarray, metric: str, knn: int,
             (np.hstack([reformat_indicies_x, np.arange(0, num_elements, 1)]),
              np.hstack([reformat_indicies_y, np.arange(0, num_elements, 1)]))),
         shape=(num_elements, num_elements)))
-    return (K+K.transpose())/2
+    K_sym = (K + K.transpose()) / 2
+    return K_sym
 
 
 def calcDInv(K: sparse.csr_matrix):
@@ -99,8 +99,7 @@ def calcDInv(K: sparse.csr_matrix):
     a sparse matrix with type csr, and D's diagonal values
     """
     dim = K.shape[0]
-    D_diag_inv = np.nan_to_num(1 / K.sum(axis=1), nan=0.000001, posinf=0.0000001,
-                               neginf=0.0000001)  # add small epsilon to each row in K.sum()
+    D_diag_inv = 1 / K.sum(axis=1)  # add small epsilon to each row in K.sum()
 
     # D_diag = 1 / K.sum(axis=1)
     # print("D_diag",D_diag)

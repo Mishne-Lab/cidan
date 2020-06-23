@@ -506,8 +506,8 @@ class DataHandler:
             dataset_trials[trial_num] = self.load_trial_dataset_step(trial_num)
         dataset_trials = dask.compute(*dataset_trials)
         self.global_params["need_recalc_dataset_params"] = False
-        self.shape = [dataset_trials[0].shape[1],
-                      dataset_trials[0].shape[2]]
+        self.shape = [dataset_trials[self._trials_loaded_indices[0]].shape[1],
+                      dataset_trials[self._trials_loaded_indices[0]].shape[2]]
         print(dataset_trials[0])
         if self.dataset_params["crop_x"][1] == 0:
             self.dataset_params["crop_x"][1] = self.shape[0]

@@ -35,8 +35,8 @@ def generateEigenVectors(*, K: sparse.csr_matrix, num_eig: int) -> np.ndarray:
     P_transformed = calcDSqrt(D_diag).dot(P).dot(D_neg_sqrt)
     print("Start eigen")
     # eig_values,eig_vectors = eig(P.todense())
-    eig_values, eig_vectors_scaled = linalg.eigsh(
-        P_transformed, num_eig, which="LM",
+    eig_values, eig_vectors_scaled = linalg.eigs(
+        P_transformed, num_eig, which="LR",
         return_eigenvectors=True)  # this returns normalized eigen vectors
     print("finished eigen")
     # # TODO make first eigen vector be sanity check since all elements are the same
@@ -46,7 +46,7 @@ def generateEigenVectors(*, K: sparse.csr_matrix, num_eig: int) -> np.ndarray:
         D_neg_sqrt.dot(eig_vectors_scaled),
         axis=1)  # this preforms matrix multiplication
 
-    return eig_vectors
+    return np.real(eig_vectors)
 
 
 @delayed

@@ -37,7 +37,6 @@ def load_new_dataset(main_widget, file_input, save_dir_input, trials=None,
         if main_widget.data_handler is not None:
             main_widget.data_handler.__del__()
             main_widget.data_handler = None
-            gc.collect(2)
             pass
         if single:
             try:

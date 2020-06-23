@@ -13,13 +13,16 @@ from CIDAN.GUI.Data_Interaction.DataHandler import DataHandler
 from CIDAN.GUI.Console.ConsoleWidget import ConsoleWidget
 import sys
 import logging
-sys._excepthook = sys.excepthook
-def exception_hook(exctype, value, traceback):
-    print(exctype, value, traceback)
-    sys._excepthook(exctype, value, traceback)
-    sys.exit(1)
-sys.excepthook = exception_hook
+import pyqtgraph as pg
 
+# sys._excepthook = sys.excepthook
+# def exception_hook(exctype, value, traceback):
+#     print(exctype, value, traceback)
+#     sys._excepthook(exctype, value, traceback)
+#     sys.exit(1)
+# sys.excepthook = exception_hook
+
+pg.setConfigOption("imageAxisOrder", "row-major")
 
 class MainWindow(QMainWindow):
     """Initializes the basic window with Main widget being the focused widget"""
@@ -144,9 +147,9 @@ class MainWidget(QWidget):
                 self.data_handler = DataHandler(
 
                     "/Users/sschickler/Code_Devel/LSSC-python/input_images/",
-                    "/Users/sschickler/Code_Devel/LSSC-python/input_images/test",
+                    "/Users/sschickler/Documents/LSSC-python",
                     trials=["small_dataset.tif"],
-                    save_dir_already_created=False)
+                    save_dir_already_created=True)
                 self.init_w_data()
             except:
                 pass

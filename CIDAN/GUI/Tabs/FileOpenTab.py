@@ -44,7 +44,7 @@ class FileOpenTab(Tab):
                                      save_dir_new_folder,
                                      trials=self.trial_list_widget.selectedTrials(),
                                      single=self.folder_open_single_trial.current_state(),
-                                     load_memory=self.folder_load_into_mem.current_state()))
+                                     load_into_mem=self.folder_load_into_mem.current_state()))
         self.folder_open_single_trial = BoolInput("Open folder as single trial", "",
                                                   None, False, "")
         self.folder_load_into_mem = BoolInput("Load data into memory(not recomended "
