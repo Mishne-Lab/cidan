@@ -7,9 +7,8 @@ logger = logging.getLogger("CIDAN.GUI.Data_Interaction.ROIExctractionThread")
 
 class ROIExtractionThread(Thread):
     def __init__(self, main_widget, button, roi_list_module, roi_tab):
-        super().__init__(main_widget.data_handler)
+        super().__init__(main_widget)
         self.roi_tab = roi_tab
-        self.main_widget = main_widget
         self.roi_list_module = roi_list_module
         self.button = button
         self.signal.sig.connect(lambda x: self.endThread(x))

@@ -17,7 +17,6 @@ class ROIImageViewModule(ImageViewModule):
         super(ROIImageViewModule, self).__init__(main_widget, histogram=False)
         self.tab = tab
         self.resetting_view = False  # Way to prevent infinite loops of reset_view
-        self.data_handler = main_widget.data_handler
         self.current_foreground_intensity = 80
         self.click_event = False
         self.outlines = True

@@ -1,5 +1,4 @@
-import logging
-from functools import reduce
+import json
 import json
 import logging
 from functools import reduce
@@ -47,6 +46,7 @@ class DataHandler:
         "need_recalc_box_params": True,
         "need_recalc_eigen_params": True,
         "need_recalc_roi_extraction_params": True,
+        "load_into_mem": False,
         "num_threads": 1
     }
 
@@ -105,7 +105,7 @@ class DataHandler:
     }
 
     def __init__(self, data_path, save_dir_path, save_dir_already_created, trials=[],
-                 parameter_file=False):
+                 parameter_file=False, load_into_mem=True):
         """
         Initializes the object
         Parameters
@@ -130,6 +130,7 @@ class DataHandler:
                            (22, 132, 249), (224, 22, 249), (249, 22, 160)]
 
         self.save_dir_path = save_dir_path
+
         self.rois_loaded = False  # whether roi variables have been created
         if parameter_file:
             self.parameter_file_name = os.path.basename(parameter_file)
@@ -173,7 +174,9 @@ class DataHandler:
                 raise FileNotFoundError("Save directory not valid")
         else:
             # start with the default values specified in this class
+
             self.global_params = DataHandler._global_params_default.copy()
+            self.global_params["load_into_mem"] = load_into_mem
             self.dataset_params = DataHandler._dataset_params_default.copy()
             self.filter_params = DataHandler._filter_params_default.copy()
             self.box_params = DataHandler._box_params_default.copy()
@@ -209,7 +212,7 @@ class DataHandler:
     def __del__(self):
         try:
             for x in list(self.__dict__.items()):
-                self.__dict__[x] = None
+                self.__dict__[x[0]] = None
         except TypeError:
             pass
 
@@ -255,6 +258,9 @@ class DataHandler:
         """
         return pickle_exist("rois", output_directory=self.save_dir_path)
 
+    @property
+    def load_into_mem(self):
+        return self.global_params["load_into_mem"]
     def load_rois(self):
         """
         Loads the ROIs if they exist and then generates the other variables associated
@@ -332,12 +338,18 @@ class DataHandler:
                 os.mkdir(self.save_dir_path)
             eigen_vectors_folder_path = os.path.join(self.save_dir_path,
                                                      "eigen_vectors/")
+
             if not os.path.isdir(eigen_vectors_folder_path):
                 os.mkdir(eigen_vectors_folder_path)
             embedding_images_path = os.path.join(self.save_dir_path,
                                                  "embedding_norm_images/")
             if not os.path.isdir(embedding_images_path):
                 os.mkdir(embedding_images_path)
+            eigen_vectors_folder_path = os.path.join(self.save_dir_path,
+                                                     "temp_files/")
+
+            if not os.path.isdir(eigen_vectors_folder_path):
+                os.mkdir(eigen_vectors_folder_path)
             return True
         except:
             raise FileNotFoundError("Couldn't create folder please try again")
@@ -534,7 +546,7 @@ class DataHandler:
             crop_x=self.dataset_params[
                 "crop_x"],
             crop_y=self.dataset_params[
-                "crop_y"]
+                "crop_y"], load_into_mem=self.load_into_mem
         )
 
     @delayed
@@ -584,6 +596,7 @@ class DataHandler:
                 self.dataset_trials_filtered[trial_num] = self.load_trial_filter_step(
                     trial_num, dataset_trials[trial_num])
             self.dataset_trials_filtered = dask.compute(*self.dataset_trials_filtered)
+            dataset_trials = None
             self.mean_image = np.mean(np.dstack(
                 [np.mean(x, axis=0) for x in self.dataset_trials_filtered_loaded]),
                 axis=2)

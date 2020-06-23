@@ -42,6 +42,9 @@ class ImageViewModule(QFrame):
 
         self.layout.addWidget(self.image_view)
 
+    @property
+    def data_handler(self):
+        return self.main_widget.data_handler
     def keyPressEvent(self, ev):
         if ev.key() == QtCore.Qt.Key_Space and False:
             if self.image_view.playRate == 0:

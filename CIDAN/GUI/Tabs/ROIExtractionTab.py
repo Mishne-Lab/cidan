@@ -39,7 +39,6 @@ class ROIExtractionTab(Tab):
     def __init__(self, main_widget):
 
         self.main_widget = main_widget
-        self.data_handler = main_widget.data_handler
         self.image_view = ROIPaintImageViewModule(main_widget, self, True)
 
 
@@ -203,9 +202,9 @@ class ROIExtractionTab(Tab):
                          column_2=[self.image_view, tab_selector_time_trace],
                          column_2_display=True)
 
-
-
-
+    @property
+    def data_handler(self):
+        return self.main_widget.data_handler
     def add_new_roi(self):
         """
         Adds a new roi using selection(self.current_selected_pixels_list)

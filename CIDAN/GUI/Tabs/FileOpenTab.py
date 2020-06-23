@@ -28,12 +28,14 @@ class FileOpenTab(Tab):
         save_dir_load = FileInput("Previous Session Location:", "", None, "",
                                   tool_tip="Select the save directory for a previous session",
                                   isFolder=1, forOpen=True)
+
         file_open_button = QPushButton()
         file_open_button.setContentsMargins(0, 0, 0, 11)
         file_open_button.setText("Load")
         file_open_button.clicked.connect(
             lambda: load_new_dataset(main_widget, dataset_file_input,
                                      save_dir_new_file))
+
         folder_open_button = QPushButton()
         folder_open_button.setContentsMargins(0, 0, 0, 11)
         folder_open_button.setText("Load")
@@ -41,9 +43,13 @@ class FileOpenTab(Tab):
             lambda: load_new_dataset(main_widget, dataset_folder_input,
                                      save_dir_new_folder,
                                      trials=self.trial_list_widget.selectedTrials(),
-                                     single=self.folder_open_single_trial.current_state()))
+                                     single=self.folder_open_single_trial.current_state(),
+                                     load_memory=self.folder_load_into_mem.current_state()))
         self.folder_open_single_trial = BoolInput("Open folder as single trial", "",
                                                   None, False, "")
+        self.folder_load_into_mem = BoolInput("Load data into memory(not recomended "
+                                              "for large datasets)", "", None, False,
+                                              "")
         prev_session_open_button = QPushButton()
         prev_session_open_button.setContentsMargins(0, 0, 0, 11)
         prev_session_open_button.setText("Load")

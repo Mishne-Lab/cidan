@@ -17,7 +17,7 @@ setup(
                       "Pyside2",
                       "dask[complete]", "matplotlib", "scipy", "tiffile",
                       "scikit-image", "hnswlib", "pillow",
-                      'tifffile'],
+                      'tifffile', "zarr"],
     scripts=[
         "CIDAN/LSSC/process_data.py",
 
