@@ -33,10 +33,12 @@ def generateEigenVectors(*, K: sparse.csr_matrix, num_eig: int) -> np.ndarray:
     P = D_inv.dot(K)
     D_neg_sqrt = calcDNegSqrt(D_diag)
     P_transformed = calcDSqrt(D_diag).dot(P).dot(D_neg_sqrt)
+    print("Start eigen")
     # eig_values,eig_vectors = eig(P.todense())
     eig_values, eig_vectors_scaled = linalg.eigsh(
         P_transformed, num_eig, which="LM",
         return_eigenvectors=True)  # this returns normalized eigen vectors
+    print("finished eigen")
     # # TODO make first eigen vector be sanity check since all elements are the same
     # #  this isn't the case
     # # print("Eigvalues",eig_values[0], eig_vectors_scaled,np.max(eig_vectors_scaled),eig_vectors_scaled.shape, num_eig)
@@ -125,16 +127,17 @@ def createEmbedingNormImageFromMultiple(*, spatial_box_list, save_dir, num_time_
     embed_dir = os.path.join(save_dir, "embedding_norm_images")
     eigen_images = []
     for e_vectors, spatial_box in zip(e_vectors_list, spatial_box_list):
-        e_vectors_sum_rescaled = e_vectors * (
-                9.0 / e_vectors.mean())  # add histogram equalization
+        # e_vectors_sum_rescaled = e_vectors * (
+        #         9.0 / e_vectors.mean())  # add histogram equalization
         # noqa
-        e_vectors_shaped = np.reshape(e_vectors_sum_rescaled,
+        e_vectors_shaped = np.reshape(e_vectors,
                                       spatial_box.shape)
         eigen_images.append(e_vectors_shaped)
     image = combine_images(spatial_box_list, eigen_images)
+    percent_95 = np.percentile(image, 95.0)
+    percent_05 = np.percentile(image, 5.0)
 
-    img = Image.fromarray(image * (
-            3.0 / image.mean()) * 255).convert('L')
+    img = Image.fromarray(((image-percent_05)/(percent_95-percent_05)) * 255).convert('L')
     image_path = os.path.join(embed_dir, "embedding_norm_image.png")
     img.save(image_path)
     return e_vectors_list

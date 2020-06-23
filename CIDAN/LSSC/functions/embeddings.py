@@ -8,6 +8,7 @@ os.environ["NUMEXPR_NUM_THREADS"] = "10"  # export NUMEXPR_NUM_THREADS=6
 import scipy.sparse as sparse
 import hnswlib as hnsw
 import numpy as np
+from scipy import io
 from typing import Tuple
 
 from dask import delayed
@@ -57,9 +58,15 @@ def calcAffinityMatrix(*, pixel_list: np.ndarray, metric: str, knn: int,
     # nbrs = LSHForest(n_estimators=20, n_candidates=200,
     #                  n_neighbors=10).fit(pixel_list)
     # distances, indices = nbrs.kneighbors(pixel_list)
+    # indices = io.loadmat('C:\\Users\gadge\Documents\CIDAN\inputs\\nf_0200_indices.mat')['Inds'].transpose((1, 0))
+    # distances = io.loadmat('C:\\Users\gadge\Documents\CIDAN\inputs\\nf_0200_distances.mat')['Dis'].transpose((1, 0))
+    # print("Lodaed mat files")
+    print(indices.shape)
+    print(distances.shape)
+    print(num_elements)
     # TODO add comments here
     reformat_indicies_x = np.repeat(np.arange(0, num_elements, 1), knn - 1)
-    reformat_indicies_y = np.reshape(indices[:, 1:], (-1))
+    reformat_indicies_y = np.reshape(indices[:, 1:], (-1))-1
     reformat_distances = np.reshape(distances[:, 1:], (-1))
     # Self tuning adaptive bandwidth
     scale_factor_indices = np.repeat(distances[:, normalize_w_k], knn)
@@ -71,12 +78,13 @@ def calcAffinityMatrix(*, pixel_list: np.ndarray, metric: str, knn: int,
     reformat_distances_scaled = np.exp(
         -reformat_distances / scale_factor_2_per_distances)
     # TODO change to go direct to csr matrix
-    return sparse.csr_matrix(sparse.coo_matrix(
+    K= sparse.csr_matrix(sparse.coo_matrix(
         (
             np.hstack([reformat_distances_scaled, np.ones((num_elements))]),
             (np.hstack([reformat_indicies_x, np.arange(0, num_elements, 1)]),
              np.hstack([reformat_indicies_y, np.arange(0, num_elements, 1)]))),
         shape=(num_elements, num_elements)))
+    return (K+K.transpose())/2
 
 
 def calcDInv(K: sparse.csr_matrix):

@@ -105,46 +105,47 @@ class ROIImageViewModule(ImageViewModule):
         self.updateImageDisplay()
 
     def set_background(self, name, func_name, update_image=True):
-        # Background refers to the image behind the rois
-        shape = self.main_widget.data_handler.shape
-        if func_name == "Mean Image":
-            self.current_background_name = func_name
-            self.current_background = self.main_widget.data_handler.mean_image.reshape(
-                [-1, 1])
+        if (self.main_widget.checkThreadRunning()):
 
-        if func_name == "Blank Image":
-            self.current_background_name = func_name
-            self.current_background = np.zeros([shape[0] * shape[1], 1])
-        # if func_name == "Temporal Correlation Image":
-        #     self.current_background = self.data_handler.temporal_correlation_image.reshape(
-        #         [-1, 1])
-        if func_name == "Eigen Norm Image":
-            self.current_background_name = func_name
-            self.current_background = self.data_handler.eigen_norm_image.reshape(
-                [-1, 1])
-        else:
-
-            self.current_background_name = "Max Image"
-            self.current_background = self.main_widget.data_handler.max_image.reshape(
-                [-1, 1])
-        if update_image:
-            self.updateImageDisplay()
+            # Background refers to the image behind the rois
+            shape = self.main_widget.data_handler.shape
+            if func_name == "Mean Image":
+                self.current_background = self.main_widget.data_handler.mean_image.reshape(
+                    [-1, 1])
+            if func_name == "Max Image":
+                self.current_background = self.main_widget.data_handler.max_image.reshape(
+                    [-1, 1])
+            if func_name == "Blank Image":
+                self.current_background = np.zeros([shape[0] * shape[1], 1])
+            # if func_name == "Temporal Correlation Image":
+            #     self.current_background = self.data_handler.temporal_correlation_image.reshape(
+            #         [-1, 1])
+            if func_name == "Eigen Norm Image":
+                self.current_background = self.data_handler.eigen_norm_image.reshape(
+                    [-1, 1])
+            else:
+                self.current_background_name = "Max Image"
+                self.current_background = self.main_widget.data_handler.max_image.reshape(
+                    [-1, 1])
+            if update_image:
+                self.updateImageDisplay()
 
     def set_image(self, name, func_name, update_image=True):
+        if (self.main_widget.checkThreadRunning() and self.data_handler.rois_loaded):
 
-        # Background refers to the image behind the rois
-        shape = self.main_widget.data_handler.edge_roi_image_flat.shape
-        if func_name == "Outlines":
-            self.outlines = True
-            self.roi_image_flat = np.hstack([self.data_handler.edge_roi_image_flat,
-                                             np.zeros(shape),
-                                             np.zeros(shape)])
-        if func_name == "Blob":
-            self.outlines = False
-            self.roi_image_flat = self.main_widget.data_handler.pixel_with_rois_color_flat
+            # Background refers to the image behind the rois
+            shape = self.main_widget.data_handler.edge_roi_image_flat.shape
+            if func_name == "Outlines":
+                self.outlines = True
+                self.roi_image_flat = np.hstack([self.data_handler.edge_roi_image_flat,
+                                                 np.zeros(shape),
+                                                 np.zeros(shape)])
+            if func_name == "Blob":
+                self.outlines = False
+                self.roi_image_flat = self.main_widget.data_handler.pixel_with_rois_color_flat
 
-        if update_image:
-            self.updateImageDisplay()
+            if update_image:
+                self.updateImageDisplay()
 
     def updateImageDisplay(self, new=False):
 

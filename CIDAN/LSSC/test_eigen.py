@@ -2,11 +2,35 @@ import matplotlib.pyplot as plt
 from dask import compute
 from scipy.sparse import csr_matrix
 
-from CIDAN.LSSC.functions.data_manipulation import *
-from CIDAN.LSSC.functions.eigen import *
+import numpy as np
 
-
+from scipy import io
+import scipy.sparse as sparse
+knn= 45
+num_elements = 40000
+normalize_w_k =30
 def test_eigen():
+    indices = io.loadmat('C:\\Users\gadge\Documents\CIDAN\inputs\\nf_0200_indices.mat')['Inds'].transpose((1,0))
+    distances = io.loadmat('C:\\Users\gadge\Documents\CIDAN\inputs\\nf_0200_distances.mat')['Dis'].transpose((1,0))
+    reformat_indicies_x = np.repeat(np.arange(0, num_elements, 1), knn - 1)
+    reformat_indicies_y = np.reshape(indices[:, 1:], (-1))-1
+    reformat_distances = np.reshape(distances[:, 1:], (-1))
+    # Self tuning adaptive bandwidth
+    scale_factor_indices = np.repeat(distances[:, normalize_w_k], knn)
+    scale_factor_2_per_distances = np.power(scale_factor_indices[reformat_indicies_x],
+                                            .5) * \
+                                   np.power(scale_factor_indices[reformat_indicies_y],
+                                            .5)
+    scale_factor_2_per_distances[scale_factor_2_per_distances == 0] = 1
+    reformat_distances_scaled = np.exp(
+        -reformat_distances / scale_factor_2_per_distances)
+    # TODO change to go direct to csr matrix
+    K = sparse.csr_matrix(sparse.coo_matrix(
+        (
+            np.hstack([reformat_distances_scaled, np.ones((num_elements))]),
+            (np.hstack([reformat_indicies_x, np.arange(0, num_elements, 1)]),
+             np.hstack([reformat_indicies_y, np.arange(0, num_elements, 1)]))),
+        shape=(num_elements, num_elements)))
     shape = (200, 200)
     num_points = 15
     shape_2d = (num_points * 25, 2)

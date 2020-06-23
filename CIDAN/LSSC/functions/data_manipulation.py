@@ -49,7 +49,7 @@ def load_filter_tif_stack(*, path, filter: bool, median_filter: bool,
 
         image = np.vstack(volumes)
         del volumes
-        return image.astype(np.float64)
+        return image.astype(np.float32)
     if os.path.isfile(path):
         # return ScanImageTiffReader(path).data()
         image = tifffile.imread(path)
@@ -62,7 +62,7 @@ def load_filter_tif_stack(*, path, filter: bool, median_filter: bool,
         if filter:
             image = filter_stack(stack=image, median_filter=median_filter,
                                  median_filter_size=median_filter_size, z_score=z_score)
-        return image.astype(np.float64)
+        return image.astype(np.float32)
     raise Exception("Invalid Inputs ")
     # vol=ScanImageTiffReader(file_path).data()
 

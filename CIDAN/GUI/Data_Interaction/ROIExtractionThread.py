@@ -19,12 +19,12 @@ class ROIExtractionThread(Thread):
             self.data_handler.calculate_roi_extraction()
             print("Finished ROI extraction")
             self.signal.sig.emit(True)
-        except AssertionError as e:
+        except Exception as e:
             if (type(e) == AssertionError):
                 print(e.args[0])
             else:
                 print("Something weird happened please reload and try again")
-            logger.error(e)
+            logger.error(str(e))
             self.signal.sig.emit(False)
 
     def runThread(self):

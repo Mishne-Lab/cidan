@@ -8,7 +8,7 @@ logger1 = logging.getLogger("CIDAN.loadDataset")
 
 
 def load_new_dataset(main_widget, file_input, save_dir_input, trials=None,
-                     single=False):
+                     single=False, override_many_files=False):
     """
     Function to load a initialize a new DataHandler object and the GUI with the data
     Parameters
@@ -24,6 +24,8 @@ def load_new_dataset(main_widget, file_input, save_dir_input, trials=None,
     single
         Whether to load the list of trials as a single one, ie like they are each only
         one time point so load the entire folder as one.
+    override_many_files : bool
+        Whether to give user dialog to choose whether to rearange files if there are over 250
 
     Returns
     -------

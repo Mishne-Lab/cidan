@@ -381,7 +381,7 @@ class DataHandler:
             self.dataset_params[param_name] = new_value
             self.global_params["need_recalc_dataset_params"] = True
             self.global_params["need_recalc_box_params"] = True
-
+            self.global_params["need_recalc_eigen_params"] = True
             self.save_new_param_json()
             return True
         else:
@@ -406,6 +406,7 @@ class DataHandler:
             self.global_params["need_recalc_filter_params"] = True
             self.global_params["need_recalc_box_params"] = True
 
+            self.global_params["need_recalc_eigen_params"] = True
             self.save_new_param_json()
             return True
         else:
@@ -431,7 +432,7 @@ class DataHandler:
             self.box_params[param_name] = new_value
             self.global_params["need_recalc_box_params"] = True
             self.global_params["need_recalc_eigen_params"] = True
-            # self.global_params["need_recalc_roi_extraction_params"] = True
+            self.global_params["need_recalc_roi_extraction_params"] = True
             self.save_new_param_json()
             return True
         else:
@@ -591,8 +592,8 @@ class DataHandler:
 
             # self.temporal_correlation_image = calculate_temporal_correlation(self.dataset_filtered)
             self.global_params["need_recalc_filter_params"] = False
-            self.global_params["need_recalc_box_params"] = True
-            self.global_params["need_recalc_eigen_params"] = True
+            # self.global_params["need_recalc_box_params"] = True
+            # self.global_params["need_recalc_eigen_params"] = True
         return self.dataset_trials_filtered
 
     def calculate_roi_extraction(self):
@@ -610,7 +611,8 @@ class DataHandler:
                        "total_num_spatial_boxes"], "Please make sure Number of Spatial Boxes is a square number"
             try:
                 self.calculate_filters()
-                eigen_need_recalc = self.global_params["need_recalc_eigen_params"]
+                eigen_need_recalc = self.global_params["need_recalc_eigen_params"] or self.global_params[
+                    "need_recalc_box_parmas"]
                 self.global_params["need_recalc_eigen_params"] = False
                 self.global_params[
                     "need_recalc_roi_extraction_params"] = False
