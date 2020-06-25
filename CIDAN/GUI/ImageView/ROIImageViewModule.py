@@ -21,7 +21,6 @@ class ROIImageViewModule(ImageViewModule):
         self.click_event = False
         self.outlines = True
         self.set_background("", "Max Image", update_image=False)
-        self.image_item = self.image_view.getImageItem()
         self.image_item.mouseClickEvent = lambda x: self.roi_view_click(x)
         self.image_item.mouseDragEvent = lambda x: self.roi_view_drag(x)
 
@@ -111,15 +110,15 @@ class ROIImageViewModule(ImageViewModule):
             if func_name == "Mean Image":
                 self.current_background = self.main_widget.data_handler.mean_image.reshape(
                     [-1, 1])
-            if func_name == "Max Image":
+            elif func_name == "Max Image":
                 self.current_background = self.main_widget.data_handler.max_image.reshape(
                     [-1, 1])
-            if func_name == "Blank Image":
+            elif func_name == "Blank Image":
                 self.current_background = np.zeros([shape[0] * shape[1], 1])
             # if func_name == "Temporal Correlation Image":
             #     self.current_background = self.data_handler.temporal_correlation_image.reshape(
             #         [-1, 1])
-            if func_name == "Eigen Norm Image":
+            elif func_name == "Eigen Norm Image":
                 self.current_background = self.data_handler.eigen_norm_image.reshape(
                     [-1, 1])
             else:
@@ -261,8 +260,8 @@ class ROIImageViewModule(ImageViewModule):
         if hasattr(self.main_widget.data_handler, "pixel_with_rois_flat"):
             pos = event.pos()
 
-            x = int(pos.x())
-            y = int(pos.y())
+            y = int(pos.x())
+            x = int(pos.y())
             self.click_event = True
             pixel_with_rois_flat = self.main_widget.data_handler.pixel_with_rois_flat
             shape = self.main_widget.data_handler.shape
@@ -276,8 +275,8 @@ class ROIImageViewModule(ImageViewModule):
         prev = True
         pos = event.pos()
 
-        x = int(pos.x())
-        y = int(pos.y())
+        y = int(pos.x())  # Because of column order thing in image_view
+        x = int(pos.y())
         modifiers = QApplication.keyboardModifiers()
         if modifiers == QtCore.Qt.ShiftModifier and not self.box_selector_enabled:
             self.box_selector_enabled = True
@@ -386,7 +385,8 @@ class ROIImageViewModule(ImageViewModule):
         if not any([x.isRunning() for x in
                     self.main_widget.thread_list]) and not self.resetting_view:
             self.resetting_view = True
-            if hasattr(self.main_widget.data_handler, "edge_roi_image_flat"):
+            if hasattr(self.main_widget.data_handler,
+                       "edge_roi_image_flat") and self.main_widget.data_handler.edge_roi_image_flat is not None:
                 shape = self.main_widget.data_handler.edge_roi_image_flat.shape
                 self.data_handler.save_rois(self.data_handler.rois)
                 self.select_image_flat = np.zeros([shape[0] * shape[1], 3])

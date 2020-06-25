@@ -207,13 +207,14 @@ class ROIExtractionTab(Tab):
         return self.main_widget.data_handler
     def add_new_roi(self):
         """
-        Adds a new roi using selection(self.current_selected_pixels_list)
+        Adds a new roi using selection(self.image_view.current_selected_pixels_list)
         """
         if (self.main_widget.checkThreadRunning()):
-            if len(self.current_selected_pixels_list) == 0:
+            if len(self.image_view.current_selected_pixels_list) == 0:
                 print("Please select some pixels")
                 return
-            self.data_handler.rois.append(np.array(self.current_selected_pixels_list))
+            self.data_handler.rois.append(
+                np.array(self.image_view.current_selected_pixels_list))
             self.data_handler.gen_roi_display_variables()
             self.data_handler.time_traces.append([])
             for _ in range(len(self.data_handler.trials_all)):
@@ -262,26 +263,29 @@ class ROIExtractionTab(Tab):
         if (self.main_widget.checkThreadRunning()):
             if roi_num is None:
                 print("Please select an roi")
-                return
+                return False
             roi_num = roi_num - 1
-            if len(self.current_selected_pixels_list) == 0:
+            if len(self.image_view.current_selected_pixels_list) == 0:
                 print("Please select some pixels")
-                return
+                return False
             if add_subtract == "add":
                 print("Adding Selection to ROI #" + str(roi_num + 1))
                 self.data_handler.rois[roi_num] = combine_rois(
-                    self.data_handler.rois[roi_num], self.current_selected_pixels_list)
+                    self.data_handler.rois[roi_num],
+                    self.image_view.current_selected_pixels_list)
                 self.data_handler.gen_roi_display_variables()
                 self.data_handler.calculate_time_trace(roi_num)
+
             if add_subtract == "subtract":
                 print("Subtracting Selection from ROI #" + str(roi_num + 1))
                 self.data_handler.rois[roi_num] = [x for x in
                                                    self.data_handler.rois[roi_num]
                                                    if
-                                                   x not in self.current_selected_pixels_list]
+                                                   x not in self.image_view.current_selected_pixels_list]
                 self.data_handler.gen_roi_display_variables()
                 self.data_handler.calculate_time_trace(roi_num)
             self.update_roi()
+            return True
 
     def update_roi(self):
         """Resets the roi image display"""

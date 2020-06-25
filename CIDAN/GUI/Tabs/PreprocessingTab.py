@@ -64,7 +64,7 @@ class PreprocessingTab(Tab):
         mean_image_button.clicked.connect(
             lambda: self.set_image_display(
                 self.data_handler.mean_image))
-        self._image_buttons_layout.addWidget(orig_stack_button)
+        # self._image_buttons_layout.addWidget(orig_stack_button)
         self._image_buttons_layout.addWidget(stack_button)
         self._image_buttons_layout.addWidget(max_image_button)
         self._image_buttons_layout.addWidget(mean_image_button)

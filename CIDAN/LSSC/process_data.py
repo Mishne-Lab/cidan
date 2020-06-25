@@ -172,7 +172,7 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
         if test_images:
             pass
             # delayed(save_roi_images)(
-            #     roi_list=spatial_box.redefine_spatial_cord_1d(rois),
+            #     roi_list.json=spatial_box.redefine_spatial_cord_1d(rois),
             #                              output_dir=test_output_dir,
             #                              image_shape=shape,
             #                              box_num=spatial_box.box_num).compute()
@@ -200,7 +200,7 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
 if __name__ == '__main__':
     process_data(num_threads=1, load_data=True,
                  data_path="/Users/sschickler/Code Devel/LSSC-python/input_images" +
-                           "/small_dataset.tif",
+                           "/small_dataset1.tif",
                  test_images=True,
                  save_dir="/Users/sschickler/Code Devel/LSSC-python/output_images/15",
                  save_intermediate_steps=False,

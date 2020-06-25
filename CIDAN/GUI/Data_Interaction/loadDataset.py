@@ -7,17 +7,17 @@ from CIDAN.GUI.Inputs.FileInput import createFileDialog
 logger1 = logging.getLogger("CIDAN.loadDataset")
 
 
-def load_new_dataset(main_widget, file_input, save_dir_input, trials=None,
-                     single=False,  load_into_mem=True, override_load_warning=False):
+def load_new_dataset(main_widget, file_path, save_dir_path, trials=None,
+                     single=False, load_into_mem=True, override_load_warning=False):
     """
     Function to load a initialize a new DataHandler object and the GUI with the data
     Parameters
     ----------
     main_widget : MainWidget
         The main widget for the GUI
-    file_input : str
+    file_path : str
         Either the folder that contains the trials or the file to load
-    save_dir_input : str
+    save_dir_path : str
         The path to the save directory
     trials : List[str]
         A list of trials either paths to files or folders
@@ -32,8 +32,7 @@ def load_new_dataset(main_widget, file_input, save_dir_input, trials=None,
     Nothing
     """
     if (main_widget.checkThreadRunning()):
-        file_path = file_input.current_state()
-        save_dir_path = save_dir_input.current_state()
+
         if main_widget.data_handler is not None:
             main_widget.data_handler.__del__()
             main_widget.data_handler = None
@@ -82,14 +81,14 @@ def load_new_dataset(main_widget, file_input, save_dir_input, trials=None,
                     + " are valid files")
 
 
-def load_prev_session(main_widget, save_dir_input):
+def load_prev_session(main_widget, save_dir_path):
     """
     Loads a previous session into Datahandler and initializes GUI
     Parameters
     ----------
     main_widget : MainWidget
         The main widget of the application
-    save_dir_input : str
+    save_dir_path : str
         Path of the save directory
 
     Returns
@@ -97,7 +96,6 @@ def load_prev_session(main_widget, save_dir_input):
     Nothing
     """
     if (main_widget.checkThreadRunning()):
-        save_dir_path = save_dir_input.current_state()
         try:
             main_widget.data_handler = DataHandler(data_path="",
                                                    save_dir_path=save_dir_path,

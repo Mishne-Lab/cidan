@@ -17,12 +17,13 @@ setup(
                       "Pyside2",
                       "dask[complete]", "matplotlib", "scipy", "tiffile",
                       "scikit-image", "hnswlib", "pillow",
-                      'tifffile', "zarr"],
+                      'tifffile', "zarr", "neurofinder"],
     scripts=[
         "CIDAN/LSSC/process_data.py",
 
         "CIDAN/TimeTrace/deltaFOverF.py",
         "CIDAN/TimeTrace/mean.py",
+        "CIDAN/TimeTrace/waveletDenoise.py",
         "CIDAN/GUI/Tabs/AnalysisTab.py",
         "CIDAN/LSSC/SpatialBox.py",
         "CIDAN/TimeTrace/__init__.py",

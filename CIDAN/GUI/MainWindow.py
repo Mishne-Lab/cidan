@@ -148,7 +148,7 @@ class MainWidget(QWidget):
 
                     "/Users/sschickler/Code_Devel/LSSC-python/input_images/",
                     "/Users/sschickler/Documents/LSSC-python",
-                    trials=["small_dataset.tif"],
+                    trials=["small_dataset1.tif"],
                     save_dir_already_created=True)
                 self.init_w_data()
             except:

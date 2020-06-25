@@ -137,8 +137,8 @@ def filter_stack(*, stack: np.ndarray, median_filter: bool,
         stack_t = np.transpose(stack, (1, 2, 0))
         quant_5 = np.percentile(stack_t, 5, axis=2)
         quant_95 = np.percentile(stack_t, 95, axis=2)
-        quant_5_filtered = ndimage.filters.gaussian_filter(quant_5, 1.5)
-        quant_95_filtered = ndimage.filters.gaussian_filter(quant_95, 1.5)
+        quant_5_filtered = ndimage.filters.gaussian_filter(quant_5, 2)
+        quant_95_filtered = ndimage.filters.gaussian_filter(quant_95, 2)
         stack_equalized = np.divide(
             np.subtract(stack_t, quant_5_filtered[..., np.newaxis]), (
                     quant_95_filtered - quant_5_filtered)[..., np.newaxis])
@@ -193,9 +193,9 @@ def join_data_list(data_list):
 
 @delayed
 def saveTempImage(data, save_dir, spatial_box_num):
-    print(save_dir)
+    # print(save_dir)
     temp_dir = os.path.join(save_dir, "temp_images")
-    print(data[60, :, :].shape)
+    # print(data[60, :, :].shape)
     img = Image.fromarray(data[3, :, :] * 255).convert('L')
     image_path = os.path.join(temp_dir, "embedding_norm_image_box_{}.png".format(
         spatial_box_num))

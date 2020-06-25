@@ -39,6 +39,7 @@ class ImageViewModule(QFrame):
         if not crop_selector:
             self.image_view.ui.roiBtn.hide()
         # self.image_view.getRoiPlot().hide()
+        self.image_item = self.image_view.getImageItem()
 
         self.layout.addWidget(self.image_view)
 

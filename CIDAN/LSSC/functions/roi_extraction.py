@@ -93,8 +93,8 @@ def roi_extract_image(*, e_vectors: np.ndarray,
             initial_pixel_list) > 0 and iter_counter < max_iter:
         iter_counter += 1
         total_counter += 1
-        # print(iter_counter, len(roi_list),
-        #       len(roi_list[-1]) if len(roi_list) > 0 else 0)
+        # print(iter_counter, len(roi_list.json),
+        #       len(roi_list.json[-1]) if len(roi_list.json) > 0 else 0)
         initial_pixel = initial_pixel_list[0]  # Select initial point
         # select eigen vectors to project into
         small_eigen_vectors = select_eigen_vectors(e_vectors,
@@ -324,6 +324,7 @@ def select_eigen_vectors(eigen_vectors: np.ndarray,
         dimensions number of pixels in image by numb_eigen_vector_select
 
     """
+    num_eigen_vector_select = 3
     pixel_eigen_vec_values = np.abs(np.sum(eigen_vectors[pixels_in_roi], axis=0))
     pixel_eigen_vec_values_sort_indices = np.flip(
         np.argsort(pixel_eigen_vec_values))

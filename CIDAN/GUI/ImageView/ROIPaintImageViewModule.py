@@ -34,26 +34,10 @@ class ROIPaintImageViewModule(ROIImageViewModule):
             if hasattr(self.main_widget.data_handler, "pixel_with_rois_flat"):
                 pos = event.pos()
 
-                x = int(pos.x())
-                y = int(pos.y())
+                y = int(pos.x())
+                x = int(pos.y())
                 if self.select_mode == "magic":
-                    shape = self.data_handler.shape
-                    # self.clearPixelSelection(update_display=False)
-                    print("Generating ROI")
-                    new_roi = self.data_handler.genRoiFromPoint((x, y))
-                    if len(new_roi) == 0:
-                        print(
-                            "Please try again with a bigger growth factor or a different point, we couldn't find an roi where you last selected")
-                        return
-
-                    for cord_1d in new_roi:
-                        x_new, y_new = cord_1d // shape[1], cord_1d - (
-                                cord_1d // shape[1]) * shape[1]
-                        self.image_item.image[x_new, y_new] += [0, 255, 0]
-                        self.current_selected_pixels_list.append(
-                            shape[1] * x_new + y_new)
-                        self.current_selected_pixels_mask[x_new, y_new] = True
-                    self.image_item.updateImage()
+                    self.magic_wand(x, y)
                     print("Done generating ROI")
                 elif self.select_pixel_on:
                     event.accept()
@@ -72,12 +56,31 @@ class ROIPaintImageViewModule(ROIImageViewModule):
         if hasattr(self.main_widget.data_handler, "pixel_with_rois_flat"):
             pos = event.pos()
 
-            x = int(pos.x())
-            y = int(pos.y())
+            y = int(pos.x())
+            x = int(pos.y())
             if self.select_pixel_on and self.select_mode != "magic":
                 event.accept()
                 self.pixel_paint(x, y)
 
+    def magic_wand(self, x, y):
+        shape = self.data_handler.shape
+        # self.clearPixelSelection(update_display=False)
+        print("Generating ROI")
+        new_roi = self.data_handler.genRoiFromPoint((x, y))
+        if len(new_roi) == 0:
+            print(
+                "Please try again with a bigger growth factor or a different point, we couldn't find an roi where you last selected")
+            return False
+
+        for cord_1d in new_roi:
+            x_new, y_new = cord_1d // shape[1], cord_1d - (
+                    cord_1d // shape[1]) * shape[1]
+            self.image_item.image[x_new, y_new] += [0, 255, 0]
+            self.current_selected_pixels_list.append(
+                shape[1] * x_new + y_new)
+            self.current_selected_pixels_mask[x_new, y_new] = True
+        self.image_item.updateImage()
+        return True
     def pixel_paint(self, x, y):
         try:
             shape = self.main_widget.data_handler.shape

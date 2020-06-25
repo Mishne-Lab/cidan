@@ -596,7 +596,8 @@ class DataHandler:
             for trial_num in self._trials_loaded_indices:
                 self.dataset_trials_filtered[trial_num] = self.load_trial_filter_step(
                     trial_num, dataset_trials[trial_num])
-            self.dataset_trials_filtered = dask.compute(*self.dataset_trials_filtered)
+            self.dataset_trials_filtered = list(
+                dask.compute(*self.dataset_trials_filtered))
             dataset_trials = None
             self.mean_image = np.mean(np.dstack(
                 [np.mean(x, axis=0) for x in self.dataset_trials_filtered_loaded]),
@@ -605,6 +606,7 @@ class DataHandler:
 
             # self.temporal_correlation_image = calculate_temporal_correlation(self.dataset_filtered)
             self.global_params["need_recalc_filter_params"] = False
+            self.delete_roi_vars()
             # self.global_params["need_recalc_box_params"] = True
             # self.global_params["need_recalc_eigen_params"] = True
         return self.dataset_trials_filtered
@@ -937,7 +939,19 @@ class DataHandler:
                          spatial_box.convert_1d_to_2d(roi)]
             else:
                 cords = spatial_box.convert_1d_to_2d(roi)
-            curr_roi = {"id": num, "cordinates": cords}
+            curr_roi = {"id": num, "coordinates": cords}
             roi_save_object.append(curr_roi)
-        with open(os.path.join(self.save_dir_path, "roi_list"), "w") as f:
+        with open(os.path.join(self.save_dir_path, "roi_list.json"), "w") as f:
             json.dump(roi_save_object, f)
+
+    def delete_roi_vars(self):
+        self.rois = []
+        self.rois_loaded = False
+        self.roi_max_cord_list = None
+        self.roi_min_cord_list = None
+        self.pixel_with_rois_flat = None
+        self.pixel_with_rois_color_flat = None
+        self.time_traces = []
+        self.edge_roi_image_flat = None
+        self.pixel_with_rois_color = None
+        self.eigen_norm_image = None
