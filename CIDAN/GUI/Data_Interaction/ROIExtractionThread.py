@@ -14,20 +14,26 @@ class ROIExtractionThread(Thread):
         self.signal.sig.connect(lambda x: self.endThread(x))
 
     def run(self):
-        try:
+        if self.main_widget.dev:
             self.data_handler.calculate_roi_extraction()
             print("Finished ROI extraction")
             self.signal.sig.emit(True)
-        except AttributeError as e:
-            if (type(e) == AssertionError):
-                print(e.args[0])
-            else:
-                print("Something weird happened please reload and try again")
-            logger.error(str(e))
-            self.signal.sig.emit(False)
+        else:
+            try:
+                self.data_handler.calculate_roi_extraction()
+                print("Finished ROI extraction")
+                self.signal.sig.emit(True)
+            except Exception as e:
+                if (type(e) == AssertionError):
+                    print(e.args[0])
+                else:
+                    print("Something weird happened please reload and try again")
+                self.main_widget.data_handler.global_params[
+                    "need_recalc_eigen_params"] = True
+                logger.error(str(e))
+                self.signal.sig.emit(False)
 
     def runThread(self):
-
         if not any([x.isRunning() for x in self.main_widget.thread_list]):
             print("Starting ROI extraction")
             # self.button.setEnabled(False)

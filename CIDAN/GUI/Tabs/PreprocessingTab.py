@@ -47,23 +47,23 @@ class PreprocessingTab(Tab):
         max_image_button = QPushButton()
         max_image_button.setText("Max Image")
         max_image_button.clicked.connect(
-            lambda: self.set_image_display(
-                self.data_handler.max_image))
+            lambda: self.set_image_display_list(self.data_handler.trials_loaded,
+                                                self.data_handler.max_images))
         stack_button = QPushButton()
         stack_button.setText("Filtered Stack")
         stack_button.clicked.connect(
             lambda: self.set_image_display_list(self.data_handler.trials_loaded,
                                                 self.data_handler.dataset_trials_filtered_loaded))
-        orig_stack_button = QPushButton()
-        orig_stack_button.setText("Original Stack")
-        orig_stack_button.clicked.connect(
-            lambda: self.set_image_display_list(self.data_handler.trials_loaded,
-                                                self.data_handler.dataset_trials_loaded))
+        # orig_stack_button = QPushButton()
+        # orig_stack_button.setText("Original Stack")
+        # orig_stack_button.clicked.connect(
+        #     lambda: self.set_image_display_list(self.data_handler.trials_loaded,
+        #                                         self.data_handler.dataset_trials_loaded))
         mean_image_button = QPushButton()
         mean_image_button.setText("Mean Image")
         mean_image_button.clicked.connect(
-            lambda: self.set_image_display(
-                self.data_handler.mean_image))
+            lambda: self.set_image_display_list(self.data_handler.trials_loaded,
+                                                self.data_handler.mean_images))
         # self._image_buttons_layout.addWidget(orig_stack_button)
         self._image_buttons_layout.addWidget(stack_button)
         self._image_buttons_layout.addWidget(max_image_button)
@@ -104,7 +104,7 @@ class PreprocessingTab(Tab):
 
         def set_image(x, trial_name):
             self.main_widget.preprocess_image_view.setImage(
-                data_list[trial_names.index(trial_name)])
+                data_list[trial_names.index(trial_name)][:])
 
         if hasattr(self, "trial_selector_input"):
             self.trial_selector_input.setParent(None)

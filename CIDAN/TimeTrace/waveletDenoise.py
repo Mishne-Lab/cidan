@@ -49,8 +49,9 @@ def waveletDenoise(data):
             # Dict of unique threshold coefficients for each detail coeff. array
 
             denoised_coeffs = [coeffs[0]] + denoised_detail
+
             data_denoise[i, :] = data_denoise[i, :] + np.roll(
-                pywt.waverecn(denoised_coeffs, wavelet), -c)
+                pywt.waverecn(denoised_coeffs, wavelet), -c)[:data_denoise.shape[1]]
 
     data_denoise = data_denoise / (2 * shift + 1)
     return data_denoise

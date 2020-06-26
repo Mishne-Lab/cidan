@@ -5,6 +5,7 @@ from functools import reduce
 
 import dask
 import numpy as np
+import zarr
 from PIL import Image
 from dask import delayed
 from skimage import feature
@@ -97,11 +98,12 @@ class DataHandler:
         "num_rois": 60,
         "fill_holes": True,
         "refinement": True,
-        "max_iter": 300,
+        "max_iter": 100,
         "roi_circ_threshold": 40
     }
     _time_trace_params_default = {
-        "time_trace_type": "Mean"
+        "time_trace_type": "Mean",
+        "denoise": True
     }
 
     def __init__(self, data_path, save_dir_path, save_dir_already_created, trials=[],
@@ -160,9 +162,17 @@ class DataHandler:
                                                      enumerate(self.trials_all)
                                                      if x in self.trials_loaded]
             # this loads the dataset and calculate the specified filters
-            self.calculate_filters()
+            if not self.load_into_mem:
+                try:
+                    self.load_data()
+                    print("Loaded Previous Session")
+                except:
+                    self.calculate_filters()
+            else:
+                self.calculate_filters()
             # if there are ROIs saved in the save dir load them and calculate time
             # traces
+
             if self.rois_exist:
                 try:
                     self.load_rois()
@@ -394,7 +404,7 @@ class DataHandler:
             self.global_params["need_recalc_dataset_params"] = True
             self.global_params["need_recalc_box_params"] = True
             self.global_params["need_recalc_eigen_params"] = True
-            self.save_new_param_json()
+            # self.save_new_param_json()
             return True
         else:
             return False
@@ -419,7 +429,7 @@ class DataHandler:
             self.global_params["need_recalc_box_params"] = True
 
             self.global_params["need_recalc_eigen_params"] = True
-            self.save_new_param_json()
+            # self.save_new_param_json()
             return True
         else:
             return False
@@ -445,7 +455,7 @@ class DataHandler:
             self.global_params["need_recalc_box_params"] = True
             self.global_params["need_recalc_eigen_params"] = True
             self.global_params["need_recalc_roi_extraction_params"] = True
-            self.save_new_param_json()
+            # self.save_new_param_json()
             return True
         else:
             return False
@@ -467,7 +477,7 @@ class DataHandler:
         if param_name in self.eigen_params:
             self.eigen_params[param_name] = new_value
             self.global_params["need_recalc_eigen_params"] = True
-            self.save_new_param_json()
+            # self.save_new_param_json()
             return True
         else:
             return False
@@ -489,12 +499,12 @@ class DataHandler:
         if param_name in self.roi_extraction_params:
             self.roi_extraction_params[param_name] = new_value
             self.global_params["need_recalc_roi_extraction_params"] = True
-            self.save_new_param_json()
+            # self.save_new_param_json()
             return True
         else:
             return False
 
-    def calculate_dataset(self) -> np.ndarray:
+    def calculate_dataset(self, ) -> np.ndarray:
         """
         Loads each trial, applying crop and slicing, sets them to self.dataset_trials
 
@@ -565,19 +575,46 @@ class DataHandler:
         -------
         Filtered trial as a np.ndarray
         """
-        return filter_stack(
-            stack=dataset if type(dataset) != bool else self.load_trial_dataset_step(
-                trial_num).compute(),
-            median_filter_size=(self.filter_params[
-                                    "median_filter_size"],
-                                self.filter_params[
-                                    "median_filter_size"],
-                                self.filter_params[
-                                    "median_filter_size"]),
-            median_filter=self.filter_params[
-                "median_filter"],
-            z_score=self.filter_params["z_score"],
-            hist_eq=self.filter_params["hist_eq"])
+        if not self.load_into_mem:
+            cur_stack = filter_stack(
+
+                stack=dataset if type(
+                    dataset) != bool else self.load_trial_dataset_step(
+                    trial_num).compute(),
+                median_filter_size=(self.filter_params[
+                                        "median_filter_size"],
+                                    self.filter_params[
+                                        "median_filter_size"],
+                                    self.filter_params[
+                                        "median_filter_size"]),
+                median_filter=self.filter_params[
+                    "median_filter"],
+                z_score=self.filter_params["z_score"],
+                hist_eq=self.filter_params["hist_eq"])
+            z1 = zarr.open(os.path.join(self.save_dir_path,
+                                        'temp_files/%s.zarr' % self.trials_all[
+                                            trial_num]), mode='w',
+                           shape=cur_stack.shape,
+                           chunks=(64, 64, 64))
+            z1[:] = cur_stack
+            return z1
+
+        else:
+            return filter_stack(
+
+                stack=dataset if type(
+                    dataset) != bool else self.load_trial_dataset_step(
+                    trial_num).compute(),
+                median_filter_size=(self.filter_params[
+                                        "median_filter_size"],
+                                    self.filter_params[
+                                        "median_filter_size"],
+                                    self.filter_params[
+                                        "median_filter_size"]),
+                median_filter=self.filter_params[
+                    "median_filter"],
+                z_score=self.filter_params["z_score"],
+                hist_eq=self.filter_params["hist_eq"])
 
     def calculate_filters(self):
         """
@@ -590,27 +627,55 @@ class DataHandler:
         if self.global_params["need_recalc_filter_params"] or self.global_params[
             "need_recalc_dataset_params"] or \
                 not hasattr(self, "dataset_trials_filtered"):
-            dataset_trials = self.calculate_dataset()
+
             print("Started Calculating Filters")
             self.dataset_trials_filtered = [False] * len(self.trials_all)
             for trial_num in self._trials_loaded_indices:
                 self.dataset_trials_filtered[trial_num] = self.load_trial_filter_step(
-                    trial_num, dataset_trials[trial_num])
+                    trial_num, self.load_trial_dataset_step(trial_num))
             self.dataset_trials_filtered = list(
                 dask.compute(*self.dataset_trials_filtered))
-            dataset_trials = None
-            self.mean_image = np.mean(np.dstack(
-                [np.mean(x, axis=0) for x in self.dataset_trials_filtered_loaded]),
-                axis=2)
-            self.max_image =np.max(self.dataset_trials_filtered_loaded[0], axis=0)
+            self.shape = [
+                self.dataset_trials_filtered[self._trials_loaded_indices[0]].shape[1],
+                self.dataset_trials_filtered[self._trials_loaded_indices[0]].shape[2]]
+            if self.dataset_params["crop_x"][1] == 0:
+                self.dataset_params["crop_x"][1] = self.shape[0]
+                self.dataset_params["crop_y"][1] = self.shape[1]
+            self.mean_images = [np.mean(x[:], axis=0) for x in
+                                self.dataset_trials_filtered_loaded]
+
+            self.max_images = [np.max(x[:], axis=0) for x in
+                               self.dataset_trials_filtered_loaded]
 
             # self.temporal_correlation_image = calculate_temporal_correlation(self.dataset_filtered)
             self.global_params["need_recalc_filter_params"] = False
+            self.global_params["need_recalc_dataset_params"] = False
+            self.save_new_param_json()
             self.delete_roi_vars()
             # self.global_params["need_recalc_box_params"] = True
             # self.global_params["need_recalc_eigen_params"] = True
         return self.dataset_trials_filtered
 
+    def load_data(self):
+        self.dataset_trials_filtered = [False] * len(self.trials_all)
+        for trial_num in self._trials_loaded_indices:
+            self.dataset_trials_filtered[trial_num] = zarr.open(
+                os.path.join(self.save_dir_path,
+                             'temp_files/%s.zarr' % self.trials_all[trial_num]),
+                mode="r")
+        self.shape = [
+            self.dataset_trials_filtered[self._trials_loaded_indices[0]].shape[1],
+            self.dataset_trials_filtered[self._trials_loaded_indices[0]].shape[2]]
+        if self.dataset_params["crop_x"][1] == 0:
+            self.dataset_params["crop_x"][1] = self.shape[0]
+            self.dataset_params["crop_y"][1] = self.shape[1]
+        self.mean_images = [np.mean(x[:], axis=0) for x in
+                            self.dataset_trials_filtered_loaded]
+
+        self.max_images = [np.max(x[:], axis=0) for x in
+                           self.dataset_trials_filtered_loaded]
+        self.global_params["need_recalc_filter_params"] = False
+        self.global_params["need_recalc_dataset_params"] = False
     def calculate_roi_extraction(self):
         """
         Extracts Rois and sets them to self.rois
@@ -754,13 +819,17 @@ class DataHandler:
             self.time_traces.append([])
             for _ in range(len(self.trials_all)):
                 self.time_traces[-1].append(False)
+        calc_list = []
         for trial_num in self.trials_loaded_time_trace_indices:
             for roi in range(len(self.rois)):
-                self.calculate_time_trace(roi + 1, trial_num)
-
+                calc_list.append(
+                    (delayed)(self.calculate_time_trace(roi + 1, trial_num)))
+        dask.compute(*calc_list)
         if os.path.isdir(self.save_dir_path):
             pickle_save(self.time_traces,
-                        "time_traces_" + self.time_trace_params["time_trace_type"],
+                        "time_traces_{0}{1}".format(
+                            self.time_trace_params["time_trace_type"],
+                            "_denoised" if self.time_trace_params["denoise"] else ""),
                         output_directory=self.save_dir_path)
         self.rois_loaded = True
 
@@ -784,9 +853,13 @@ class DataHandler:
                 self.load_trial_filter_step(trial_num)
             data_2d = reshape_to_2d_over_time(self.dataset_trials_filtered[trial_num])
             if self.time_trace_params["time_trace_type"] == "DeltaF Over F":
-                time_trace = calculateDeltaFOverF(roi, data_2d)
+                time_trace = calculateDeltaFOverF(roi, data_2d,
+                                                  denoise=self.time_trace_params[
+                                                      "denoise"])
             else:
-                time_trace = calculateMeanTrace(roi, data_2d)
+                time_trace = calculateMeanTrace(roi, data_2d,
+                                                denoise=self.time_trace_params[
+                                                    "denoise"])
             calculateDeltaFOverF(roi, data_2d)
             self.time_traces[roi_num - 1][trial_num] = time_trace
 
@@ -925,8 +998,10 @@ class DataHandler:
     def export(self):
         temp_type = self.time_trace_params["time_trace_type"]
         for time_type in ["Mean", "DeltaF Over F"]:
-            self.time_trace_params["time_trace_type"] = time_type
-            self.calculate_time_traces()
+            for denoise in [True, False]:
+                self.time_trace_params["denoise"] = denoise
+                self.time_trace_params["time_trace_type"] = time_type
+                self.calculate_time_traces()
         self.time_trace_params["time_trace_type"] = temp_type
         self.save_rois(self.rois)
         roi_save_object = []

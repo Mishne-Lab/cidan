@@ -41,8 +41,6 @@ class ROIExtractionTab(Tab):
         self.main_widget = main_widget
         self.image_view = ROIPaintImageViewModule(main_widget, self, True)
 
-
-
         # This part creates the top left settings/roi list view in two tabs
         self.tab_selector_roi = QTabWidget()
         self.tab_selector_roi.setStyleSheet("QTabWidget {font-size: 20px;}")
@@ -159,7 +157,6 @@ class ROIExtractionTab(Tab):
 
         # If ROIs are loaded, add them to display
 
-
         # Tab selector for the time trace window
         tab_selector_time_trace = QTabWidget()
         tab_selector_time_trace.setStyleSheet("QTabWidget {font-size: 20px;}")
@@ -179,7 +176,10 @@ class ROIExtractionTab(Tab):
                                            lambda x, y: x + y,
                                            default_index=0,
                                            tool_tip="Select way to calculate time trace",
-                                           val_list=["Mean", "DeltaF Over F"])
+                                           val_list=["Mean Florescence Denoised",
+                                                     "Mean Florescence",
+                                                     "DeltaF Over F Denoised",
+                                                     "DeltaF Over F"])
         time_trace_settings_layout.addWidget(self.time_trace_type,
                                              stretch=1)
         # A list widget to select what trials to calculate/display time traces for
@@ -205,6 +205,7 @@ class ROIExtractionTab(Tab):
     @property
     def data_handler(self):
         return self.main_widget.data_handler
+
     def add_new_roi(self):
         """
         Adds a new roi using selection(self.image_view.current_selected_pixels_list)
@@ -292,11 +293,6 @@ class ROIExtractionTab(Tab):
         if (self.main_widget.checkThreadRunning()):
             self.image_view.reset_view()
 
-
-
-
-
-
     def selectRoiTime(self, num):
         if (self.main_widget.checkThreadRunning()):
             try:
@@ -331,21 +327,20 @@ class ROIExtractionTab(Tab):
                 print("No ROIs have been generated yet")
 
     def update_time_traces(self):
-        if (self.main_widget.checkThreadRunning()):
+        if self.main_widget.checkThreadRunning():
+            curr_type = "Mean" if "Mean" in self.time_trace_type.current_state() \
+                else "DeltaF Over F"
+            denoise = "Denoised" in self.time_trace_type.current_state()
             if (self.data_handler.time_trace_params[
-                "time_trace_type"] != self.time_trace_type.current_state()):
+                "time_trace_type"] != curr_type or self.data_handler.time_trace_params[
+                "denoise"] != denoise):
                 self.data_handler.time_trace_params[
-                    "time_trace_type"] = self.time_trace_type.current_state()
+                    "time_trace_type"] = curr_type
+                self.data_handler.time_trace_params["denoise"] = denoise
                 self.data_handler.calculate_time_traces()
             self.data_handler.update_selected_trials(
                 self._time_trace_trial_select_list.selectedTrials())
             self.deselectRoiTime()
-
-
-
-
-
-
 
     def view_eigen_vector(self):
         vector_num = self.eigen_view_number_input.current_state()

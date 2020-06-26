@@ -12,10 +12,11 @@ def test_main():
         app.setApplicationName("CIDAN")
     except RuntimeError:
         pass
-    widget = MainWindow(dev=True)
+    widget = MainWindow(dev=True, preload=False)
+
     main_widget = widget.table_widget
     load_new_dataset(main_widget, file_path="test_files/small_dataset1.tif",
-                     save_dir_path="test_files/save_dir")
+                     save_dir_path="test_files/save_dir", load_into_mem=False)
     assert main_widget.data_handler.shape == [400, 150]
     assert main_widget.data_handler.rois_loaded == False
     assert main_widget.data_handler.trials_loaded == ["small_dataset1.tif"]
@@ -101,7 +102,7 @@ def test_main():
     data_handler = None
     widget = None
 
-    widget = MainWindow(dev=False)
+    widget = MainWindow(dev=False, preload=False)
     main_widget = widget.table_widget
     load_prev_session(main_widget,
                       save_dir_path="test_files/save_dir")

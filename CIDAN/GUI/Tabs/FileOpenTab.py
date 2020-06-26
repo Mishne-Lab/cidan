@@ -34,8 +34,11 @@ class FileOpenTab(Tab):
         file_open_button.setText("Load")
         file_open_button.clicked.connect(
             lambda: load_new_dataset(main_widget, dataset_file_input.current_state(),
-                                     save_dir_new_file.current_state()))
-
+                                     save_dir_new_file.current_state(),
+                                     load_into_mem=self.folder_load_into_mem.current_state()))
+        self.file_load_into_mem = BoolInput("Load data into memory(not recomended "
+                                            "for large datasets)", "", None, False,
+                                            "")
         folder_open_button = QPushButton()
         folder_open_button.setContentsMargins(0, 0, 0, 11)
         folder_open_button.setText("Load")
@@ -57,11 +60,13 @@ class FileOpenTab(Tab):
             lambda: load_prev_session(main_widget, save_dir_load.current_state()))
         file_open = Tab("File Open", column_2=[], column_2_display=False,
                         column_1=[dataset_file_input, save_dir_new_file,
+                                  self.file_load_into_mem,
                                   file_open_button])
         folder_open = Tab("Folder Open", column_2=[self.trial_list_widget],
                           column_2_display=True,
                           column_1=[dataset_folder_input, save_dir_new_folder,
                                     self.folder_open_single_trial,
+                                    self.folder_load_into_mem,
                                     folder_open_button]
                           )
         prev_session_open = Tab("Previous Session Open", column_2=[],

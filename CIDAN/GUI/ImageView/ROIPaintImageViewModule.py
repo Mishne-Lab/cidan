@@ -31,7 +31,8 @@ class ROIPaintImageViewModule(ROIImageViewModule):
             if self.image_item.raiseContextMenu(event):
                 event.accept()
         try:
-            if hasattr(self.main_widget.data_handler, "pixel_with_rois_flat"):
+            if hasattr(self.main_widget.data_handler,
+                       "pixel_with_rois_flat") and self.main_widget.data_handler.pixel_with_rois_flat is not None:
                 pos = event.pos()
 
                 y = int(pos.x())
@@ -53,7 +54,8 @@ class ROIPaintImageViewModule(ROIImageViewModule):
         # if event.button() == QtCore.Qt.RightButton:
         #     if self.image_item.raiseContextMenu(event):
         #         event.accept()
-        if hasattr(self.main_widget.data_handler, "pixel_with_rois_flat"):
+        if hasattr(self.main_widget.data_handler,
+                   "pixel_with_rois_flat") and self.main_widget.data_handler.pixel_with_rois_flat is not None:
             pos = event.pos()
 
             y = int(pos.x())

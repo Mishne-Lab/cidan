@@ -141,7 +141,8 @@ def filter_stack(*, stack: np.ndarray, median_filter: bool,
         quant_95_filtered = ndimage.filters.gaussian_filter(quant_95, 2)
         stack_equalized = np.divide(
             np.subtract(stack_t, quant_5_filtered[..., np.newaxis]), (
-                    quant_95_filtered - quant_5_filtered)[..., np.newaxis])
+                    quant_95_filtered - quant_5_filtered + .00000001)[..., np.newaxis])
+
         stack_equalized = np.nan_to_num(stack_equalized)
 
         stack_equalized[stack_equalized > 1] = 1

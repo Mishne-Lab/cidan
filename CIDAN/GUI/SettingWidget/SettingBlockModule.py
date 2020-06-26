@@ -126,6 +126,16 @@ def dataset_setting_block_crop(main_widget):
                                          tool_tip="Used to crop image stack",
                                          display_tool_tip=False),
                                IntRangeInput(display_name="Crop X:",
+                                             program_name="crop_y",
+                                             on_change_function=lambda x,
+                                                                       y: data_handler.change_dataset_param(
+                                                 x, y),
+                                             default_val=data_handler.dataset_params[
+                                                 "crop_y"],
+                                             tool_tip="Crop in x direction",
+                                             min=0, max=10000, step=1),
+                               IntRangeInput(display_name="Crop Y:",
+                                             # different because the way we display images is weird x is first dim y is second dim
                                              program_name="crop_x",
                                              on_change_function=lambda x,
                                                                        y: data_handler.change_dataset_param(
@@ -134,15 +144,7 @@ def dataset_setting_block_crop(main_widget):
                                                  "crop_x"],
                                              tool_tip="Crop in x direction",
                                              min=0, max=100000, step=1),
-                               IntRangeInput(display_name="Crop Y:",
-                                             program_name="crop_y",
-                                             on_change_function=lambda x,
-                                                                       y: data_handler.change_dataset_param(
-                                                 x, y),
-                                             default_val=data_handler.dataset_params[
-                                                 "crop_y"],
-                                             tool_tip="Crop in y direction",
-                                             min=0, max=10000, step=1),
+
                                # IntRangeInput(display_name="Crop Z:",
                                #               program_name="crop_z",
                                #               on_change_function=lambda x,

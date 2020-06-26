@@ -27,7 +27,7 @@ pg.setConfigOption("imageAxisOrder", "row-major")
 class MainWindow(QMainWindow):
     """Initializes the basic window with Main widget being the focused widget"""
 
-    def __init__(self, dev=False):
+    def __init__(self, dev=False, preload=True):
         super().__init__()
         self.title = 'CIDAN'
         self.width = 900
@@ -35,7 +35,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(self.title)
         self.setMinimumSize(self.width, self.height)
         self.main_menu = self.menuBar()
-        self.table_widget = MainWidget(self, dev=dev)
+        self.table_widget = MainWidget(self, dev=dev, preload=preload)
         self.setCentralWidget(self.table_widget)
         # self.setStyleSheet(qdarkstyle.load_stylesheet())
         style = """
@@ -92,7 +92,7 @@ class MainWidget(QWidget):
         A list of the currently active tabs not used until after init_w_data is run
     """
 
-    def __init__(self, parent, dev=False):
+    def __init__(self, parent, dev=False, preload=True):
         """
         Initialize the main widget to load files
         Parameters
@@ -141,7 +141,7 @@ class MainWidget(QWidget):
 
         # Below here in this function is just code for testing
         # TODO check if it can load data twice
-        if True and dev:
+        if preload and dev:
             try:
                 # auto loads a small dataset
                 self.data_handler = DataHandler(

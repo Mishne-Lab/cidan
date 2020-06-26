@@ -20,6 +20,12 @@ class ROIImageViewModule(ImageViewModule):
         self.current_foreground_intensity = 80
         self.click_event = False
         self.outlines = True
+        self.trial_selector_input = OptionInput(
+            "Select Trial for background image(Min/Max only)", "", self.set_background,
+            val_list=self.data_handler.trials_loaded,
+            tool_tip="Select Trial to display",
+            display_tool_tip=False, default_index=0,
+            show_name=True)
         self.set_background("", "Max Image", update_image=False)
         self.image_item.mouseClickEvent = lambda x: self.roi_view_click(x)
         self.image_item.mouseDragEvent = lambda x: self.roi_view_drag(x)
@@ -28,6 +34,7 @@ class ROIImageViewModule(ImageViewModule):
         self.select_image_flat = np.zeros([shape[0] * shape[1], 3])
         self.box_selector_enabled = False
         self.box_selector_cords = [(0, 0), (0, 0)]
+
         if settings_tab:
             self.layout.removeWidget(self.image_view)
             self.layout.addWidget(self.createTabLayout())
@@ -60,6 +67,8 @@ class ROIImageViewModule(ImageViewModule):
                                                         "Eigen Norm Image"])
 
         self.display_settings_layout.addWidget(self.background_chooser)
+        self.display_settings_layout.addWidget(self.trial_selector_input)
+
         background_slider_layout = QHBoxLayout()
         background_slider_layout.addWidget(QLabel("0"))
         # initializes a slider to control how much to blend background image in when
@@ -108,10 +117,16 @@ class ROIImageViewModule(ImageViewModule):
             # Background refers to the image behind the rois
             shape = self.main_widget.data_handler.shape
             if func_name == "Mean Image":
-                self.current_background = self.main_widget.data_handler.mean_image.reshape(
+                self.current_background = \
+                    self.main_widget.data_handler.mean_images[
+                        self.data_handler.trials_loaded.index(
+                            self.trial_selector_input.current_state())][:].reshape(
                     [-1, 1])
             elif func_name == "Max Image":
-                self.current_background = self.main_widget.data_handler.max_image.reshape(
+                self.current_background = self.main_widget.data_handler.max_images[
+                                              self.data_handler.trials_loaded.index(
+                                                  self.trial_selector_input.current_state())][
+                                          :].reshape(
                     [-1, 1])
             elif func_name == "Blank Image":
                 self.current_background = np.zeros([shape[0] * shape[1], 1])
@@ -123,7 +138,10 @@ class ROIImageViewModule(ImageViewModule):
                     [-1, 1])
             else:
                 self.current_background_name = "Max Image"
-                self.current_background = self.main_widget.data_handler.max_image.reshape(
+                self.current_background = self.main_widget.data_handler.max_images[
+                                              self.data_handler.trials_loaded.index(
+                                                  self.trial_selector_input.current_state())][
+                                          :].reshape(
                     [-1, 1])
             if update_image:
                 self.updateImageDisplay()
@@ -257,7 +275,8 @@ class ROIImageViewModule(ImageViewModule):
         if event.button() == QtCore.Qt.RightButton:
             if self.image_item.raiseContextMenu(event):
                 event.accept()
-        if hasattr(self.main_widget.data_handler, "pixel_with_rois_flat"):
+        if hasattr(self.main_widget.data_handler,
+                   "pixel_with_rois_flat") and self.main_widget.data_handler.pixel_with_rois_flat is not None:
             pos = event.pos()
 
             y = int(pos.x())
@@ -378,8 +397,6 @@ class ROIImageViewModule(ImageViewModule):
                 except IndexError:
                     pass
             self.image_item.updateImage()
-
-
 
     def reset_view(self, updateDisplay=True):
         if not any([x.isRunning() for x in
