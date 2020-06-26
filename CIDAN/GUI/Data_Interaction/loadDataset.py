@@ -59,7 +59,8 @@ def load_new_dataset(main_widget, file_path, save_dir_path, trials=None,
                                                        trials=[
                                                            os.path.basename(file_path)],
                                                        save_dir_path=save_dir_path,
-                                                       save_dir_already_created=False)
+                                                       save_dir_already_created=False,
+                                                       load_into_mem=load_into_mem)
                 main_widget.init_w_data()
             except IndentationError as e:
                 logger1.error(e)
@@ -72,7 +73,8 @@ def load_new_dataset(main_widget, file_path, save_dir_path, trials=None,
                 main_widget.data_handler = DataHandler(data_path=file_path,
                                                        trials=trials,
                                                        save_dir_path=save_dir_path,
-                                                       save_dir_already_created=False)
+                                                       save_dir_already_created=False,
+                                                       load_into_mem=load_into_mem)
                 main_widget.init_w_data()
             except IndentationError as e:
                 logger1.error(e)

@@ -129,4 +129,4 @@ class PreprocessingTab(Tab):
     def updateTab(self):
         if (self.main_widget.checkThreadRunning()):
             self.set_image_display_list(self.data_handler.trials_loaded,
-                                        self.data_handler.dataset_trials_filtered_loaded)
+                                        self.data_handler.max_images)

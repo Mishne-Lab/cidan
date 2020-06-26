@@ -34,11 +34,11 @@ class ROIImageViewModule(ImageViewModule):
         self.select_image_flat = np.zeros([shape[0] * shape[1], 3])
         self.box_selector_enabled = False
         self.box_selector_cords = [(0, 0), (0, 0)]
+        self.current_background_name = "Max Image"
 
         if settings_tab:
             self.layout.removeWidget(self.image_view)
             self.layout.addWidget(self.createTabLayout())
-        self.current_background_name = "Max Image"
 
     def createTabLayout(self):
         # ROI view tab section

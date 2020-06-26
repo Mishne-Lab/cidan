@@ -141,7 +141,7 @@ class MainWidget(QWidget):
 
         # Below here in this function is just code for testing
         # TODO check if it can load data twice
-        if preload and dev:
+        if preload and dev and False:
             try:
                 # auto loads a small dataset
                 self.data_handler = DataHandler(
@@ -151,7 +151,7 @@ class MainWidget(QWidget):
                     trials=["small_dataset1.tif"],
                     save_dir_already_created=True)
                 self.init_w_data()
-            except:
+            except AttributeError:
                 pass
         if False and dev:
             # auto loads a large dataset
