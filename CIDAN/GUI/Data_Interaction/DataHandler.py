@@ -77,11 +77,11 @@ class DataHandler:
     _eigen_params_default = {
         "eigen_vectors_already_generated": False,
         "num_eig": 50,
-        "normalize_w_k": 35,
+        "normalize_w_k": 25,
         "metric": "l2",
-        "knn": 45,
-        "accuracy": 50,
-        "connections": 51,
+        "knn": 32,
+        "accuracy": 75,
+        "connections": 40
 
     }
     _roi_extraction_params_default = {
@@ -97,8 +97,8 @@ class DataHandler:
         "num_rois": 60,
         "fill_holes": True,
         "refinement": True,
-        "max_iter": 40,
-        "roi_circ_threshold": 50
+        "max_iter": 300,
+        "roi_circ_threshold": 40
     }
     _time_trace_params_default = {
         "time_trace_type": "Mean"

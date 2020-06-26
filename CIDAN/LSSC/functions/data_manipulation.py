@@ -142,6 +142,8 @@ def filter_stack(*, stack: np.ndarray, median_filter: bool,
         stack_equalized = np.divide(
             np.subtract(stack_t, quant_5_filtered[..., np.newaxis]), (
                     quant_95_filtered - quant_5_filtered)[..., np.newaxis])
+        stack_equalized = np.nan_to_num(stack_equalized)
+
         stack_equalized[stack_equalized > 1] = 1
         stack_equalized[stack_equalized < 0] = 0
         stack_equalized_squared = np.power(stack_equalized, 2)
