@@ -96,7 +96,11 @@ def test_main():
     main_widget.tabs[2].roi_list_module.set_current_select(1)
     main_widget.tabs[2].plot_type_input.input_box.setCurrentIndex(0)
     main_widget.tabs[2].time_trace_type.input_box.setCurrentIndex(1)
-
+    data_handler.change_filter_param("pca", True)
+    main_widget.thread_list[1].run()
+    assert main_widget.data_handler.shape == [200, 150]
+    assert len(main_widget.data_handler.rois) != 0
+    assert main_widget.data_handler.rois_loaded == True
     roi_image_view = None
     main_widget = None
     data_handler = None

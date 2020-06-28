@@ -27,7 +27,7 @@ pg.setConfigOption("imageAxisOrder", "row-major")
 class MainWindow(QMainWindow):
     """Initializes the basic window with Main widget being the focused widget"""
 
-    def __init__(self, dev=False, preload=True):
+    def __init__(self, dev=False, preload=False):
         super().__init__()
         self.title = 'CIDAN'
         self.width = 900
@@ -265,6 +265,6 @@ if __name__ == "__main__":
     logger.debug("Program started")
     app = QApplication([])
     app.setApplicationName("CIDAN")
-    widget = MainWindow(dev=True)
+    widget = MainWindow(dev=True, preload=True)
 
     sys.exit(app.exec_())

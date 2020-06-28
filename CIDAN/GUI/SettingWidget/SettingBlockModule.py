@@ -1,3 +1,5 @@
+import os
+
 from qtpy.QtWidgets import *
 
 from CIDAN.GUI.Inputs.BoolInput import BoolInput
@@ -75,7 +77,27 @@ def filter_setting_block(main_widget):
                                          default_val=data_handler.filter_params[
                                              "hist_eq"],
                                          tool_tip="Whether to apply our histogram equalization method",
-                                         )
+                                         ),
+                               BoolInput(display_name="PCA:",
+                                         program_name="pca",
+                                         on_change_function=lambda x,
+                                                                   y: data_handler.change_filter_param(
+                                             x, y),
+                                         default_val=data_handler.filter_params[
+                                             "pca"],
+                                         tool_tip="Whether to apply PCA decomposition to the dataset(PCA runs after other filters)",
+                                         ),
+                               FloatInput(
+                                   display_name="PCA expression threshold",
+                                   program_name="pca_threshold",
+                                   on_change_function=lambda x,
+                                                             y: data_handler.change_filter_param(
+                                       x, y),
+                                   default_val=
+                                   data_handler.filter_params[
+                                       "pca_threshold"],
+                                   tool_tip="The percentage of the variance that the PCA will express",
+                                   min=0.001, max=.999, step=.001),
                                ])
 
 
@@ -144,20 +166,30 @@ def dataset_setting_block_crop(main_widget):
                                                  "crop_x"],
                                              tool_tip="Crop in x direction",
                                              min=0, max=100000, step=1),
-
-                               # IntRangeInput(display_name="Crop Z:",
-                               #               program_name="crop_z",
-                               #               on_change_function=lambda x,
-                               #                                         y: data_handler.change_dataset_param(
-                               #                   x, y),
-                               #               default_val=data_handler.dataset_params[
-                               #                   "crop_z"],
-                               #               tool_tip="Note this crops it for each trial",
-                               #               display_tool_tip=True,
-                               #               min=data_handler.dataset_params[
-                               #                   "crop_z"][0], max=data_handler.dataset_params[
-                               #                   "crop_z"][1], step=1)
-                               ])
+                               ] + ([BoolInput(
+                                  display_name="Split into trials(recomended):",
+                                  program_name="trial_split",
+                                  on_change_function=lambda x,
+                                                            y: data_handler.change_dataset_param(
+                                      x, y),
+                                  default_val=data_handler.dataset_params[
+                                      "trial_split"],
+                                  tool_tip="Splits the timesteps into separate trials better for processing "
+                                           "every x timestep",
+                                  display_tool_tip=False),
+                                     IntRangeInput(display_name="Trial Length",
+                                                   program_name="trial_length",
+                                                   on_change_function=lambda x,
+                                                                             y: data_handler.change_dataset_param(
+                                                       x, y),
+                                                   default_val=
+                                                   data_handler.dataset_params[
+                                                       "trial_length"],
+                                                   tool_tip="Length of each trial",
+                                                   display_tool_tip=True,
+                                                   min=50, max=2000, step=1)] if len(
+                                  data_handler.trials_loaded) == 1 and os.path.isdir(
+                                  data_handler.trials_loaded[0]) else []))
 
 
 def multiprocessing_settings_block(main_widget):
@@ -211,8 +243,7 @@ def roi_extraction_settings_block(main_widget):
                                       data_handler.roi_extraction_params[
                                           "roi_size_min"],
                                       tool_tip="Minimum size in pixels for a region of interest",
-                                      min=1, max=10000, step=1)
-                                  ,
+                                      min=1, max=10000, step=1),
                                   IntInput(
                                       display_name="ROI size maximum:",
                                       program_name="roi_size_max",

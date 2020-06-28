@@ -7,16 +7,19 @@ import tifffile
 from PIL import Image
 from dask import delayed
 from scipy import ndimage
-
-
 # from IPython.display import display, Image
+from sklearn.decomposition import PCA
+
+from CIDAN.LSSC.functions.roi_extraction import elbow_threshold
+
 
 def load_filter_tif_stack(*, path, filter: bool, median_filter: bool,
                           median_filter_size: Tuple[int, int, int],
                           z_score: bool, slice_stack: bool,
                           slice_every, slice_start: int, crop_stack: bool,
                           crop_x: List[int], crop_y: List[int],
-                          load_into_mem: bool = True):
+                          load_into_mem: bool = True, trial_split=False,
+                          trial_split_length=100, trial_num=0):
     """
     This function reads a tiff stack file
     Parameters
@@ -32,6 +35,11 @@ def load_filter_tif_stack(*, path, filter: bool, median_filter: bool,
     if os.path.isdir(path):
         volumes = []
         paths = path if type(path) == list else sorted(os.listdir(path))
+        if trial_split:
+            paths = paths[trial_num * trial_split_length:(
+                                                                     trial_num + 1) * trial_split_length if (
+                                                                                                                        trial_num + 1) * trial_split_length > len(
+                paths) else len(paths)]
         for num, x in enumerate(paths):
             file_path = x if type(path) == list else os.path.join(path, x)
             image = tifffile.imread(file_path)
@@ -204,3 +212,13 @@ def saveTempImage(data, save_dir, spatial_box_num):
         spatial_box_num))
     img.save(image_path)
     return data
+
+
+def applyPCA(data, pca_threshold):
+    pca = PCA(n_components=pca_threshold)
+    pca.fit(reshape_to_2d_over_time(data).transpose())
+    threshold = elbow_threshold(pca.explained_variance_,
+                                np.arange(0, len(pca.explained_variance_ratio_), 1),
+                                half=False) * .8
+    filtered_pca_components = pca.components_[pca.explained_variance_ > threshold]
+    return filtered_pca_components.reshape((-1, data.shape[1], data.shape[2]))

@@ -12,7 +12,7 @@ from skimage import feature
 
 from CIDAN.LSSC.SpatialBox import SpatialBox
 from CIDAN.LSSC.functions.data_manipulation import load_filter_tif_stack, filter_stack, \
-    reshape_to_2d_over_time, pixel_num_to_2d_cord
+    reshape_to_2d_over_time, pixel_num_to_2d_cord, applyPCA
 from CIDAN.LSSC.functions.eigen import loadEigenVectors
 from CIDAN.LSSC.functions.pickle_funcs import *
 from CIDAN.LSSC.functions.roi_extraction import roi_extract_image, combine_rois
@@ -55,19 +55,24 @@ class DataHandler:
         "dataset_folder_path": "",
         "trials_loaded": [],
         "trials_all": [],
+        "original_folder_trial_split": "",
         "slice_stack": False,
         "slice_every": 3,
         "slice_start": 0,
         "crop_stack": False,
         "crop_x": [0, 0],
-        "crop_y": [0, 0]
+        "crop_y": [0, 0],
+        "trial_split": False,
+        "trial_length": 100
     }
 
     _filter_params_default = {
         "median_filter": False,
         "median_filter_size": 3,
         "z_score": False,
-        "hist_eq": False
+        "hist_eq": False,
+        "pca": False,
+        "pca_threshold": .9
 
     }
     _box_params_default = {
@@ -202,6 +207,10 @@ class DataHandler:
             self.dataset_params["dataset_folder_path"] = data_path
             self.dataset_params["trials_loaded"] = trials
             self.trials_loaded = trials
+            if len(self.trials_loaded) == 1 and os.path.isdir(
+                    os.path.join(data_path, trials[0])):
+                self.dataset_params["trial_split"] = True
+                self.dataset_params["original_folder_trial_split"] = trials[0]
             # these are all files in the data_path directory if the user wants to
             # calculate time traces than for more trials than they originally loaded
             self.trials_all = sorted(os.listdir(data_path))
@@ -549,7 +558,9 @@ class DataHandler:
         """
         return load_filter_tif_stack(
             path=os.path.join(self.dataset_params["dataset_folder_path"],
-                              self.trials_all[trial_num]),
+                              self.trials_all[trial_num] if not self.dataset_params[
+                                  "trial_split"] else self.dataset_params[
+                                  "original_folder_trial_split"]),
             filter=False,
             median_filter=False,
             median_filter_size=(1, 3, 3),
@@ -566,7 +577,9 @@ class DataHandler:
             crop_x=self.dataset_params[
                 "crop_x"],
             crop_y=self.dataset_params[
-                "crop_y"], load_into_mem=self.load_into_mem
+                "crop_y"], load_into_mem=self.load_into_mem,
+            trial_split=self.dataset_params["trial_split"],
+            trial_split_length=self.dataset_params["trial_length"], trial_num=trial_num
         )
 
     @delayed
@@ -609,7 +622,7 @@ class DataHandler:
             if type(loaded_num) != bool:
                 self.mean_images[loaded_num] = np.mean(cur_stack, axis=0)
                 self.max_images[loaded_num] = np.max(cur_stack, axis=0)
-            return z1
+
 
         else:
             cur_stack = filter_stack(
@@ -630,7 +643,22 @@ class DataHandler:
             if type(loaded_num) != bool:
                 self.mean_images[loaded_num] = np.mean(cur_stack, axis=0)
                 self.max_images[loaded_num] = np.max(cur_stack, axis=0)
+        if self.filter_params["pca"] and type(loaded_num) != bool:
+            pca = applyPCA(cur_stack, self.filter_params["pca_threshold"])
+            if self.load_into_mem:
+                self.pca_decomp[loaded_num] = pca
+            else:
+                z2 = zarr.open(os.path.join(self.save_dir_path,
+                                            'temp_files/%s_pca.zarr' % self.trials_all[
+                                                trial_num]), mode='w',
+                               shape=pca.shape,
+                               chunks=(3, 64, 64))
+                z2[:] = pca
+                self.pca_decomp[loaded_num] = z2
+        if self.load_into_mem:
             return cur_stack
+        else:
+            return z1
 
     def calculate_filters(self):
         """
@@ -645,9 +673,33 @@ class DataHandler:
                 not hasattr(self, "dataset_trials_filtered"):
 
             print("Started Calculating Filters")
+            if self.dataset_params["time_split"] and self.dataset_params[
+                "original_folder_trial_split"] != "":
+
+                self.trials_loaded = [str(x) for x in range(len(os.listdir(
+                    os.path.join(self.dataset_params["dataset_folder_path"],
+                                 self.dataset_params["original_folder_trial_split"]))))]
+                self.trials_all = self.trials_loaded.copy()
+                self.box_params["total_num_time_steps"] = len(self.trials_loaded)
+            elif self.dataset_params["original_folder_trial_split"] != "":
+                self.trials_loaded = [
+                    self.dataset_params["original_folder_trial_split"]]
+                self.trials_all = [self.dataset_params["original_folder_trial_split"]]
+                self.box_params["total_num_time_steps"] = len(self.trials_loaded)
+            if self.dataset_params["original_folder_trial_split"] != "":
+                self._trials_loaded_indices = [num for num, x in
+                                               enumerate(self.trials_all)
+                                               if x in self.trials_loaded]
+                self.trials_loaded_time_trace_indices = [num for num, x in
+                                                         enumerate(self.trials_all)
+                                                         if x in self.trials_loaded]
+
+
             self.dataset_trials_filtered = [False] * len(self.trials_all)
-            self.max_images = [False] * len(self.trials_loaded_time_trace_indices)
-            self.mean_images = [False] * len(self.trials_loaded_time_trace_indices)
+            if self.filter_params["pca"]:
+                self.pca_decomp = [False] * len(self._trials_loaded_indices)
+            self.max_images = [False] * len(self._trials_loaded_indices)
+            self.mean_images = [False] * len(self._trials_loaded_indices)
 
             for num, trial_num in enumerate(self._trials_loaded_indices):
                 self.dataset_trials_filtered[trial_num] = self.load_trial_filter_step(
@@ -689,11 +741,18 @@ class DataHandler:
 
     def load_data(self):
         self.dataset_trials_filtered = [False] * len(self.trials_all)
+        if self.filter_params["pca"]:
+            self.pca_decomp = [False] * len(self.trials_loaded_time_trace_indices)
         for trial_num in self._trials_loaded_indices:
             self.dataset_trials_filtered[trial_num] = zarr.open(
                 os.path.join(self.save_dir_path,
                              'temp_files/%s.zarr' % self.trials_all[trial_num]),
                 mode="r")
+            if self.filter_params["pca"]:
+                self.pca_decomp[trial_num] = zarr.open(
+                    os.path.join(self.save_dir_path,
+                                 'temp_files/%s_pca.zarr' % self.trials_all[trial_num]),
+                    mode="r")
         max_image_zarr = zarr.open(
             os.path.join(self.save_dir_path,
                          'temp_files/max.zarr'),
@@ -800,7 +859,10 @@ class DataHandler:
                                          self.roi_extraction_params[
                                              "merge_temporal_coef"],
                                          roi_size_max=self.roi_extraction_params[
-                                             "roi_size_max"])
+                                             "roi_size_max"],
+                                         pca=self.filter_params["pca"],
+                                         pca_data=self.pca_decomp if self.filter_params[
+                                             "pca"] else False)
                 self.box_params_processed = temp_params
                 self.save_new_param_json()
                 roi_valid_list = filterRoiList(self.rois, self.shape)
@@ -894,7 +956,8 @@ class DataHandler:
         for trial_num in trial_nums:
             roi = self.rois[roi_num - 1]
             if type(self.dataset_trials_filtered[trial_num]) == bool:
-                self.load_trial_filter_step(trial_num)
+                self.dataset_trials_filtered[trial_num] = self.load_trial_filter_step(
+                    trial_num)
             data_2d = reshape_to_2d_over_time(self.dataset_trials_filtered[trial_num])
             if self.time_trace_params["time_trace_type"] == "DeltaF Over F":
                 time_trace = calculateDeltaFOverF(roi, data_2d,

@@ -54,21 +54,21 @@ class PreprocessingTab(Tab):
         stack_button.clicked.connect(
             lambda: self.set_image_display_list(self.data_handler.trials_loaded,
                                                 self.data_handler.dataset_trials_filtered_loaded))
-        # orig_stack_button = QPushButton()
-        # orig_stack_button.setText("Original Stack")
-        # orig_stack_button.clicked.connect(
-        #     lambda: self.set_image_display_list(self.data_handler.trials_loaded,
-        #                                         self.data_handler.dataset_trials_loaded))
+        self.pca_stack_button = QPushButton()
+        self.pca_stack_button.setText("PCA Stack")
+        self.pca_stack_button.clicked.connect(
+            lambda: self.set_image_display_list(self.data_handler.trials_loaded,
+                                                self.data_handler.pca_decomp))
         mean_image_button = QPushButton()
         mean_image_button.setText("Mean Image")
         mean_image_button.clicked.connect(
             lambda: self.set_image_display_list(self.data_handler.trials_loaded,
                                                 self.data_handler.mean_images))
-        # self._image_buttons_layout.addWidget(orig_stack_button)
+
         self._image_buttons_layout.addWidget(stack_button)
         self._image_buttons_layout.addWidget(max_image_button)
         self._image_buttons_layout.addWidget(mean_image_button)
-
+        self._image_buttons_layout.addWidget(self.pca_stack_button)
 
         main_widget.preprocess_image_view.setContentsMargins(0, 0, 0, 0)
         # main_widget.preprocess_image_view.setMargin(0)
@@ -128,5 +128,6 @@ class PreprocessingTab(Tab):
 
     def updateTab(self):
         if (self.main_widget.checkThreadRunning()):
+            self.pca_stack_button.setEnabled(self.data_handler.filter_params["pca"])
             self.set_image_display_list(self.data_handler.trials_loaded,
                                         self.data_handler.max_images)
