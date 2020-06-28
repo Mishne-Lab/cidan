@@ -1,5 +1,3 @@
-import os
-
 from qtpy.QtWidgets import *
 
 from CIDAN.GUI.Inputs.BoolInput import BoolInput
@@ -177,19 +175,22 @@ def dataset_setting_block_crop(main_widget):
                                   tool_tip="Splits the timesteps into separate trials better for processing "
                                            "every x timestep",
                                   display_tool_tip=False),
-                                     IntRangeInput(display_name="Trial Length",
-                                                   program_name="trial_length",
-                                                   on_change_function=lambda x,
+                                                                      IntInput(
+                                                                          display_name="Trial Length",
+                                                                          program_name="trial_length",
+                                                                          on_change_function=lambda x,
                                                                              y: data_handler.change_dataset_param(
                                                        x, y),
-                                                   default_val=
+                                                                          default_val=
                                                    data_handler.dataset_params[
                                                        "trial_length"],
-                                                   tool_tip="Length of each trial",
-                                                   display_tool_tip=True,
-                                                   min=50, max=2000, step=1)] if len(
-                                  data_handler.trials_loaded) == 1 and os.path.isdir(
-                                  data_handler.trials_loaded[0]) else []))
+                                                                          tool_tip="Length of each trial",
+                                                                          display_tool_tip=False,
+                                                                          min=50,
+                                                                          max=2000,
+                                                                          step=1)] if
+                                                                  data_handler.dataset_params[
+                                                                      "original_folder_trial_split"] != "" else []))
 
 
 def multiprocessing_settings_block(main_widget):

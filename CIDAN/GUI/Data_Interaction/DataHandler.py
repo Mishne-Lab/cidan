@@ -2,6 +2,7 @@ import json
 import json
 import logging
 from functools import reduce
+from math import ceil
 
 import dask
 import numpy as np
@@ -673,26 +674,8 @@ class DataHandler:
                 not hasattr(self, "dataset_trials_filtered"):
 
             print("Started Calculating Filters")
-            if self.dataset_params["time_split"] and self.dataset_params[
-                "original_folder_trial_split"] != "":
+            self.update_trial_list()
 
-                self.trials_loaded = [str(x) for x in range(len(os.listdir(
-                    os.path.join(self.dataset_params["dataset_folder_path"],
-                                 self.dataset_params["original_folder_trial_split"]))))]
-                self.trials_all = self.trials_loaded.copy()
-                self.box_params["total_num_time_steps"] = len(self.trials_loaded)
-            elif self.dataset_params["original_folder_trial_split"] != "":
-                self.trials_loaded = [
-                    self.dataset_params["original_folder_trial_split"]]
-                self.trials_all = [self.dataset_params["original_folder_trial_split"]]
-                self.box_params["total_num_time_steps"] = len(self.trials_loaded)
-            if self.dataset_params["original_folder_trial_split"] != "":
-                self._trials_loaded_indices = [num for num, x in
-                                               enumerate(self.trials_all)
-                                               if x in self.trials_loaded]
-                self.trials_loaded_time_trace_indices = [num for num, x in
-                                                         enumerate(self.trials_all)
-                                                         if x in self.trials_loaded]
 
 
             self.dataset_trials_filtered = [False] * len(self.trials_all)
@@ -740,6 +723,7 @@ class DataHandler:
         return self.dataset_trials_filtered
 
     def load_data(self):
+        self.update_trial_list()
         self.dataset_trials_filtered = [False] * len(self.trials_all)
         if self.filter_params["pca"]:
             self.pca_decomp = [False] * len(self.trials_loaded_time_trace_indices)
@@ -779,6 +763,30 @@ class DataHandler:
         #                    self.dataset_trials_filtered_loaded]
         self.global_params["need_recalc_filter_params"] = False
         self.global_params["need_recalc_dataset_params"] = False
+
+    def update_trial_list(self):
+        if self.dataset_params["trial_split"] and self.dataset_params[
+            "original_folder_trial_split"] != "":
+
+            self.trials_loaded = [str(x) for x in range(ceil(len(os.listdir(
+                os.path.join(self.dataset_params["dataset_folder_path"],
+                             self.dataset_params["original_folder_trial_split"]))) /
+                                                             self.dataset_params[
+                                                                 "trial_length"]))]
+            self.trials_all = self.trials_loaded.copy()
+            self.box_params["total_num_time_steps"] = len(self.trials_loaded)
+        elif self.dataset_params["original_folder_trial_split"] != "":
+            self.trials_loaded = [
+                self.dataset_params["original_folder_trial_split"]]
+            self.trials_all = [self.dataset_params["original_folder_trial_split"]]
+            self.box_params["total_num_time_steps"] = len(self.trials_loaded)
+        if self.dataset_params["original_folder_trial_split"] != "":
+            self._trials_loaded_indices = [num for num, x in
+                                           enumerate(self.trials_all)
+                                           if x in self.trials_loaded]
+            self.trials_loaded_time_trace_indices = [num for num, x in
+                                                     enumerate(self.trials_all)
+                                                     if x in self.trials_loaded]
     def calculate_roi_extraction(self):
         """
         Extracts Rois and sets them to self.rois
@@ -920,6 +928,7 @@ class DataHandler:
         """
         Calculates the time traces for every roi in self.rois
         """
+
         self.time_traces = []
         for _ in range(len(self.rois)):
             self.time_traces.append([])
@@ -927,10 +936,21 @@ class DataHandler:
                 self.time_traces[-1].append(False)
         calc_list = []
         for trial_num in self.trials_loaded_time_trace_indices:
+            if type(self.dataset_trials_filtered[trial_num]) == bool:
+                data = self.load_trial_filter_step(
+                    trial_num).compute()
+                self.dataset_trials_filtered[trial_num] = data
+                data_2d = reshape_to_2d_over_time(data[:])
+                del data
+            else:
+                data_2d = reshape_to_2d_over_time(
+                    self.dataset_trials_filtered[trial_num])[:]
+            calc_list = []
             for roi in range(len(self.rois)):
                 calc_list.append(
-                    (delayed)(self.calculate_time_trace(roi + 1, trial_num)))
-        dask.compute(*calc_list)
+                    (delayed)(
+                        self.calculate_time_trace(roi + 1, trial_num, data_2d=data_2d)))
+            dask.compute(*calc_list)
         if os.path.isdir(self.save_dir_path):
             pickle_save(self.time_traces,
                         "time_traces_{0}{1}".format(
@@ -939,7 +959,7 @@ class DataHandler:
                         output_directory=self.save_dir_path)
         self.rois_loaded = True
 
-    def calculate_time_trace(self, roi_num, trial_num=None):
+    def calculate_time_trace(self, roi_num, trial_num=None, data_2d=None):
         """
         Calculates a time trace for a certain ROI and save to time trace list
         Parameters
@@ -955,10 +975,14 @@ class DataHandler:
             trial_nums = self.trials_loaded_time_trace_indices
         for trial_num in trial_nums:
             roi = self.rois[roi_num - 1]
-            if type(self.dataset_trials_filtered[trial_num]) == bool:
+
+            if type(self.dataset_trials_filtered[
+                        trial_num]) == bool and data_2d == None:
                 self.dataset_trials_filtered[trial_num] = self.load_trial_filter_step(
-                    trial_num)
-            data_2d = reshape_to_2d_over_time(self.dataset_trials_filtered[trial_num])
+                    trial_num).compute()
+            if data_2d is None:
+                data_2d = reshape_to_2d_over_time(
+                    self.dataset_trials_filtered[trial_num])
             if self.time_trace_params["time_trace_type"] == "DeltaF Over F":
                 time_trace = calculateDeltaFOverF(roi, data_2d,
                                                   denoise=self.time_trace_params[

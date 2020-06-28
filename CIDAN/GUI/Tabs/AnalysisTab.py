@@ -172,6 +172,9 @@ class AnalysisTab(Tab):
 
     def updateTab(self):
         if (self.main_widget.checkThreadRunning()):
+            self._time_trace_trial_select_list.set_items_from_list(
+                self.data_handler.trials_all,
+                self.data_handler.trials_loaded_time_trace_indices)
             if self.data_handler.rois_loaded:
                 self.selectAll(False)
                 self.roi_list_module.set_list_items(self.main_widget.data_handler.rois)

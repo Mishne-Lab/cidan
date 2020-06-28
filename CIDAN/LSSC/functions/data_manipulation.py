@@ -37,8 +37,8 @@ def load_filter_tif_stack(*, path, filter: bool, median_filter: bool,
         paths = path if type(path) == list else sorted(os.listdir(path))
         if trial_split:
             paths = paths[trial_num * trial_split_length:(
-                                                                     trial_num + 1) * trial_split_length if (
-                                                                                                                        trial_num + 1) * trial_split_length > len(
+                                                                 trial_num + 1) * trial_split_length if (
+                                                                                                                trial_num + 1) * trial_split_length > len(
                 paths) else len(paths)]
         for num, x in enumerate(paths):
             file_path = x if type(path) == list else os.path.join(path, x)
