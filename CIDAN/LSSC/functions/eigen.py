@@ -8,9 +8,9 @@ from scipy import sparse
 from scipy.sparse import linalg
 
 from CIDAN.LSSC.SpatialBox import combine_images
-from CIDAN.LSSC.functions.embeddings import calcDSqrt, calcDNegSqrt, calcDInv
+from CIDAN.LSSC.functions.embeddings import calcDInv, calcDSqrt, calcDNegSqrt
 from CIDAN.LSSC.functions.pickle_funcs import pickle_save, pickle_load
-
+from matplotlib import pyplot as plt
 logger1 = logging.getLogger("CIDAN.LSSC.eigen")
 
 
@@ -33,17 +33,21 @@ def generateEigenVectors(*, K: sparse.csr_matrix, num_eig: int) -> np.ndarray:
     P = D_inv.dot(K)
     D_neg_sqrt = calcDNegSqrt(D_diag)
     P_transformed = calcDSqrt(D_diag).dot(P).dot(D_neg_sqrt)
+    # print("Start eigen")
+    # eig_values,eig_vectors = eig(P.todense())
+
     eig_values, eig_vectors_scaled = linalg.eigsh(
         P_transformed, num_eig, which="LM",
         return_eigenvectors=True)  # this returns normalized eigen vectors
-    # TODO make first eigen vector be sanity check since all elements are the same
-    #  this isn't the case
-    # print("Eigvalues",eig_values[0], eig_vectors_scaled,np.max(eig_vectors_scaled),eig_vectors_scaled.shape, num_eig)
+    # print("finished eigen")
+    # # TODO make first eigen vector be sanity check since all elements are the same
+    # #  this isn't the case
+    # # print("Eigvalues",eig_values[0], eig_vectors_scaled,np.max(eig_vectors_scaled),eig_vectors_scaled.shape, num_eig)
     eig_vectors = np.flip(
         D_neg_sqrt.dot(eig_vectors_scaled),
         axis=1)  # this preforms matrix multiplication
 
-    return eig_vectors
+    return np.real(eig_vectors)
 
 
 @delayed
@@ -75,13 +79,13 @@ def loadEigenVectors(*, spatial_box_num: int, time_box_num: int, save_dir: str):
 
 @delayed
 def saveEmbedingNormImage(*, e_vectors, image_shape, save_dir, spatial_box_num):
-    print(save_dir)
+    # print(save_dir)
     embed_dir = os.path.join(save_dir, "embedding_norm_images")
     e_vectors_squared = np.power(e_vectors, 2)
     e_vectors_sum = np.sum(e_vectors_squared, axis=1)
 
     e_vectors_sum_rescaled = e_vectors_sum * (
-            10.0 / e_vectors_sum.max())  # add histogram equalization
+            10.0 / e_vectors_sum.mean())  # add histogram equalization
 
     img = Image.fromarray(
         np.reshape(e_vectors_sum_rescaled,
@@ -111,26 +115,34 @@ def createEmbedingNormImageFromMultiple(*, spatial_box_list, save_dir, num_time_
     for spatial_box in spatial_box_list:
         temp = []
         for time_box_num in range(num_time_steps):
-            temp.append(pickle_load(
+            e_vectors = pickle_load(
                 "eigen_vectors_box_{}_{}.pickle".format(spatial_box.box_num,
                                                         time_box_num),
-                output_directory=eigen_dir))
-        e_vectors_list.append(np.hstack(temp))
+                output_directory=eigen_dir)
+
+            e_vectors_squared = np.power(e_vectors, 2)
+            e_vectors_sum = np.sum(e_vectors_squared, axis=1)
+            temp.append(e_vectors_sum)
+
+        e_vectors_list.append(np.max(temp, axis=0))
     embed_dir = os.path.join(save_dir, "embedding_norm_images")
     eigen_images = []
     for e_vectors, spatial_box in zip(e_vectors_list, spatial_box_list):
-        e_vectors_squared = np.power(e_vectors, 2)
-        e_vectors_sum = np.sum(e_vectors_squared, axis=1)
-        e_vectors_sum_rescaled = e_vectors_sum * (
-                9.0 / e_vectors_sum.max())  # add histogram equalization
+        # e_vectors_sum_rescaled = e_vectors * (
+        #         9.0 / e_vectors.mean())  # add histogram equalization
         # noqa
-        e_vectors_shaped = np.reshape(e_vectors_sum,
+        e_vectors_shaped = np.reshape(e_vectors,
                                       spatial_box.shape)
         eigen_images.append(e_vectors_shaped)
     image = combine_images(spatial_box_list, eigen_images)
+    percent_95 = np.percentile(image, 95.0)
+    percent_05 = np.percentile(image, 5.0)
 
-    img = Image.fromarray(image * (
-            3.0 / image.max()) * 255).convert('L')
+    img = Image.fromarray(((image-percent_05)/(percent_95-percent_05)) * 255).convert('L')
     image_path = os.path.join(embed_dir, "embedding_norm_image.png")
     img.save(image_path)
+    plt.imshow(img)
+    plt.savefig(os.path.join(embed_dir, "embedding_norm_matlab.png"))
+    plt.close()
+
     return e_vectors_list

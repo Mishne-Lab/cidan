@@ -1,5 +1,4 @@
 import logging
-import sys
 
 from CIDAN.GUI.Data_Interaction.Thread import Thread
 
@@ -8,20 +7,19 @@ logger = logging.getLogger("CIDAN.GUI.Data_Interaction.PreprocessThread")
 
 class PreprocessThread(Thread):
     def __init__(self, main_widget, button, preprocess_tab):
-        super().__init__(main_widget.data_handler)
-        self.main_widget = main_widget
+        super().__init__(main_widget)
         self.button = button
         self.preprocess_tab = preprocess_tab
         self.signal.sig.connect(lambda x: self.endThread(x))
 
     def run(self):
-        try:
-            self.data_handler.calculate_filters()
-            self.signal.sig.emit(True)
-        except Exception as e:
-            logger.error(e)
-            print("Unexpected error:", sys.exc_info()[0])
-            self.signal.sig.emit(False)
+        # try:
+        self.data_handler.calculate_filters()
+        self.signal.sig.emit(True)
+        # except Exception as e:
+        #     logger.error(e)
+        #     print("Unexpected error:", sys.exc_info()[0])
+        #     self.signal.sig.emit(False)
 
     def runThread(self):
 
@@ -38,5 +36,5 @@ class PreprocessThread(Thread):
         self.button.setEnabled(True)
         if success:
             print("Finished preprocessing sequence")
-            self.preprocess_tab.set_image_display_list(self.data_handler.trials_loaded,
-                                                       self.data_handler.dataset_trials_filtered_loaded)
+
+            self.main_widget.updateTabs()

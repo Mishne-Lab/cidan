@@ -2,6 +2,10 @@ from qtpy.QtWidgets import *
 
 
 class Input(QFrame):
+    """
+    Default Input class implemeneted by all other input classes, all have same args and
+    functions
+    """
     def __init__(self, display_name, program_name, on_change_function, default_val,
                  tool_tip, display_tool_tip=False, show_name=True):
         super().__init__()
@@ -30,7 +34,7 @@ class Input(QFrame):
 
     def on_change(self, *args, **kwargs):
         try:
-            if(not self.on_change_function==None):
+            if (not self.on_change_function == None):
                 self.on_change_function(self.program_name, self.current_state())
         except AssertionError as e:
             print(e)

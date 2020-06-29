@@ -84,7 +84,7 @@ def roi_extract_image(*, e_vectors: np.ndarray,
     if initial_pixel != -1:
         initial_pixel_list = np.array([initial_pixel])
     roi_list = []  # output list of rois
-
+    # print(len(initial_pixel_list))
     # iter_counter is used to limit the amount of pixels it tries
     # from initial_pixel_list
     iter_counter = 0
@@ -93,8 +93,8 @@ def roi_extract_image(*, e_vectors: np.ndarray,
             initial_pixel_list) > 0 and iter_counter < max_iter:
         iter_counter += 1
         total_counter += 1
-        # print(iter_counter, len(roi_list),
-        #       len(roi_list[-1]) if len(roi_list) > 0 else 0)
+        # print(iter_counter, len(roi_list.json),
+        #       len(roi_list.json[-1]) if len(roi_list.json) > 0 else 0)
         initial_pixel = initial_pixel_list[0]  # Select initial point
         # select eigen vectors to project into
         small_eigen_vectors = select_eigen_vectors(e_vectors,
@@ -103,7 +103,8 @@ def roi_extract_image(*, e_vectors: np.ndarray,
                                                    threshold_method=
                                                    eigen_threshold_method,
                                                    threshold=eigen_threshold_value)
-        # print("original",small_eigen_vectors.shape)
+        # print(small_eigen_vectors.shape)
+        # print("original",smam nm ll_eigen_vectors.shape)
         # TODO Find way to auto determine threshold value automatically max values
         # project into new eigen space
         small_pixel_embeding_norm = embedEigenSqrdNorm(small_eigen_vectors)
@@ -176,6 +177,7 @@ def roi_extract_image(*, e_vectors: np.ndarray,
 
         # checks if roi is big enough
         # print("roi size:", len(pixels_in_roi_final))
+        # print("iter counter: ", iter_counter)
         # print( len(
         #         pixels_in_roi_final))
         if roi_size_min < len(
@@ -322,11 +324,12 @@ def select_eigen_vectors(eigen_vectors: np.ndarray,
         dimensions number of pixels in image by numb_eigen_vector_select
 
     """
+    num_eigen_vector_select = 3
     pixel_eigen_vec_values = np.abs(np.sum(eigen_vectors[pixels_in_roi], axis=0))
     pixel_eigen_vec_values_sort_indices = np.flip(
         np.argsort(pixel_eigen_vec_values))
     if threshold_method:
-        threshold_filter = pixel_eigen_vec_values > threshold * \
+        threshold_filter = pixel_eigen_vec_values > (1 - threshold) * \
                            pixel_eigen_vec_values[
                                pixel_eigen_vec_values_sort_indices[0]]
         small_eigen_vectors = eigen_vectors[:, np.nonzero(threshold_filter)[0]]
@@ -433,8 +436,8 @@ def merge_rois(roi_list: List,
         [np.array  of pixels roi 2] ... ]
     """
     A = np.zeros([original_2d_vol.shape[0], len(roi_list)], dtype=bool)
-    for num, cluster in enumerate(roi_list):
-        A[cluster, num] = True
+    for num, roi in enumerate(roi_list):
+        A[roi, num] = True
     A_graph = np.matmul(A.transpose(), A)
     A_csr = csr_matrix(A_graph)
     connected = connected_components_graph(A_csr, False, return_labels=True)
@@ -492,11 +495,11 @@ def compare_time_traces(trace_1: np.ndarray, trace_2: np.ndarray) -> float:
 
 def combine_rois(roi1: List[int], roi2: List[int]) -> List[np.ndarray]:
     """
-    Combines two lists of clusters into one
+    Combines two lists of rois into one
     Parameters
     ----------
     roi1
-        One list of pixels in cluster each pixel # is based on 1d representation of
+        One list of pixels in roi each pixel # is based on 1d representation of
         image
     roi2
         List for other ROI

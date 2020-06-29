@@ -1,8 +1,9 @@
 import os
 
+from CIDAN.GUI.Tabs.AnalysisTab import AnalysisTab
+
 os.environ['QT_API'] = 'pyside2'
 from qtpy.QtWidgets import QTabWidget
-from CIDAN.GUI.Tabs.Tab import AnalysisTab
 from CIDAN.GUI.Tabs.FileOpenTab import FileOpenTab
 from CIDAN.GUI.Tabs.ROIExtractionTab import *
 from CIDAN.GUI.Tabs.PreprocessingTab import *
@@ -12,12 +13,21 @@ from CIDAN.GUI.Data_Interaction.DataHandler import DataHandler
 from CIDAN.GUI.Console.ConsoleWidget import ConsoleWidget
 import sys
 import logging
+import pyqtgraph as pg
 
+# sys._excepthook = sys.excepthook
+# def exception_hook(exctype, value, traceback):
+#     print(exctype, value, traceback)
+#     sys._excepthook(exctype, value, traceback)
+#     sys.exit(1)
+# sys.excepthook = exception_hook
+
+pg.setConfigOption("imageAxisOrder", "row-major")
 
 class MainWindow(QMainWindow):
     """Initializes the basic window with Main widget being the focused widget"""
 
-    def __init__(self, dev=False):
+    def __init__(self, dev=False, preload=False):
         super().__init__()
         self.title = 'CIDAN'
         self.width = 900
@@ -25,7 +35,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(self.title)
         self.setMinimumSize(self.width, self.height)
         self.main_menu = self.menuBar()
-        self.table_widget = MainWidget(self, dev=dev)
+        self.table_widget = MainWidget(self, dev=dev, preload=preload)
         self.setCentralWidget(self.table_widget)
         # self.setStyleSheet(qdarkstyle.load_stylesheet())
         style = """
@@ -82,7 +92,7 @@ class MainWidget(QWidget):
         A list of the currently active tabs not used until after init_w_data is run
     """
 
-    def __init__(self, parent, dev=False):
+    def __init__(self, parent, dev=False, preload=True):
         """
         Initialize the main widget to load files
         Parameters
@@ -95,8 +105,7 @@ class MainWidget(QWidget):
         self.layout = QVBoxLayout(self)
         self.data_handler = None
         self.thread_list = []
-        self.preprocess_image_view = ImageViewModule(self, roi=False)
-        self.roi_image_view = ImageViewModule(self, histogram=False, roi=False)
+
         self.dev = dev
         self.tab_widget = QTabWidget()
         self.fileOpenTab = FileOpenTab(self)
@@ -132,15 +141,18 @@ class MainWidget(QWidget):
 
         # Below here in this function is just code for testing
         # TODO check if it can load data twice
-        if False and dev:
-            # auto loads a small dataset
-            self.data_handler = DataHandler(
+        if preload and dev:
+            try:
+                # auto loads a small dataset
+                self.data_handler = DataHandler(
 
-                "/Users/sschickler/Code Devel/LSSC-python/input_images/",
-                "C:\\Users\\gadge\\Downloads\\dELETE",
-                trials=["small_dataset.tif"],
-                save_dir_already_created=True)
-            self.init_w_data()
+                    "/Users/sschickler/Code_Devel/LSSC-python/input_images/",
+                    "/Users/sschickler/Documents/LSSC-python",
+                    trials=["small_dataset1.tif"],
+                    save_dir_already_created=True)
+                self.init_w_data()
+            except AttributeError:
+                pass
         if False and dev:
             # auto loads a large dataset
             self.data_handler = DataHandler(
@@ -158,9 +170,12 @@ class MainWidget(QWidget):
         -------
 
         """
+        self.thread_list = []
+        self.preprocess_image_view = ImageViewModule(self)
+
         for num, _ in enumerate(self.tabs):
             self.tab_widget.removeTab(1)
-        # TODO actually delete the tabs not just remove them
+
         # TODO add to export tab to export all time traces or just currently caclulated ones
         self.tabs = [PreprocessingTab(self), ROIExtractionTab(self), AnalysisTab(self)]
 
@@ -168,12 +183,16 @@ class MainWidget(QWidget):
         for tab in self.tabs:
             self.tab_widget.addTab(tab, tab.name)
         self.tab_widget.setCurrentIndex(1)
-        self.tab_widget.currentChanged.connect(
-            lambda x: self.tabs[1].set_background("",
-                                                  self.tabs[
-                                                      1].background_chooser.current_state(),
-                                                  update_image=True))
-
+        self.image_view_list = [x.image_view for x in self.tabs]
+        # self.tab_widget.currentChanged.connect(
+        #     lambda x: self.tabs[1].image_view.set_background("",
+        #                                                      self.tabs[
+        #                                                          1].image_view.background_chooser.current_state(),
+        #                                                      update_image=True))
+        # self.tab_widget.currentChanged.connect(
+        #     lambda x: self.tabs[2].image_view.reset_view())
+        # self.tab_widget.currentChanged.connect(
+        #     lambda x: self.tabs[2].reset_view())
         if not hasattr(self, "export_menu"):
             self.export_menu = self.main_menu.addMenu("&Export")
             export_action = QAction("Export Time Traces/ROIs", self)
@@ -186,16 +205,59 @@ class MainWidget(QWidget):
         self.fileOpenTab.tab_selector.setCurrentIndex(index)
 
     def exportStuff(self):
-        msg = QMessageBox()
-        msg.setWindowTitle("Export data")
-        msg.setText("Data Exported to save directory")
-        msg.setIcon(QMessageBox.Information)
-        x = msg.exec_()
+        dialog = QDialog()
+        dialog.setStyleSheet(qdarkstyle.load_stylesheet())
+        dialog.layout = QVBoxLayout()
+        dialog.setWindowTitle("Select Trials to Export")
+        trial_dialog = TrialListWidget()
+        trial_dialog.set_items_from_list(self.data_handler.trials_all,
+                                         trials_selected_indices=self.data_handler.trials_loaded_time_trace_indices)
+
+        def export_func():
+            self.data_handler.update_selected_trials(
+                trial_dialog.selectedTrials())
+            self.data_handler.export()
+            dialog.close()
+            msg = QMessageBox()
+            msg.setStyleSheet(qdarkstyle.load_stylesheet())
+            msg.setWindowTitle("Export data")
+
+            msg.setText("Data Exported to save directory: "+  self.data_handler.save_dir_path)
+            msg.setIcon(QMessageBox.Information)
+            x = msg.exec_()
+
+        dialog.layout.addWidget(trial_dialog)
+        export_button = QPushButton("Export")
+        export_button.clicked.connect(lambda x: export_func())
+
+        dialog.layout.addWidget(export_button)
+        dialog.setLayout(dialog.layout)
+        dialog.show()
+
+    def checkThreadRunning(self):
+        if (any([x.isRunning() for x in self.thread_list])):
+            msg = QMessageBox()
+            msg.setStyleSheet(qdarkstyle.load_stylesheet())
+            msg.setWindowTitle("Operation Denied")
+
+            msg.setText(
+                "Sorry we can't preform this operation until current process is "
+                "finished")
+            msg.setIcon(QMessageBox.Information)
+            x = msg.exec_()
+            return False
+
+        else:
+            return True
+
+    def updateTabs(self):
+        for x in self.tabs:
+            x.updateTab()
 
 
 if __name__ == "__main__":
-    # client = Client(processes=False, threads_per_worker=8,
-    #                 n_workers=1, memory_limit='16GB')
+    # client = Client(processes=False, threads_per_worker=16,
+    #                 n_workers=1, memory_limit='32GB')
     # print(client)
     LOG_FILENAME = 'log.out'
     logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG)
@@ -203,6 +265,6 @@ if __name__ == "__main__":
     logger.debug("Program started")
     app = QApplication([])
     app.setApplicationName("CIDAN")
-    widget = MainWindow(dev=True)
+    widget = MainWindow(dev=True, preload=True)
 
     sys.exit(app.exec_())

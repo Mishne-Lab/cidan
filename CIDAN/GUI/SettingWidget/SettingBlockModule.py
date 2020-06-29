@@ -7,7 +7,22 @@ from CIDAN.GUI.Inputs.IntRangeInput import IntRangeInput
 
 
 class SettingBlockModule(QFrame):
+    """
+    A tab of settings in SettingsModule
+
+    These are all the tabs in each of the settings area in the GUI, just specify each
+    input in a list and it will add them together
+    """
     def __init__(self, name, input_list):
+        """
+        Initializes the list
+        Parameters
+        ----------
+        name : str
+            Name of the list of modules
+        input_list : List[Input]
+            The list of inputs that are part of this section of settings
+        """
         super().__init__()
         self.name = name
         self.input_list = input_list
@@ -51,7 +66,36 @@ def filter_setting_block(main_widget):
                                    default_val=
                                    data_handler.filter_params["z_score"],
                                    tool_tip="Whether to apply a z-score for each pixel across all the timesteps",
-                               )
+                               ),
+                               BoolInput(display_name="Histogram Equalization Method:",
+                                         program_name="hist_eq",
+                                         on_change_function=lambda x,
+                                                                   y: data_handler.change_filter_param(
+                                             x, y),
+                                         default_val=data_handler.filter_params[
+                                             "hist_eq"],
+                                         tool_tip="Whether to apply our histogram equalization method",
+                                         ),
+                               BoolInput(display_name="PCA:",
+                                         program_name="pca",
+                                         on_change_function=lambda x,
+                                                                   y: data_handler.change_filter_param(
+                                             x, y),
+                                         default_val=data_handler.filter_params[
+                                             "pca"],
+                                         tool_tip="Whether to apply PCA decomposition to the dataset(PCA runs after other filters)",
+                                         ),
+                               FloatInput(
+                                   display_name="PCA expression threshold",
+                                   program_name="pca_threshold",
+                                   on_change_function=lambda x,
+                                                             y: data_handler.change_filter_param(
+                                       x, y),
+                                   default_val=
+                                   data_handler.filter_params[
+                                       "pca_threshold"],
+                                   tool_tip="The percentage of the variance that the PCA will express",
+                                   min=0.001, max=.999, step=.001),
                                ])
 
 
@@ -102,6 +146,16 @@ def dataset_setting_block_crop(main_widget):
                                          tool_tip="Used to crop image stack",
                                          display_tool_tip=False),
                                IntRangeInput(display_name="Crop X:",
+                                             program_name="crop_y",
+                                             on_change_function=lambda x,
+                                                                       y: data_handler.change_dataset_param(
+                                                 x, y),
+                                             default_val=data_handler.dataset_params[
+                                                 "crop_y"],
+                                             tool_tip="Crop in x direction",
+                                             min=0, max=10000, step=1),
+                               IntRangeInput(display_name="Crop Y:",
+                                             # different because the way we display images is weird x is first dim y is second dim
                                              program_name="crop_x",
                                              on_change_function=lambda x,
                                                                        y: data_handler.change_dataset_param(
@@ -110,28 +164,34 @@ def dataset_setting_block_crop(main_widget):
                                                  "crop_x"],
                                              tool_tip="Crop in x direction",
                                              min=0, max=100000, step=1),
-                               IntRangeInput(display_name="Crop Y:",
-                                             program_name="crop_y",
-                                             on_change_function=lambda x,
-                                                                       y: data_handler.change_dataset_param(
-                                                 x, y),
-                                             default_val=data_handler.dataset_params[
-                                                 "crop_y"],
-                                             tool_tip="Crop in y direction",
-                                             min=0, max=10000, step=1),
-                               # IntRangeInput(display_name="Crop Z:",
-                               #               program_name="crop_z",
-                               #               on_change_function=lambda x,
-                               #                                         y: data_handler.change_dataset_param(
-                               #                   x, y),
-                               #               default_val=data_handler.dataset_params[
-                               #                   "crop_z"],
-                               #               tool_tip="Note this crops it for each trial",
-                               #               display_tool_tip=True,
-                               #               min=data_handler.dataset_params[
-                               #                   "crop_z"][0], max=data_handler.dataset_params[
-                               #                   "crop_z"][1], step=1)
-                               ])
+                               ] + ([BoolInput(
+                                  display_name="Split into trials(recomended):",
+                                  program_name="trial_split",
+                                  on_change_function=lambda x,
+                                                            y: data_handler.change_dataset_param(
+                                      x, y),
+                                  default_val=data_handler.dataset_params[
+                                      "trial_split"],
+                                  tool_tip="Splits the timesteps into separate trials better for processing "
+                                           "every x timestep",
+                                  display_tool_tip=False),
+                                                                      IntInput(
+                                                                          display_name="Trial Length",
+                                                                          program_name="trial_length",
+                                                                          on_change_function=lambda x,
+                                                                             y: data_handler.change_dataset_param(
+                                                       x, y),
+                                                                          default_val=
+                                                   data_handler.dataset_params[
+                                                       "trial_length"],
+                                                                          tool_tip="Length of each trial",
+                                                                          display_tool_tip=False,
+                                                                          min=50,
+                                                                          max=2000,
+                                                                          step=1)] if
+                                                                  data_handler.dataset_params[
+                                                                      "original_folder_trial_split"] != "" else []))
+
 
 def multiprocessing_settings_block(main_widget):
     data_handler = main_widget.data_handler
@@ -184,8 +244,7 @@ def roi_extraction_settings_block(main_widget):
                                       data_handler.roi_extraction_params[
                                           "roi_size_min"],
                                       tool_tip="Minimum size in pixels for a region of interest",
-                                      min=1, max=10000, step=1)
-                                  ,
+                                      min=1, max=10000, step=1),
                                   IntInput(
                                       display_name="ROI size maximum:",
                                       program_name="roi_size_max",
@@ -227,7 +286,7 @@ def roi_extraction_settings_block(main_widget):
                                   #         default_val=
                                   #         data_handler.roi_extraction_params[
                                   #             "fill_holes"],
-                                  #         tool_tip="Whether to fill holes in each cluster"),
+                                  #         tool_tip="Whether to fill holes in each roi"),
                                   #
                               ]
                               )
@@ -276,16 +335,16 @@ def roi_advanced_settings_block(main_widget):
                                    data_handler.roi_extraction_params[
                                        "merge"],
                                    tool_tip="Whether to merge rois with similar time traces"),
-                               FloatInput(display_name="ROI Circuity Threshold:",
-                                          program_name="roi_circ_threshold",
-                                          on_change_function=lambda x,
+                               IntInput(display_name="ROI Circuity Threshold:",
+                                        program_name="roi_circ_threshold",
+                                        on_change_function=lambda x,
                                                                     y: data_handler.change_roi_extraction_param(
                                               x, y),
-                                          default_val=
+                                        default_val=
                                           data_handler.roi_extraction_params[
                                               "roi_circ_threshold"],
-                                          tool_tip="Thresholds the rois based on how circular they are",
-                                          min=0, max=1.0, step=.01),
+                                        tool_tip="Thresholds the rois based on how circular they are",
+                                        min=0, max=100, step=1),
                                IntInput(display_name="Number of connections:",
                                         program_name="connections",
                                         on_change_function=lambda x,
@@ -335,12 +394,12 @@ def roi_advanced_settings_block(main_widget):
                                IntInput(display_name="Number of time steps:",
                                         program_name="total_num_time_steps",
                                         on_change_function=lambda x,
-                                        y: data_handler.change_box_param(
+                                                                  y: data_handler.change_box_param(
                                             x, y),
                                         default_val=data_handler.box_params[
                                             "total_num_time_steps"],
                                         tool_tip=
-                                        "Number of time steps to break"+
+                                        "Number of time steps to break" +
                                         "the processing into",
                                         min=1, max=10000, step=1),
                                #

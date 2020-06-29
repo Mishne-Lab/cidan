@@ -33,7 +33,7 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                  elbow_threshold_method: bool, elbow_threshold_value: float,
                  eigen_threshold_method: bool,
                  eigen_threshold_value: float, merge_temporal_coef: float,
-                 roi_size_max: int):
+                 roi_size_max: int, pca: bool, pca_data: np.ndarray):
     logger1.debug("""Inputs: num_threads {0},test_images {1}, test_output_dir {2},
                  save_dir {3}, save_intermediate_steps {4},
                  load_data {5}, data_path {6},
@@ -90,35 +90,48 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
     all_boxes_eigen_vectors = []
     for spatial_box in spatial_boxes:
         spatial_box_data_list = [spatial_box.extract_box(x) for x in image_data]
+        if pca:
+            spatial_box_data_list_pca = [spatial_box.extract_box(x) for x in pca_data]
         if len(spatial_box_data_list) == 1:
             spatial_box_data_list = dask.compute(*spatial_box_data_list)
-        if total_num_time_steps != 1 and len(spatial_box_data_list) == 1:
-            time_boxes = [(x * (image_data[0].shape[0] // total_num_time_steps), (x + 1) * (image_data[0].shape[0] //
-                                                                              total_num_time_steps))
+            if pca:
+                spatial_box_data_list_pca = dask.compute(*spatial_box_data_list_pca)
+
+        if total_num_time_steps != 1 and len(spatial_box_data_list) == 1 and not pca:
+            time_boxes = [(x * (image_data[0].shape[0] // total_num_time_steps),
+                           (x + 1) * (image_data[0].shape[0] //
+                                      total_num_time_steps))
                           for x in range(total_num_time_steps)]
         all_eigen_vectors_list = []
         if not eigen_vectors_already_generated:
             for temporal_box_num, time_box_data in enumerate(
                     time_boxes if total_num_time_steps != 1 and len(
-                            spatial_box_data_list) == 1 else spatial_box_data_list):
+                        spatial_box_data_list) == 1 else spatial_box_data_list):
                 # TODO make sure memory doesn't take more than 2x
-                if total_num_time_steps != 1 and len(spatial_box_data_list) == 1:
+                if total_num_time_steps != 1 and len(
+                        spatial_box_data_list) == 1 and not pca:
                     time_box_data = sliceData(spatial_box_data_list,
                                               start_end=time_box_data)
                 # time_box_data = saveTempImage(time_box_data, save_dir,
                 #                               spatial_box.box_num)
+
                 time_box_data_2d = reshape_to_2d_over_time(time_box_data)
+                if pca:
+                    time_box_data_2d_pca = reshape_to_2d_over_time(
+                        spatial_box_data_list_pca[temporal_box_num])
                 logger1.debug(
                     "Time box {0}, start {1}, end {2}, time_box shape {3}, 2d shape {4}".format(
                         temporal_box_num, 0, 0, time_box_data.shape,
                         time_box_data_2d.shape))
-                k = calcAffinityMatrix(pixel_list=time_box_data_2d, metric=metric,
-                                       knn=knn, accuracy=accuracy,
-                                       connections=connections,
-                                       normalize_w_k=normalize_w_k,
-                                       num_threads=num_threads,
-                                       spatial_box_num=spatial_box.box_num,
-                                       temporal_box_num=temporal_box_num)
+                k = calcAffinityMatrix(
+                    pixel_list=time_box_data_2d if not pca else time_box_data_2d_pca,
+                    metric=metric,
+                    knn=knn, accuracy=accuracy,
+                    connections=connections,
+                    normalize_w_k=normalize_w_k,
+                    num_threads=num_threads,
+                    spatial_box_num=spatial_box.box_num,
+                    temporal_box_num=temporal_box_num)
                 eigen_vectors = generateEigenVectors(K=k,
                                                      num_eig=num_eig,
                                                      )
@@ -171,7 +184,7 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
         if test_images:
             pass
             # delayed(save_roi_images)(
-            #     roi_list=spatial_box.redefine_spatial_cord_1d(rois),
+            #     roi_list.json=spatial_box.redefine_spatial_cord_1d(rois),
             #                              output_dir=test_output_dir,
             #                              image_shape=shape,
             #                              box_num=spatial_box.box_num).compute()
@@ -199,7 +212,7 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
 if __name__ == '__main__':
     process_data(num_threads=1, load_data=True,
                  data_path="/Users/sschickler/Code Devel/LSSC-python/input_images" +
-                           "/small_dataset.tif",
+                           "/small_dataset1.tif",
                  test_images=True,
                  save_dir="/Users/sschickler/Code Devel/LSSC-python/output_images/15",
                  save_intermediate_steps=False,

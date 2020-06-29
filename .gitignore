@@ -128,8 +128,8 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-/output_images/cluster_tests_no_component/
-/output_images/cluster_tests_with_component/
+/output_images/roi_tests_no_component/
+/output_images/roi_tests_with_component/
 /output_images/eigen_images/
 /input_images/
 /tmp_pickle/
