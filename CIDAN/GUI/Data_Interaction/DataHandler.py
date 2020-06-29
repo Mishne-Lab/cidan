@@ -64,7 +64,7 @@ class DataHandler:
         "crop_x": [0, 0],
         "crop_y": [0, 0],
         "trial_split": False,
-        "trial_length": 100
+        "trial_length": 250
     }
 
     _filter_params_default = {
@@ -618,7 +618,7 @@ class DataHandler:
                                         'temp_files/%s.zarr' % self.trials_all[
                                             trial_num]), mode='w',
                            shape=cur_stack.shape,
-                           chunks=(64, 64, 64))
+                           chunks=(32,128,128), dtype=np.float32)
             z1[:] = cur_stack
             if type(loaded_num) != bool:
                 self.mean_images[loaded_num] = np.mean(cur_stack, axis=0)
@@ -683,12 +683,24 @@ class DataHandler:
                 self.pca_decomp = [False] * len(self._trials_loaded_indices)
             self.max_images = [False] * len(self._trials_loaded_indices)
             self.mean_images = [False] * len(self._trials_loaded_indices)
+            if not self.load_into_mem:
 
-            for num, trial_num in enumerate(self._trials_loaded_indices):
-                self.dataset_trials_filtered[trial_num] = self.load_trial_filter_step(
-                    trial_num, self.load_trial_dataset_step(trial_num), loaded_num=num)
-            self.dataset_trials_filtered = list(
-                dask.compute(*self.dataset_trials_filtered))
+                for num, trial_num in enumerate(self._trials_loaded_indices):
+                    self.dataset_trials_filtered[trial_num] = self.load_trial_filter_step(
+                        trial_num, self.load_trial_dataset_step(trial_num), loaded_num = num)
+                    # if num %5 == 0:
+                    #     self.dataset_trials_filtered = list(
+                    #         dask.compute(*self.dataset_trials_filtered))
+
+                self.dataset_trials_filtered = list(
+                    dask.compute(*self.dataset_trials_filtered))
+            else:
+
+                for num, trial_num in enumerate(self._trials_loaded_indices):
+                    self.dataset_trials_filtered[trial_num] = self.load_trial_filter_step(
+                        trial_num, self.load_trial_dataset_step(trial_num), loaded_num=num)
+                self.dataset_trials_filtered = list(
+                    dask.compute(*self.dataset_trials_filtered))
             self.shape = [
                 self.dataset_trials_filtered[self._trials_loaded_indices[0]].shape[1],
                 self.dataset_trials_filtered[self._trials_loaded_indices[0]].shape[2]]

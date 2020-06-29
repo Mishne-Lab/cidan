@@ -102,7 +102,7 @@ def calcAffinityMatrix(*, pixel_list: np.ndarray, metric: str, knn: int,
     K_sym = (K + K.transpose()) / 2
     # K_sym[np.arange(0, num_elements, 1),np.arange(0, num_elements, 1)] = 0
     # save_image(K_sym.todense(),0)
-    print(str(spatial_box_num) + "  " + str(
+    print(str(temporal_box_num)+" "+str(spatial_box_num) + "  " + str(
         np.count_nonzero(K_sym.diagonal()) / K_sym.diagonal().shape[0]))
     return K_sym
 

@@ -10,7 +10,7 @@ from scipy.sparse import linalg
 from CIDAN.LSSC.SpatialBox import combine_images
 from CIDAN.LSSC.functions.embeddings import calcDInv, calcDSqrt, calcDNegSqrt
 from CIDAN.LSSC.functions.pickle_funcs import pickle_save, pickle_load
-
+from matplotlib import pyplot as plt
 logger1 = logging.getLogger("CIDAN.LSSC.eigen")
 
 
@@ -141,4 +141,8 @@ def createEmbedingNormImageFromMultiple(*, spatial_box_list, save_dir, num_time_
     img = Image.fromarray(((image-percent_05)/(percent_95-percent_05)) * 255).convert('L')
     image_path = os.path.join(embed_dir, "embedding_norm_image.png")
     img.save(image_path)
+    plt.imshow(img)
+    plt.savefig(os.path.join(embed_dir, "embedding_norm_matlab.png"))
+    plt.close()
+
     return e_vectors_list
