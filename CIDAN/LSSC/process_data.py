@@ -133,7 +133,10 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                     spatial_box_num=spatial_box.box_num,
                     temporal_box_num=temporal_box_num)
                 eigen_vectors = generateEigenVectors(K=k,
-                                                     num_eig=num_eig,
+                                                     num_eig=time_box_data_2d_pca.shape[
+                                                         1] if pca and num_eig >
+                                                               time_box_data_2d_pca.shape[
+                                                                   1] else num_eig,
                                                      )
                 if save_intermediate_steps:
                     eigen_vectors = saveEigenVectors(e_vectors=eigen_vectors,

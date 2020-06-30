@@ -97,6 +97,8 @@ def test_main():
     main_widget.tabs[2].plot_type_input.input_box.setCurrentIndex(0)
     main_widget.tabs[2].time_trace_type.input_box.setCurrentIndex(1)
     data_handler.change_filter_param("pca", True)
+    main_widget.thread_list[0].run()
+    print("test")
     main_widget.thread_list[1].run()
     assert main_widget.data_handler.shape == [200, 150]
     assert len(main_widget.data_handler.rois) != 0
