@@ -324,7 +324,6 @@ def select_eigen_vectors(eigen_vectors: np.ndarray,
         dimensions number of pixels in image by numb_eigen_vector_select
 
     """
-    num_eigen_vector_select = 3
     pixel_eigen_vec_values = np.abs(np.sum(eigen_vectors[pixels_in_roi], axis=0))
     pixel_eigen_vec_values_sort_indices = np.flip(
         np.argsort(pixel_eigen_vec_values))

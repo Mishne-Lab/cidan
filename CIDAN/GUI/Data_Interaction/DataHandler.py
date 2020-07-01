@@ -73,7 +73,7 @@ class DataHandler:
         "z_score": False,
         "hist_eq": False,
         "pca": False,
-        "pca_threshold": .9
+        "pca_threshold": .97
 
     }
     _box_params_default = {
