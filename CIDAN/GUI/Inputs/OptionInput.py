@@ -30,6 +30,6 @@ class OptionInput(Input):
             self.input_box.removeItem(0)
 
         self.val_list = options
-        self.input_box.addItems(self.input_box)
+        self.input_box.addItems(options)
         self.default_val = default_index
         self.set_default_val()
