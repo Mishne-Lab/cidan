@@ -418,8 +418,10 @@ class ROIImageViewModule(ImageViewModule):
 
                 else:
                     self.roi_image_flat = self.main_widget.data_handler.pixel_with_rois_color_flat
-            if any([x != y for x, y in zip(self.trial_selector_input.val_list,
-                                           self.data_handler.trials_loaded)]):
+            if len(self.trial_selector_input.val_list) != len(
+                    self.data_handler.trials_loaded) or any(
+                    [x != y for x, y in zip(self.trial_selector_input.val_list,
+                                            self.data_handler.trials_loaded)]):
                 self.trial_selector_input.set_new_options(
                     self.data_handler.trials_loaded)
             self.set_background("", self.current_background_name, update_image=False)
