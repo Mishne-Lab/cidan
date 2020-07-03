@@ -33,13 +33,13 @@ def generateEigenVectors(*, K: sparse.csr_matrix, num_eig: int) -> np.ndarray:
     P = D_inv.dot(K)
     D_neg_sqrt = calcDNegSqrt(D_diag)
     P_transformed = calcDSqrt(D_diag).dot(P).dot(D_neg_sqrt)
-    # print("Start eigen")
+    print("Start eigen", num_eig)
     # eig_values,eig_vectors = eig(P.todense())
 
     eig_values, eig_vectors_scaled = linalg.eigsh(
         P_transformed, num_eig, which="LM",
         return_eigenvectors=True)  # this returns normalized eigen vectors
-    # print("finished eigen")
+    print("finished eigen")
     # # TODO make first eigen vector be sanity check since all elements are the same
     # #  this isn't the case
     # # print("Eigvalues",eig_values[0], eig_vectors_scaled,np.max(eig_vectors_scaled),eig_vectors_scaled.shape, num_eig)
@@ -53,12 +53,15 @@ def generateEigenVectors(*, K: sparse.csr_matrix, num_eig: int) -> np.ndarray:
 @delayed
 def saveEigenVectors(*, e_vectors, spatial_box_num: int, time_box_num: int, save_dir:
 str):
+    print("save Eigen", time_box_num, " ", spatial_box_num)
     eigen_dir = os.path.join(save_dir, "eigen_vectors")
     if not os.path.isdir(eigen_dir):
         os.mkdir(eigen_dir)
     pickle_save(e_vectors, name="eigen_vectors_box_{}_{}.pickle".format(spatial_box_num,
                                                                         time_box_num),
                 output_directory=eigen_dir, )
+    print("save Eigen done", time_box_num, " ", spatial_box_num)
+
     return e_vectors
 
 
@@ -79,7 +82,7 @@ def loadEigenVectors(*, spatial_box_num: int, time_box_num: int, save_dir: str):
 
 @delayed
 def saveEmbedingNormImage(*, e_vectors, image_shape, save_dir, spatial_box_num):
-    # print(save_dir)
+    print("Eigen norm step")
     embed_dir = os.path.join(save_dir, "embedding_norm_images")
     e_vectors_squared = np.power(e_vectors, 2)
     e_vectors_sum = np.sum(e_vectors_squared, axis=1)

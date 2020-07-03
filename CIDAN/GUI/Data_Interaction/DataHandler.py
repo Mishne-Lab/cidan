@@ -728,9 +728,10 @@ class DataHandler:
             # self.temporal_correlation_image = calculate_temporal_correlation(self.dataset_filtered)
             self.global_params["need_recalc_filter_params"] = False
             self.global_params["need_recalc_dataset_params"] = False
+
+            self.global_params["need_recalc_box_params"] = True
             self.save_new_param_json()
             self.delete_roi_vars()
-            self.global_params["need_recalc_box_params"] = True
             # self.global_params["need_recalc_eigen_params"] = True
         return self.dataset_trials_filtered
 
@@ -881,7 +882,7 @@ class DataHandler:
                                          roi_size_max=self.roi_extraction_params[
                                              "roi_size_max"],
                                          pca=self.filter_params["pca"],
-                                         pca_data=self.pca_decomp if self.filter_params[
+                                         pca_data= self.pca_decomp if self.filter_params[
                                              "pca"] else False)
                 self.box_params_processed = temp_params
                 self.save_new_param_json()

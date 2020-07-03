@@ -97,11 +97,14 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
             if pca:
                 spatial_box_data_list_pca = dask.compute(*spatial_box_data_list_pca)
 
+
         if total_num_time_steps != 1 and len(spatial_box_data_list) == 1 and not pca:
             time_boxes = [(x * (image_data[0].shape[0] // total_num_time_steps),
                            (x + 1) * (image_data[0].shape[0] //
                                       total_num_time_steps))
                           for x in range(total_num_time_steps)]
+
+
         all_eigen_vectors_list = []
         if not eigen_vectors_already_generated:
             for temporal_box_num, time_box_data in enumerate(
@@ -134,9 +137,9 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                     temporal_box_num=temporal_box_num)
                 eigen_vectors = generateEigenVectors(K=k,
                                                      num_eig=time_box_data_2d_pca.shape[
-                                                         1] if pca and num_eig >
-                                                               time_box_data_2d_pca.shape[
-                                                                   1] else num_eig,
+                                                         1] if pca and False and num_eig >
+                                                               pca_data[temporal_box_num].shape[
+                                                                   0] else num_eig,
                                                      )
                 if save_intermediate_steps:
                     eigen_vectors = saveEigenVectors(e_vectors=eigen_vectors,

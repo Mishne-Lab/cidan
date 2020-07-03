@@ -214,10 +214,10 @@ def saveTempImage(data, save_dir, spatial_box_num):
 
 
 def applyPCA(data, pca_threshold):
-    pca = PCA(n_components=pca_threshold)
+    pca = PCA()
     pca.fit(reshape_to_2d_over_time(data).transpose())
     threshold = elbow_threshold(pca.explained_variance_,
                                 np.arange(0, len(pca.explained_variance_ratio_), 1),
-                                half=False) * .8
+                                half=False) * pca_threshold
     filtered_pca_components = pca.components_[pca.explained_variance_ > threshold]
     return filtered_pca_components.reshape((-1, data.shape[1], data.shape[2]))

@@ -47,8 +47,10 @@ def filterRoi(roi, image_shape, threshold):
                                 total_num_peaks=1)
     # result = hough(image_canny, accuracy=20, threshold=0,
     #                        min_size=int(np.min(roi_max_cord - roi_min_cord)/1.7), max_size=int(np.max(roi_max_cord - roi_min_cord)*2.1))
-
-    return result[0][0]
+    try:
+        return result[0][0]
+    except:
+        return 0
     result.sort(order='accumulator')
     result_filtered = filter(lambda x: not any([y == 0 for y in x]), reversed(result))
     sqrt_2 = 2 ** .5
