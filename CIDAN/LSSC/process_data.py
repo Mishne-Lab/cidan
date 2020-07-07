@@ -140,7 +140,7 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                                                          1] if pca and False and num_eig >
                                                                pca_data[temporal_box_num].shape[
                                                                    0] else num_eig,
-                                                     )
+                                                     ).compute()
                 if save_intermediate_steps:
                     eigen_vectors = saveEigenVectors(e_vectors=eigen_vectors,
                                                      spatial_box_num=spatial_box.box_num,
@@ -186,7 +186,7 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                                  eigen_threshold_value=eigen_threshold_value,
                                  merge_temporal_coef=merge_temporal_coef,
                                  roi_size_limit=roi_size_max,
-                                 box_num=spatial_box.box_num)
+                                 box_num=spatial_box.box_num).compute()
         if test_images:
             pass
             # delayed(save_roi_images)(
