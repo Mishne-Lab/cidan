@@ -97,7 +97,7 @@ class DataHandler:
         "elbow_threshold_value": 1,
         "eigen_threshold_method": True,
         "eigen_threshold_value": .1,
-        "num_eigen_vector_select": 2,
+        "num_eigen_vector_select": 5,
         "merge_temporal_coef": .90,
         "roi_size_min": 30,
         "roi_size_max": 600,
