@@ -49,7 +49,7 @@ class DataHandler:
         "need_recalc_eigen_params": True,
         "need_recalc_roi_extraction_params": True,
         "load_into_mem": False,
-        "num_threads": 1
+        "num_threads": 8
     }
 
     _dataset_params_default = {
@@ -72,6 +72,7 @@ class DataHandler:
         "median_filter_size": 3,
         "z_score": False,
         "hist_eq": False,
+        "localSpatialDenoising": True,
         "pca": False,
         "pca_threshold": .97
 
@@ -96,7 +97,7 @@ class DataHandler:
         "elbow_threshold_value": 1,
         "eigen_threshold_method": True,
         "eigen_threshold_value": .1,
-        "num_eigen_vector_select": 2,
+        "num_eigen_vector_select": 5,
         "merge_temporal_coef": .90,
         "roi_size_min": 30,
         "roi_size_max": 600,
@@ -613,7 +614,8 @@ class DataHandler:
                 median_filter=self.filter_params[
                     "median_filter"],
                 z_score=self.filter_params["z_score"],
-                hist_eq=self.filter_params["hist_eq"])
+                hist_eq=self.filter_params["hist_eq"],
+                localSpatialDenoising=self.filter_params["localSpatialDenoising"])
             z1 = zarr.open(os.path.join(self.save_dir_path,
                                         'temp_files/%s.zarr' % self.trials_all[
                                             trial_num]), mode='w',
@@ -728,9 +730,10 @@ class DataHandler:
             # self.temporal_correlation_image = calculate_temporal_correlation(self.dataset_filtered)
             self.global_params["need_recalc_filter_params"] = False
             self.global_params["need_recalc_dataset_params"] = False
+
+            self.global_params["need_recalc_box_params"] = True
             self.save_new_param_json()
             self.delete_roi_vars()
-            self.global_params["need_recalc_box_params"] = True
             # self.global_params["need_recalc_eigen_params"] = True
         return self.dataset_trials_filtered
 
@@ -881,7 +884,7 @@ class DataHandler:
                                          roi_size_max=self.roi_extraction_params[
                                              "roi_size_max"],
                                          pca=self.filter_params["pca"],
-                                         pca_data=self.pca_decomp if self.filter_params[
+                                         pca_data= self.pca_decomp if self.filter_params[
                                              "pca"] else False)
                 self.box_params_processed = temp_params
                 self.save_new_param_json()

@@ -6,10 +6,11 @@ import numpy as np
 import tifffile
 from PIL import Image
 from dask import delayed
-from scipy import ndimage
+from scipy import ndimage, sparse
 # from IPython.display import display, Image
 from sklearn.decomposition import PCA
 
+from CIDAN.LSSC.functions.embeddings import calcDInv
 from CIDAN.LSSC.functions.roi_extraction import elbow_threshold
 
 
@@ -37,7 +38,8 @@ def load_filter_tif_stack(*, path, filter: bool, median_filter: bool,
         paths = path if type(path) == list else sorted(os.listdir(path))
         if trial_split:
             paths = paths[trial_num * trial_split_length:(
-                                                                 trial_num + 1) * trial_split_length if ( trial_num + 1) * trial_split_length < len(
+                                                                 trial_num + 1) * trial_split_length if (
+                                                                                                                trial_num + 1) * trial_split_length < len(
                 paths) else len(paths)]
         for num, x in enumerate(paths):
             file_path = x if type(path) == list else os.path.join(path, x)
@@ -129,9 +131,10 @@ def save_image(volume: np.ndarray, name: str, directory: str, shape: tuple,
 
 def filter_stack(*, stack: np.ndarray, median_filter: bool,
                  median_filter_size: Tuple[int, int, int],
-                 z_score: bool, hist_eq=False):
-    if median_filter and not hist_eq:
-        stack = ndimage.median_filter(stack, median_filter_size)
+                 z_score: bool, hist_eq=False, localSpatialDenoising=False):
+    if localSpatialDenoising:
+        stack = applyLocalSpatialDenoising(stack)
+
         # stack = ndimage.filters.convolve(stack, np.full((3, 3, 3), 1.0 / 27))
     if z_score and not hist_eq:
         stack_t = np.transpose(stack, (1, 2, 0))
@@ -158,7 +161,8 @@ def filter_stack(*, stack: np.ndarray, median_filter: bool,
         stack_equalized_filtered = ndimage.median_filter(stack_equalized_squared,
                                                          (1, 1, 3))
         stack = np.transpose(stack_equalized_filtered, (2, 0, 1))
-
+    if median_filter:
+        stack = ndimage.median_filter(stack, median_filter_size)
     return stack
 
 
@@ -214,10 +218,64 @@ def saveTempImage(data, save_dir, spatial_box_num):
 
 
 def applyPCA(data, pca_threshold):
-    pca = PCA(n_components=pca_threshold)
+    pca = PCA()
     pca.fit(reshape_to_2d_over_time(data).transpose())
-    threshold = elbow_threshold(pca.explained_variance_,
-                                np.arange(0, len(pca.explained_variance_ratio_), 1),
-                                half=False) * .8
-    filtered_pca_components = pca.components_[pca.explained_variance_ > threshold]
+    threshold = elbow_threshold(pca.singular_values_,
+                                np.arange(0, len(pca.singular_values_), 1),
+                                half=False)
+    filtered_pca_components = pca.components_[pca.singular_values_ > threshold]
     return filtered_pca_components.reshape((-1, data.shape[1], data.shape[2]))
+
+
+def applyLocalSpatialDenoising(data):
+    data = data.transpose((1, 2, 0))
+    shape = data.shape
+
+    affinity_self = np.sum(np.power(data, 2), axis=2) + .0000001
+    affinity_up = np.divide(
+        np.sum(np.multiply(data[0:-1, :, :], data[1:, :, :]), axis=2),
+        np.multiply(np.power(affinity_self[0:-1, :], .5),
+                    np.power(affinity_self[1:, :], .5)))
+    affinity_right = np.divide(
+        np.sum(np.multiply(data[:, :-1, :], data[:, 1:, :]), axis=2),
+        np.multiply(np.power(affinity_self[:, :-1], .5),
+                    np.power(affinity_self[:, 1:], .5)))
+    affinity_up_right = np.divide(
+        np.sum(np.multiply(data[:-1, 1:, :], data[1:, :-1, :]), axis=2),
+        np.multiply(np.power(affinity_self[:-1, 1:], .5),
+                    np.power(affinity_self[1:, :-1], .5)))
+    affinity_down_right = np.divide(
+        np.sum(np.multiply(data[:-1, :-1, :], data[1:, 1:, :]), axis=2),
+        np.multiply(np.power(affinity_self[:-1, :-1], .5),
+                    np.power(affinity_self[1:, 1:], .5)))
+    indices_right_x = np.arange(0, shape[0] * shape[1], 1)
+    indices_right_x = indices_right_x[indices_right_x % shape[1] != shape[1] - 1]
+    indices_right_y = np.arange(0, shape[0] * shape[1], 1)
+    indices_right_y = indices_right_y[indices_right_y % shape[1] != 0]
+    indices_up_x = np.arange(shape[1], shape[0] * shape[1], 1)
+    indices_up_y = np.arange(0, shape[0] * shape[1] - shape[1], 1)
+    indices_up_right_x = np.arange(shape[1], shape[0] * shape[1], 1)
+    indices_up_right_x = indices_up_right_x[
+        indices_up_right_x % shape[1] != shape[1] - 1]
+    indices_up_right_y = np.arange(0, shape[0] * shape[1] - shape[1], 1)
+    indices_up_right_y = indices_up_right_y[indices_up_right_y % shape[1] != 0]
+    indices_down_right_x = np.arange(0, shape[0] * shape[1] - shape[1], 1)
+    indices_down_right_x = indices_down_right_x[
+        indices_down_right_x % shape[1] != shape[1] - 1]
+    indices_down_right_y = np.arange(shape[1], shape[0] * shape[1], 1)
+    indices_down_right_y = indices_down_right_y[indices_down_right_y % shape[1] != 0]
+
+    K = sparse.csr_matrix((np.concatenate(
+        [np.reshape(affinity_up, (-1)), np.reshape(affinity_right, (-1)),
+         np.reshape(affinity_up_right, (-1)), np.reshape(affinity_down_right, (-1))]),
+                           (np.concatenate([indices_right_x, indices_up_x,
+                                            indices_up_right_x,
+                                            indices_down_right_x]),
+                            np.concatenate([indices_right_y, indices_up_y,
+                                            indices_up_right_y,
+                                            indices_down_right_y]))))
+    K = K + K.transpose()
+    D_inv, D_diag = calcDInv(K)
+    P = D_inv.dot(K)
+    temp_flat = reshape_to_2d_over_time(data.transpose(2, 0, 1))
+    return P.dot(temp_flat).reshape((shape[0], shape[1], shape[2])).transpose((2, 0, 1))

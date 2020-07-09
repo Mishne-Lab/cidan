@@ -37,7 +37,16 @@ class SettingBlockModule(QFrame):
 def filter_setting_block(main_widget):
     data_handler = main_widget.data_handler
     return SettingBlockModule("Filter Settings",
-                              [BoolInput(display_name="Median filter:",
+                              [BoolInput(display_name="Local Spatial Denoising:",
+                                         program_name="localSpatialDenoising",
+                                         on_change_function=lambda x,
+                                                                   y: data_handler.change_filter_param(
+                                             x, y),
+                                         default_val=data_handler.filter_params[
+                                             "localSpatialDenoising"],
+                                         tool_tip="Whether to apply a denoising algorithm",
+                                         ),
+                               BoolInput(display_name="Median filter:",
                                          program_name="median_filter",
                                          on_change_function=lambda x,
                                                                    y: data_handler.change_filter_param(
@@ -85,17 +94,17 @@ def filter_setting_block(main_widget):
                                              "pca"],
                                          tool_tip="Whether to apply PCA decomposition to the dataset(PCA runs after other filters)",
                                          ),
-                               FloatInput(
-                                   display_name="PCA expression threshold",
-                                   program_name="pca_threshold",
-                                   on_change_function=lambda x,
-                                                             y: data_handler.change_filter_param(
-                                       x, y),
-                                   default_val=
-                                   data_handler.filter_params[
-                                       "pca_threshold"],
-                                   tool_tip="The percentage of the variance that the PCA will express",
-                                   min=0.001, max=.999, step=.001),
+                               # FloatInput(
+                               #     display_name="PCA expression threshold",
+                               #     program_name="pca_threshold",
+                               #     on_change_function=lambda x,
+                               #                               y: data_handler.change_filter_param(
+                               #         x, y),
+                               #     default_val=
+                               #     data_handler.filter_params[
+                               #         "pca_threshold"],
+                               #     tool_tip="The percentage of the variance that the PCA will express",
+                               #     min=0.001, max=.999, step=.001),
                                ])
 
 
