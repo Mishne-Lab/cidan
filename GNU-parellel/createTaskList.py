@@ -22,7 +22,7 @@ def main():
     parameters_to_search = {"median_filter": [True, False], "hist_eq": [True, False],
                             "pca": [True, False], "total_num_spatial_boxes": [1, 4, 9],
                             "num_eig": [50], "trial_split": [True],
-                            "trial_split_length": [250, 500, 1000],
+                            "trial_length": [250, 500, 1000],
                             "localSpatialDenoising": [True]}
     total_parameters_combinations = reduce(lambda x, y: x * y,
                                            [len(parameters_to_search[x]) for x in
@@ -55,10 +55,16 @@ def main():
                     for section in curr_json:
                         if key in curr_json[section].keys():
                             curr_json[section][key] = val
-                curr_json["dataset_params"] = curr_dir
-                if os.path.isdir(os.path.join(curr_dir, "images")):
-                    curr_json["dataset_params"] = os.path.join(curr_dir, "images")
-                    with open(os.path.join(curr_dir, "regions/regions.json"), "r") as f:
+                curr_json["dataset_params"]["dataset_folder_path"] = args.input_dir
+                curr_json["dataset_params"][
+                    "original_folder_trial_split"] = os.path.basename(curr_dir)
+                if os.path.isdir(os.path.join(args.input_dir, curr_dir, "images")):
+                    curr_json["dataset_params"]["dataset_folder_path"] = os.path.join(
+                        args.input_dir, curr_dir)
+                    curr_json["dataset_params"][
+                        "original_folder_trial_split"] = "images"
+                    with open(os.path.join(args.input_dir, curr_dir,
+                                           "regions/regions.json"), "r") as f:
                         with open(os.path.join(curr_out_dir, "roi_true.json"),
                                   "w") as f2:
                             json.dump(json.load(f), f2)
