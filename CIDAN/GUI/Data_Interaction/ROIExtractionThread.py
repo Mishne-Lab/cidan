@@ -23,7 +23,7 @@ class ROIExtractionThread(Thread):
                 self.data_handler.calculate_roi_extraction()
                 print("Finished ROI extraction")
                 self.signal.sig.emit(True)
-            except Exception as e:
+            except AttributeError as e:
                 if (type(e) == AssertionError):
                     print(e.args[0])
                 else:
