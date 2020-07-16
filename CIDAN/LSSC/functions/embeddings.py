@@ -1,6 +1,6 @@
 import os
 
-from matplotlib import pyplot as plt
+# from matplotlib import pyplot as plt
 
 # os.environ["OMP_NUM_THREADS"] = "10"  # export OMP_NUM_THREADS=4
 # os.environ["OPENBLAS_NUM_THREADS"] = "10"  # export OPENBLAS_NUM_THREADS=4
@@ -108,15 +108,16 @@ def calcAffinityMatrix(*, pixel_list: np.ndarray, metric: str, knn: int,
 
 
 def save_image(image, num):
-    print(image.diagonal())
-    plt.imshow(
-        image, aspect="auto")
-    plt.colorbar()
-    path = os.path.join("/Users/sschickler/Code_Devel/LSSC-python/input_images/test",
-                        "eigen{}.png".format(
-                            num))
-    plt.savefig(path, dpi=300)
-    plt.close()
+    pass
+    # print(image.diagonal())
+    # plt.imshow(
+    #     image, aspect="auto")
+    # plt.colorbar()
+    # path = os.path.join("/Users/sschickler/Code_Devel/LSSC-python/input_images/test",
+    #                     "eigen{}.png".format(
+    #                         num))
+    # plt.savefig(path, dpi=300)
+    # plt.close()
     # image
     # img.save(image_path)
 def calcDInv(K: sparse.csr_matrix):

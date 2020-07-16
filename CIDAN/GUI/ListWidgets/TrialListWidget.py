@@ -4,7 +4,7 @@ from qtpy import QtCore
 from qtpy.QtGui import *
 from qtpy.QtWidgets import *
 
-
+from qtpy.QtGui import Qt
 class TrialListWidget(QWidget):
     """
     List module for a list of trials used in both time trace settings and folder input

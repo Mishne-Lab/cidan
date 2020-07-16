@@ -145,8 +145,8 @@ def createEmbedingNormImageFromMultiple(*, spatial_box_list, save_dir, num_time_
     img = Image.fromarray(((image-percent_05)/(percent_95-percent_05)) * 255).convert('L')
     image_path = os.path.join(embed_dir, "embedding_norm_image.png")
     img.save(image_path)
-    plt.imshow(img)
-    plt.savefig(os.path.join(embed_dir, "embedding_norm_matlab.png"))
-    plt.close()
+    # plt.imshow(img)
+    # plt.savefig(os.path.join(embed_dir, "embedding_norm_matlab.png"))
+    # plt.close()
 
     return e_vectors_list
