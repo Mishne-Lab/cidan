@@ -116,11 +116,12 @@ def save_image(volume: np.ndarray, name: str, directory: str, shape: tuple,
     -------
     None
     """
-    for x in range(number_save):
-        fig, ax = plt.subplots()
-        imgplot = ax.imshow(np.reshape(volume,
-                                       shape)[shape[0] // number_save * x])
-        fig.savefig(os.path.join(directory, name + "_" + str(x)))
+    pass
+    # for x in range(number_save):
+    #     fig, ax = plt.subplots()
+    #     imgplot = ax.imshow(np.reshape(volume,
+    #                                    shape)[shape[0] // number_save * x])
+    #     fig.savefig(os.path.join(directory, name + "_" + str(x)))
 
         # img = Image.fromarray(
         #     np.reshape(volume,
@@ -139,7 +140,7 @@ def filter_stack(*, stack: np.ndarray, median_filter: bool,
     if z_score and not hist_eq:
         stack_t = np.transpose(stack, (1, 2, 0))
         shape = (stack.shape[1], stack.shape[2], 1)
-        std = np.std(stack_t, axis=2).reshape(shape)
+        std = np.std(stack_t, axis=2).reshape(shape)+1E-6
         mean = np.mean(stack_t, axis=2).reshape(shape)
         stack_t = (stack_t - mean) / std
         stack = np.transpose(stack_t, (2, 0, 1))

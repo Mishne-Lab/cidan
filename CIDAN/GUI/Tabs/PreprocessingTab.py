@@ -103,8 +103,11 @@ class PreprocessingTab(Tab):
         """
 
         def set_image(x, trial_name):
-            self.main_widget.preprocess_image_view.setImage(
-                data_list[trial_names.index(trial_name)][:])
+            try:
+                self.main_widget.preprocess_image_view.setImage(
+                    data_list[trial_names.index(trial_name)][:])
+            except TypeError:
+                self.updateTab()
 
         if hasattr(self, "trial_selector_input"):
             self.trial_selector_input.setParent(None)

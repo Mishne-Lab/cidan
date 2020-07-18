@@ -134,8 +134,15 @@ class ROIImageViewModule(ImageViewModule):
             #     self.current_background = self.data_handler.temporal_correlation_image.reshape(
             #         [-1, 1])
             elif func_name == "Eigen Norm Image":
-                self.current_background = self.data_handler.eigen_norm_image.reshape(
-                    [-1, 1])
+                try:
+                    self.current_background = self.data_handler.eigen_norm_image.reshape(
+                        [-1, 1])
+                except AttributeError:
+                    self.current_background = self.main_widget.data_handler.max_images[
+                                                  self.data_handler.trials_loaded.index(
+                                                      self.trial_selector_input.current_state())][
+                                              :].reshape(
+                        [-1, 1])
             else:
                 self.current_background_name = "Max Image"
                 self.current_background = self.main_widget.data_handler.max_images[
@@ -424,6 +431,7 @@ class ROIImageViewModule(ImageViewModule):
                                             self.data_handler.trials_loaded)]):
                 self.trial_selector_input.set_new_options(
                     self.data_handler.trials_loaded)
+
             self.set_background("", self.current_background_name, update_image=False)
             if (updateDisplay):
                 self.updateImageDisplay(new=True)

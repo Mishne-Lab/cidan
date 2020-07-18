@@ -177,7 +177,7 @@ class MainWidget(QWidget):
             self.tab_widget.removeTab(1)
 
         # TODO add to export tab to export all time traces or just currently caclulated ones
-        self.tabs = [PreprocessingTab(self), ROIExtractionTab(self), AnalysisTab(self)]
+        self.tabs = [PreprocessingTab(self), ROIExtractionTab(self)]#, AnalysisTab(self)]
 
         # Add tabs
         for tab in self.tabs:

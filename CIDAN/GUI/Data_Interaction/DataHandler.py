@@ -818,7 +818,7 @@ class DataHandler:
             try:
                 self.calculate_filters()
                 eigen_need_recalc = self.global_params["need_recalc_eigen_params"] or self.global_params[
-                    "need_recalc_box_parms"]
+                    "need_recalc_box_params"]
                 self.global_params["need_recalc_eigen_params"] = False
                 self.global_params[
                     "need_recalc_roi_extraction_params"] = False

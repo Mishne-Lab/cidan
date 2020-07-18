@@ -129,9 +129,9 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                 k = calcAffinityMatrix(
                     pixel_list=time_box_data_2d if not pca else time_box_data_2d_pca,
                     metric=metric,
-                    knn=knn, accuracy=accuracy,
+                    knn=32, accuracy=accuracy,
                     connections=connections,
-                    normalize_w_k=normalize_w_k,
+                    normalize_w_k=25,
                     num_threads=num_threads,
                     spatial_box_num=spatial_box.box_num,
                     temporal_box_num=temporal_box_num)
@@ -140,6 +140,8 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                                                          1] if pca and False and num_eig >
                                                                pca_data[temporal_box_num].shape[
                                                                    0] else num_eig,
+                                                     max_iter=knn,
+                                                     accuracy=normalize_w_k
                                                      ).compute()
                 if save_intermediate_steps:
                     eigen_vectors = saveEigenVectors(e_vectors=eigen_vectors,

@@ -42,20 +42,21 @@ def save_eigen_images(eigen_vectors, output_dir, image_shape, box_num=0):
 
 
 def save_roi_images(roi_list, image_shape, output_dir, box_num=0):
-    pixel_length = image_shape[1] * image_shape[2]
-    original_zeros_all = np.zeros((pixel_length))
-    for num, x in enumerate(roi_list):
-        original_zeros = np.zeros((pixel_length))
-        original_zeros_all[x] = 255
-        original_zeros[x] = 255
-        imgplot = plt.imshow(np.reshape(original_zeros,
-                                        (image_shape[1],
-                                         image_shape[2])))
-        plt.savefig(os.path.join(output_dir, "box_{}_roi_{}".format(
-            str(box_num).zfill(2), str(num).zfill(3)) + "_" + str(0)))
-
-    data_manipulation.save_image(original_zeros_all, "box_{}_roi_all".format(
-        str(box_num).zfill(2)),
-                                 output_dir, (
-                                     1, image_shape[1],
-                                     image_shape[2]), 1)
+    pass
+    # pixel_length = image_shape[1] * image_shape[2]
+    # original_zeros_all = np.zeros((pixel_length))
+    # for num, x in enumerate(roi_list):
+    #     original_zeros = np.zeros((pixel_length))
+    #     original_zeros_all[x] = 255
+    #     original_zeros[x] = 255
+    #     imgplot = plt.imshow(np.reshape(original_zeros,
+    #                                     (image_shape[1],
+    #                                      image_shape[2])))
+    #     plt.savefig(os.path.join(output_dir, "box_{}_roi_{}".format(
+    #         str(box_num).zfill(2), str(num).zfill(3)) + "_" + str(0)))
+    #
+    # data_manipulation.save_image(original_zeros_all, "box_{}_roi_all".format(
+    #     str(box_num).zfill(2)),
+    #                              output_dir, (
+    #                                  1, image_shape[1],
+    #                                  image_shape[2]), 1)
