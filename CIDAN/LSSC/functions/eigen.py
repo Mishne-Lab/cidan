@@ -4,18 +4,20 @@ import os
 import numpy as np
 from PIL import Image
 from dask import delayed
+from matplotlib import pyplot as plt
 from scipy import sparse
 from scipy.sparse import linalg
 
 from CIDAN.LSSC.SpatialBox import combine_images
 from CIDAN.LSSC.functions.embeddings import calcDInv, calcDSqrt, calcDNegSqrt
 from CIDAN.LSSC.functions.pickle_funcs import pickle_save, pickle_load
-from matplotlib import pyplot as plt
+
 logger1 = logging.getLogger("CIDAN.LSSC.eigen")
 
 
 @delayed
-def generateEigenVectors(*, K: sparse.csr_matrix, num_eig: int) -> np.ndarray:
+def generateEigenVectors(*, K: sparse.csr_matrix, num_eig: int, maxiter=7,
+                         accuracy=1E-4) -> np.ndarray:
     """Calculate Eigen Vectors given parts of the affinity matrix
 
     Parameters
@@ -39,7 +41,8 @@ def generateEigenVectors(*, K: sparse.csr_matrix, num_eig: int) -> np.ndarray:
 
     eig_values, eig_vectors_scaled = linalg.eigsh(
         P_transformed, num_eig, which="LM",
-        return_eigenvectors=True, tol=1E-4, maxiter=250)  # this returns normalized eigen vectors
+        return_eigenvectors=True, maxiter=maxiter,
+        tol=accuracy)  # this returns normalized eigen vectors
     print("finished eigen")
     # # TODO make first eigen vector be sanity check since all elements are the same
     # #  this isn't the case
@@ -145,8 +148,8 @@ def createEmbedingNormImageFromMultiple(*, spatial_box_list, save_dir, num_time_
     img = Image.fromarray(((image-percent_05)/(percent_95-percent_05)) * 255).convert('L')
     image_path = os.path.join(embed_dir, "embedding_norm_image.png")
     img.save(image_path)
-    # plt.imshow(img)
-    # plt.savefig(os.path.join(embed_dir, "embedding_norm_matlab.png"))
-    # plt.close()
+    plt.imshow(img)
+    plt.savefig(os.path.join(embed_dir, "embedding_norm_matlab.png"))
+    plt.close()
 
     return e_vectors_list
