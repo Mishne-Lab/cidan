@@ -1,10 +1,9 @@
 from CIDAN.GUI.Data_Interaction.Signals import *
 
 
-class Thread(QThread):
+class Worker(QRunnable):
     def __init__(self, main_widget, parent=None):
-        QThread.__init__(self, parent)
-        self.exiting = False
+        super(Worker, self).__init__()
         self.main_widget = main_widget
         self.signal = BoolSignal()
 

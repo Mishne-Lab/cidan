@@ -39,7 +39,7 @@ def generateEigenVectors(*, K: sparse.csr_matrix, num_eig: int) -> np.ndarray:
 
     eig_values, eig_vectors_scaled = linalg.eigsh(
         P_transformed, num_eig, which="LM",
-        return_eigenvectors=True, tol=1E-4, maxiter=250)  # this returns normalized eigen vectors
+        return_eigenvectors=True, tol=1E-4, maxiter=num_eig*7)  # this returns normalized eigen vectors
     print("finished eigen")
     # # TODO make first eigen vector be sanity check since all elements are the same
     # #  this isn't the case
