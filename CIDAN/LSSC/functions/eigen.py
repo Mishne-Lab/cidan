@@ -4,7 +4,6 @@ import os
 import numpy as np
 from PIL import Image
 from dask import delayed
-from matplotlib import pyplot as plt
 from scipy import sparse
 from scipy.sparse import linalg
 
@@ -36,12 +35,13 @@ def generateEigenVectors(*, K: sparse.csr_matrix, num_eig: int, maxiter=7,
     D_neg_sqrt = calcDNegSqrt(D_diag)
     P_transformed = calcDSqrt(D_diag).dot(P).dot(D_neg_sqrt)
     print("Start eigen", num_eig)
+    print(accuracy)
     # eig_values,eig_vectors = eig(P.todense())
     # io.savemat("C:\\Users\\gadge\\Documents\\CIDAN\\inputs\\P.mat", {"array": P)}
 
     eig_values, eig_vectors_scaled = linalg.eigsh(
         P_transformed, num_eig, which="LM",
-        return_eigenvectors=True, maxiter=maxiter,
+        return_eigenvectors=True, maxiter=maxiter * num_eig,
         tol=accuracy)  # this returns normalized eigen vectors
     print("finished eigen")
     # # TODO make first eigen vector be sanity check since all elements are the same
@@ -148,8 +148,8 @@ def createEmbedingNormImageFromMultiple(*, spatial_box_list, save_dir, num_time_
     img = Image.fromarray(((image-percent_05)/(percent_95-percent_05)) * 255).convert('L')
     image_path = os.path.join(embed_dir, "embedding_norm_image.png")
     img.save(image_path)
-    plt.imshow(img)
-    plt.savefig(os.path.join(embed_dir, "embedding_norm_matlab.png"))
-    plt.close()
+    # plt.imshow(img)
+    # plt.savefig(os.path.join(embed_dir, "embedding_norm_matlab.png"))
+    # plt.close()
 
     return e_vectors_list

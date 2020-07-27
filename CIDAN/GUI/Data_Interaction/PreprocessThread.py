@@ -26,7 +26,7 @@ class PreprocessThread(Thread):
         if not any([x.isRunning() for x in self.main_widget.thread_list]):
             print("Starting preprocessing sequence")
             # self.button.setEnabled(False)
-            self.start()
+            self.run()
         else:
             print(
                 "Previous process in process, please wait to start new one till "

@@ -25,7 +25,7 @@ def test_eigen():
     K = calcAffinityMatrix(pixel_list=image, metric="l2", knn=20,
                            accuracy=80, connections=30,
                            normalize_w_k=15, num_threads=8, spatial_box_num=0,
-                           temporal_box_num=0).compute()
+                           temporal_box_num=0)
     # K_new = np.zeros((15 * 25, 15 * 25))
     # for i in range(0, num_points, 1):
     #     for j in range(0, 25, 1):
@@ -38,7 +38,7 @@ def test_eigen():
     #         if (j < 25 - 1):
     #             K_new[i * 25 + j, (i) * 25 + j + 1] = 1
 
-    e_vectors = generateEigenVectors(K=csr_matrix(K), num_eig=num_eig)
+    e_vectors = generateEigenVectors(K=csr_matrix(K), num_eig=num_eig).compute()
     e_vectors = np.array(compute(e_vectors)[0])
     num = 0
     print(np.max(e_vectors[:, num]), np.min(e_vectors[:, num]))

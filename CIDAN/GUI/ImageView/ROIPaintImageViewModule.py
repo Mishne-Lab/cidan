@@ -46,6 +46,8 @@ class ROIPaintImageViewModule(ROIImageViewModule):
 
                 else:
                     super().roi_view_click(event)
+            else:
+                print("Something has changed, please regenerate ROIs")
         except ValueError as e:
             if "shape" in e.args[0]:
                 self.reset_view()

@@ -1,5 +1,7 @@
 import os
 
+from PySide2.QtCore import QThreadPool
+
 from CIDAN.GUI.Tabs.AnalysisTab import AnalysisTab
 
 os.environ['QT_API'] = 'pyside2'
@@ -101,6 +103,7 @@ class MainWidget(QWidget):
         """
         super().__init__(parent)
         self.main_window = parent
+        self.threadpool = QThreadPool()
         self.main_menu = self.main_window.main_menu
         self.layout = QVBoxLayout(self)
         self.data_handler = None
@@ -117,11 +120,11 @@ class MainWidget(QWidget):
             self.tab_widget.addTab(QWidget(), tab)
             self.tab_widget.setTabEnabled(num + 1, False)
         self.layout.addWidget(self.tab_widget)
-
-        self.console = ConsoleWidget()
-        self.console.setMaximumHeight(150)
-        self.console.setMinimumHeight(150)
-        self.layout.addWidget(self.console)
+        #
+        # self.console = ConsoleWidget()
+        # self.console.setMaximumHeight(150)
+        # self.console.setMinimumHeight(150)
+        # self.layout.addWidget(self.console)
         self.setLayout(self.layout)
 
         # Initialize top bar menu
@@ -177,7 +180,7 @@ class MainWidget(QWidget):
             self.tab_widget.removeTab(1)
 
         # TODO add to export tab to export all time traces or just currently caclulated ones
-        self.tabs = [PreprocessingTab(self), ROIExtractionTab(self)]#, AnalysisTab(self)]
+        self.tabs = [PreprocessingTab(self), ROIExtractionTab(self), AnalysisTab(self)]
 
         # Add tabs
         for tab in self.tabs:

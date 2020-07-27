@@ -105,7 +105,7 @@ class PreprocessingTab(Tab):
         def set_image(x, trial_name):
             try:
                 self.main_widget.preprocess_image_view.setImage(
-                    data_list[trial_names.index(trial_name)][:])
+                    data_list[trial_names.index(trial_name)][:].copy())
             except TypeError:
                 self.updateTab()
 
@@ -127,7 +127,7 @@ class PreprocessingTab(Tab):
                                                 show_name=False)
         self._image_buttons_layout.addWidget(self.trial_selector_input)
         self.main_widget.preprocess_image_view.setImage(
-            data)
+            data.copy())
 
     def updateTab(self):
         if (self.main_widget.checkThreadRunning()):

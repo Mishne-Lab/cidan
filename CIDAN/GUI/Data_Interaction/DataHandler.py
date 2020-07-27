@@ -690,9 +690,9 @@ class DataHandler:
                 for num, trial_num in enumerate(self._trials_loaded_indices):
                     self.dataset_trials_filtered[trial_num] = self.load_trial_filter_step(
                         trial_num, self.load_trial_dataset_step(trial_num), loaded_num = num)
-                    # if num %5 == 0:
-                    #     self.dataset_trials_filtered = list(
-                    #         dask.compute(*self.dataset_trials_filtered))
+                    if num % 3 == 0:
+                        self.dataset_trials_filtered = list(
+                            dask.compute(*self.dataset_trials_filtered))
 
                 self.dataset_trials_filtered = list(
                     dask.compute(*self.dataset_trials_filtered))

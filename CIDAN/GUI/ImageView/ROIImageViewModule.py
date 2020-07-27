@@ -138,11 +138,13 @@ class ROIImageViewModule(ImageViewModule):
                     self.current_background = self.data_handler.eigen_norm_image.reshape(
                         [-1, 1])
                 except AttributeError:
+                    print("Eigen vectors aren't currently generated or valid")
                     self.current_background = self.main_widget.data_handler.max_images[
                                                   self.data_handler.trials_loaded.index(
                                                       self.trial_selector_input.current_state())][
                                               :].reshape(
                         [-1, 1])
+                    self.current_background_name = "Max Image"
             else:
                 self.current_background_name = "Max Image"
                 self.current_background = self.main_widget.data_handler.max_images[
@@ -233,6 +235,8 @@ class ROIImageViewModule(ImageViewModule):
             self.updateImageDisplay()
         except AttributeError:
             pass
+        except IndexError:
+            print("Please regenerate ROIs before trying this operation")
         except ValueError as e:
             if "shape" in e.args[0]:
                 print("Error please try again")
