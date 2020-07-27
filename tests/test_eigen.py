@@ -38,7 +38,7 @@ def test_eigen():
     #         if (j < 25 - 1):
     #             K_new[i * 25 + j, (i) * 25 + j + 1] = 1
 
-    e_vectors = generateEigenVectors(K=csr_matrix(K), num_eig=num_eig)
+    e_vectors = generateEigenVectors(K=csr_matrix(K), num_eig=num_eig).compute()
     e_vectors = np.array(compute(e_vectors)[0])
     num = 0
     print(np.max(e_vectors[:, num]), np.min(e_vectors[:, num]))

@@ -37,7 +37,7 @@ class ROIExtractionThread(Thread):
         if not any([x.isRunning() for x in self.main_widget.thread_list]):
             print("Starting ROI extraction")
             # self.button.setEnabled(False)
-            self.start()
+            self.run()
         else:
             print(
                 "Previous process in process, please wait to start new one till finished")

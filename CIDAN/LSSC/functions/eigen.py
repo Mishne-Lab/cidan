@@ -4,14 +4,13 @@ import os
 import numpy as np
 from PIL import Image
 from dask import delayed
-from matplotlib import pyplot as plt
 from scipy import sparse
 from scipy.sparse import linalg
 
 from CIDAN.LSSC.SpatialBox import combine_images
 from CIDAN.LSSC.functions.embeddings import calcDInv, calcDSqrt, calcDNegSqrt
 from CIDAN.LSSC.functions.pickle_funcs import pickle_save, pickle_load
-from matplotlib import pyplot as plt
+
 logger1 = logging.getLogger("CIDAN.LSSC.eigen")
 
 
@@ -36,12 +35,13 @@ def generateEigenVectors(*, K: sparse.csr_matrix, num_eig: int, maxiter=7,
     D_neg_sqrt = calcDNegSqrt(D_diag)
     P_transformed = calcDSqrt(D_diag).dot(P).dot(D_neg_sqrt)
     print("Start eigen", num_eig)
+    print(accuracy)
     # eig_values,eig_vectors = eig(P.todense())
     # io.savemat("C:\\Users\\gadge\\Documents\\CIDAN\\inputs\\P.mat", {"array": P)}
 
     eig_values, eig_vectors_scaled = linalg.eigsh(
         P_transformed, num_eig, which="LM",
-        return_eigenvectors=True, maxiter=maxiter,
+        return_eigenvectors=True, maxiter=maxiter * num_eig,
         tol=accuracy)  # this returns normalized eigen vectors
     print("finished eigen")
     # # TODO make first eigen vector be sanity check since all elements are the same
