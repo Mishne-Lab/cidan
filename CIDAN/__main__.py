@@ -38,7 +38,8 @@ def main():
                                                "",
                                                trials=[],
                                                save_dir_already_created=True,
-                                               parameter_file=args.parameter)
+                                               parameter_file=args.parameter,
+                                               load_into_mem=True)
         data_handler.calculate_filters()
         data_handler.calculate_roi_extraction()
         data_handler.export()

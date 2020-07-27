@@ -4,6 +4,7 @@ import os
 import numpy as np
 from PIL import Image
 from dask import delayed
+from matplotlib import pyplot as plt
 from scipy import sparse
 from scipy.sparse import linalg
 
@@ -15,7 +16,8 @@ logger1 = logging.getLogger("CIDAN.LSSC.eigen")
 
 
 @delayed
-def generateEigenVectors(*, K: sparse.csr_matrix, num_eig: int) -> np.ndarray:
+def generateEigenVectors(*, K: sparse.csr_matrix, num_eig: int, maxiter=7,
+                         accuracy=1E-4) -> np.ndarray:
     """Calculate Eigen Vectors given parts of the affinity matrix
 
     Parameters
@@ -39,7 +41,8 @@ def generateEigenVectors(*, K: sparse.csr_matrix, num_eig: int) -> np.ndarray:
 
     eig_values, eig_vectors_scaled = linalg.eigsh(
         P_transformed, num_eig, which="LM",
-        return_eigenvectors=True, tol=1E-4, maxiter=num_eig*7)  # this returns normalized eigen vectors
+        return_eigenvectors=True, maxiter=maxiter,
+        tol=accuracy)  # this returns normalized eigen vectors
     print("finished eigen")
     # # TODO make first eigen vector be sanity check since all elements are the same
     # #  this isn't the case
