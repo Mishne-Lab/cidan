@@ -33,7 +33,8 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                  elbow_threshold_method: bool, elbow_threshold_value: float,
                  eigen_threshold_method: bool,
                  eigen_threshold_value: float, merge_temporal_coef: float,
-                 roi_size_max: int, pca: bool, pca_data: np.ndarray):
+                 roi_size_max: int, pca: bool, pca_data: np.ndarray,
+                 eigen_accuracy: int):
     logger1.debug("""Inputs: num_threads {0},test_images {1}, test_output_dir {2},
                  save_dir {3}, save_intermediate_steps {4},
                  load_data {5}, data_path {6},
@@ -140,7 +141,8 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                                                          1] if pca and False and num_eig >
                                                                pca_data[temporal_box_num].shape[
                                                                    0] else num_eig,
-                                                     accuracy=10 ** (-1 * normalize_w_k)
+                                                     accuracy=10 ** (
+                                                                 -1 * eigen_accuracy)
 
                                                      )
                 if save_intermediate_steps:

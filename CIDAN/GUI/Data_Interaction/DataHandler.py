@@ -89,6 +89,7 @@ class DataHandler:
         "metric": "l2",
         "knn": 32,
         "accuracy": 75,
+        "eigen_accuracy": 5,
         "connections": 40
 
     }
@@ -846,6 +847,8 @@ class DataHandler:
                                          metric=self.eigen_params["metric"],
                                          knn=self.eigen_params["knn"],
                                          accuracy=self.eigen_params["accuracy"],
+                                         eigen_accuracy=self.eigen_params[
+                                             "eigen_accuracy"],
                                          connections=self.eigen_params[
                                              "connections"],
                                          normalize_w_k=self.eigen_params[
