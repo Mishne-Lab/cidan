@@ -381,14 +381,14 @@ def roi_advanced_settings_block(main_widget):
                                             "knn"],
                                         tool_tip="Number of eigen vectors to generate",
                                         min=1, max=10000, step=1),
-                               IntInput(display_name="Normalize w k :",
+                               IntInput(display_name="Eigen Accuracy:",
                                         program_name="normalize_w_k",
                                         on_change_function=lambda x,
                                                                   y: data_handler.change_eigen_param(
                                             x, y),
                                         default_val=data_handler.eigen_params[
-                                            "normalize_w_k"],
-                                        tool_tip="Number of eigen vectors to generate",
+                                            "eigen_accuracy"],
+                                        tool_tip="10^-x accuracy for each eigen vector ",
                                         min=1, max=10000, step=1),
                                IntInput(display_name="max iter:",
                                         program_name="max_iter",
@@ -400,17 +400,17 @@ def roi_advanced_settings_block(main_widget):
                                         tool_tip="Number of eigen vectors to generate",
                                         min=1, max=10000, step=1),
 
-                               IntInput(display_name="Number of time steps:",
-                                        program_name="total_num_time_steps",
-                                        on_change_function=lambda x,
-                                                                  y: data_handler.change_box_param(
-                                            x, y),
-                                        default_val=data_handler.box_params[
-                                            "total_num_time_steps"],
-                                        tool_tip=
-                                        "Number of time steps to break" +
-                                        "the processing into",
-                                        min=1, max=10000, step=1),
+                               # IntInput(display_name="Number of time steps:",
+                               #          program_name="total_num_time_steps",
+                               #          on_change_function=lambda x,
+                               #                                    y: data_handler.change_box_param(
+                               #              x, y),
+                               #          default_val=data_handler.box_params[
+                               #              "total_num_time_steps"],
+                               #          tool_tip=
+                               #          "Number of time steps to break" +
+                               #          "the processing into",
+                               #          min=1, max=10000, step=1),
                                #
                                ]
                               )
