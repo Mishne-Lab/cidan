@@ -266,6 +266,8 @@ if __name__ == "__main__":
     logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG)
     logger = logging.getLogger("CIDAN")
     logger.debug("Program started")
+    QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)  # enable highdpi scaling
+    QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)  # use highdpi icons
     app = QApplication([])
     app.setApplicationName("CIDAN")
     widget = MainWindow(dev=True, preload=True)
