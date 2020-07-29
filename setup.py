@@ -20,7 +20,6 @@ setup(
                       'tifffile', "zarr", "neurofinder", "sklearn", 'pandas'],
     scripts=[
         "CIDAN/LSSC/process_data.py",
-
         "CIDAN/TimeTrace/deltaFOverF.py",
         "CIDAN/TimeTrace/mean.py",
         "CIDAN/TimeTrace/waveletDenoise.py",
