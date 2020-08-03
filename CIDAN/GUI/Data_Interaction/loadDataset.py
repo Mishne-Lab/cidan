@@ -1,6 +1,8 @@
 import logging
 import os
 
+from qtpy import QtWidgets
+
 from CIDAN.GUI.Data_Interaction.DataHandler import DataHandler
 from CIDAN.GUI.Inputs.FileInput import createFileDialog
 
@@ -48,9 +50,13 @@ def load_new_dataset(main_widget, file_path, save_dir_path, trials=None,
                                                        save_dir_already_created=False,
                                                        load_into_mem=load_into_mem)
                 main_widget.init_w_data()
-            except IndentationError as e:
+            except Exception as e:
                 logger1.error(e)
-                print("Loading Failed please make sure it is a valid file")
+                error_dialog = QtWidgets.QErrorMessage(main_widget.main_window)
+                error_dialog.showMessage(
+                    "Loading Failed please make sure it is a valid file")
+                # error_dialog.exec_()
+
         elif not trials:
             try:
                 dir_path = os.path.dirname(file_path)
@@ -62,13 +68,17 @@ def load_new_dataset(main_widget, file_path, save_dir_path, trials=None,
                                                        save_dir_already_created=False,
                                                        load_into_mem=load_into_mem)
                 main_widget.init_w_data()
-            except IndentationError as e:
+            except Exception as e:
                 logger1.error(e)
-                print("Loading Failed please make sure it is a valid file")
+                error_dialog = QtWidgets.QErrorMessage()
+                error_dialog.showMessage(
+                    "Loading Failed please make sure it is a valid file")
+
         elif trials:
             logger1.debug("Trials:" + str(trials))
             if len(trials) == 0:
-                print("Please select at least one trial")
+                error_dialog = QtWidgets.QErrorMessage()
+                error_dialog.showMessage("Please select at least one trial")
             try:
                 main_widget.data_handler = DataHandler(data_path=file_path,
                                                        trials=trials,
@@ -76,9 +86,11 @@ def load_new_dataset(main_widget, file_path, save_dir_path, trials=None,
                                                        save_dir_already_created=False,
                                                        load_into_mem=load_into_mem)
                 main_widget.init_w_data()
-            except IndentationError as e:
+            except Exception as e:
                 logger1.error(e)
-                print(
+                error_dialog = QtWidgets.QErrorMessage()
+                error_dialog.showMessage(
+
                     "Loading Failed please make sure it is a valid folder and all trials"
                     + " are valid files")
 

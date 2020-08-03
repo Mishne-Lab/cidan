@@ -32,8 +32,9 @@ class SettingsModule(QFrame):
 
 def preprocessing_settings(main_widget):
     return SettingsModule("Preprocessing Settings",
-                          filter_setting_block(main_widget),
                           dataset_setting_block_crop(main_widget),
+                          filter_setting_block(main_widget),
+
                           dataset_setting_block(main_widget))
 
 

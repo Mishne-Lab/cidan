@@ -48,22 +48,26 @@ class PreprocessingTab(Tab):
         max_image_button.setText("Max Image")
         max_image_button.clicked.connect(
             lambda: self.set_image_display_list(self.data_handler.trials_loaded,
-                                                self.data_handler.max_images))
+                                                self.data_handler.max_images,
+                                                "Max Image"))
         stack_button = QPushButton()
         stack_button.setText("Filtered Stack")
         stack_button.clicked.connect(
             lambda: self.set_image_display_list(self.data_handler.trials_loaded,
-                                                self.data_handler.dataset_trials_filtered_loaded))
+                                                self.data_handler.dataset_trials_filtered_loaded,
+                                                "Filtered Stack"))
         self.pca_stack_button = QPushButton()
         self.pca_stack_button.setText("PCA Stack")
         self.pca_stack_button.clicked.connect(
             lambda: self.set_image_display_list(self.data_handler.trials_loaded,
-                                                self.data_handler.pca_decomp))
+                                                self.data_handler.pca_decomp,
+                                                "PCA Stack"))
         mean_image_button = QPushButton()
         mean_image_button.setText("Mean Image")
         mean_image_button.clicked.connect(
             lambda: self.set_image_display_list(self.data_handler.trials_loaded,
-                                                self.data_handler.mean_images))
+                                                self.data_handler.mean_images,
+                                                "Mean Image"))
 
         self._image_buttons_layout.addWidget(stack_button)
         self._image_buttons_layout.addWidget(max_image_button)
@@ -88,7 +92,8 @@ class PreprocessingTab(Tab):
     @property
     def data_handler(self):
         return self.main_widget.data_handler
-    def set_image_display_list(self, trial_names, data_list):
+
+    def set_image_display_list(self, trial_names, data_list, name):
         """
         Sets the preprocessing image display to use an option input and set data list
         Parameters
@@ -117,6 +122,18 @@ class PreprocessingTab(Tab):
                                                 show_name=False)
         self._image_buttons_layout.addWidget(self.trial_selector_input)
         set_image("", trial_names[0])
+        if len(data_list[0]) == 3:
+            cur_size = [str(data_list[0].shape[1]), str(data_list[0].shape[2])]
+        else:
+            cur_size = [str(data_list[0].shape[0]), str(data_list[0].shape[1])]
+        if hasattr(self.data_handler, "total_size"):
+            total_size = (
+            str(self.data_handler.total_size[0]), str(self.data_handler.total_size[1]))
+        else:
+            total_size = [0, 0]
+        self.image_view.image_label.setText(
+            name + ", Original Size: (%s, %s), Cropped Size: (%s, %s)" % (
+            total_size[1], total_size[0], cur_size[1], cur_size[0]))
 
     def set_image_display(self, data):
         self.trial_selector_input.setParent(None)
@@ -133,4 +150,4 @@ class PreprocessingTab(Tab):
         if (self.main_widget.checkThreadRunning()):
             self.pca_stack_button.setEnabled(self.data_handler.filter_params["pca"])
             self.set_image_display_list(self.data_handler.trials_loaded,
-                                        self.data_handler.max_images)
+                                        self.data_handler.max_images, "Max Image")

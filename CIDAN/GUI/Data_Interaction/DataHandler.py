@@ -16,6 +16,7 @@ from CIDAN.LSSC.functions.data_manipulation import load_filter_tif_stack, filter
     reshape_to_2d_over_time, pixel_num_to_2d_cord, applyPCA
 from CIDAN.LSSC.functions.eigen import loadEigenVectors
 from CIDAN.LSSC.functions.pickle_funcs import *
+from CIDAN.LSSC.functions.progress_bar import printProgressBarFilter
 from CIDAN.LSSC.functions.roi_extraction import roi_extract_image, combine_rois
 from CIDAN.LSSC.functions.roi_filter import filterRoiList
 from CIDAN.LSSC.process_data import process_data
@@ -559,7 +560,7 @@ class DataHandler:
         -------
         Trial as a np.ndarray
         """
-        return load_filter_tif_stack(
+        total_size, stack = load_filter_tif_stack(
             path=os.path.join(self.dataset_params["dataset_folder_path"],
                               self.trials_all[trial_num] if not self.dataset_params[
                                   "trial_split"] else self.dataset_params[
@@ -584,6 +585,8 @@ class DataHandler:
             trial_split=self.dataset_params["trial_split"],
             trial_split_length=self.dataset_params["trial_length"], trial_num=trial_num
         )
+        self.total_size = total_size
+        return stack
 
     @delayed
     def load_trial_filter_step(self, trial_num, dataset=False, loaded_num=False):
@@ -644,6 +647,7 @@ class DataHandler:
                     "median_filter"],
                 z_score=self.filter_params["z_score"],
                 hist_eq=self.filter_params["hist_eq"])
+
             if type(loaded_num) != bool:
                 self.mean_images[loaded_num] = np.mean(cur_stack, axis=0)
                 self.max_images[loaded_num] = np.max(cur_stack, axis=0)
@@ -659,6 +663,15 @@ class DataHandler:
                                chunks=(3, 64, 64))
                 z2[:] = pca
                 self.pca_decomp[loaded_num] = z2
+        with open(os.path.join(self.save_dir_path,
+                               'temp_files/filter/%s' % self.trials_all[
+                                   trial_num]), "w") as f:
+            f.write("done")
+        printProgressBarFilter(
+            total_num_spatial_boxes=self.box_params["total_num_spatial_boxes"],
+            total_num_time_steps=self.box_params["total_num_time_steps"],
+            save_dir=self.save_dir_path)
+
         if self.load_into_mem:
             return cur_stack
         else:
@@ -677,9 +690,21 @@ class DataHandler:
                 not hasattr(self, "dataset_trials_filtered"):
 
             print("Started Calculating Filters")
+
             self.update_trial_list()
+            save_dir = self.save_dir_path
+            if not os.path.isdir(os.path.join(save_dir, "temp_files/filter")):
+                os.mkdir(os.path.join(save_dir, "temp_files/filter"))
+            filelist = [f for f in
+                        os.listdir(os.path.join(save_dir, "temp_files/filter"))]
+            for f in filelist:
+                os.remove(
+                    os.path.join(os.path.join(save_dir, "temp_files/filter"), f))
 
-
+            printProgressBarFilter(
+                total_num_spatial_boxes=self.box_params["total_num_spatial_boxes"],
+                total_num_time_steps=self.box_params["total_num_time_steps"],
+                save_dir=self.save_dir_path)
 
             self.dataset_trials_filtered = [False] * len(self.trials_all)
             if self.filter_params["pca"]:
@@ -687,7 +712,6 @@ class DataHandler:
             self.max_images = [False] * len(self._trials_loaded_indices)
             self.mean_images = [False] * len(self._trials_loaded_indices)
             if not self.load_into_mem:
-
                 for num, trial_num in enumerate(self._trials_loaded_indices):
                     self.dataset_trials_filtered[trial_num] = self.load_trial_filter_step(
                         trial_num, self.load_trial_dataset_step(trial_num), loaded_num = num)
@@ -711,17 +735,34 @@ class DataHandler:
                 self.dataset_params["crop_x"][1] = self.shape[0]
                 self.dataset_params["crop_y"][1] = self.shape[1]
             mean_image_stack = np.dstack(self.mean_images)
+            with open(os.path.join(self.save_dir_path,
+                                   'temp_files/filter/mean'), "w") as f:
+                f.write("done")
+            printProgressBarFilter(
+                total_num_spatial_boxes=self.box_params["total_num_spatial_boxes"],
+                total_num_time_steps=self.box_params["total_num_time_steps"],
+                save_dir=self.save_dir_path)
+
             max_image_stack = np.dstack(self.max_images)
+            with open(os.path.join(self.save_dir_path,
+                                   'temp_files/filter/max'), "w") as f:
+                f.write("done")
             mean_image_zarr = zarr.open(os.path.join(self.save_dir_path,
                                                      'temp_files/mean.zarr'), mode='w',
                                         shape=mean_image_stack.shape,
                                         chunks=(40, 40, 1))
             mean_image_zarr[:] = mean_image_stack
+
             max_image_zarr = zarr.open(os.path.join(self.save_dir_path,
                                                     'temp_files/max.zarr'), mode='w',
                                        shape=mean_image_stack.shape,
                                        chunks=(40, 40, 1))
             max_image_zarr[:] = max_image_stack
+            printProgressBarFilter(
+                total_num_spatial_boxes=self.box_params["total_num_spatial_boxes"],
+                total_num_time_steps=self.box_params["total_num_time_steps"],
+                save_dir=self.save_dir_path)
+
             # self.mean_images = [np.mean(x[:], axis=0) for x in
             #                     self.dataset_trials_filtered_loaded]
             #
@@ -1144,6 +1185,8 @@ class DataHandler:
 
         return final_roi
 
+    def calculate_statistics(self):
+        pass
     def export(self):
         temp_type = self.time_trace_params["time_trace_type"]
         for time_type in ["Mean", "DeltaF Over F"]:
@@ -1151,6 +1194,7 @@ class DataHandler:
                 self.time_trace_params["denoise"] = denoise
                 self.time_trace_params["time_trace_type"] = time_type
                 self.calculate_time_traces()
+        self.calculate_statistics()
         self.time_trace_params["time_trace_type"] = temp_type
         self.save_rois(self.rois)
         roi_save_object = []

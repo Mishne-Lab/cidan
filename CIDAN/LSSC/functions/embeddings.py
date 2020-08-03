@@ -1,25 +1,29 @@
 import os
+from typing import Tuple
 
-# from matplotlib import pyplot as plt
-
+import hnswlib as hnsw
+import numpy as np
 # os.environ["OMP_NUM_THREADS"] = "10"  # export OMP_NUM_THREADS=4
 # os.environ["OPENBLAS_NUM_THREADS"] = "10"  # export OPENBLAS_NUM_THREADS=4
 # os.environ["MKL_NUM_THREADS"] = "10"  # export MKL_NUM_THREADS=6
 # os.environ["VECLIB_MAXIMUM_THREADS"] = "10"  # export VECLIB_MAXIMUM_THREADS=4
 # os.environ["NUMEXPR_NUM_THREADS"] = "10"  # export NUMEXPR_NUM_THREADS=6
 import scipy.sparse as sparse
-import hnswlib as hnsw
-import numpy as np
-from typing import Tuple
-
 from dask import delayed
+
+from CIDAN.LSSC.functions.progress_bar import printProgressBarROI
+
+
+# from matplotlib import pyplot as plt
 
 
 @delayed
 def calcAffinityMatrix(*, pixel_list: np.ndarray, metric: str, knn: int,
                        accuracy: int, connections: int, normalize_w_k: int,
                        num_threads:
-                       int, spatial_box_num: int, temporal_box_num: int):
+                       int, spatial_box_num: int, temporal_box_num: int,
+                       total_num_spatial_boxes: int, total_num_time_steps: int,
+                       save_dir: str):
     """
     Calculates an pairwise affinity matrix for the image stack
     Parameters
@@ -40,8 +44,8 @@ def calcAffinityMatrix(*, pixel_list: np.ndarray, metric: str, knn: int,
 
     dim = pixel_list.shape[1]
     num_elements = pixel_list.shape[0]
-    print("Spatial Box {}, Time Step {}: Started Processing".format(spatial_box_num,
-                                                                    temporal_box_num))
+    # print("Spatial Box {}, Time Step {}: Started Processing".format(spatial_box_num,
+    #                                                                 temporal_box_num))
     knn_graph = hnsw.Index(space=metric, dim=dim)
     knn_graph.init_index(max_elements=num_elements, ef_construction=accuracy,
                          M=connections)
@@ -102,8 +106,12 @@ def calcAffinityMatrix(*, pixel_list: np.ndarray, metric: str, knn: int,
     K_sym = (K + K.transpose()) / 2
     # K_sym[np.arange(0, num_elements, 1),np.arange(0, num_elements, 1)] = 0
     # save_image(K_sym.todense(),0)
-    print(str(temporal_box_num)+" "+str(spatial_box_num) + "  " + str(
-        np.count_nonzero(K_sym.diagonal()) / K_sym.diagonal().shape[0]))
+    # print(str(temporal_box_num)+" "+str(spatial_box_num) + "  " + str(
+    #     np.count_nonzero(K_sym.diagonal()) / K_sym.diagonal().shape[0]))
+    with open(os.path.join(save_dir, "temp_files/embedding/s_%s_t_%s" % (
+    str(spatial_box_num), str(temporal_box_num))), "w") as f:
+        f.write("done")
+    printProgressBarROI(total_num_spatial_boxes, total_num_time_steps, save_dir)
     return K_sym
 
 

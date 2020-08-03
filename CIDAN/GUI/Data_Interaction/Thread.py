@@ -17,6 +17,6 @@ class Thread(QThread):
     def endThread(self, success):
         pass
 
-    def __del__(self):
-        self.exiting = True
-        self.wait()
+    # def __del__(self):
+    #     self.exiting = True
+    #     self.wait()

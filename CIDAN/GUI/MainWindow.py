@@ -154,7 +154,7 @@ class MainWidget(QWidget):
                     trials=["small_dataset1.tif"],
                     save_dir_already_created=True)
                 self.init_w_data()
-            except AttributeError:
+            except IndentationError:
                 pass
         if False and dev:
             # auto loads a large dataset
@@ -266,8 +266,10 @@ if __name__ == "__main__":
     logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG)
     logger = logging.getLogger("CIDAN")
     logger.debug("Program started")
+    QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)  # enable highdpi scaling
+    QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)  # use highdpi icons
     app = QApplication([])
     app.setApplicationName("CIDAN")
-    widget = MainWindow(dev=True, preload=False)
+    widget = MainWindow(dev=True, preload=True)
 
     sys.exit(app.exec_())

@@ -1,3 +1,4 @@
+import os
 from functools import reduce
 from typing import List, Tuple
 
@@ -9,6 +10,7 @@ from scipy.sparse.csgraph import connected_components as connected_components_gr
 from skimage import measure
 
 from CIDAN.LSSC.functions.embeddings import embedEigenSqrdNorm
+from CIDAN.LSSC.functions.progress_bar import printProgressBarROI
 
 
 @delayed
@@ -19,7 +21,9 @@ def roi_extract_image(*, e_vectors: np.ndarray,
                       elbow_threshold_method: bool, elbow_threshold_value: float,
                       eigen_threshold_method: bool,
                       eigen_threshold_value: float, merge_temporal_coef: float,
-                      roi_size_limit: int, box_num: int, initial_pixel=-1,
+                      roi_size_limit: int, box_num: int, total_num_spatial_boxes=0,
+                      total_num_time_steps=0, save_dir=0, print_progress=False,
+                      initial_pixel=-1,
                       print_info=True) -> List[
     np.ndarray]:
     """
@@ -70,8 +74,8 @@ def roi_extract_image(*, e_vectors: np.ndarray,
                           np.array  of pixels roi 2] ... ]
     It will have length num_rois unless max_iter amount is surpassed
     """
-    if print_info:
-        print("Spatial Box {}: Starting ROI selection process".format(box_num))
+    # if print_info:
+    #     print("Spatial Box {}: Starting ROI selection process".format(box_num))
     pixel_length = e_vectors.shape[0]
     if len(original_shape) == 2:
         original_shape = (1, original_shape[0], original_shape[1])
@@ -209,6 +213,11 @@ def roi_extract_image(*, e_vectors: np.ndarray,
         if fill_holes:
             roi_list = fill_holes_func(roi_list, pixel_length, original_shape)
     # print("Went through " + str(total_counter) + " iterations")
+    if print_progress:
+        with open(os.path.join(save_dir, "temp_files/rois/s_%s" % str(box_num)),
+                  "w") as f:
+            f.write("done")
+        printProgressBarROI(total_num_spatial_boxes, total_num_time_steps, save_dir)
     return roi_list
 
 
