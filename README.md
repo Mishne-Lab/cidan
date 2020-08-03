@@ -16,7 +16,7 @@ If you encounter an error in the installation of hnswlib, please install Microso
 If you encounter another issue in the installation or running of the package, please post the issue to the github repo and we will get back to you.
 
 # Examples
-We have uploaded an example dataset to google drive which is available here. Also you can use the data from NeuroFinder, if you want more datasets. 
+We suggest using the data from NeuroFinder for example datasets. Link: http://neurofinder.codeneuro.org
 
 # Guide to the GUI
 1. **First make sure your data is ready to be ingested by CIDAN.** It currently only accepts tiff files. We also require the data to be pre-registered. Please make sure your data is in one of the accepted formats: 
