@@ -17,9 +17,9 @@ class PreprocessThread(Thread):
 
     def run(self):
         if self.main_widget.dev:
-        # try:
-        self.data_handler.calculate_filters()
-        self.signal.sig.emit(True)
+
+            self.data_handler.calculate_filters()
+            self.signal.sig.emit(True)
         else:
             try:
                 self.data_handler.calculate_filters()
