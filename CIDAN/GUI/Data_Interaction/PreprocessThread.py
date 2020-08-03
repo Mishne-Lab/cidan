@@ -1,4 +1,7 @@
 import logging
+import sys
+
+from qtpy import QtWidgets
 
 from CIDAN.GUI.Data_Interaction.Thread import Thread
 
@@ -13,13 +16,20 @@ class PreprocessThread(Thread):
         self.signal.sig.connect(lambda x: self.endThread(x))
 
     def run(self):
+        if self.main_widget.dev:
         # try:
         self.data_handler.calculate_filters()
         self.signal.sig.emit(True)
-        # except Exception as e:
-        #     logger.error(e)
-        #     print("Unexpected error:", sys.exc_info()[0])
-        #     self.signal.sig.emit(False)
+        else:
+            try:
+                self.data_handler.calculate_filters()
+                self.signal.sig.emit(True)
+            except Exception as e:
+                logger.error(e)
+                print("Unexpected error:", sys.exc_info()[0])
+                error_dialog = QtWidgets.QErrorMessage()
+                error_dialog.showMessage("Unexpected error: " + str(e))
+                self.signal.sig.emit(False)
 
     def runThread(self):
 

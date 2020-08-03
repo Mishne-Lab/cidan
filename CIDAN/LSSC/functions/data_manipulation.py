@@ -1,7 +1,6 @@
 import os
 from typing import Tuple, List
 
-import matplotlib.pyplot as plt
 import numpy as np
 import tifffile
 from PIL import Image
@@ -33,6 +32,7 @@ def load_filter_tif_stack(*, path, filter: bool, median_filter: bool,
     a 3D numpy array with the tiff files together or a zarr array if not loading into memory
 
     """
+    size = [0, 0]
     if os.path.isdir(path):
         volumes = []
         paths = path if type(path) == list else sorted(os.listdir(path))
@@ -44,6 +44,7 @@ def load_filter_tif_stack(*, path, filter: bool, median_filter: bool,
         for num, x in enumerate(paths):
             file_path = x if type(path) == list else os.path.join(path, x)
             image = tifffile.imread(file_path)
+            size = [image.shape[0], image.shape[1]]
             if len(image.shape) == 2:
                 image = image.reshape((1, image.shape[0], image.shape[1]))
             if slice_stack:
@@ -63,6 +64,7 @@ def load_filter_tif_stack(*, path, filter: bool, median_filter: bool,
     elif os.path.isfile(path):
         # return ScanImageTiffReader(path).data()
         image = tifffile.imread(path)
+        size = [image.shape[0], image.shape[1]]
         if len(image.shape) == 2:
             image = image.reshape((1, image.shape[0], image.shape[1]))
         if slice_stack:
@@ -75,7 +77,7 @@ def load_filter_tif_stack(*, path, filter: bool, median_filter: bool,
         image = image.astype(np.float32)
     else:
         raise Exception("Invalid Inputs ")
-    return image
+    return size, image
     # zarr_array = zarr.open('data/example.zarr', mode='w', shape=(10000, 10000),
     #          chunks=(1000, 1000), dtype='i4')
 

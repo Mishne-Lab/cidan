@@ -1,4 +1,5 @@
 import logging
+import os
 from functools import reduce
 from typing import List
 
@@ -12,6 +13,7 @@ from CIDAN.LSSC.functions.data_manipulation import reshape_to_2d_over_time, \
 from CIDAN.LSSC.functions.eigen import generateEigenVectors, saveEigenVectors, \
     loadEigenVectors, saveEmbedingNormImage, createEmbedingNormImageFromMultiple
 from CIDAN.LSSC.functions.embeddings import calcAffinityMatrix
+from CIDAN.LSSC.functions.progress_bar import printProgressBarROI
 from CIDAN.LSSC.functions.roi_extraction import roi_extract_image, merge_rois
 from CIDAN.LSSC.functions.save_test_images import save_roi_images
 
@@ -80,10 +82,27 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
     # TODO Rewrite to take in a list of loaded datasets
 
     # TODO add assertions to make sure input splits work for dataset
+    if save_intermediate_steps and not eigen_vectors_already_generated:
+        filelist = [f for f in os.listdir(os.path.join(save_dir, "eigen_vectors"))]
+        for f in filelist:
+            os.remove(os.path.join(os.path.join(save_dir, "eigen_vectors"), f))
 
+    if not os.path.isdir(os.path.join(save_dir, "temp_files/embedding")):
+        os.mkdir(os.path.join(save_dir, "temp_files/embedding"))
+    if not os.path.isdir(os.path.join(save_dir, "temp_files/rois")):
+        os.mkdir(os.path.join(save_dir, "temp_files/rois"))
+    filelist = [f for f in os.listdir(os.path.join(save_dir, "temp_files/embedding"))]
+    for f in filelist:
+        os.remove(os.path.join(os.path.join(save_dir, "temp_files/embedding"), f))
+    filelist = [f for f in os.listdir(os.path.join(save_dir, "temp_files/rois"))]
+    for f in filelist:
+        os.remove(os.path.join(os.path.join(save_dir, "temp_files/rois"), f))
     shape = [image_data[0].shape[1], image_data[0].shape[2]]
     logger1.debug("image shape {0}".format(shape))
-    print("Creating {} spatial boxes".format(total_num_spatial_boxes))
+    # print("Creating {} spatial boxes".format(total_num_spatial_boxes))
+    printProgressBarROI(total_num_spatial_boxes=total_num_spatial_boxes,
+                        total_num_time_steps=total_num_time_steps,
+                        save_dir=save_dir)
     spatial_boxes = [SpatialBox(box_num=x, total_boxes=total_num_spatial_boxes,
                                 spatial_overlap=spatial_overlap, image_shape=shape)
                      for x in range(total_num_spatial_boxes)]
@@ -135,7 +154,9 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                     normalize_w_k=25,
                     num_threads=num_threads,
                     spatial_box_num=spatial_box.box_num,
-                    temporal_box_num=temporal_box_num)
+                    temporal_box_num=temporal_box_num,
+                    total_num_spatial_boxes=total_num_spatial_boxes,
+                    total_num_time_steps=total_num_time_steps, save_dir=save_dir)
                 eigen_vectors = generateEigenVectors(K=k,
                                                      num_eig=time_box_data_2d_pca.shape[
                                                          1] if pca and False and num_eig >
@@ -149,7 +170,8 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                     eigen_vectors = saveEigenVectors(e_vectors=eigen_vectors,
                                                      spatial_box_num=spatial_box.box_num,
                                                      time_box_num=temporal_box_num,
-                                                     save_dir=save_dir)
+                                                     save_dir=save_dir,
+                                                     total=total_num_time_steps * total_num_spatial_boxes)
 
                 all_eigen_vectors_list.append(eigen_vectors)
                 if test_images:
@@ -190,7 +212,10 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                                  eigen_threshold_value=eigen_threshold_value,
                                  merge_temporal_coef=merge_temporal_coef,
                                  roi_size_limit=roi_size_max,
-                                 box_num=spatial_box.box_num)
+                                 box_num=spatial_box.box_num, print_progress=True,
+                                 total_num_time_steps=total_num_time_steps,
+                                 total_num_spatial_boxes=total_num_spatial_boxes,
+                                 save_dir=save_dir)
         if test_images:
             pass
             # delayed(save_roi_images)(

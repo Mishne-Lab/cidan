@@ -14,7 +14,7 @@ logger1 = logging.getLogger("CIDAN.ImageView.ROIImageViewModule")
 class ROIImageViewModule(ImageViewModule):
     # QApplication.mouseButtons() == Qt.LeftButton
     def __init__(self, main_widget, tab, settings_tab=True):
-        super(ROIImageViewModule, self).__init__(main_widget, histogram=False)
+        super(ROIImageViewModule, self).__init__(main_widget, histogram=True)
         self.tab = tab
         self.resetting_view = False  # Way to prevent infinite loops of reset_view
         self.current_foreground_intensity = 80
@@ -277,9 +277,9 @@ class ROIImageViewModule(ImageViewModule):
 
         min_cord = self.main_widget.data_handler.roi_min_cord_list[num] - 15
 
-        self.image_view.getView().setXRange(min_cord[1],
+        self.image_view.getView().setYRange(min_cord[1],
                                             max_cord[1])
-        self.image_view.getView().setYRange(min_cord[0],
+        self.image_view.getView().setXRange(min_cord[0],
                                             max_cord[0])
 
     def roi_view_click(self, event):
@@ -437,6 +437,31 @@ class ROIImageViewModule(ImageViewModule):
                     self.data_handler.trials_loaded)
 
             self.set_background("", self.current_background_name, update_image=False)
+
             if (updateDisplay):
                 self.updateImageDisplay(new=True)
             self.resetting_view = False
+
+    def setImage(self, data):
+
+        # if self.already_loaded == False:
+        #     print("changed image")
+        #     self.already_loaded = True
+        #     self.layout.removeWidget(self.no_image_message)
+        #     self.no_image_message.deleteLater()
+        #     # self.layout.setAlignment(Qt.AlignLeft)
+        #     self.image_view = ImageView()
+        #
+        #     self.layout.addWidget(self.image_view)
+        # bottom_5 = np.percentile(data, 5)
+        # top_5 = np.percentile(data, 95)
+        # top_10 = np.percentile(data, 90)
+        # bottom_2 = np.percentile(data, 2)
+        # top_2 = np.percentile(data, 98)
+        # data[data>top_10] = top_10
+        self.image_view.setImage(data, levelMode='mono', autoRange=True,
+                                 autoLevels=True, autoHistogramRange=True)
+        # self.top_2 = np.percentile(data, 98)
+        # self.bottom_5 = np.percentile(data, 5)
+        # self.image_view.setLevels(bottom_5, top_2)
+        # self.image_view.setHistogramRange(bottom_2, top_2)

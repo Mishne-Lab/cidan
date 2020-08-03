@@ -46,6 +46,26 @@ def filter_setting_block(main_widget):
                                              "localSpatialDenoising"],
                                          tool_tip="Whether to apply a denoising algorithm",
                                          ),
+
+                               BoolInput(
+                                   display_name="Z-score:",
+                                   program_name="z_score",
+                                   on_change_function=lambda x,
+                                                             y: data_handler.change_filter_param(
+                                       x, y),
+                                   default_val=
+                                   data_handler.filter_params["z_score"],
+                                   tool_tip="Whether to apply a z-score for each pixel across all the timesteps",
+                               ),
+                               BoolInput(display_name="Histogram Equalization Method:",
+                                         program_name="hist_eq",
+                                         on_change_function=lambda x,
+                                                                   y: data_handler.change_filter_param(
+                                             x, y),
+                                         default_val=data_handler.filter_params[
+                                             "hist_eq"],
+                                         tool_tip="Whether to apply our histogram equalization method",
+                                         ),
                                BoolInput(display_name="Median filter:",
                                          program_name="median_filter",
                                          on_change_function=lambda x,
@@ -66,25 +86,6 @@ def filter_setting_block(main_widget):
                                        "median_filter_size"],
                                    tool_tip="The size of the median filter for each timestep",
                                    min=1, max=50, step=1),
-                               BoolInput(
-                                   display_name="Z-score:",
-                                   program_name="z_score",
-                                   on_change_function=lambda x,
-                                                             y: data_handler.change_filter_param(
-                                       x, y),
-                                   default_val=
-                                   data_handler.filter_params["z_score"],
-                                   tool_tip="Whether to apply a z-score for each pixel across all the timesteps",
-                               ),
-                               BoolInput(display_name="Histogram Equalization Method:",
-                                         program_name="hist_eq",
-                                         on_change_function=lambda x,
-                                                                   y: data_handler.change_filter_param(
-                                             x, y),
-                                         default_val=data_handler.filter_params[
-                                             "hist_eq"],
-                                         tool_tip="Whether to apply our histogram equalization method",
-                                         ),
                                BoolInput(display_name="PCA:",
                                          program_name="pca",
                                          on_change_function=lambda x,
@@ -154,16 +155,16 @@ def dataset_setting_block_crop(main_widget):
                                              "crop_stack"],
                                          tool_tip="Used to crop image stack",
                                          display_tool_tip=False),
-                               IntRangeInput(display_name="Crop X:",
+                               IntRangeInput(display_name="Crop Row:",
                                              program_name="crop_y",
                                              on_change_function=lambda x,
                                                                        y: data_handler.change_dataset_param(
                                                  x, y),
                                              default_val=data_handler.dataset_params[
                                                  "crop_y"],
-                                             tool_tip="Crop in x direction",
+                                             tool_tip="Crop rows",
                                              min=0, max=10000, step=1),
-                               IntRangeInput(display_name="Crop Y:",
+                               IntRangeInput(display_name="Crop Column:",
                                              # different because the way we display images is weird x is first dim y is second dim
                                              program_name="crop_x",
                                              on_change_function=lambda x,
@@ -171,7 +172,7 @@ def dataset_setting_block_crop(main_widget):
                                                  x, y),
                                              default_val=data_handler.dataset_params[
                                                  "crop_x"],
-                                             tool_tip="Crop in x direction",
+                                             tool_tip="Crop columns",
                                              min=0, max=100000, step=1),
                                ] + ([BoolInput(
                                   display_name="Split into trials(recomended):",
@@ -344,7 +345,7 @@ def roi_advanced_settings_block(main_widget):
                                    data_handler.roi_extraction_params[
                                        "merge"],
                                    tool_tip="Whether to merge rois with similar time traces"),
-                               IntInput(display_name="ROI Circuity Threshold:",
+                               IntInput(display_name="ROI Eccentricity Threshold:",
                                         program_name="roi_circ_threshold",
                                         on_change_function=lambda x,
                                                                     y: data_handler.change_roi_extraction_param(

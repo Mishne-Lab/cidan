@@ -1,5 +1,7 @@
 import logging
 
+from qtpy import QtWidgets
+
 from CIDAN.GUI.Data_Interaction.Thread import Thread
 
 logger = logging.getLogger("CIDAN.GUI.Data_Interaction.ROIExctractionThread")
@@ -25,9 +27,12 @@ class ROIExtractionThread(Thread):
                 self.signal.sig.emit(True)
             except AttributeError as e:
                 if (type(e) == AssertionError):
-                    print(e.args[0])
+                    error_dialog = QtWidgets.QErrorMessage()
+                    error_dialog.showMessage("Unexpected error: " + str(e.args[0]))
                 else:
-                    print("Something weird happened please reload and try again")
+                    error_dialog = QtWidgets.QErrorMessage()
+                    error_dialog.showMessage(
+                        "Something weird happened please reload and try again")
                 self.main_widget.data_handler.global_params[
                     "need_recalc_eigen_params"] = True
                 logger.error(str(e))

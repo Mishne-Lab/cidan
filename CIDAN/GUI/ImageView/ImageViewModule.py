@@ -1,4 +1,5 @@
-from pyqtgraph import ImageView
+import numpy as np
+from pyqtgraph import ImageView, PlotItem
 from qtpy import QtCore, QtGui
 from qtpy.QtWidgets import *
 
@@ -19,17 +20,18 @@ class ImageViewModule(QFrame):
         #                    "75);} ")
         self.setStyleSheet("ImageViewModule {margin:0px; border:0px  solid rgb(50, 65, "
                            "75); padding: 0px;} ")
-        self.layout = QHBoxLayout()
+        self.layout = QVBoxLayout()
         self.layout.setContentsMargins(0, 0, 0, 0)
 
         # self.layout.setAlignment(Qt.AlignHCenter)
-
+        self.image_label = QLabel()
+        self.layout.addWidget(self.image_label)
         self.setLayout(self.layout)
         # self.already_loaded = True
         # self.no_image_message = QPushButton("Please open a dataset first")
         # self.no_image_message.clicked.connect(main_widget.open_file_dialog)
         # self.no_image_message.setStyleSheet("QPushButton {font-size:80;}")
-        self.image_view = ImageView()
+        self.image_view = ImageView(view=PlotItem())
         self.image_view.keyPressEvent = self.keyPressEvent
         self.image_view.ui.layoutWidget.setContentsMargins(0, 0, 0, 0)
         # self.image_view.ui.roiBtn.hide()
@@ -86,3 +88,9 @@ class ImageViewModule(QFrame):
         #     self.layout.addWidget(self.image_view)
         self.image_view.setImage(data, levelMode='mono', autoRange=True,
                                  autoLevels=True, autoHistogramRange=True)
+        bottom_5 = np.percentile(data, 5)
+        top_5 = np.percentile(data, 95)
+        bottom_2 = np.percentile(data, 2)
+        top_2 = np.percentile(data, 98)
+        self.image_view.setLevels(bottom_5, top_5)
+        self.image_view.setHistogramRange(bottom_2, top_2)

@@ -154,7 +154,7 @@ class MainWidget(QWidget):
                     trials=["small_dataset1.tif"],
                     save_dir_already_created=True)
                 self.init_w_data()
-            except AttributeError:
+            except IndentationError:
                 pass
         if False and dev:
             # auto loads a large dataset
@@ -268,6 +268,6 @@ if __name__ == "__main__":
     logger.debug("Program started")
     app = QApplication([])
     app.setApplicationName("CIDAN")
-    widget = MainWindow(dev=True, preload=False)
+    widget = MainWindow(dev=True, preload=True)
 
     sys.exit(app.exec_())
