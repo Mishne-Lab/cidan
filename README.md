@@ -2,7 +2,7 @@
 CIDAN or Calcium Image Data Analysis is a full-feature application for preprocessing, cell detection, and time trace analysis of 2-photon calcium imaging data of the brain. 
 
 # Install Instructions
-1. Make sure you have Anaconda installed.
+1. Make sure you have Anaconda installed. If on windows also install Microsoft C++ build tools: https://visualstudio.microsoft.com/visual-cpp-build-tools/ 
 2. Run these commands:
 
 ```
@@ -11,9 +11,8 @@ conda activate CIDAN
 pip install CIDAN
 python -m CIDAN
 ```
-If you encounter an error in the installation of hnswlib, please install Microsoft C++ build tools: https://visualstudio.microsoft.com/visual-cpp-build-tools/ 
 
-If you encounter another issue in the installation or running of the package, please post the issue to the github repo and we will get back to you.
+If you encounter another issue in the installation or running of the package, first try rerunning 'pip install CIDAN'. If this doesn't fix the problem, please post the issue to the github repo and we will get back to you.
 
 # Examples
 We suggest using the data from NeuroFinder for example datasets. Link: http://neurofinder.codeneuro.org
@@ -30,9 +29,9 @@ python -m CIDAN
 ~~~ 
 **_Note the GUI will periodically freeze after you preform intensive computational actions (opening, filtering, cropping, extracting ROIs). You can view the progress of these calculations in the terminal with the provided progress bar_ <br/>**<br/>
 3. **Use the *Open Dataset* tab to open the dataset.** The *Save Directory* is where we save intermediate steps and where we export all results. You can open a previous save using the *Open Previous Save* sub-tab.<br/><br/>
-4. **Next use the *Preprocessing* tab to apply a filter.** We suggest trying at least the median filter. Z-score and histogram equalization are applied to each trial. We also suggest applying a crop to the dataset and experimenting on a small section of the data to hone in on settings before running the algorithm on the entire dataset. <br/><img src="https://github.com/Mishne-Lab/CIDAN/blob/master/images/Preprocessing.png" width="400">
+4. **Next use the *Preprocessing* tab to apply a filter.** We suggest trying at least the local spatial denoising and the median filter. Z-score and histogram equalization are applied to each trial individually. The filters are run in the order listed in the GUI. We also suggest applying a crop to the dataset and experimenting on a small section of the data to hone in on settings before running the algorithm on the entire dataset. For 512x512x1000 on a macbook pro applying a local spatial denoising filter, z-score, and median filter takes around 3 minutes. <br/><img src="https://github.com/Mishne-Lab/CIDAN/blob/master/images/Preprocessing.png" width="400">
 
-5. **Use the *ROI Extraction* tab to extract the cells.** Next we walk through the settings that are important in each section:
+5. **Use the *ROI Extraction* tab to extract the cells.** This should take around 5 minutes with the default settings on a 512x512x1000 dataset. Next we walk through the settings that are important in each section:
     - **Multiprocessing Settings:** The number of spatial boxes is required to be a square number. We recommend that each spatial box is about 200x200 pixels. Each spatial box is processed in parallel and then results are combined. The spatial overlap of 60 should be fine for most cases but if you experience many ROI's that have straight edges this number should be increased. 
     - **ROI Extraction Settings:** The settings for this section are mostly self explanatory. The “merge temporal coefficient” lets you control if two overlapping ROIs are merged based on the Pearson correlation of their time traces. The lower the number the greater the difference. 
     - **Advanced Settings:** There are two important settings here: Eigen vector number and number of timesteps. The default amount of eigen vectors will usually work but if the result isn't detecting all the ROIs, we recommend increasing this number to 75 or 100. If when you look at the eigen norm image, present in the ROI Display Settings, the image doesn't express the ROI's well then increase the Eigen Accuracy to 7 or 8.<br/> <img src="https://github.com/Mishne-Lab/CIDAN/blob/master/images/ROI%20Extraction.png" width="400">
