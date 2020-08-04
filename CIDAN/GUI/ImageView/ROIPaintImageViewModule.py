@@ -1,6 +1,7 @@
 import logging
 
 import numpy as np
+from PySide2.QtWidgets import QErrorMessage
 from qtpy import QtCore
 
 from CIDAN.GUI.ImageView.ROIImageViewModule import ROIImageViewModule
@@ -46,8 +47,10 @@ class ROIPaintImageViewModule(ROIImageViewModule):
 
                 else:
                     super().roi_view_click(event)
-            else:
-                print("Something has changed, please regenerate ROIs")
+            elif self.select_pixel_on or self.select_mode == "magic":
+                error_dialog = QErrorMessage(self.main_widget.main_window)
+                error_dialog.showMessage(
+                    "Something has changed, please regenerate ROIs")
         except ValueError as e:
             if "shape" in e.args[0]:
                 self.reset_view()
@@ -56,15 +59,20 @@ class ROIPaintImageViewModule(ROIImageViewModule):
         # if event.button() == QtCore.Qt.RightButton:
         #     if self.image_item.raiseContextMenu(event):
         #         event.accept()
-        if hasattr(self.main_widget.data_handler,
-                   "pixel_with_rois_flat") and self.main_widget.data_handler.pixel_with_rois_flat is not None:
-            pos = event.pos()
+        pos = event.pos()
 
-            y = int(pos.x())
-            x = int(pos.y())
-            if self.select_pixel_on and self.select_mode != "magic":
+        y = int(pos.x())
+        x = int(pos.y())
+        if self.select_pixel_on and self.select_mode != "magic":
+            if hasattr(self.main_widget.data_handler,
+                       "pixel_with_rois_flat") and self.main_widget.data_handler.pixel_with_rois_flat is not None:
+
                 event.accept()
                 self.pixel_paint(x, y)
+            else:
+                error_dialog = QErrorMessage(self.main_widget.main_window)
+                error_dialog.showMessage(
+                    "Something has changed, please regenerate ROIs")
 
     def magic_wand(self, x, y):
         shape = self.data_handler.shape

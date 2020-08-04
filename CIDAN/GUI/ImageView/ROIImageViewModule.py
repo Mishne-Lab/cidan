@@ -111,8 +111,8 @@ class ROIImageViewModule(ImageViewModule):
 
         self.updateImageDisplay()
 
-    def set_background(self, name, func_name, update_image=True):
-        if (self.main_widget.checkThreadRunning()):
+    def set_background(self, name, func_name, update_image=True, reset_override=False):
+        if (not self.resetting_view or reset_override):
 
             # Background refers to the image behind the rois
             shape = self.main_widget.data_handler.shape
@@ -147,6 +147,7 @@ class ROIImageViewModule(ImageViewModule):
                     self.current_background_name = "Max Image"
             else:
                 self.current_background_name = "Max Image"
+                self.trial_selector_input.set_default_val()
                 self.current_background = self.main_widget.data_handler.max_images[
                                               self.data_handler.trials_loaded.index(
                                                   self.trial_selector_input.current_state())][
@@ -286,6 +287,7 @@ class ROIImageViewModule(ImageViewModule):
         if event.button() == QtCore.Qt.RightButton:
             if self.image_item.raiseContextMenu(event):
                 event.accept()
+
         if hasattr(self.main_widget.data_handler,
                    "pixel_with_rois_flat") and self.main_widget.data_handler.pixel_with_rois_flat is not None:
             pos = event.pos()
@@ -435,8 +437,10 @@ class ROIImageViewModule(ImageViewModule):
                                             self.data_handler.trials_loaded)]):
                 self.trial_selector_input.set_new_options(
                     self.data_handler.trials_loaded)
+                self.trial_selector_input.set_default_val()
 
-            self.set_background("", self.current_background_name, update_image=False)
+            self.set_background("", self.current_background_name, update_image=False,
+                                reset_override=True)
 
             if (updateDisplay):
                 self.updateImageDisplay(new=True)

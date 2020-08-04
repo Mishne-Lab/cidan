@@ -270,6 +270,6 @@ if __name__ == "__main__":
     QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)  # use highdpi icons
     app = QApplication([])
     app.setApplicationName("CIDAN")
-    widget = MainWindow(dev=True, preload=True)
+    widget = MainWindow(dev=True, preload=False)
 
     sys.exit(app.exec_())

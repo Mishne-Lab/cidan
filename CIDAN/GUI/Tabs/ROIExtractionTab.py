@@ -224,6 +224,7 @@ class ROIExtractionTab(Tab):
             self.update_roi()
             self.roi_list_module.set_list_items(self.data_handler.rois)
             self.deselectRoiTime()
+            self.main_widget.tabs[2].updateTab()
 
     def delete_roi(self, roi_num):
         """
@@ -246,6 +247,7 @@ class ROIExtractionTab(Tab):
                 self.update_roi()
                 self.roi_list_module.set_list_items(self.data_handler.rois)
                 self.deselectRoiTime()
+                self.main_widget.tabs[2].updateTab()
             except IndexError:
                 print("Invalid ROI Selected")
 

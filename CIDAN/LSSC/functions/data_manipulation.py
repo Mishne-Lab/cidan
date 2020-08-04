@@ -1,8 +1,10 @@
 import os
+import warnings
 from typing import Tuple, List
 
 import numpy as np
 import tifffile
+import zarr
 from PIL import Image
 from dask import delayed
 from scipy import ndimage, sparse
@@ -19,7 +21,7 @@ def load_filter_tif_stack(*, path, filter: bool, median_filter: bool,
                           slice_every, slice_start: int, crop_stack: bool,
                           crop_x: List[int], crop_y: List[int],
                           load_into_mem: bool = True, trial_split=False,
-                          trial_split_length=100, trial_num=0):
+                          trial_split_length=100, trial_num=0, zarr_path=False):
     """
     This function reads a tiff stack file
     Parameters
@@ -62,9 +64,10 @@ def load_filter_tif_stack(*, path, filter: bool, median_filter: bool,
         del volumes
         image = image.astype(np.float32)
     elif os.path.isfile(path):
+        if type(zarr_path) == bool:
         # return ScanImageTiffReader(path).data()
         image = tifffile.imread(path)
-        size = [image.shape[0], image.shape[1]]
+        size = [image.shape[1], image.shape[2]]
         if len(image.shape) == 2:
             image = image.reshape((1, image.shape[0], image.shape[1]))
         if slice_stack:
@@ -75,6 +78,26 @@ def load_filter_tif_stack(*, path, filter: bool, median_filter: bool,
             image = filter_stack(stack=image, median_filter=median_filter,
                                  median_filter_size=median_filter_size, z_score=z_score)
         image = image.astype(np.float32)
+        else:
+            z1 = zarr.open(zarr_path,
+                           mode="r")
+
+            if trial_split and crop_stack:
+                image = z1[trial_num * trial_split_length:(
+                                                                      trial_num + 1) * trial_split_length,
+                        crop_x[0]:crop_x[1], crop_y[0]:crop_y[1]]
+            if trial_split and not crop_stack:
+                image = z1[trial_num * trial_split_length:(
+                                                                      trial_num + 1) * trial_split_length,
+                        :, :]
+            if not trial_split and crop_stack:
+                image = z1[:, crop_x[0]:crop_x[1], crop_y[0]:crop_y[1]]
+            if len(image.shape) == 2:
+                image = image.reshape((1, image.shape[0], image.shape[1]))
+            if slice_stack:
+                image = image[slice_start::slice_every]
+            size = [image.shape[1], image.shape[2]]
+            image = image.astype(np.float32)
     else:
         raise Exception("Invalid Inputs ")
     return size, image
@@ -251,7 +274,9 @@ def applyLocalSpatialDenoising(data):
         np.sum(np.multiply(data[:-1, :-1, :], data[1:, 1:, :]), axis=2),
         np.multiply(np.power(affinity_self[:-1, :-1], .5),
                     np.power(affinity_self[1:, 1:], .5)))
+    indices_self = np.arange(0, shape[0] * shape[1], 1)
     indices_right_x = np.arange(0, shape[0] * shape[1], 1)
+
     indices_right_x = indices_right_x[indices_right_x % shape[1] != shape[1] - 1]
     indices_right_y = np.arange(0, shape[0] * shape[1], 1)
     indices_right_y = indices_right_y[indices_right_y % shape[1] != 0]
@@ -271,13 +296,17 @@ def applyLocalSpatialDenoising(data):
     K = sparse.csr_matrix((np.concatenate(
         [np.reshape(affinity_up, (-1)), np.reshape(affinity_right, (-1)),
          np.reshape(affinity_up_right, (-1)), np.reshape(affinity_down_right, (-1))]),
-                           (np.concatenate([indices_right_x, indices_up_x,
+                           (np.concatenate([indices_up_x, indices_right_x,
                                             indices_up_right_x,
                                             indices_down_right_x]),
-                            np.concatenate([indices_right_y, indices_up_y,
+                            np.concatenate([indices_up_y, indices_right_y,
                                             indices_up_right_y,
                                             indices_down_right_y]))))
     K = K + K.transpose()
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore")
+
+        K.setdiag(1)
     D_inv, D_diag = calcDInv(K)
     P = D_inv.dot(K)
     temp_flat = reshape_to_2d_over_time(data.transpose(2, 0, 1))

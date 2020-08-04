@@ -116,12 +116,17 @@ class PreprocessingTab(Tab):
 
         if hasattr(self, "trial_selector_input"):
             self.trial_selector_input.setParent(None)
+        if hasattr(self, "trial_selector_input"):
+            current = self.trial_selector_input.input_box.currentIndex()
+        else:
+            current = 0
         self.trial_selector_input = OptionInput("", "", set_image, val_list=trial_names,
                                                 tool_tip="Select Trial to display",
                                                 display_tool_tip=False, default_index=0,
                                                 show_name=False)
+        self.trial_selector_input.input_box.setCurrentIndex(current)
         self._image_buttons_layout.addWidget(self.trial_selector_input)
-        set_image("", trial_names[0])
+        set_image("", trial_names[current])
         if len(data_list[0]) == 3:
             cur_size = [str(data_list[0].shape[1]), str(data_list[0].shape[2])]
         else:

@@ -23,7 +23,8 @@ class OptionInput(Input):
         return self.val_list[self.input_box.currentIndex()]
 
     def set_default_val(self):
-        self.input_box.setCurrentIndex(self.default_val)
+        if (self.input_box.currentIndex() != self.default_val):
+            self.input_box.setCurrentIndex(self.default_val)
 
     def set_new_options(self, options, default_index=0):
         for x in self.val_list:

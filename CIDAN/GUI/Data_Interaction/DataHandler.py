@@ -10,6 +10,7 @@ import zarr
 from PIL import Image
 from dask import delayed
 from skimage import feature
+from tifffile import tifffile
 
 from CIDAN.LSSC.SpatialBox import SpatialBox
 from CIDAN.LSSC.functions.data_manipulation import load_filter_tif_stack, filter_stack, \
@@ -57,6 +58,7 @@ class DataHandler:
         "dataset_folder_path": "",
         "trials_loaded": [],
         "trials_all": [],
+        "single_file_mode": False,
         "original_folder_trial_split": "",
         "slice_stack": False,
         "slice_every": 3,
@@ -161,6 +163,10 @@ class DataHandler:
         elif save_dir_already_created:  # this loads everything from the save dir
             valid = self.load_param_json()
             self.time_trace_params = DataHandler._time_trace_params_default.copy()
+            if self.dataset_params["single_file_mode"]:
+                if not os.path.isdir(
+                        os.path.join(self.save_dir_path, "temp_files/dataset.zarr")):
+                    self.transform_data_to_zarr()
             # time trace params are not currently saved
 
             # these indices are used for which trials to use for roi extract
@@ -211,8 +217,11 @@ class DataHandler:
             self.dataset_params["dataset_folder_path"] = data_path
             self.dataset_params["trials_loaded"] = trials
             self.trials_loaded = trials
-            if len(self.trials_loaded) == 1 and os.path.isdir(
-                    os.path.join(data_path, trials[0])):
+            if not os.path.isdir(
+                    os.path.join(data_path, trials[0])) and len(
+                self.trials_loaded) == 1:
+                self.dataset_params["single_file_mode"] = True
+            if len(self.trials_loaded) == 1:
                 self.dataset_params["trial_split"] = True
                 self.dataset_params["original_folder_trial_split"] = trials[0]
             # these are all files in the data_path directory if the user wants to
@@ -229,6 +238,8 @@ class DataHandler:
             if not valid:
                 raise FileNotFoundError("Please chose an empty directory for your " +
                                         "save directory")
+            if self.dataset_params["single_file_mode"]:
+                self.transform_data_to_zarr()
             self.time_traces = []
             self._trials_loaded_indices = [num for num, x in enumerate(self.trials_all)
                                            if x in self.trials_loaded]
@@ -526,6 +537,16 @@ class DataHandler:
         else:
             return False
 
+    def transform_data_to_zarr(self):
+        image = tifffile.imread(os.path.join(self.dataset_params["dataset_folder_path"],
+                                             self.dataset_params[
+                                                 "original_folder_trial_split"]))
+        z1 = zarr.open(os.path.join(self.save_dir_path,
+                                    'temp_files/dataset.zarr'), mode='w',
+                       shape=image.shape,
+                       chunks=(32, 128, 128), dtype=np.float32)
+        z1[:] = image
+
     def calculate_dataset(self, ) -> np.ndarray:
         """
         Loads each trial, applying crop and slicing, sets them to self.dataset_trials
@@ -583,7 +604,9 @@ class DataHandler:
             crop_y=self.dataset_params[
                 "crop_y"], load_into_mem=self.load_into_mem,
             trial_split=self.dataset_params["trial_split"],
-            trial_split_length=self.dataset_params["trial_length"], trial_num=trial_num
+            trial_split_length=self.dataset_params["trial_length"], trial_num=trial_num,
+            zarr_path=False if not self.dataset_params["single_file_mode"] else
+            os.path.join(self.save_dir_path, "temp_files/dataset.zarr")
         )
         self.total_size = total_size
         return stack
@@ -824,8 +847,15 @@ class DataHandler:
     def update_trial_list(self):
         if self.dataset_params["trial_split"] and self.dataset_params[
             "original_folder_trial_split"] != "":
-
-            self.trials_loaded = [str(x) for x in range(ceil(len(os.listdir(
+            if self.dataset_params["single_file_mode"]:
+                z1 = zarr.open(
+                    os.path.join(self.save_dir_path, "temp_files/dataset.zarr"),
+                    mode="r")
+                self.trials_loaded = [str(x) for x in range(ceil(z1.shape[0] /
+                                                                 self.dataset_params[
+                                                                     "trial_length"]))]
+            else:
+                self.trials_loaded = [str(x) for x in range(ceil(len(os.listdir(
                 os.path.join(self.dataset_params["dataset_folder_path"],
                              self.dataset_params["original_folder_trial_split"]))) /
                                                              self.dataset_params[
