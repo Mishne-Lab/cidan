@@ -42,9 +42,9 @@ want to add or subtract from the ROI. The magic wand tool uses the intermediate 
 7. **To export the results, use the top bar and select export.** If you have trouble selecting the top bar, there is small known bug, you can fix it by just selecting another window then going back and selecting CIDAN again. 
 # Improving your results
 1. **Look at the embedding norm image** (found in the display settings tab). 
-    -**If the embedding norm image localizes in on most but not all of your ROIs,** we suggest increasing the number of eigen vectors generated to 75 or 100. 
-    -**If the embedding norm image has all the ROIs,** then we suggest first decreasing the ROI circuity threshold to 0, and then if that doesn't work increasing the number of iterations to 200 or 300 could also help. Another possible fix if you only have less than 6 trials is that we aren't selecting enough eigen vectors, to fix this increase Eigen threshold value to .3 or .5. 
-    -**If the eigen norm image has wierd lines or other artifacts**, we suggest increasing the smoothing filters that are applied in the preprocessing step. Also it could help to increase the Eigen Accuracy parameter to 7 or 8. 
+    - **If the embedding norm image localizes in on most but not all of your ROIs,** we suggest increasing the number of eigen vectors generated to 75 or 100. 
+    - **If the embedding norm image has all the ROIs,** then we suggest first decreasing the ROI circuity threshold to 0, and then if that doesn't work increasing the number of iterations to 200 or 300 could also help. Another possible fix if you only have less than 6 trials is that we aren't selecting enough eigen vectors, to fix this increase Eigen threshold value to .3 or .5. 
+    - **If the eigen norm image has wierd lines or other artifacts**, we suggest increasing the smoothing filters that are applied in the preprocessing step. Also it could help to increase the Eigen Accuracy parameter to 7 or 8. 
 # Guide to call CIDAN in the terminal 
 Warning this is significantly more complicated than using the GUI. It is recommended that you have some experience with json files and running terminal applications. 
 1. Download the default parameter.json file from the github repo. Place it in the folder you want to save the results in. The other option is to use the parameter.json file from a save directory of another similar dataset. This will use all the settings from that dataset.
