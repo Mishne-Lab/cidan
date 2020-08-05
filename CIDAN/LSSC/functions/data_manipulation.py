@@ -65,19 +65,19 @@ def load_filter_tif_stack(*, path, filter: bool, median_filter: bool,
         image = image.astype(np.float32)
     elif os.path.isfile(path):
         if type(zarr_path) == bool:
-        # return ScanImageTiffReader(path).data()
-        image = tifffile.imread(path)
-        size = [image.shape[1], image.shape[2]]
-        if len(image.shape) == 2:
-            image = image.reshape((1, image.shape[0], image.shape[1]))
-        if slice_stack:
-            image = image[slice_start::slice_every]
-        if crop_stack:
-            image = image[:, crop_x[0]:crop_x[1], crop_y[0]:crop_y[1]]
-        if filter:
-            image = filter_stack(stack=image, median_filter=median_filter,
-                                 median_filter_size=median_filter_size, z_score=z_score)
-        image = image.astype(np.float32)
+            image = tifffile.imread(path)
+            size = [image.shape[1], image.shape[2]]
+            if len(image.shape) == 2:
+                image = image.reshape((1, image.shape[0], image.shape[1]))
+            if slice_stack:
+                image = image[slice_start::slice_every]
+            if crop_stack:
+                image = image[:, crop_x[0]:crop_x[1], crop_y[0]:crop_y[1]]
+            if filter:
+                image = filter_stack(stack=image, median_filter=median_filter,
+                                     median_filter_size=median_filter_size,
+                                     z_score=z_score)
+            image = image.astype(np.float32)
         else:
             z1 = zarr.open(zarr_path,
                            mode="r")

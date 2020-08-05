@@ -44,7 +44,7 @@ def filter_setting_block(main_widget):
                                              x, y),
                                          default_val=data_handler.filter_params[
                                              "localSpatialDenoising"],
-                                         tool_tip="Whether to apply a denoising algorithm",
+                                         tool_tip="Local Spatial Denoising helps smooth out the noise in the data by averaging ",
                                          ),
 
                                BoolInput(
@@ -55,7 +55,7 @@ def filter_setting_block(main_widget):
                                        x, y),
                                    default_val=
                                    data_handler.filter_params["z_score"],
-                                   tool_tip="Whether to apply a z-score for each pixel across all the timesteps",
+                                   tool_tip="Applies a z-score for each pixel across each of the timesteps",
                                ),
                                BoolInput(display_name="Histogram Equalization Method:",
                                          program_name="hist_eq",
@@ -64,7 +64,7 @@ def filter_setting_block(main_widget):
                                              x, y),
                                          default_val=data_handler.filter_params[
                                              "hist_eq"],
-                                         tool_tip="Whether to apply our histogram equalization method",
+                                         tool_tip="Applies a histogram equalization method(a more advanced z score",
                                          ),
                                BoolInput(display_name="Median filter:",
                                          program_name="median_filter",
@@ -73,7 +73,7 @@ def filter_setting_block(main_widget):
                                              x, y),
                                          default_val=data_handler.filter_params[
                                              "median_filter"],
-                                         tool_tip="Whether to apply a median filter to each timestep",
+                                         tool_tip="Applies a 3D median filter to each timestep. This helps denoise the image. ",
                                          ),
                                IntInput(
                                    display_name="Median filter size:",
@@ -84,7 +84,7 @@ def filter_setting_block(main_widget):
                                    default_val=
                                    data_handler.filter_params[
                                        "median_filter_size"],
-                                   tool_tip="The size of the median filter for each timestep",
+                                   tool_tip="The size of the 3D median filter. Recomended size: 3",
                                    min=1, max=50, step=1),
                                BoolInput(display_name="PCA:",
                                          program_name="pca",
@@ -93,7 +93,7 @@ def filter_setting_block(main_widget):
                                              x, y),
                                          default_val=data_handler.filter_params[
                                              "pca"],
-                                         tool_tip="Whether to apply PCA decomposition to the dataset(PCA runs after other filters)",
+                                         tool_tip="Applies PCA decomposition to the dataset (PCA runs after other filters). \n Both speeds along other calculations and helps remove background noise. \n Time traces are still calculated on filtered stack not PCA stack.",
                                          ),
                                # FloatInput(
                                #     display_name="PCA expression threshold",
@@ -183,7 +183,7 @@ def dataset_setting_block_crop(main_widget):
                                   default_val=data_handler.dataset_params[
                                       "trial_split"],
                                   tool_tip="Splits the timesteps into separate trials better for processing "
-                                           "every x timestep",
+                                           "every x timestep. This setting is recomended for all large datasets",
                                   display_tool_tip=False),
                                                                       IntInput(
                                                                           display_name="Trial Length",
@@ -196,7 +196,7 @@ def dataset_setting_block_crop(main_widget):
                                                        "trial_length"],
                                                                           tool_tip="Length of each trial",
                                                                           display_tool_tip=False,
-                                                                          min=50,
+                                                                          min=25,
                                                                           max=2000,
                                                                           step=1)] if
                                                                   data_handler.dataset_params[
@@ -215,7 +215,8 @@ def multiprocessing_settings_block(main_widget):
             default_val=
             data_handler.box_params[
                 "total_num_spatial_boxes"],
-            tool_tip="Number of boxes to break the calculation into, please make sure it is a sqaure",
+            tool_tip="Used to break the calculation into smaller overlapping parts.\n "
+                     "This number must be square. The number of spatial boxes per side will be equal to square of this number.",
             min=1, max=10000, step=1)
         ,
         IntInput(
@@ -225,7 +226,7 @@ def multiprocessing_settings_block(main_widget):
             default_val=
             data_handler.box_params[
                 "spatial_overlap"],
-            tool_tip="Number of pixels to overlap each box",
+            tool_tip="Number of pixels to overlap each box.",
             min=1, max=10000, step=1)])
 
 
@@ -242,7 +243,7 @@ def roi_extraction_settings_block(main_widget):
                                           x, y),
                                       default_val=data_handler.roi_extraction_params[
                                           "num_rois"],
-                                      tool_tip="Max number of ROIs to select for each spatial box",
+                                      tool_tip="Max number of ROIs to select for each spatial box, increase this number if not detecting all ROIs",
                                       min=0, max=10000, step=1),
                                   IntInput(
                                       display_name="ROI size minimum:",
@@ -313,7 +314,7 @@ def roi_advanced_settings_block(main_widget):
                                             x, y),
                                         default_val=data_handler.eigen_params[
                                             "num_eig"],
-                                        tool_tip="Number of eigen vectors to generate",
+                                        tool_tip="Number of eigen vectors to generate. Increase if eigen norm image isn't showing all rois",
                                         min=1, max=10000, step=1),
                                FloatInput(display_name="Eigen threshold value:",
                                           program_name="eigen_threshold_value",
@@ -323,28 +324,28 @@ def roi_advanced_settings_block(main_widget):
                                           default_val=
                                           data_handler.roi_extraction_params[
                                               "eigen_threshold_value"],
-                                          tool_tip="Number of eigen vectors to select at each point",
+                                          tool_tip="Number of eigen vectors to select for each ROI. Multiply number of trials by the number of eigen vectors \n if this number is below 300, then it might help to increase this value to .3 or .5",
                                           min=0, max=1, step=.01),
-                               FloatInput(display_name="Elbow threshold value:",
-                                          program_name="elbow_threshold_value",
-                                          on_change_function=lambda x,
-                                                                    y: data_handler.change_roi_extraction_param(
-                                              x, y),
-                                          default_val=
-                                          data_handler.roi_extraction_params[
-                                              "elbow_threshold_value"],
-                                          tool_tip="Number of eigen vectors to select at each point",
-                                          min=0, max=1.5, step=.01),
-                               BoolInput(
-                                   display_name="Merge ROIs:",
-                                   program_name="merge",
-                                   on_change_function=lambda x,
-                                                             y: data_handler.change_roi_extraction_param(
-                                       x, y),
-                                   default_val=
-                                   data_handler.roi_extraction_params[
-                                       "merge"],
-                                   tool_tip="Whether to merge rois with similar time traces"),
+                               # FloatInput(display_name="Elbow threshold value:",
+                               #            program_name="elbow_threshold_value",
+                               #            on_change_function=lambda x,
+                               #                                      y: data_handler.change_roi_extraction_param(
+                               #                x, y),
+                               #            default_val=
+                               #            data_handler.roi_extraction_params[
+                               #                "elbow_threshold_value"],
+                               #            tool_tip="Number of eigen vectors to select at each point",
+                               #            min=0, max=1.5, step=.01),
+                               # BoolInput(
+                               #     display_name="Merge ROIs:",
+                               #     program_name="merge",
+                               #     on_change_function=lambda x,
+                               #                               y: data_handler.change_roi_extraction_param(
+                               #         x, y),
+                               #     default_val=
+                               #     data_handler.roi_extraction_params[
+                               #         "merge"],
+                               #     tool_tip="Whether to merge rois with similar time traces"),
                                IntInput(display_name="ROI Eccentricity Threshold:",
                                         program_name="roi_circ_threshold",
                                         on_change_function=lambda x,
@@ -353,52 +354,52 @@ def roi_advanced_settings_block(main_widget):
                                         default_val=
                                           data_handler.roi_extraction_params[
                                               "roi_circ_threshold"],
-                                        tool_tip="Thresholds the rois based on how circular they are",
+                                        tool_tip="Thresholds the rois based on how circular they are. Lowering the number would allow more ROIs through",
                                         min=0, max=100, step=1),
-                               IntInput(display_name="Number of connections:",
-                                        program_name="connections",
-                                        on_change_function=lambda x,
-                                                                  y: data_handler.change_eigen_param(
-                                            x, y),
-                                        default_val=data_handler.eigen_params[
-                                            "connections"],
-                                        tool_tip="Number of eigen vectors to generate",
-                                        min=1, max=10000, step=1),
-                               IntInput(display_name="accuracy:",
-                                        program_name="accuracy",
-                                        on_change_function=lambda x,
-                                                                  y: data_handler.change_eigen_param(
-                                            x, y),
-                                        default_val=data_handler.eigen_params[
-                                            "accuracy"],
-                                        tool_tip="Number of eigen vectors to generate",
-                                        min=1, max=10000, step=1),
-                               IntInput(display_name="Number of knn:",
-                                        program_name="knn",
-                                        on_change_function=lambda x,
-                                                                  y: data_handler.change_eigen_param(
-                                            x, y),
-                                        default_val=data_handler.eigen_params[
-                                            "knn"],
-                                        tool_tip="Number of eigen vectors to generate",
-                                        min=1, max=10000, step=1),
+                               # IntInput(display_name="Number of connections:",
+                               #          program_name="connections",
+                               #          on_change_function=lambda x,
+                               #                                    y: data_handler.change_eigen_param(
+                               #              x, y),
+                               #          default_val=data_handler.eigen_params[
+                               #              "connections"],
+                               #          tool_tip="Number of eigen vectors to generate",
+                               #          min=1, max=10000, step=1),
+                               # IntInput(display_name="accuracy:",
+                               #          program_name="accuracy",
+                               #          on_change_function=lambda x,
+                               #                                    y: data_handler.change_eigen_param(
+                               #              x, y),
+                               #          default_val=data_handler.eigen_params[
+                               #              "accuracy"],
+                               #          tool_tip="Number of eigen vectors to generate",
+                               #          min=1, max=10000, step=1),
+                               # IntInput(display_name="Number of knn:",
+                               #          program_name="knn",
+                               #          on_change_function=lambda x,
+                               #                                    y: data_handler.change_eigen_param(
+                               #              x, y),
+                               #          default_val=data_handler.eigen_params[
+                               #              "knn"],
+                               #          tool_tip="Number of eigen vectors to generate",
+                               #          min=1, max=10000, step=1),
                                IntInput(display_name="Eigen Accuracy:",
-                                        program_name="normalize_w_k",
+                                        program_name="eigen_accuracy",
                                         on_change_function=lambda x,
                                                                   y: data_handler.change_eigen_param(
                                             x, y),
                                         default_val=data_handler.eigen_params[
                                             "eigen_accuracy"],
-                                        tool_tip="10^-x accuracy for each eigen vector ",
+                                        tool_tip="10^-x accuracy for each eigen vector, If there are lines in the eigen norm image increase this to 7 or 8",
                                         min=1, max=10000, step=1),
-                               IntInput(display_name="max iter:",
+                               IntInput(display_name="Number of iterations:",
                                         program_name="max_iter",
                                         on_change_function=lambda x,
                                                                   y: data_handler.change_roi_extraction_param(
                                             x, y),
                                         default_val=data_handler.roi_extraction_params[
                                             "max_iter"],
-                                        tool_tip="Number of eigen vectors to generate",
+                                        tool_tip="The number of iterations of the algorithm to preform. Increase if not detecting all rois but they are present in the eigen norm image",
                                         min=1, max=10000, step=1),
 
                                # IntInput(display_name="Number of time steps:",
