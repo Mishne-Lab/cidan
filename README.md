@@ -17,7 +17,7 @@ If you encounter another issue in the installation or running of the package, fi
 # Examples
 We suggest using the data from NeuroFinder for example datasets. Link: http://neurofinder.codeneuro.org
 
-# Guide to the GUI
+# Basic Guide to the GUI
 1. **First make sure your data is ready to be ingested by CIDAN.** It currently only accepts tiff files. We also require the data to be pre-registered. Please make sure your data is in one of the accepted formats: 
     - A folder of tiff files representing a single trial.
     - A single tiff stack representing a single trial.
@@ -40,6 +40,11 @@ python -m CIDAN
 want to add or subtract from the ROI. The magic wand tool uses the intermediate saves of the cell extraction process to quickly find new cells based on user input. Then select the ROI to edit by either clicking on it in the image or clicking on the checkbox next to the correct ROI. Next, press the appropriate button to "Add to ROI" or "Subtract from ROI." The "New ROI from Selection” button will create a new ROI at the end of the list with the current pixels that are selected. Also note that the "Delete ROI" button will renumber all the ROI's after the deleted one. 
 6. **Once you are satisfied with the ROIs, move to the analysis tab to view the time traces for them.** CIDAN offers two main graphing modes: Many ROIs over time, and many trials over a single ROI. There are three methods to select ROIs: select them in the ROI list, click on individual rois, or use shift-drag to select all ROI's in a box.<br/> <img src="https://github.com/Mishne-Lab/CIDAN/blob/master/images/Analysis.png" width="400">
 7. **To export the results, use the top bar and select export.** If you have trouble selecting the top bar, there is small known bug, you can fix it by just selecting another window then going back and selecting CIDAN again. 
+# Improving your results
+1. **Look at the embedding norm image** (found in the display settings tab). 
+    -**If the embedding norm image localizes in on most but not all of your ROIs,** we suggest increasing the number of eigen vectors generated to 75 or 100. 
+    -**If the embedding norm image has all the ROIs,** then we suggest first decreasing the ROI circuity threshold to 0, and then if that doesn't work increasing the number of iterations to 200 or 300 could also help. Another possible fix if you only have less than 6 trials is that we aren't selecting enough eigen vectors, to fix this increase Eigen threshold value to .3 or .5. 
+    -**If the eigen norm image has wierd lines or other artifacts**, we suggest increasing the smoothing filters that are applied in the preprocessing step. Also it could help to increase the Eigen Accuracy parameter to 7 or 8. 
 # Guide to call CIDAN in the terminal 
 Warning this is significantly more complicated than using the GUI. It is recommended that you have some experience with json files and running terminal applications. 
 1. Download the default parameter.json file from the github repo. Place it in the folder you want to save the results in. The other option is to use the parameter.json file from a save directory of another similar dataset. This will use all the settings from that dataset.
