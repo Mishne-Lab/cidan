@@ -37,7 +37,7 @@ class Tab(QWidget):
                     "QSplitter { background-color: #19232D; } ")
                 for module in column_2:
                     self.column_2_slider.addWidget(module)
-                self.layout.addWidget(self.column_2_slider, stretch=3)
+                self.layout.addWidget(self.column_2_slider, stretch=15)
             else:
                 self.column_2_layout = QVBoxLayout()  # Layout for column 2
                 self.column_2_layout.setContentsMargins(0, 0, 0, 0)
@@ -49,5 +49,5 @@ class Tab(QWidget):
                 self.column_2_widget.setLayout(self.column_2_layout)
                 for module in column_2:
                     self.column_2_layout.addWidget(module)
-                self.layout.addWidget(self.column_2_widget, stretch=2)
+                self.layout.addWidget(self.column_2_widget, stretch=15)
         self.setLayout(self.layout)

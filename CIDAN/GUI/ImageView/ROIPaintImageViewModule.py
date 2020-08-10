@@ -230,7 +230,7 @@ class ROIPaintImageViewModule(ROIImageViewModule):
             self.select_pixel_on = True
             self.select_mode = type
 
-    def reset_view(self):
+    def reset_view(self, new=True):
         if not any([x.isRunning() for x in
                     self.main_widget.thread_list]) and not self.resetting_view:
             super().reset_view(updateDisplay=False)
@@ -239,5 +239,5 @@ class ROIPaintImageViewModule(ROIImageViewModule):
                 [self.data_handler.shape[0] * self.data_handler.shape[1], 3])
 
             self.clearPixelSelection()
-            self.updateImageDisplay(new=True)
+            self.updateImageDisplay(new=new)
             self.resetting_view = False

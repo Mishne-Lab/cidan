@@ -41,7 +41,8 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.table_widget)
         # self.setStyleSheet(qdarkstyle.load_stylesheet())
         style = """
-            QTabWidget {font-size: 25px; padding:1px; margin:5px;}
+            QWidget {font-size: 15px;}
+            QTabWidget {font-size: 15px; padding:1px; margin:5px;}
             QTabBar::tab {
                 background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
                                            stop: 0 #E1E1E1, stop: 0.4 #DDDDDD,
@@ -270,6 +271,6 @@ if __name__ == "__main__":
     QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)  # use highdpi icons
     app = QApplication([])
     app.setApplicationName("CIDAN")
-    widget = MainWindow(dev=True, preload=False)
+    widget = MainWindow(dev=True, preload=True)
 
     sys.exit(app.exec_())

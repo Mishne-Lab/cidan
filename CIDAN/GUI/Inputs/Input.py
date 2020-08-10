@@ -6,9 +6,14 @@ class Input(QFrame):
     Default Input class implemeneted by all other input classes, all have same args and
     functions
     """
+
     def __init__(self, display_name, program_name, on_change_function, default_val,
                  tool_tip, display_tool_tip=False, show_name=True):
         super().__init__()
+        self.setStyleSheet(
+            "QWidget {border: 0px solid #32414B;}  QSpinBox {border: 2px solid #32414B;font-size: 15px;} QDoubleSpinBox "
+            "{border: 2px solid #32414B;font-size: 15px;} QComboBox{border: "
+            "2px solid #32414B;font-size: 15px;} ")
         self.program_name = program_name
         self.input_box_1 = None
         self.tool_tip = tool_tip

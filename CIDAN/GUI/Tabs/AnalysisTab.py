@@ -122,7 +122,7 @@ class AnalysisTab(Tab):
                         self.plot_widget.set_list_items(data_list, roi_names, [],
                                                         p_color=self.plot_type_input.current_state() == "Color Mesh",
                                                         type="neuron")
-                    except AttributeError:
+                    except AttributeError as e:
                         print("No ROIs have been generated yet")
                 else:
                     if self.cur_plot_type != "trial":
@@ -176,6 +176,7 @@ class AnalysisTab(Tab):
                 self.data_handler.trials_all,
                 self.data_handler.trials_loaded_time_trace_indices)
             if self.data_handler.rois_loaded:
-                self.selectAll(False)
                 self.roi_list_module.set_list_items(self.main_widget.data_handler.rois)
+                self.selectAll(False)
+
             self.image_view.reset_view()

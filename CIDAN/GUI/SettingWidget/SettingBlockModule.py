@@ -30,7 +30,7 @@ class SettingBlockModule(QFrame):
         # Type options are int, float, bool, and str
         for input in input_list:
             self.layout.addWidget(input)
-
+        # self.setMaximumWidth(300)
         self.setLayout(self.layout)
 
 

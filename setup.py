@@ -5,7 +5,7 @@ with open("README.md", 'r') as f:
 
 setup(
     name='CIDAN',
-    version='0.1.18',
+    version='0.1.20',
     description='CIDAN-Calcium Imaging Data ANalysis',
     license="MIT",
     long_description=long_description,
@@ -16,8 +16,9 @@ setup(
     install_requires=["numpy", "QtPy", "QDarkStyle", "pybind11", "pyqtgraph==0.11.0rc0",
                       "Pyside2",
                       "dask[complete]", "matplotlib", "scipy", "tiffile",
-                      "scikit-image", "hnswlib", "pillow",
-                      'tifffile', "zarr", "neurofinder", "sklearn", 'pandas'],
+                      "scikit-image", "pybind11", "hnswlib", "pillow",
+                      'tifffile', "zarr", "neurofinder", "sklearn", 'pandas', 'future',
+                      "peakutils"],
     scripts=[
         "CIDAN/LSSC/process_data.py",
         "CIDAN/TimeTrace/deltaFOverF.py",

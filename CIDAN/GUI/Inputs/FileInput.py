@@ -11,9 +11,11 @@ class FileInput(Input):
         self.isFolder = isFolder
         self.forOpen = forOpen
         self.path = ""
+
         self.current_location = QLabel()
+        self.current_location.setStyleSheet("background-color: #32414B")
         self.current_location.setText("")
-        self.layout_h.addWidget(self.current_location)
+        self.layout_h.addWidget(self.current_location, stretch=2)
         self.button = QPushButton()
         self.button.setText("Browse")
         self.button.clicked.connect(self.on_browse_button)
