@@ -10,6 +10,7 @@ import zarr
 from PIL import Image
 from dask import delayed
 from skimage import feature
+from tifffile import tifffile
 
 from CIDAN.LSSC.SpatialBox import SpatialBox
 from CIDAN.LSSC.functions.data_manipulation import load_filter_tif_stack, filter_stack, \
@@ -19,6 +20,7 @@ from CIDAN.LSSC.functions.pickle_funcs import *
 from CIDAN.LSSC.functions.progress_bar import printProgressBarFilter
 from CIDAN.LSSC.functions.roi_extraction import roi_extract_image, combine_rois
 from CIDAN.LSSC.functions.roi_filter import filterRoiList
+from CIDAN.LSSC.functions.spatial_footprint import classify_components_ep
 from CIDAN.LSSC.process_data import process_data
 from CIDAN.TimeTrace.deltaFOverF import calculateDeltaFOverF
 from CIDAN.TimeTrace.mean import calculateMeanTrace
@@ -57,6 +59,7 @@ class DataHandler:
         "dataset_folder_path": "",
         "trials_loaded": [],
         "trials_all": [],
+        "single_file_mode": False,
         "original_folder_trial_split": "",
         "slice_stack": False,
         "slice_every": 3,
@@ -161,6 +164,10 @@ class DataHandler:
         elif save_dir_already_created:  # this loads everything from the save dir
             valid = self.load_param_json()
             self.time_trace_params = DataHandler._time_trace_params_default.copy()
+            if self.dataset_params["single_file_mode"]:
+                if not os.path.isdir(
+                        os.path.join(self.save_dir_path, "temp_files/dataset.zarr")):
+                    self.transform_data_to_zarr()
             # time trace params are not currently saved
 
             # these indices are used for which trials to use for roi extract
@@ -211,8 +218,11 @@ class DataHandler:
             self.dataset_params["dataset_folder_path"] = data_path
             self.dataset_params["trials_loaded"] = trials
             self.trials_loaded = trials
-            if len(self.trials_loaded) == 1 and os.path.isdir(
-                    os.path.join(data_path, trials[0])):
+            if not os.path.isdir(
+                    os.path.join(data_path, trials[0])) and len(
+                self.trials_loaded) == 1:
+                self.dataset_params["single_file_mode"] = True
+            if len(self.trials_loaded) == 1:
                 self.dataset_params["trial_split"] = True
                 self.dataset_params["original_folder_trial_split"] = trials[0]
             # these are all files in the data_path directory if the user wants to
@@ -229,6 +239,8 @@ class DataHandler:
             if not valid:
                 raise FileNotFoundError("Please chose an empty directory for your " +
                                         "save directory")
+            if self.dataset_params["single_file_mode"]:
+                self.transform_data_to_zarr()
             self.time_traces = []
             self._trials_loaded_indices = [num for num, x in enumerate(self.trials_all)
                                            if x in self.trials_loaded]
@@ -526,6 +538,16 @@ class DataHandler:
         else:
             return False
 
+    def transform_data_to_zarr(self):
+        image = tifffile.imread(os.path.join(self.dataset_params["dataset_folder_path"],
+                                             self.dataset_params[
+                                                 "original_folder_trial_split"]))
+        z1 = zarr.open(os.path.join(self.save_dir_path,
+                                    'temp_files/dataset.zarr'), mode='w',
+                       shape=image.shape,
+                       chunks=(32, 128, 128), dtype=np.float32)
+        z1[:] = image
+
     def calculate_dataset(self, ) -> np.ndarray:
         """
         Loads each trial, applying crop and slicing, sets them to self.dataset_trials
@@ -583,7 +605,9 @@ class DataHandler:
             crop_y=self.dataset_params[
                 "crop_y"], load_into_mem=self.load_into_mem,
             trial_split=self.dataset_params["trial_split"],
-            trial_split_length=self.dataset_params["trial_length"], trial_num=trial_num
+            trial_split_length=self.dataset_params["trial_length"], trial_num=trial_num,
+            zarr_path=False if not self.dataset_params["single_file_mode"] else
+            os.path.join(self.save_dir_path, "temp_files/dataset.zarr")
         )
         self.total_size = total_size
         return stack
@@ -824,8 +848,15 @@ class DataHandler:
     def update_trial_list(self):
         if self.dataset_params["trial_split"] and self.dataset_params[
             "original_folder_trial_split"] != "":
-
-            self.trials_loaded = [str(x) for x in range(ceil(len(os.listdir(
+            if self.dataset_params["single_file_mode"]:
+                z1 = zarr.open(
+                    os.path.join(self.save_dir_path, "temp_files/dataset.zarr"),
+                    mode="r")
+                self.trials_loaded = [str(x) for x in range(ceil(z1.shape[0] /
+                                                                 self.dataset_params[
+                                                                     "trial_length"]))]
+            else:
+                self.trials_loaded = [str(x) for x in range(ceil(len(os.listdir(
                 os.path.join(self.dataset_params["dataset_folder_path"],
                              self.dataset_params["original_folder_trial_split"]))) /
                                                              self.dataset_params[
@@ -1186,7 +1217,15 @@ class DataHandler:
         return final_roi
 
     def calculate_statistics(self):
+        statistics = [False for x in range(len(self.rois))]
+        A = np.zeros([self.edge_roi_image_flat.shape[0], len(self.rois)], dtype=int)
+        for num, roi in enumerate(self.rois):
+            A[roi, num] = 1
+        rval, significant_samples = classify_components_ep(
+            self.dataset_trials_filtered_loaded, A,
+            np.vstack([self.get_time_trace(x + 1) for x in range(len(self.rois))]))
         pass
+
     def export(self):
         temp_type = self.time_trace_params["time_trace_type"]
         for time_type in ["Mean", "DeltaF Over F"]:
@@ -1194,7 +1233,8 @@ class DataHandler:
                 self.time_trace_params["denoise"] = denoise
                 self.time_trace_params["time_trace_type"] = time_type
                 self.calculate_time_traces()
-        self.calculate_statistics()
+                if time_type == "Mean" and denoise:
+                    self.calculate_statistics()
         self.time_trace_params["time_trace_type"] = temp_type
         self.save_rois(self.rois)
         roi_save_object = []
@@ -1209,9 +1249,40 @@ class DataHandler:
                 cords = spatial_box.convert_1d_to_2d(roi)
             curr_roi = {"id": num, "coordinates": cords}
             roi_save_object.append(curr_roi)
+
         with open(os.path.join(self.save_dir_path, "roi_list.json"), "w") as f:
             json.dump(roi_save_object, f)
+        shape = self.edge_roi_image_flat.shape
+        roi_image_blob = self.pixel_with_rois_color_flat
+        roi_image_outline = np.hstack(
+            [self.edge_roi_image_flat,
+             np.zeros(shape),
+             np.zeros(shape)])
+        max_image = np.reshape(
+            np.max([self.max_images[x] for x in self._trials_loaded_indices], axis=0),
+            (-1, 1))
+        roi_image_blob_w_background = roi_image_blob + np.hstack(
+            [max_image, max_image, max_image]) / max_image.max() * 255
+        roi_image_outline_w_background = roi_image_outline + np.hstack(
+            [max_image, max_image, max_image]) / max_image.max() * 255
+        self.save_image(roi_image_blob,
+                        os.path.join(self.save_dir_path, "roi_blob.png"))
+        self.save_image(roi_image_outline,
+                        os.path.join(self.save_dir_path, "roi_outline.png"))
+        self.save_image(roi_image_outline_w_background,
+                        os.path.join(self.save_dir_path, "roi_outline_background.png"))
+        self.save_image(roi_image_blob_w_background,
+                        os.path.join(self.save_dir_path, "roi_blob_background.png"))
+        self.save_image(np.hstack(
+            [max_image, max_image, max_image]),
+            os.path.join(self.save_dir_path, "max.png"))
 
+    def save_image(self, image, path):
+        img = Image.fromarray(
+            (np.reshape(image - image.min(),
+                        (self.shape[0], self.shape[1], 3)) / (
+                     image.max() - image.min()) * 255).astype("uint8"))
+        img.save(path)
     def delete_roi_vars(self):
         self.rois = []
         self.rois_loaded = False

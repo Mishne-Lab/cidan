@@ -19,9 +19,8 @@ def test_main():
                      save_dir_path="test_files/save_dir", load_into_mem=False)
     assert main_widget.data_handler.shape == [400, 150]
     assert main_widget.data_handler.rois_loaded == False
-    assert main_widget.data_handler.trials_loaded == ["small_dataset1.tif"]
-    assert main_widget.data_handler.trials_all == ["small_dataset1.tif",
-                                                   "small_dataset2.tif"]
+    assert main_widget.data_handler.trials_loaded == ["0"]
+    assert main_widget.data_handler.trials_all == ["0"]
     assert main_widget.data_handler.trials_loaded_time_trace_indices == [0]
     assert main_widget.data_handler._trials_loaded_indices == [0]
     for tab in main_widget.tabs:
@@ -71,7 +70,7 @@ def test_main():
     for x in range(14):
         roi_image_view.pixel_paint(x, 2)
     assert not main_widget.tabs[1].modify_roi(2, add_subtract="add")
-    assert roi_image_view.magic_wand(50, 120)
+    # assert roi_image_view.magic_wand(50, 120)
 
     roi_image_view.set_background("", "Mean Image")
     roi_image_view.set_background("", "Blank Image")

@@ -21,7 +21,7 @@ class ROIImageViewModule(ImageViewModule):
         self.click_event = False
         self.outlines = True
         self.trial_selector_input = OptionInput(
-            "Select Trial for background image(Min/Max only)", "", self.set_background,
+            "Trial:", "", self.set_background,
             val_list=self.data_handler.trials_loaded,
             tool_tip="Select Trial to display",
             display_tool_tip=False, default_index=0,
@@ -40,16 +40,12 @@ class ROIImageViewModule(ImageViewModule):
             self.layout.removeWidget(self.image_view)
             self.layout.addWidget(self.createTabLayout())
 
-    def createTabLayout(self):
-        # ROI view tab section
-        roi_view_tabs = QTabWidget()
-        roi_view_tabs.setStyleSheet("QTabWidget {font-size: 20px;}")
-        # Display settings tab
+    def createSettings(self):
         self.display_settings_layout = QVBoxLayout()
 
         display_settings = QWidget()
         display_settings.setLayout(self.display_settings_layout)
-        image_chooser = OptionInput("ROI Display type::", "",
+        image_chooser = OptionInput("ROI Display type:", "",
                                     on_change_function=self.set_image,
                                     default_index=0,
                                     tool_tip="Choose background to display",
@@ -70,10 +66,13 @@ class ROIImageViewModule(ImageViewModule):
         self.display_settings_layout.addWidget(self.trial_selector_input)
 
         background_slider_layout = QHBoxLayout()
-        background_slider_layout.addWidget(QLabel("0"))
+        label_0 = QLabel("0")
+        label_0.setStyleSheet("QWidget {border: 0px solid #32414B;}")
+        background_slider_layout.addWidget(label_0)
         # initializes a slider to control how much to blend background image in when
         # blob is view is enabled
         self.background_slider = QSlider(Qt.Horizontal)
+        self.background_slider.setStyleSheet("QWidget {border: 0px solid #32414B;}")
         self.background_slider.setMinimum(0)
         self.background_slider.setMaximum(100)
         self.background_slider.setSingleStep(1)
@@ -85,9 +84,20 @@ class ROIImageViewModule(ImageViewModule):
         except AttributeError:
             pass
         background_slider_layout.addWidget(self.background_slider)
-        background_slider_layout.addWidget(QLabel("10"))
-        self.display_settings_layout.addWidget(QLabel("Change overlay intensity:"))
+        label_10 = QLabel("10")
+        label_10.setStyleSheet("QWidget {border: 0px solid #32414B;}")
+        background_slider_layout.addWidget(label_10)
+        label_overlay = QLabel("Change overlay intensity:")
+        label_overlay.setStyleSheet("QWidget {border: 0px solid #32414B;}")
+        self.display_settings_layout.addWidget(label_overlay)
         self.display_settings_layout.addLayout(background_slider_layout)
+        return display_settings
+    def createTabLayout(self):
+        # ROI view tab section
+        roi_view_tabs = QTabWidget()
+        roi_view_tabs.setStyleSheet("QTabWidget {font-size: 20px;}")
+        # Display settings tab
+        display_settings = self.createSettings()
 
         # ROI image view part
         self.setStyleSheet(
@@ -111,8 +121,8 @@ class ROIImageViewModule(ImageViewModule):
 
         self.updateImageDisplay()
 
-    def set_background(self, name, func_name, update_image=True):
-        if (self.main_widget.checkThreadRunning()):
+    def set_background(self, name, func_name, update_image=True, reset_override=False):
+        if (not self.resetting_view or reset_override):
 
             # Background refers to the image behind the rois
             shape = self.main_widget.data_handler.shape
@@ -147,6 +157,7 @@ class ROIImageViewModule(ImageViewModule):
                     self.current_background_name = "Max Image"
             else:
                 self.current_background_name = "Max Image"
+                self.trial_selector_input.set_default_val()
                 self.current_background = self.main_widget.data_handler.max_images[
                                               self.data_handler.trials_loaded.index(
                                                   self.trial_selector_input.current_state())][
@@ -286,6 +297,7 @@ class ROIImageViewModule(ImageViewModule):
         if event.button() == QtCore.Qt.RightButton:
             if self.image_item.raiseContextMenu(event):
                 event.accept()
+
         if hasattr(self.main_widget.data_handler,
                    "pixel_with_rois_flat") and self.main_widget.data_handler.pixel_with_rois_flat is not None:
             pos = event.pos()
@@ -435,8 +447,10 @@ class ROIImageViewModule(ImageViewModule):
                                             self.data_handler.trials_loaded)]):
                 self.trial_selector_input.set_new_options(
                     self.data_handler.trials_loaded)
+                self.trial_selector_input.set_default_val()
 
-            self.set_background("", self.current_background_name, update_image=False)
+            self.set_background("", self.current_background_name, update_image=False,
+                                reset_override=True)
 
             if (updateDisplay):
                 self.updateImageDisplay(new=True)

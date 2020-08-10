@@ -13,7 +13,7 @@ class IntInput(Input):
 
         self.input_box = QSpinBox()
         self.input_box.setMinimum(min)
-        self.input_box.setMaximumWidth(50)
+        self.input_box.setMaximumWidth(75)
         self.input_box.setMaximum(max)
         self.input_box.setSingleStep(step)
         self.input_box.setValue(self.default_val)

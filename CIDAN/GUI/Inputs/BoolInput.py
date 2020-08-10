@@ -9,8 +9,13 @@ class BoolInput(Input):
         super().__init__(display_name, program_name, on_change_function, default_val,
                          tool_tip, display_tool_tip)
 
-        self.input_box = QRadioButton()
-        self.input_box.setMaximumWidth(50)
+        self.input_box = QCheckBox()
+        self.input_box.setMaximumWidth(40)
+        self.input_box.setStyleSheet("""QCheckBox::indicator {
+     width: 25px;
+     height: 25px;
+ }""")
+
         self.input_box.setChecked(self.default_val)
         self.input_box.toggled.connect(self.on_change)
         self.input_box.setToolTip(self.tool_tip)

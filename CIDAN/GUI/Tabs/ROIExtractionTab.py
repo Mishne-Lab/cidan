@@ -39,7 +39,8 @@ class ROIExtractionTab(Tab):
     def __init__(self, main_widget):
 
         self.main_widget = main_widget
-        self.image_view = ROIPaintImageViewModule(main_widget, self, True)
+        self.image_view = ROIPaintImageViewModule(main_widget, self, False)
+        self.image_view.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
         # This part creates the top left settings/roi list view in two tabs
         self.tab_selector_roi = QTabWidget()
@@ -50,25 +51,36 @@ class ROIExtractionTab(Tab):
         roi_modification_tab.setStyleSheet("margin:0px; padding: 0px;")
 
         roi_modification_tab_layout = QVBoxLayout()
+
         roi_modification_tab_layout.setContentsMargins(2, 2, 2, 2)
+        roi_modification_tab_layout_top = QHBoxLayout()
+        roi_modification_tab_layout_top.setContentsMargins(0, 0, 0, 0)
+        roi_modification_tab_layout.addLayout(roi_modification_tab_layout_top)
+        display_settings = self.image_view.createSettings()
+        display_settings.setStyleSheet("QWidget {border: 2px solid #32414B;}")
+
+        roi_modification_tab_layout.addWidget(display_settings)
         roi_modification_tab.setLayout(roi_modification_tab_layout)
+
         self.roi_list_module = ROIListModule(main_widget.data_handler, self,
                                              select_multiple=False, display_time=False)
         roi_modification_tab_layout.addWidget(self.roi_list_module)
-        roi_modification_button_top_layout = QHBoxLayout()
-        roi_modification_tab_layout.addLayout(roi_modification_button_top_layout)
+        roi_modification_button_top_layout = QVBoxLayout()
+        roi_modification_button_top_widget = QWidget()
+        roi_modification_button_top_widget.setLayout(roi_modification_button_top_layout)
+        # roi_modification_tab_layout.addLayout(roi_modification_button_top_layout)
 
         add_new_roi = QPushButton(text="New ROI from Selection")
         add_new_roi.clicked.connect(lambda x: self.add_new_roi())
-        add_to_roi = QPushButton(text="Add to ROI")
+        add_to_roi = QPushButton(text="Add to Selected ROI")
         add_to_roi.clicked.connect(
             lambda x: self.modify_roi(self.roi_list_module.current_selected_roi, "add"))
 
-        sub_to_roi = QPushButton(text="Subtract from ROI")
+        sub_to_roi = QPushButton(text="Subtract from Selected ROI")
         sub_to_roi.clicked.connect(
             lambda x: self.modify_roi(self.roi_list_module.current_selected_roi,
                                       "subtract"))
-        delete_roi = QPushButton(text="Delete ROI")
+        delete_roi = QPushButton(text="Delete Selected ROI")
         delete_roi.clicked.connect(
             lambda x: self.delete_roi(self.roi_list_module.current_selected_roi))
 
@@ -76,6 +88,10 @@ class ROIExtractionTab(Tab):
         roi_modification_button_top_layout.addWidget(sub_to_roi)
         roi_modification_button_top_layout.addWidget(add_new_roi)
         roi_modification_button_top_layout.addWidget(delete_roi)
+        add_to_roi.setStyleSheet("QWidget {border: 0px solid #32414B;}")
+        sub_to_roi.setStyleSheet("QWidget {border: 0px solid #32414B;}")
+        add_new_roi.setStyleSheet("QWidget {border: 0px solid #32414B;}")
+        delete_roi.setStyleSheet("QWidget {border: 0px solid #32414B;}")
 
         # Paint Selection button group
         painter_button_group = QButtonGroup()
@@ -84,6 +100,10 @@ class ROIExtractionTab(Tab):
         on_button = QRadioButton(text="Add to Selection")
         sub_button = QRadioButton(text="Subtract from Selection")
         magic_wand = QRadioButton(text="Magic Wand")
+        off_button.setStyleSheet("QWidget {border: 0px solid #32414B;}")
+        on_button.setStyleSheet("QWidget {border: 0px solid #32414B;}")
+        sub_button.setStyleSheet("QWidget {border: 0px solid #32414B;}")
+        magic_wand.setStyleSheet("QWidget {border: 0px solid #32414B;}")
         painter_button_group.addButton(off_button)
         painter_button_group.addButton(on_button)
         painter_button_group.addButton(sub_button)
@@ -96,18 +116,19 @@ class ROIExtractionTab(Tab):
             lambda x: self.image_view.setSelectorBrushType("subtract"))
         magic_wand.clicked.connect(
             lambda x: self.image_view.setSelectorBrushType("magic"))
+        painter_widget = QWidget()
 
-        painter_layout = QHBoxLayout()
-        painter_layout.addWidget(QLabel(text="Selector Brush: "))
+        painter_layout = QVBoxLayout()
+        painter_widget.setLayout(painter_layout)
+        label = QLabel(text="Selector Brush: ")
+        label.setStyleSheet("QWidget {border: 0px solid #32414B;}")
+        painter_layout.addWidget(label)
+
         painter_layout.addWidget(off_button)
         painter_layout.addWidget(on_button)
         painter_layout.addWidget(sub_button)
         painter_layout.addWidget(magic_wand)
-        roi_modification_tab_layout.addLayout(painter_layout)
-        clear_from_selection = QPushButton(text="Clear Selection")
-        clear_from_selection.clicked.connect(
-            lambda x: self.image_view.clearPixelSelection())
-        roi_modification_tab_layout.addWidget(clear_from_selection)
+
         self._brush_size_options = OptionInput("Brush Size:", "",
                                                lambda x,
                                                       y: self.image_view.setBrushSize(
@@ -116,8 +137,18 @@ class ROIExtractionTab(Tab):
                                                ["1", "3", "5", "7", "9",
                                                 "11", "15", "21", "27",
                                                 "35"])
-
-        roi_modification_tab_layout.addWidget(self._brush_size_options)
+        self._brush_size_options.setStyleSheet("QWidget {border: 0px solid #32414B;}")
+        painter_layout.addWidget(self._brush_size_options)
+        clear_from_selection = QPushButton(text="Clear Selection")
+        clear_from_selection.setStyleSheet("QWidget {border: 0px solid #32414B;}")
+        clear_from_selection.clicked.connect(
+            lambda x: self.image_view.clearPixelSelection())
+        painter_layout.addWidget(clear_from_selection)
+        roi_modification_button_top_widget.setStyleSheet(
+            "QWidget {border: 2px solid #32414B; font-size: 14px}")
+        painter_widget.setStyleSheet("QWidget {border: 2px solid #32414B;}")
+        roi_modification_tab_layout_top.addWidget(roi_modification_button_top_widget)
+        roi_modification_tab_layout_top.addWidget(painter_widget)
 
         # ROI Settings Tab
         process_button = QPushButton()
@@ -130,12 +161,16 @@ class ROIExtractionTab(Tab):
         self.roi_settings_layout = QVBoxLayout()
         self.roi_settings_layout.setContentsMargins(2, 2, 2, 2)
         self.roi_settings.setLayout(self.roi_settings_layout)
-        self.roi_settings_layout.addWidget(roi_extraction_settings(main_widget))
+        settings = roi_extraction_settings(main_widget)
+
+        self.roi_settings_layout.addWidget(settings)
         self.roi_settings_layout.addWidget(process_button)
 
         # adding the tabs to the window
         self.tab_selector_roi.addTab(self.roi_settings, "ROI Creation")
         self.tab_selector_roi.addTab(roi_modification_tab, "ROI Modification")
+        self.tab_selector_roi.setMaximumWidth(435)
+        self.tab_selector_roi.setMinimumWidth(435)
         # Eigen vector viewer if dev mode is enabled
         if self.main_widget.dev:
             self.eigen_view = QWidget()
@@ -221,9 +256,12 @@ class ROIExtractionTab(Tab):
             for _ in range(len(self.data_handler.trials_all)):
                 self.data_handler.time_traces[-1].append(False)
             self.data_handler.calculate_time_trace(len(self.data_handler.rois))
-            self.update_roi()
+            self.image_view.clearPixelSelection()
+            self.update_roi(False)
             self.roi_list_module.set_list_items(self.data_handler.rois)
             self.deselectRoiTime()
+            self.roi_list_module.set_current_select(len(self.data_handler.rois))
+            self.main_widget.tabs[2].updateTab()
 
     def delete_roi(self, roi_num):
         """
@@ -243,9 +281,10 @@ class ROIExtractionTab(Tab):
                 self.data_handler.rois.pop(roi_num)
                 self.data_handler.gen_roi_display_variables()
                 self.data_handler.time_traces.pop(roi_num)
-                self.update_roi()
+                self.update_roi(False)
                 self.roi_list_module.set_list_items(self.data_handler.rois)
                 self.deselectRoiTime()
+                self.main_widget.tabs[2].updateTab()
             except IndexError:
                 print("Invalid ROI Selected")
 
@@ -285,13 +324,17 @@ class ROIExtractionTab(Tab):
                                                    x not in self.image_view.current_selected_pixels_list]
                 self.data_handler.gen_roi_display_variables()
                 self.data_handler.calculate_time_trace(roi_num)
-            self.update_roi()
+            self.deselectRoiTime()
+            self.roi_list_module.set_current_select(roi_num + 1)
+            self.image_view.clearPixelSelection()
+            self.update_roi(new=False)
+
             return True
 
-    def update_roi(self):
+    def update_roi(self, new=True):
         """Resets the roi image display"""
         if (self.main_widget.checkThreadRunning()):
-            self.image_view.reset_view()
+            self.image_view.reset_view(new=new)
 
     def selectRoiTime(self, num):
         if (self.main_widget.checkThreadRunning()):

@@ -44,47 +44,53 @@ class PreprocessingTab(Tab):
         self._image_buttons_layout = QHBoxLayout()
         self._image_buttons_layout.setContentsMargins(2, 0, 2, 0)
         image_buttons.setLayout(self._image_buttons_layout)
-        max_image_button = QPushButton()
-        max_image_button.setText("Max Image")
-        max_image_button.clicked.connect(
+        self.max_image_button = QPushButton()
+        self.max_image_button.setText("Max Image")
+        self.max_image_button.clicked.connect(
             lambda: self.set_image_display_list(self.data_handler.trials_loaded,
                                                 self.data_handler.max_images,
-                                                "Max Image"))
+                                                "Max Image", self.max_image_button))
         stack_button = QPushButton()
         stack_button.setText("Filtered Stack")
         stack_button.clicked.connect(
             lambda: self.set_image_display_list(self.data_handler.trials_loaded,
                                                 self.data_handler.dataset_trials_filtered_loaded,
-                                                "Filtered Stack"))
+                                                "Filtered Stack", stack_button))
         self.pca_stack_button = QPushButton()
         self.pca_stack_button.setText("PCA Stack")
         self.pca_stack_button.clicked.connect(
             lambda: self.set_image_display_list(self.data_handler.trials_loaded,
                                                 self.data_handler.pca_decomp,
-                                                "PCA Stack"))
-        mean_image_button = QPushButton()
-        mean_image_button.setText("Mean Image")
-        mean_image_button.clicked.connect(
+                                                "PCA Stack", self.pca_stack_button))
+        self.mean_image_button = QPushButton()
+        self.mean_image_button.setText("Mean Image")
+        self.mean_image_button.clicked.connect(
             lambda: self.set_image_display_list(self.data_handler.trials_loaded,
                                                 self.data_handler.mean_images,
-                                                "Mean Image"))
+                                                "Mean Image", self.mean_image_button))
 
         self._image_buttons_layout.addWidget(stack_button)
-        self._image_buttons_layout.addWidget(max_image_button)
-        self._image_buttons_layout.addWidget(mean_image_button)
+        self._image_buttons_layout.addWidget(self.max_image_button)
+        self._image_buttons_layout.addWidget(self.mean_image_button)
         self._image_buttons_layout.addWidget(self.pca_stack_button)
 
         main_widget.preprocess_image_view.setContentsMargins(0, 0, 0, 0)
         # main_widget.preprocess_image_view.setMargin(0)
         preprocessing_settings_widget = preprocessing_settings(main_widget)
         preprocessing_settings_widget.setContentsMargins(0, 0, 0, 0)
+        preprocessing_settings_widget.setMaximumWidth(400)
+        preprocessing_settings_widget.setMinimumWidth(400)
+        # main_widget.preprocess_image_view.setMinimumWidth(500)
         # Update image view
         self.updateTab()
+        main_widget.preprocess_image_view.setSizePolicy(QSizePolicy.Expanding,
+                                                        QSizePolicy.Expanding)
         # Initialize the tab with the necessary columns
         super().__init__("Preprocessing", column_1=[preprocessing_settings_widget
                                                     ],
                          column_2=[main_widget.preprocess_image_view
                                    ])
+        process_button_widget.setMaximumWidth(400)
         self.column_1_layout.addWidget(process_button_widget,
                                        alignment=QtCore.Qt.AlignBottom)
         self.column_2_layout.addWidget(image_buttons, alignment=QtCore.Qt.AlignBottom)
@@ -93,7 +99,7 @@ class PreprocessingTab(Tab):
     def data_handler(self):
         return self.main_widget.data_handler
 
-    def set_image_display_list(self, trial_names, data_list, name):
+    def set_image_display_list(self, trial_names, data_list, name, button=None):
         """
         Sets the preprocessing image display to use an option input and set data list
         Parameters
@@ -116,13 +122,20 @@ class PreprocessingTab(Tab):
 
         if hasattr(self, "trial_selector_input"):
             self.trial_selector_input.setParent(None)
+        if hasattr(self, "trial_selector_input"):
+            current = self.trial_selector_input.input_box.currentIndex()
+        else:
+            current = 0
+        # if button != None:
+        #     button.setStyleSheet("QPushButton {border 1px solid #148CD2; }")
         self.trial_selector_input = OptionInput("", "", set_image, val_list=trial_names,
                                                 tool_tip="Select Trial to display",
                                                 display_tool_tip=False, default_index=0,
                                                 show_name=False)
+        self.trial_selector_input.input_box.setCurrentIndex(current)
         self._image_buttons_layout.addWidget(self.trial_selector_input)
-        set_image("", trial_names[0])
-        if len(data_list[0]) == 3:
+        set_image("", trial_names[current])
+        if len(data_list[0].shape) == 3:
             cur_size = [str(data_list[0].shape[1]), str(data_list[0].shape[2])]
         else:
             cur_size = [str(data_list[0].shape[0]), str(data_list[0].shape[1])]

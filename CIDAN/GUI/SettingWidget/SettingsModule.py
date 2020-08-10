@@ -14,6 +14,7 @@ class SettingsModule(QFrame):
 
         self.setting_block_list = args
         self.layout = QVBoxLayout()
+        # self.setMaximumWidth(350)
         self.layout.setContentsMargins(2, 2, 2, 2)
         if show_name:
             # self.setStyleSheet("SettingsModule { border:1px solid rgb(50, 65, "
