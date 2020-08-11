@@ -1,5 +1,6 @@
-from qtpy.QtWidgets import *
 from qtpy import QtCore
+from qtpy.QtWidgets import *
+
 from CIDAN.GUI.Inputs.Input import Input
 
 
@@ -19,7 +20,7 @@ class BoolInput(Input):
         self.input_box.setChecked(self.default_val)
         self.input_box.toggled.connect(self.on_change)
         self.input_box.setToolTip(self.tool_tip)
-        self.layout_h.addWidget(self.input_box, alignment=QtCore.Qt.AlignCenter)
+        self.layout_h.addWidget(self.input_box, alignment=QtCore.Qt.AlignRight)
 
     def current_state(self):
         return self.input_box.isChecked()

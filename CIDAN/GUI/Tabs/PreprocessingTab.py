@@ -78,8 +78,8 @@ class PreprocessingTab(Tab):
         # main_widget.preprocess_image_view.setMargin(0)
         preprocessing_settings_widget = preprocessing_settings(main_widget)
         preprocessing_settings_widget.setContentsMargins(0, 0, 0, 0)
-        preprocessing_settings_widget.setMaximumWidth(400)
-        preprocessing_settings_widget.setMinimumWidth(400)
+        # preprocessing_settings_widget.setMaximumWidth(400)
+        # preprocessing_settings_widget.setMinimumWidth(int(400*((self.logicalDpiX() / 96.0-1)/2+1)))
         # main_widget.preprocess_image_view.setMinimumWidth(500)
         # Update image view
         self.updateTab()
@@ -90,7 +90,7 @@ class PreprocessingTab(Tab):
                                                     ],
                          column_2=[main_widget.preprocess_image_view
                                    ], horiz_moveable=True)
-        process_button_widget.setMaximumWidth(400)
+        # process_button_widget.setMaximumWidth(400*((self.logicalDpiX() / 96.0-1)/2+1))
         self.column_1_layout.addWidget(process_button_widget,
                                        alignment=QtCore.Qt.AlignBottom)
         self.column_2_layout.addWidget(image_buttons, alignment=QtCore.Qt.AlignBottom)

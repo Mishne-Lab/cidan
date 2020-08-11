@@ -70,13 +70,13 @@ class ROIExtractionTab(Tab):
         roi_modification_button_top_widget.setLayout(roi_modification_button_top_layout)
         # roi_modification_tab_layout.addLayout(roi_modification_button_top_layout)
 
-        add_new_roi = QPushButton(text="New ROI from Selection")
+        add_new_roi = QPushButton(text="New ROI from\nSelection")
         add_new_roi.clicked.connect(lambda x: self.add_new_roi())
         add_to_roi = QPushButton(text="Add to Selected ROI")
         add_to_roi.clicked.connect(
             lambda x: self.modify_roi(self.roi_list_module.current_selected_roi, "add"))
 
-        sub_to_roi = QPushButton(text="Subtract from Selected ROI")
+        sub_to_roi = QPushButton(text="Subtract from\nSelected ROI")
         sub_to_roi.clicked.connect(
             lambda x: self.modify_roi(self.roi_list_module.current_selected_roi,
                                       "subtract"))
@@ -146,7 +146,7 @@ class ROIExtractionTab(Tab):
         painter_layout.addWidget(clear_from_selection)
         roi_modification_button_top_widget.setStyleSheet(
             "QWidget {border: 2px solid #32414B; font-size: %dpx}" % (
-                        self.main_widget.scale * 25))
+                    self.main_widget.scale * 20))
         painter_widget.setStyleSheet("QWidget {border: 2px solid #32414B;}")
         roi_modification_tab_layout_top.addWidget(roi_modification_button_top_widget)
         roi_modification_tab_layout_top.addWidget(painter_widget)
@@ -195,8 +195,8 @@ class ROIExtractionTab(Tab):
 
         # Tab selector for the time trace window
         tab_selector_time_trace = QTabWidget()
-        tab_selector_time_trace.setStyleSheet("QTabWidget {font-size: 20px;}")
-        tab_selector_time_trace.setMaximumHeight(220*((self.logicalDpiX() / 96.0-1)/2+1))
+        # tab_selector_time_trace.setStyleSheet("QTabWidget {font-size: 20px;}")
+        tab_selector_time_trace.setMaximumHeight(220)
         # plot of time traces
         self.time_plot = pg.PlotWidget()
         self.time_plot.getPlotItem().getViewBox().setMouseEnabled(True, False)

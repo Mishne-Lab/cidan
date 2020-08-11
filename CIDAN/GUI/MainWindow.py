@@ -61,7 +61,7 @@ class MainWindow(QMainWindow):
               height: %dpx;
             }
             """ % (
-        25 * scale, 25 * scale, 5 * scale, 1.25 * scale, 1.25 * scale, 25 * scale))
+            25 * scale, 25 * scale, 2 * scale, 1.25 * scale, 1.25 * scale, 25 * scale))
         self.setStyleSheet(qdarkstyle.load_stylesheet() + style)
 
         # extractAction.triggered.connect()
