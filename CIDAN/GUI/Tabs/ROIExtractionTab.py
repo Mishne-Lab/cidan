@@ -44,7 +44,7 @@ class ROIExtractionTab(Tab):
 
         # This part creates the top left settings/roi list view in two tabs
         self.tab_selector_roi = QTabWidget()
-        self.tab_selector_roi.setStyleSheet("QTabWidget {font-size: 20px;}")
+        # self.tab_selector_roi.setStyleSheet("QTabWidget {font-size: 20px;}")
 
         # ROI modification Tab
         roi_modification_tab = QWidget()
@@ -70,13 +70,13 @@ class ROIExtractionTab(Tab):
         roi_modification_button_top_widget.setLayout(roi_modification_button_top_layout)
         # roi_modification_tab_layout.addLayout(roi_modification_button_top_layout)
 
-        add_new_roi = QPushButton(text="New ROI from Selection")
+        add_new_roi = QPushButton(text="New ROI from\nSelection")
         add_new_roi.clicked.connect(lambda x: self.add_new_roi())
         add_to_roi = QPushButton(text="Add to Selected ROI")
         add_to_roi.clicked.connect(
             lambda x: self.modify_roi(self.roi_list_module.current_selected_roi, "add"))
 
-        sub_to_roi = QPushButton(text="Subtract from Selected ROI")
+        sub_to_roi = QPushButton(text="Subtract from\nSelected ROI")
         sub_to_roi.clicked.connect(
             lambda x: self.modify_roi(self.roi_list_module.current_selected_roi,
                                       "subtract"))
@@ -145,7 +145,8 @@ class ROIExtractionTab(Tab):
             lambda x: self.image_view.clearPixelSelection())
         painter_layout.addWidget(clear_from_selection)
         roi_modification_button_top_widget.setStyleSheet(
-            "QWidget {border: 2px solid #32414B; font-size: 14px}")
+            "QWidget {border: 2px solid #32414B; font-size: %dpx}" % (
+                    self.main_widget.scale * 20))
         painter_widget.setStyleSheet("QWidget {border: 2px solid #32414B;}")
         roi_modification_tab_layout_top.addWidget(roi_modification_button_top_widget)
         roi_modification_tab_layout_top.addWidget(painter_widget)
@@ -169,8 +170,8 @@ class ROIExtractionTab(Tab):
         # adding the tabs to the window
         self.tab_selector_roi.addTab(self.roi_settings, "ROI Creation")
         self.tab_selector_roi.addTab(roi_modification_tab, "ROI Modification")
-        self.tab_selector_roi.setMaximumWidth(435)
-        self.tab_selector_roi.setMinimumWidth(435)
+        # self.tab_selector_roi.setMaximumWidth(435)
+        # self.tab_selector_roi.setMinimumWidth(435)
         # Eigen vector viewer if dev mode is enabled
         if self.main_widget.dev:
             self.eigen_view = QWidget()
@@ -194,7 +195,7 @@ class ROIExtractionTab(Tab):
 
         # Tab selector for the time trace window
         tab_selector_time_trace = QTabWidget()
-        tab_selector_time_trace.setStyleSheet("QTabWidget {font-size: 20px;}")
+        # tab_selector_time_trace.setStyleSheet("QTabWidget {font-size: 20px;}")
         tab_selector_time_trace.setMaximumHeight(220)
         # plot of time traces
         self.time_plot = pg.PlotWidget()
@@ -235,7 +236,7 @@ class ROIExtractionTab(Tab):
         super().__init__("ROI Extraction",
                          column_1=[self.tab_selector_roi],
                          column_2=[self.image_view, tab_selector_time_trace],
-                         column_2_display=True)
+                         column_2_display=True, horiz_moveable=True)
 
     @property
     def data_handler(self):

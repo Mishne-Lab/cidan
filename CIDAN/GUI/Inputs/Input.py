@@ -11,9 +11,9 @@ class Input(QFrame):
                  tool_tip, display_tool_tip=False, show_name=True):
         super().__init__()
         self.setStyleSheet(
-            "QWidget {border: 0px solid #32414B;}  QSpinBox {border: 2px solid #32414B;font-size: 15px;} QDoubleSpinBox "
-            "{border: 2px solid #32414B;font-size: 15px;} QComboBox{border: "
-            "2px solid #32414B;font-size: 15px;} ")
+            "QWidget {border: 0px solid #32414B;}  QSpinBox {border: 2px solid #32414B;} QDoubleSpinBox "
+            "{border: 2px solid #32414B;} QComboBox{border: "
+            "2px solid #32414B;} " )
         self.program_name = program_name
         self.input_box_1 = None
         self.tool_tip = tool_tip

@@ -1,6 +1,7 @@
 import os
 
 from PySide2.QtCore import QThreadPool
+from qtpy import QtWidgets
 
 from CIDAN.GUI.Tabs.AnalysisTab import AnalysisTab
 
@@ -32,17 +33,25 @@ class MainWindow(QMainWindow):
     def __init__(self, dev=False, preload=False):
         super().__init__()
         self.title = 'CIDAN'
-        self.width = 900
-        self.height = 800
+        scale = (self.logicalDpiX() / 96.0-1)/2+1
+        sizeObject = QtWidgets.QDesktopWidget().screenGeometry(-1)
+
+
+        self.width = 1200 * scale
+        self.height = 1066.6 * scale
+        if self.height > sizeObject.height() * .90:
+            self.height = sizeObject.height() * .90
+        if self.width > sizeObject.width() * .95:
+            self.width = sizeObject.width() * .95
         self.setWindowTitle(self.title)
         self.setMinimumSize(self.width, self.height)
         self.main_menu = self.menuBar()
         self.table_widget = MainWidget(self, dev=dev, preload=preload)
         self.setCentralWidget(self.table_widget)
         # self.setStyleSheet(qdarkstyle.load_stylesheet())
-        style = """
-            QWidget {font-size: 15px;}
-            QTabWidget {font-size: 15px; padding:1px; margin:5px;}
+        style = str("""
+            QWidget {font-size: %dpx;}
+            QTabWidget {font-size: %dpx; padding:1px; margin:%dpx;}
             QTabBar::tab {
                 background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
                                            stop: 0 #E1E1E1, stop: 0.4 #DDDDDD,
@@ -51,15 +60,16 @@ class MainWindow(QMainWindow):
                 /*border-bottom-color: #C2C7CB; !* same as the pane color *!*/
                 
                 min-width: 8ex;
-                padding:1px;
-                border:1px;
+                padding:%dpx;
+                border:%dpx;
             }
             
             QComboBox::item:checked {
               font-weight: bold;
-              height: 12px;
+              height: %dpx;
             }
-            """
+            """ % (
+            25 * scale, 25 * scale, 2 * scale, 1.25 * scale, 1.25 * scale, 25 * scale))
         self.setStyleSheet(qdarkstyle.load_stylesheet() + style)
 
         # extractAction.triggered.connect()
@@ -103,6 +113,7 @@ class MainWidget(QWidget):
         parent
         """
         super().__init__(parent)
+        self.scale = (self.logicalDpiX() / 96.0-1)/2+1
         self.main_window = parent
         self.threadpool = QThreadPool()
         self.main_menu = self.main_window.main_menu
@@ -267,9 +278,10 @@ if __name__ == "__main__":
     logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG)
     logger = logging.getLogger("CIDAN")
     logger.debug("Program started")
-    QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)  # enable highdpi scaling
-    QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)  # use highdpi icons
+
     app = QApplication([])
+    app.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)  # enable highdpi scaling
+    app.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)  # use highdpi icons
     app.setApplicationName("CIDAN")
     widget = MainWindow(dev=True, preload=True)
 

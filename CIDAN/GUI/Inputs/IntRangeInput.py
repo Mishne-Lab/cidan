@@ -13,7 +13,7 @@ class IntRangeInput(Input):
 
         self.input_box_1 = QSpinBox()
         self.input_box_1.setMinimum(min)
-        self.input_box_1.setMaximumWidth(50)
+        self.input_box_1.setMaximumWidth(75*((self.logicalDpiX() / 96.0-1)/2+1))
         self.input_box_1.setMaximum(max)
         self.input_box_1.setSingleStep(step)
         self.input_box_1.setValue(self.default_val[0])
@@ -23,7 +23,7 @@ class IntRangeInput(Input):
         self.input_box_1.valueChanged.connect(self.on_change)
         self.input_box_2 = QSpinBox()
         self.input_box_2.setMinimum(min)
-        self.input_box_2.setMaximumWidth(50)
+        self.input_box_2.setMaximumWidth(75*((self.logicalDpiX() / 96.0-1)/2+1))
         self.input_box_2.setMaximum(max)
         self.input_box_2.setSingleStep(step)
         self.input_box_2.setValue(self.default_val[1])
