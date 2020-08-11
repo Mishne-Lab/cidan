@@ -14,7 +14,7 @@ logger1 = logging.getLogger("CIDAN.ImageView.ROIImageViewModule")
 class ROIImageViewModule(ImageViewModule):
     # QApplication.mouseButtons() == Qt.LeftButton
     def __init__(self, main_widget, tab, settings_tab=True):
-        super(ROIImageViewModule, self).__init__(main_widget, histogram=True)
+        super(ROIImageViewModule, self).__init__(main_widget, histogram=False)
         self.tab = tab
         self.resetting_view = False  # Way to prevent infinite loops of reset_view
         self.current_foreground_intensity = 80
