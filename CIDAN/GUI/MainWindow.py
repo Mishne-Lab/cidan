@@ -1,6 +1,7 @@
 import os
 
 from PySide2.QtCore import QThreadPool
+from qtpy import QtWidgets
 
 from CIDAN.GUI.Tabs.AnalysisTab import AnalysisTab
 
@@ -33,8 +34,15 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.title = 'CIDAN'
         scale = (self.logicalDpiX() / 96.0-1)/2+1
+        sizeObject = QtWidgets.QDesktopWidget().screenGeometry(-1)
+
+
         self.width = 1200 * scale
         self.height = 1066.6 * scale
+        if self.height > sizeObject.height() * .95:
+            self.height = sizeObject.height() * .95
+        if self.width > sizeObject.width() * .95:
+            self.width = sizeObject.width() * .95
         self.setWindowTitle(self.title)
         # self.setMinimumSize(self.width, self.height)
         self.main_menu = self.menuBar()
