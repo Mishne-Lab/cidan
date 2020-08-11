@@ -39,12 +39,12 @@ class MainWindow(QMainWindow):
 
         self.width = 1200 * scale
         self.height = 1066.6 * scale
-        if self.height > sizeObject.height() * .95:
-            self.height = sizeObject.height() * .95
+        if self.height > sizeObject.height() * .90:
+            self.height = sizeObject.height() * .90
         if self.width > sizeObject.width() * .95:
             self.width = sizeObject.width() * .95
         self.setWindowTitle(self.title)
-        # self.setMinimumSize(self.width, self.height)
+        self.setMinimumSize(self.width, self.height)
         self.main_menu = self.menuBar()
         self.table_widget = MainWidget(self, dev=dev, preload=preload)
         self.setCentralWidget(self.table_widget)
