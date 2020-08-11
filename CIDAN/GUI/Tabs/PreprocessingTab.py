@@ -89,7 +89,7 @@ class PreprocessingTab(Tab):
         super().__init__("Preprocessing", column_1=[preprocessing_settings_widget
                                                     ],
                          column_2=[main_widget.preprocess_image_view
-                                   ])
+                                   ], horiz_moveable=True)
         process_button_widget.setMaximumWidth(400)
         self.column_1_layout.addWidget(process_button_widget,
                                        alignment=QtCore.Qt.AlignBottom)

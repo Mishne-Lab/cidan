@@ -32,7 +32,7 @@ class MainWindow(QMainWindow):
     def __init__(self, dev=False, preload=False):
         super().__init__()
         self.title = 'CIDAN'
-        scale = self.logicalDpiX() / 96.0
+        scale = (self.logicalDpiX() / 96.0-1)/2+1
         self.width = 1200 * scale
         self.height = 1066.6 * scale
         self.setWindowTitle(self.title)
@@ -105,7 +105,7 @@ class MainWidget(QWidget):
         parent
         """
         super().__init__(parent)
-        self.scale = self.logicalDpiX() / 96.0
+        self.scale = (self.logicalDpiX() / 96.0-1)/2+1
         self.main_window = parent
         self.threadpool = QThreadPool()
         self.main_menu = self.main_window.main_menu

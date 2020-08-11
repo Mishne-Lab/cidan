@@ -44,7 +44,7 @@ class ROIExtractionTab(Tab):
 
         # This part creates the top left settings/roi list view in two tabs
         self.tab_selector_roi = QTabWidget()
-        self.tab_selector_roi.setStyleSheet("QTabWidget {font-size: 20px;}")
+        # self.tab_selector_roi.setStyleSheet("QTabWidget {font-size: 20px;}")
 
         # ROI modification Tab
         roi_modification_tab = QWidget()
@@ -196,7 +196,7 @@ class ROIExtractionTab(Tab):
         # Tab selector for the time trace window
         tab_selector_time_trace = QTabWidget()
         tab_selector_time_trace.setStyleSheet("QTabWidget {font-size: 20px;}")
-        tab_selector_time_trace.setMaximumHeight(220)
+        tab_selector_time_trace.setMaximumHeight(220*((self.logicalDpiX() / 96.0-1)/2+1))
         # plot of time traces
         self.time_plot = pg.PlotWidget()
         self.time_plot.getPlotItem().getViewBox().setMouseEnabled(True, False)

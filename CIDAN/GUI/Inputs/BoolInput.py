@@ -10,8 +10,7 @@ class BoolInput(Input):
                          tool_tip, display_tool_tip)
 
         self.input_box = QCheckBox()
-        self.input_box.setMaximumWidth(40)
-        print(self.logicalDpiX() / 96.0)
+        self.input_box.setMaximumWidth(40*((self.logicalDpiX() / 96.0-1)/2+1))
         self.input_box.setStyleSheet("""QCheckBox::indicator {
      width: %spx;
      height: %spx; }QCheckBox{margin %spx;

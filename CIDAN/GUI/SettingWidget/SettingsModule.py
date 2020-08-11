@@ -21,7 +21,7 @@ class SettingsModule(QFrame):
             #                    "75);} ")
             self.header = QLabel()
             self.header.setText(name)
-            self.header.setStyleSheet("font-size: 20px")
+            # self.header.setStyleSheet("font-size: 20px")
             self.layout.addWidget(self.header)
 
         self.setting_block_layout = QToolBox()
