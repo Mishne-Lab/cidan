@@ -26,6 +26,8 @@ class OptionInput(Input):
         if (self.input_box.currentIndex() != self.default_val):
             self.input_box.setCurrentIndex(self.default_val)
 
+    def set_val(self, val):
+        self.input_box.setCurrentIndex(self.val_list.index(val))
     def set_new_options(self, options, default_index=0):
         for x in self.val_list:
             self.input_box.removeItem(0)

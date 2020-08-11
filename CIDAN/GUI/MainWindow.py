@@ -1,7 +1,7 @@
 import os
 
 from PySide2.QtCore import QThreadPool
-from qtpy import QtWidgets
+from qtpy import QtGui
 
 from CIDAN.GUI.Tabs.AnalysisTab import AnalysisTab
 
@@ -34,7 +34,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.title = 'CIDAN'
         scale = (self.logicalDpiX() / 96.0-1)/2+1
-        sizeObject = QtWidgets.QDesktopWidget().screenGeometry(-1)
+        sizeObject = QtGui.QGuiApplication.primaryScreen().availableGeometry()
 
 
         self.width = 1200 * scale
@@ -278,10 +278,11 @@ if __name__ == "__main__":
     logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG)
     logger = logging.getLogger("CIDAN")
     logger.debug("Program started")
-
+    QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling,
+                              True)  # enable highdpi scaling
+    QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)  # use highdpi icons
     app = QApplication([])
-    app.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)  # enable highdpi scaling
-    app.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)  # use highdpi icons
+
     app.setApplicationName("CIDAN")
     widget = MainWindow(dev=True, preload=True)
 

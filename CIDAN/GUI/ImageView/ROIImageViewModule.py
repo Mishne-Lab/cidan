@@ -14,7 +14,7 @@ logger1 = logging.getLogger("CIDAN.ImageView.ROIImageViewModule")
 class ROIImageViewModule(ImageViewModule):
     # QApplication.mouseButtons() == Qt.LeftButton
     def __init__(self, main_widget, tab, settings_tab=True):
-        super(ROIImageViewModule, self).__init__(main_widget, histogram=True)
+        super(ROIImageViewModule, self).__init__(main_widget, histogram=False)
         self.tab = tab
         self.resetting_view = False  # Way to prevent infinite loops of reset_view
         self.current_foreground_intensity = 80
@@ -132,14 +132,17 @@ class ROIImageViewModule(ImageViewModule):
                         self.data_handler.trials_loaded.index(
                             self.trial_selector_input.current_state())][:].reshape(
                     [-1, 1])
+                self.current_background_name = "Mean Image"
             elif func_name == "Max Image":
                 self.current_background = self.main_widget.data_handler.max_images[
                                               self.data_handler.trials_loaded.index(
                                                   self.trial_selector_input.current_state())][
                                           :].reshape(
                     [-1, 1])
+                self.current_background_name = "Max Image"
             elif func_name == "Blank Image":
                 self.current_background = np.zeros([shape[0] * shape[1], 1])
+                self.current_background_name = "Blank Image"
             # if func_name == "Temporal Correlation Image":
             #     self.current_background = self.data_handler.temporal_correlation_image.reshape(
             #         [-1, 1])
@@ -147,6 +150,7 @@ class ROIImageViewModule(ImageViewModule):
                 try:
                     self.current_background = self.data_handler.eigen_norm_image.reshape(
                         [-1, 1])
+                    self.current_background_name = "Eigen Norm Image"
                 except AttributeError:
                     print("Eigen vectors aren't currently generated or valid")
                     self.current_background = self.main_widget.data_handler.max_images[
@@ -157,12 +161,22 @@ class ROIImageViewModule(ImageViewModule):
                     self.current_background_name = "Max Image"
             else:
                 self.current_background_name = "Max Image"
-                self.trial_selector_input.set_default_val()
-                self.current_background = self.main_widget.data_handler.max_images[
+                try:
+                    self.trial_selector_input.set_default_val()
+
+                    self.current_background = self.main_widget.data_handler.max_images[
                                               self.data_handler.trials_loaded.index(
                                                   self.trial_selector_input.current_state())][
                                           :].reshape(
-                    [-1, 1])
+                        [-1, 1])
+                except AttributeError:
+                    pass
+            try:
+                if self.current_background_name != self.background_chooser.current_state():
+                    # pass
+                    self.background_chooser.set_val(self.current_background_name)
+            except AttributeError:
+                pass
             if update_image:
                 self.updateImageDisplay()
 
