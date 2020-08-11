@@ -13,7 +13,7 @@ class Input(QFrame):
         self.setStyleSheet(
             "QWidget {border: 0px solid #32414B;}  QSpinBox {border: 2px solid #32414B;font-size: 15px;} QDoubleSpinBox "
             "{border: 2px solid #32414B;font-size: 15px;} QComboBox{border: "
-            "2px solid #32414B;font-size: 15px;} ")
+            "2px solid #32414B;font-size: %dpx;} " % (25 * self.logicalDpiX() / 96.0))
         self.program_name = program_name
         self.input_box_1 = None
         self.tool_tip = tool_tip

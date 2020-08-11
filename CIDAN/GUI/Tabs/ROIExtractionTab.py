@@ -145,7 +145,8 @@ class ROIExtractionTab(Tab):
             lambda x: self.image_view.clearPixelSelection())
         painter_layout.addWidget(clear_from_selection)
         roi_modification_button_top_widget.setStyleSheet(
-            "QWidget {border: 2px solid #32414B; font-size: 14px}")
+            "QWidget {border: 2px solid #32414B; font-size: %dpx}" % (
+                        self.main_widget.scale * 25))
         painter_widget.setStyleSheet("QWidget {border: 2px solid #32414B;}")
         roi_modification_tab_layout_top.addWidget(roi_modification_button_top_widget)
         roi_modification_tab_layout_top.addWidget(painter_widget)
@@ -169,8 +170,8 @@ class ROIExtractionTab(Tab):
         # adding the tabs to the window
         self.tab_selector_roi.addTab(self.roi_settings, "ROI Creation")
         self.tab_selector_roi.addTab(roi_modification_tab, "ROI Modification")
-        self.tab_selector_roi.setMaximumWidth(435)
-        self.tab_selector_roi.setMinimumWidth(435)
+        # self.tab_selector_roi.setMaximumWidth(435)
+        # self.tab_selector_roi.setMinimumWidth(435)
         # Eigen vector viewer if dev mode is enabled
         if self.main_widget.dev:
             self.eigen_view = QWidget()
@@ -235,7 +236,7 @@ class ROIExtractionTab(Tab):
         super().__init__("ROI Extraction",
                          column_1=[self.tab_selector_roi],
                          column_2=[self.image_view, tab_selector_time_trace],
-                         column_2_display=True)
+                         column_2_display=True, horiz_moveable=True)
 
     @property
     def data_handler(self):
