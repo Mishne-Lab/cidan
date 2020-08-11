@@ -32,17 +32,18 @@ class MainWindow(QMainWindow):
     def __init__(self, dev=False, preload=False):
         super().__init__()
         self.title = 'CIDAN'
-        self.width = 900
-        self.height = 800
+        scale = self.logicalDpiX() / 96.0
+        self.width = 900*scale
+        self.height = 800*scale
         self.setWindowTitle(self.title)
-        self.setMinimumSize(self.width, self.height)
+        # self.setMinimumSize(self.width, self.height)
         self.main_menu = self.menuBar()
         self.table_widget = MainWidget(self, dev=dev, preload=preload)
         self.setCentralWidget(self.table_widget)
         # self.setStyleSheet(qdarkstyle.load_stylesheet())
         style = """
-            QWidget {font-size: 15px;}
-            QTabWidget {font-size: 15px; padding:1px; margin:5px;}
+            QWidget {font-size: 15pt;}
+            QTabWidget {font-size: 15pt; padding:1px; margin:5px;}
             QTabBar::tab {
                 background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
                                            stop: 0 #E1E1E1, stop: 0.4 #DDDDDD,
