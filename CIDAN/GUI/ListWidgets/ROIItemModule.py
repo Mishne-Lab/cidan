@@ -28,6 +28,8 @@ class ROIItemModule(QStandardItem):
         self.setEditable(False)
         # self.setCheckable(True)
 
+    def keyPressEvent(self, event):
+        self.roi_tab.keyPressEvent(event)
     def toggle_check_state(self):
         if not self.checkState():
             self.roi_tab.selectRoi(self.num)

@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='CIDAN',
-    version='0.1.20',
+    version='0.1.23',
     description='CIDAN-Calcium Imaging Data ANalysis',
     license="MIT",
     long_description=long_description,

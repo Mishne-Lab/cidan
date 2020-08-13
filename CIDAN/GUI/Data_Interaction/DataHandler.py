@@ -68,7 +68,7 @@ class DataHandler:
         "crop_x": [0, 0],
         "crop_y": [0, 0],
         "trial_split": False,
-        "trial_length": 250
+        "trial_length": 400
     }
 
     _filter_params_default = {
@@ -84,7 +84,7 @@ class DataHandler:
     _box_params_default = {
         "total_num_time_steps": 1,
         "total_num_spatial_boxes": 1,
-        "spatial_overlap": 30
+        "spatial_overlap": 40
     }
     _eigen_params_default = {
         "eigen_vectors_already_generated": False,
@@ -111,7 +111,7 @@ class DataHandler:
         "fill_holes": True,
         "refinement": True,
         "max_iter": 100,
-        "roi_circ_threshold": 40
+        "roi_circ_threshold": 20
     }
     _time_trace_params_default = {
         "time_trace_type": "Mean",
@@ -797,7 +797,7 @@ class DataHandler:
             self.global_params["need_recalc_filter_params"] = False
             self.global_params["need_recalc_dataset_params"] = False
 
-            self.global_params["need_recalc_box_params"] = True
+            # self.global_params["need_recalc_box_params"] = True
             self.save_new_param_json()
             self.delete_roi_vars()
             # self.global_params["need_recalc_eigen_params"] = True

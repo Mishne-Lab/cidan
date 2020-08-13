@@ -1,7 +1,7 @@
 import os
 
 from PySide2.QtCore import QThreadPool
-from qtpy import QtWidgets
+from qtpy import QtGui
 
 from CIDAN.GUI.Tabs.AnalysisTab import AnalysisTab
 
@@ -34,7 +34,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.title = 'CIDAN'
         scale = (self.logicalDpiX() / 96.0-1)/2+1
-        sizeObject = QtWidgets.QDesktopWidget().screenGeometry(-1)
+        sizeObject = QtGui.QGuiApplication.primaryScreen().availableGeometry()
 
 
         self.width = 1200 * scale
@@ -46,12 +46,13 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(self.title)
         self.setMinimumSize(self.width, self.height)
         self.main_menu = self.menuBar()
+        self.setContentsMargins(0, 0, 0, 0)
         self.table_widget = MainWidget(self, dev=dev, preload=preload)
         self.setCentralWidget(self.table_widget)
         # self.setStyleSheet(qdarkstyle.load_stylesheet())
         style = str("""
             QWidget {font-size: %dpx;}
-            QTabWidget {font-size: %dpx; padding:1px; margin:%dpx;}
+            QTabWidget {font-size: %dpx; padding:0px; margin:%dpx;}
             QTabBar::tab {
                 background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
                                            stop: 0 #E1E1E1, stop: 0.4 #DDDDDD,
@@ -69,7 +70,7 @@ class MainWindow(QMainWindow):
               height: %dpx;
             }
             """ % (
-            25 * scale, 25 * scale, 2 * scale, 1.25 * scale, 1.25 * scale, 25 * scale))
+            25 * scale, 25 * scale, 0 * scale, 0 * scale, 0 * scale, 25 * scale))
         self.setStyleSheet(qdarkstyle.load_stylesheet() + style)
 
         # extractAction.triggered.connect()
@@ -120,6 +121,7 @@ class MainWidget(QWidget):
         self.layout = QVBoxLayout(self)
         self.data_handler = None
         self.thread_list = []
+        self.setContentsMargins(0, 0, 0, 0)
 
         self.dev = dev
         self.tab_widget = QTabWidget()
@@ -133,10 +135,10 @@ class MainWidget(QWidget):
             self.tab_widget.setTabEnabled(num + 1, False)
         self.layout.addWidget(self.tab_widget)
         #
-        # self.console = ConsoleWidget()
+        self.console = ConsoleWidget()
         # self.console.setMaximumHeight(150)
         # self.console.setMinimumHeight(150)
-        # self.layout.addWidget(self.console)
+        self.layout.addWidget(self.console)
         self.setLayout(self.layout)
 
         # Initialize top bar menu
@@ -278,10 +280,11 @@ if __name__ == "__main__":
     logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG)
     logger = logging.getLogger("CIDAN")
     logger.debug("Program started")
-
+    QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling,
+                              True)  # enable highdpi scaling
+    QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)  # use highdpi icons
     app = QApplication([])
-    app.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)  # enable highdpi scaling
-    app.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)  # use highdpi icons
+
     app.setApplicationName("CIDAN")
     widget = MainWindow(dev=True, preload=True)
 

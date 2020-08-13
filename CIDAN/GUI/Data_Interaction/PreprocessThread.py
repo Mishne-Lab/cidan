@@ -27,6 +27,8 @@ class PreprocessThread(Thread):
             except Exception as e:
                 logger.error(e)
                 print("Unexpected error:", sys.exc_info()[0])
+                self.main_widget.console.updateText("Unexpected error:",
+                                                    sys.exc_info()[0])
                 error_dialog = QtWidgets.QErrorMessage()
                 error_dialog.showMessage("Unexpected error: " + str(e))
                 self.signal.sig.emit(False)
@@ -35,6 +37,7 @@ class PreprocessThread(Thread):
 
         if not any([x.isRunning() for x in self.main_widget.thread_list]):
             print("Starting preprocessing sequence")
+            self.main_widget.console.updateText("Starting preprocessing sequence")
             # self.button.setEnabled(False)
             self.run()
         else:
@@ -46,5 +49,5 @@ class PreprocessThread(Thread):
         self.button.setEnabled(True)
         if success:
             print("Finished preprocessing sequence")
-
+            self.main_widget.console.updateText("Finished preprocessing sequence")
             self.main_widget.updateTabs()

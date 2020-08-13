@@ -21,7 +21,7 @@ class Tab(QWidget):
                 "QSplitter { background-color: #19232D; } ")
         else:
             self.layout = QHBoxLayout()  # Main layout class
-        self.layout.setContentsMargins(2, 2, 2, 2)
+        self.layout.setContentsMargins(0, 0, 0, 0)
         self.column_1_widget = Column()
 
         self.column_1_layout = QVBoxLayout()  # Layout for column 1

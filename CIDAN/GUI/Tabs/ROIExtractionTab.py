@@ -2,6 +2,7 @@ import logging
 
 import numpy as np
 import pyqtgraph as pg
+import qdarkstyle
 from qtpy.QtWidgets import *
 
 from CIDAN.GUI.Data_Interaction.ROIExtractionThread import ROIExtractionThread
@@ -12,7 +13,8 @@ from CIDAN.GUI.ListWidgets.ROIListModule import ROIListModule
 from CIDAN.GUI.ListWidgets.TrialListWidget import TrialListWidget
 from CIDAN.GUI.SettingWidget.SettingsModule import roi_extraction_settings
 from CIDAN.GUI.Tabs.Tab import Tab
-from CIDAN.LSSC.functions.roi_extraction import combine_rois
+from CIDAN.LSSC.functions.roi_extraction import combine_rois, \
+    number_connected_components
 
 logger1 = logging.getLogger("CIDAN.ROIExtractionTab")
 
@@ -39,8 +41,11 @@ class ROIExtractionTab(Tab):
     def __init__(self, main_widget):
 
         self.main_widget = main_widget
+
         self.image_view = ROIPaintImageViewModule(main_widget, self, False)
         self.image_view.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.roi_unconnected = QErrorMessage(self.main_widget.main_window)
+
 
         # This part creates the top left settings/roi list view in two tabs
         self.tab_selector_roi = QTabWidget()
@@ -70,17 +75,26 @@ class ROIExtractionTab(Tab):
         roi_modification_button_top_widget.setLayout(roi_modification_button_top_layout)
         # roi_modification_tab_layout.addLayout(roi_modification_button_top_layout)
 
-        add_new_roi = QPushButton(text="New ROI from\nSelection")
+        add_new_roi = QPushButton(text="Create ROI from\nSelection (D)")
         add_new_roi.clicked.connect(lambda x: self.add_new_roi())
-        add_to_roi = QPushButton(text="Add to Selected ROI")
+        add_new_roi.setToolTip("Use this button to create a new ROI from selection. \n"
+                               "ROI is added to bottiom of ROI list")
+        add_to_roi = QPushButton(text="Add to Selected\nROI (A)")
         add_to_roi.clicked.connect(
             lambda x: self.modify_roi(self.roi_list_module.current_selected_roi, "add"))
-
-        sub_to_roi = QPushButton(text="Subtract from\nSelected ROI")
+        add_to_roi.setToolTip("Use this button to add the current selection to"
+                              " the selected ROI. \n"
+                              "Select an roi in the ROI list below")
+        sub_to_roi = QPushButton(text="Subtract from\nSelected ROI (S)")
         sub_to_roi.clicked.connect(
             lambda x: self.modify_roi(self.roi_list_module.current_selected_roi,
                                       "subtract"))
-        delete_roi = QPushButton(text="Delete Selected ROI")
+        sub_to_roi.setToolTip("Use this button to subtract the current selection from"
+                              " the selected ROI. \n"
+                              "Select an roi in the ROI list below")
+        delete_roi = QPushButton(text="Delete Selected\nROI (F)")
+        delete_roi.setToolTip("Use this button to delete the selected ROI. \n"
+                              "Select an roi in the ROI list below")
         delete_roi.clicked.connect(
             lambda x: self.delete_roi(self.roi_list_module.current_selected_roi))
 
@@ -95,26 +109,34 @@ class ROIExtractionTab(Tab):
 
         # Paint Selection button group
         painter_button_group = QButtonGroup()
-        off_button = QRadioButton(text="Off")
-        off_button.setChecked(True)
-        on_button = QRadioButton(text="Add to Selection")
-        sub_button = QRadioButton(text="Subtract from Selection")
-        magic_wand = QRadioButton(text="Magic Wand")
-        off_button.setStyleSheet("QWidget {border: 0px solid #32414B;}")
-        on_button.setStyleSheet("QWidget {border: 0px solid #32414B;}")
-        sub_button.setStyleSheet("QWidget {border: 0px solid #32414B;}")
-        magic_wand.setStyleSheet("QWidget {border: 0px solid #32414B;}")
-        painter_button_group.addButton(off_button)
-        painter_button_group.addButton(on_button)
-        painter_button_group.addButton(sub_button)
-        painter_button_group.addButton(magic_wand)
-        off_button.clicked.connect(
+        self.off_button = QRadioButton(text="Off (Q)")
+        self.off_button.setChecked(True)
+        self.off_button.setToolTip("Turns off the selector brush")
+        self.on_button = QRadioButton(text="Add to Selection (W)")
+        self.on_button.setToolTip(
+            "Turns on the selector brush, draw on the image by right clicking")
+        self.sub_button = QRadioButton(text="Subtract from Selection (E)")
+        self.sub_button.setToolTip(
+            "Turns the selector brush to subtract mode. Removing currently selected pixels")
+        self.magic_wand = QRadioButton(text="Magic Wand (R)")
+        self.magic_wand.setToolTip(
+            "Turns the selector brush to magic wand mode. Click on where you believe \n"
+            "there should be an ROI, and it will attempt to create one for you.\n Note just click one at a time. ")
+        self.off_button.setStyleSheet("QWidget {border: 0px solid #32414B;}")
+        self.on_button.setStyleSheet("QWidget {border: 0px solid #32414B;}")
+        self.sub_button.setStyleSheet("QWidget {border: 0px solid #32414B;}")
+        self.magic_wand.setStyleSheet("QWidget {border: 0px solid #32414B;}")
+        painter_button_group.addButton(self.off_button)
+        painter_button_group.addButton(self.on_button)
+        painter_button_group.addButton(self.sub_button)
+        painter_button_group.addButton(self.magic_wand)
+        self.off_button.clicked.connect(
             lambda x: self.image_view.setSelectorBrushType("off"))
-        on_button.clicked.connect(
+        self.on_button.clicked.connect(
             lambda x: self.image_view.setSelectorBrushType("add"))
-        sub_button.clicked.connect(
+        self.sub_button.clicked.connect(
             lambda x: self.image_view.setSelectorBrushType("subtract"))
-        magic_wand.clicked.connect(
+        self.magic_wand.clicked.connect(
             lambda x: self.image_view.setSelectorBrushType("magic"))
         painter_widget = QWidget()
 
@@ -124,10 +146,10 @@ class ROIExtractionTab(Tab):
         label.setStyleSheet("QWidget {border: 0px solid #32414B;}")
         painter_layout.addWidget(label)
 
-        painter_layout.addWidget(off_button)
-        painter_layout.addWidget(on_button)
-        painter_layout.addWidget(sub_button)
-        painter_layout.addWidget(magic_wand)
+        painter_layout.addWidget(self.off_button)
+        painter_layout.addWidget(self.on_button)
+        painter_layout.addWidget(self.sub_button)
+        painter_layout.addWidget(self.magic_wand)
 
         self._brush_size_options = OptionInput("Brush Size:", "",
                                                lambda x,
@@ -139,7 +161,7 @@ class ROIExtractionTab(Tab):
                                                 "35"])
         self._brush_size_options.setStyleSheet("QWidget {border: 0px solid #32414B;}")
         painter_layout.addWidget(self._brush_size_options)
-        clear_from_selection = QPushButton(text="Clear Selection")
+        clear_from_selection = QPushButton(text="Clear Selection (T)")
         clear_from_selection.setStyleSheet("QWidget {border: 0px solid #32414B;}")
         clear_from_selection.clicked.connect(
             lambda x: self.image_view.clearPixelSelection())
@@ -211,7 +233,8 @@ class ROIExtractionTab(Tab):
         self.time_trace_type = OptionInput("Time Trace Type", "",
                                            lambda x, y: x + y,
                                            default_index=0,
-                                           tool_tip="Select way to calculate time trace",
+                                           tool_tip="Select way to calculate time trace,"
+                                                    " \ncheck github for more details",
                                            val_list=["Mean Florescence Denoised",
                                                      "Mean Florescence",
                                                      "DeltaF Over F Denoised",
@@ -238,6 +261,44 @@ class ROIExtractionTab(Tab):
                          column_2=[self.image_view, tab_selector_time_trace],
                          column_2_display=True, horiz_moveable=True)
 
+    def keyPressEvent(self, event):
+        super(ROIExtractionTab, self).keyPressEvent(event)
+        if self.tab_selector_roi.currentIndex() == 1:
+            if event.key() == 81:  # Q
+                self.off_button.setChecked(True)
+                self.image_view.setSelectorBrushType("off")
+            if event.key() == 87:  # W
+                if self.on_button.isChecked():
+                    self.off_button.setChecked(True)
+                    self.image_view.setSelectorBrushType("off")
+                else:
+                    self.on_button.setChecked(True)
+                    self.image_view.setSelectorBrushType("add")
+            if event.key() == 69:  # E
+                if self.sub_button.isChecked():
+                    self.off_button.setChecked(True)
+                    self.image_view.setSelectorBrushType("off")
+                else:
+                    self.sub_button.setChecked(True)
+                    self.image_view.setSelectorBrushType("subtract")
+            if event.key() == 82:  # R
+                if self.magic_wand.isChecked():
+                    self.off_button.setChecked(True)
+                    self.image_view.setSelectorBrushType("off")
+                else:
+                    self.magic_wand.setChecked(True)
+                    self.image_view.setSelectorBrushType("magic")
+            if event.key() == 84:  # T
+                self.image_view.clearPixelSelection()
+            if event.key() == 65:  # A
+                self.modify_roi(self.roi_list_module.current_selected_roi, "add")
+            if event.key() == 83:  # S
+                self.modify_roi(self.roi_list_module.current_selected_roi, "subtract")
+            if event.key() == 68:  # D
+                self.add_new_roi()  # F
+            if event.key() == 70:
+                self.delete_roi(self.roi_list_module.current_selected_roi)
+
     @property
     def data_handler(self):
         return self.main_widget.data_handler
@@ -246,10 +307,35 @@ class ROIExtractionTab(Tab):
         """
         Adds a new roi using selection(self.image_view.current_selected_pixels_list)
         """
+        self.main_widget.console.updateText("Creating new ROI")
         if (self.main_widget.checkThreadRunning()):
             if len(self.image_view.current_selected_pixels_list) == 0:
                 print("Please select some pixels")
+                self.main_widget.console.updateText("Please select some pixels")
                 return
+            temp_roi = np.array(self.image_view.current_selected_pixels_list)
+            num = number_connected_components(
+                self.data_handler.shape[0] * self.data_handler.shape[1],
+                [0] + self.data_handler.shape, temp_roi)
+            if num == 2:
+
+                pass
+            else:
+                msg = QMessageBox()
+                msg.setIcon(QMessageBox.Information)
+                msg.setStyleSheet(qdarkstyle.load_stylesheet())
+
+                msg.setText(
+                    "The pixels you selected are not connected, Are you sure you want to create a new ROI with them?")
+                # msg.setInformativeText("This is additional information")
+                # msg.setWindowTitle("MessageBox demo")
+                # msg.setDetailedText("The details are as follows:")
+                msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+                retval = msg.exec_()
+                if retval == 1024:
+                    pass
+                else:
+                    return False
             self.data_handler.rois.append(
                 np.array(self.image_view.current_selected_pixels_list))
             self.data_handler.gen_roi_display_variables()
@@ -263,6 +349,8 @@ class ROIExtractionTab(Tab):
             self.deselectRoiTime()
             self.roi_list_module.set_current_select(len(self.data_handler.rois))
             self.main_widget.tabs[2].updateTab()
+            self.off_button.setChecked(True)
+            self.image_view.setSelectorBrushType("off")
 
     def delete_roi(self, roi_num):
         """
@@ -277,8 +365,14 @@ class ROIExtractionTab(Tab):
 
         """
         if (self.main_widget.checkThreadRunning()):
+
+            if roi_num is None or roi_num < 1:
+                self.main_widget.console.updateText("Invalid ROI Selected")
+                print("Invalid ROI Selected")
+                return
             roi_num = roi_num - 1
             try:
+                self.main_widget.console.updateText("Deleting ROI #%s" % str(roi_num+1))
                 self.data_handler.rois.pop(roi_num)
                 self.data_handler.gen_roi_display_variables()
                 self.data_handler.time_traces.pop(roi_num)
@@ -287,9 +381,10 @@ class ROIExtractionTab(Tab):
                 self.deselectRoiTime()
                 self.main_widget.tabs[2].updateTab()
             except IndexError:
+                self.main_widget.console.updateText("Invalid ROI Selected")
                 print("Invalid ROI Selected")
 
-    def modify_roi(self, roi_num, add_subtract="add"):
+    def modify_roi(self, roi_num, add_subtract="add", override=False):
         """
         Add/subtracts the currently selected pixels from an ROI
         Parameters
@@ -302,20 +397,48 @@ class ROIExtractionTab(Tab):
         Nothing
         """
         if (self.main_widget.checkThreadRunning()):
-            if roi_num is None:
+
+            if roi_num is None or roi_num <1:
                 print("Please select an roi")
+                self.main_widget.console.updateText("Please Select an ROI")
                 return False
             roi_num = roi_num - 1
             if len(self.image_view.current_selected_pixels_list) == 0:
                 print("Please select some pixels")
+                self.main_widget.console.updateText("Please select some pixels")
                 return False
             if add_subtract == "add":
                 print("Adding Selection to ROI #" + str(roi_num + 1))
-                self.data_handler.rois[roi_num] = combine_rois(
+                temp_roi = combine_rois(
                     self.data_handler.rois[roi_num],
                     self.image_view.current_selected_pixels_list)
-                self.data_handler.gen_roi_display_variables()
-                self.data_handler.calculate_time_trace(roi_num)
+                num = number_connected_components(
+                    self.data_handler.shape[0] * self.data_handler.shape[1],
+                    [0] + self.data_handler.shape, temp_roi)
+                if num == 2 or override:
+
+                    self.data_handler.rois[roi_num] = temp_roi
+                    self.data_handler.gen_roi_display_variables()
+                    self.data_handler.calculate_time_trace(roi_num)
+                else:
+                    msg = QMessageBox()
+                    msg.setIcon(QMessageBox.Information)
+                    msg.setStyleSheet(qdarkstyle.load_stylesheet())
+
+                    msg.setText(
+                        "The pixels you selected are not connect to ROI #%s, Are you sure you want to add them?" % str(
+                            roi_num + 1))
+                    # msg.setInformativeText("This is additional information")
+                    # msg.setWindowTitle("MessageBox demo")
+                    # msg.setDetailedText("The details are as follows:")
+                    msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+                    retval = msg.exec_()
+                    if retval == 1024:
+                        self.data_handler.rois[roi_num] = temp_roi
+                        self.data_handler.gen_roi_display_variables()
+                        self.data_handler.calculate_time_trace(roi_num)
+                    else:
+                        return False
 
             if add_subtract == "subtract":
                 print("Subtracting Selection from ROI #" + str(roi_num + 1))
@@ -328,8 +451,16 @@ class ROIExtractionTab(Tab):
             self.deselectRoiTime()
             self.roi_list_module.set_current_select(roi_num + 1)
             self.image_view.clearPixelSelection()
+            self.off_button.setChecked(True)
+            self.image_view.setSelectorBrushType("off")
             self.update_roi(new=False)
+            if add_subtract == "subtract":
+                self.main_widget.console.updateText(
+                    "Subtracting Selection from ROI #" + str(roi_num + 1))
 
+            if add_subtract == "add":
+                self.main_widget.console.updateText(
+                    "Adding Selection to ROI #" + str(roi_num + 1))
             return True
 
     def update_roi(self, new=True):

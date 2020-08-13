@@ -18,10 +18,12 @@ class FileOpenTab(Tab):
                                          lambda x: self.add_trial_selection(x), "",
                                          "Select a folder to load in", isFolder=1,
                                          forOpen=True)
-        save_dir_new_file = FileInput("Save Directory Location:", "", None, "",
+        save_dir_new_file = FileInput("Save Directory Location(Empty Directory):", "",
+                                      None, "",
                                       "Select a place to save outputs", isFolder=1,
                                       forOpen=False)
-        save_dir_new_folder = FileInput("Save Directory Location:", "", None, "",
+        save_dir_new_folder = FileInput("Save Directory Location(Empty Directory):", "",
+                                        None, "",
                                         "Select a place to save outputs", isFolder=1,
                                         forOpen=False)
 
@@ -36,8 +38,7 @@ class FileOpenTab(Tab):
             lambda: load_new_dataset(main_widget, dataset_file_input.current_state(),
                                      save_dir_new_file.current_state(),
                                      load_into_mem=self.folder_load_into_mem.current_state()))
-        self.file_load_into_mem = BoolInput("Load data into memory(not recomended "
-                                            "for large datasets)", "", None, False,
+        self.file_load_into_mem = BoolInput("Load data into memory", "", None, True,
                                             "")
         folder_open_button = QPushButton()
         folder_open_button.setContentsMargins(0, 0, 0, 11)
@@ -50,8 +51,7 @@ class FileOpenTab(Tab):
                                      load_into_mem=self.folder_load_into_mem.current_state()))
         self.folder_open_single_trial = BoolInput("Open folder as single trial", "",
                                                   None, False, "")
-        self.folder_load_into_mem = BoolInput("Load data into memory(not recomended "
-                                              "for large datasets)", "", None, False,
+        self.folder_load_into_mem = BoolInput("Load data into memory", "", None, True,
                                               "")
         prev_session_open_button = QPushButton()
         prev_session_open_button.setContentsMargins(0, 0, 0, 11)
