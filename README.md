@@ -14,6 +14,12 @@ python -m CIDAN
 
 If you encounter another issue in the installation or running of the package, first try rerunning 'pip install CIDAN'. If this doesn't fix the problem, please post the issue to the github repo and we will get back to you.
 
+To update to the latest version of CIDAN, run these commands: 
+```
+conda activate CIDAN
+pip install CIDAN --upgrade
+python -m CIDAN
+```
 # Examples
 We suggest using the data from NeuroFinder for example datasets. Link: http://neurofinder.codeneuro.org
 
