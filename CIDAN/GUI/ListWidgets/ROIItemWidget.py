@@ -64,6 +64,8 @@ class ROIItemWidget(QWidget):
             lay.addWidget(self.check_box_time_trace, alignment=QtCore.Qt.AlignRight)
         lay.setContentsMargins(0, 0, 0, 0)
 
+    def keyPressEvent(self, event):
+        self.roi_tab.keyPressEvent(event)
     def select_check_box(self):
         if not self.check_box.checkState():
             if not self.roi_list.select_multiple:

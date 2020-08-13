@@ -35,6 +35,10 @@ def load_filter_tif_stack(*, path, filter: bool, median_filter: bool,
 
     """
     size = [0, 0]
+    # image = np.zeros((50,100,100), np.float32)
+    # for x in range(25):
+    #     image[x*2,:,0::10] = 255
+    # return [100,100], image.transpose((0,2,1))
     if os.path.isdir(path):
         volumes = []
         paths = path if type(path) == list else sorted(os.listdir(path))

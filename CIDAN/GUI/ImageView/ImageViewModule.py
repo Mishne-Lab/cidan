@@ -1,6 +1,6 @@
 import numpy as np
 from pyqtgraph import ImageView, PlotItem
-from qtpy import QtCore, QtGui
+from qtpy import QtCore
 from qtpy.QtWidgets import *
 
 
@@ -74,7 +74,7 @@ class ImageViewModule(QFrame):
             self.image_view.keysPressed[ev.key()] = 1
             self.image_view.evalKeyState()
         else:
-            QtGui.QWidget.keyPressEvent(self.image_view, ev)
+            QWidget.keyPressEvent(self.image_view, ev)
     def setImage(self, data):
 
         # if self.already_loaded == False:

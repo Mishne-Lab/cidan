@@ -1,7 +1,6 @@
 import sys
 
 from qtpy import QtCore
-from qtpy import QtGui
 from qtpy.QtWidgets import *
 
 
@@ -25,28 +24,31 @@ class ConsoleWidget(QWidget):
     def __init__(self):
         super().__init__()
         self.layout = QVBoxLayout()
-        self.layout.setContentsMargins(2, 2, 2, 2)
+        self.layout.setContentsMargins(0, 0, 0, 0)
         self.label = QLabel()
-        self.label.setText("Console:")
-        self.layout.addWidget(self.label)
-        self.setMinimumHeight(100)
-        self.process = QTextBrowser()
-        self.process.moveCursor(QtGui.QTextCursor.Start)
-        self.process.ensureCursorVisible()
-        self.process.setLineWrapColumnOrWidth(500)
-        self.process.setLineWrapMode(QTextEdit.FixedPixelWidth)
+        self.label.setStyleSheet("font-size: 15pt")
+        self.label.setText("")
 
-        self.layout.addWidget(self.process)
+        self.layout.addWidget(self.label, alignment=QtCore.Qt.AlignRight)
+        # self.setMinimumHeight(100)
+        # self.process = QTextBrowser()
+        # self.process.moveCursor(QtGui.QTextCursor.Start)
+        # self.process.ensureCursorVisible()
+        # self.process.setLineWrapColumnOrWidth(500)
+        # self.process.setLineWrapMode(QTextEdit.FixedPixelWidth)
+        #
+        # self.layout.addWidget(self.process)
         self.setLayout(self.layout)
-        sys.stdout = Stream()
-        sys.stdout.newText.connect(self.onUpdateText)
+        # sys.stdout = Stream()
+        # sys.stdout.newText.connect(self.onUpdateText)
+        self.update = True
 
-    def onUpdateText(self, text):
-        cursor = self.process.textCursor()
-        cursor.movePosition(QtGui.QTextCursor.End)
-        cursor.insertText(text)
-        self.process.setTextCursor(cursor)
-        self.process.ensureCursorVisible()
+    def updateText(self, text):
+        self.label.setText(text)
+        # if self.update:
+        #     self.update =False
+        #     print(text)
+        #     self.update = True
 
     def __del__(self):
         sys.stdout = sys.__stdout__

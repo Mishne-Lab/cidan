@@ -13,6 +13,9 @@ class ROIPaintImageViewModule(ROIImageViewModule):
     def __init__(self, main_widget, tab, settings_tab=True):
         super(ROIPaintImageViewModule, self).__init__(main_widget, tab, settings_tab)
         # part about selecting pixels
+        self.setMouseTracking(True)
+        self.image_view.setMouseTracking(True)
+        self.image_view.QMouseEvent = lambda x: self.mouse_move(x)
 
         self.select_pixel_on = False  # whether you can currently select pixels in the image
         self.brush_size = 1
@@ -23,10 +26,15 @@ class ROIPaintImageViewModule(ROIImageViewModule):
                                                      dtype=bool)  # mask 1 when selected 0 when not
         self.shape = self.data_handler.shape
         self.select_image_flat = np.zeros([self.shape[0] * self.shape[1], 3])
+        self.halo_image_flat = np.zeros(
+            [self.shape[0] * self.shape[1], 3])  # used for cursor halo
         self.select_pixel_color = [0, 255, 0]
         self.select_mode = "add"  # possibilities add and subtract from current
         # selection
 
+    def mouse_move(self, event):
+        if event.type() == QtCore.Qt.MouseMove:
+            print(event.pos().x())
     def roi_view_click(self, event):
         if event.button() == QtCore.Qt.RightButton:
             if self.image_item.raiseContextMenu(event):
@@ -81,7 +89,12 @@ class ROIPaintImageViewModule(ROIImageViewModule):
         new_roi = self.data_handler.genRoiFromPoint((x, y))
         if len(new_roi) == 0:
             print(
-                "Please try again with a bigger growth factor or a different point, we couldn't find an roi where you last selected")
+                "Please try again with a different point, we couldn't find an roi where"
+                " you last selected")
+            self.main_widget.console.updateText("Please try again with a different "
+                                                "point, we couldn't find an roi where "
+                                                "you last selected")
+
             return False
 
         for cord_1d in new_roi:
@@ -92,6 +105,9 @@ class ROIPaintImageViewModule(ROIImageViewModule):
                 shape[1] * x_new + y_new)
             self.current_selected_pixels_mask[x_new, y_new] = True
         self.image_item.updateImage()
+        self.main_widget.console.updateText(
+            "Successfully generated selection of size: %s" % str(len(new_roi)))
+
         return True
     def pixel_paint(self, x, y):
         try:
@@ -138,9 +154,12 @@ class ROIPaintImageViewModule(ROIImageViewModule):
             shape = self.main_widget.data_handler.shape
 
             # range_list = self.main_widget.roi_image_view.image_view.view.viewRange()
-            background_max = self.current_background.max()
-            background_image_scaled = (self.current_foreground_intensity * 255 / (
-                background_max if background_max != 0 else 1)) * self.current_background
+            background_max = np.percentile(self.current_background, 98)
+            background_min = np.percentile(self.current_background, 2)
+            background_image_scaled = (self.current_foreground_intensity / 10 * (
+                    self.current_background - background_min) * 235 / (
+                                           (background_max - background_min) if (
+                                                                                        background_max - background_min) != 0 else 1))
             background_image_scaled_3_channel = np.hstack(
                 [background_image_scaled, background_image_scaled,
                  background_image_scaled])
@@ -148,7 +167,8 @@ class ROIPaintImageViewModule(ROIImageViewModule):
                                    "edge_roi_image_flat"):
                 self.image_item.image = background_image_scaled_3_channel.reshape(
                     (shape[0], shape[1], 3))
-                self.image_item.updateImage(autoLevels=True)
+                self.image_item.updateImage(autoLevels=False)
+                self.image_item.setLevels((0, 255))
             elif new:
                 # if self.add_image:
                 combined = self.roi_image_flat + background_image_scaled_3_channel + self.select_image_flat
@@ -159,11 +179,14 @@ class ROIPaintImageViewModule(ROIImageViewModule):
                 #     combined[mask] = self.roi_image_flat[mask]
                 combined_reshaped = combined.reshape((shape[0], shape[1], 3))
                 self.tab.image_view.setImage(combined_reshaped)
+
                 self.clearPixelSelection(update_display=False)
+                self.image_item.setLevels((0, 255))
             else:
                 self.image_item.image = background_image_scaled_3_channel.reshape(
                     (shape[0], shape[1], 3))
-                self.image_item.updateImage(autoLevels=True)
+                self.image_item.updateImage(autoLevels=False)
+                self.image_item.setLevels((0, 255))
 
                 # if self.add_image:
                 combined = (self.roi_image_flat + self.select_image_flat).reshape(
@@ -200,6 +223,7 @@ class ROIPaintImageViewModule(ROIImageViewModule):
         self.current_selected_pixels_list = []
         if update_display:
             self.updateImageDisplay()
+        self.main_widget.console.updateText("Clearing currently selected pixels")
 
     def check_pos_in_image(self, x, y):
         pass

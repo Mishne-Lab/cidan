@@ -30,7 +30,7 @@ class PreprocessingTab(Tab):
         process_button_widget = QWidget()
         process_button_widget.setLayout(process_button_layout)
         process_button_layout.addWidget(process_button)
-        process_button_layout.setContentsMargins(2, 2, 2, 2)
+        process_button_layout.setContentsMargins(0, 0, 0, 0)
         thread = PreprocessThread(main_widget, process_button, self)
         main_widget.thread_list.append(thread)  # Appends the thread to the main
         # widget thread list
@@ -90,10 +90,14 @@ class PreprocessingTab(Tab):
                                                     ],
                          column_2=[main_widget.preprocess_image_view
                                    ], horiz_moveable=True)
-        # process_button_widget.setMaximumWidth(400*((self.logicalDpiX() / 96.0-1)/2+1))
+        # process_button_widget.setMaximumWidth(400*((self.logicalDpiX() / 96.0-1)/2+1)
+
+        self.layout.setContentsMargins(0, 0, 0, 0)
         self.column_1_layout.addWidget(process_button_widget,
                                        alignment=QtCore.Qt.AlignBottom)
+        self.column_1_layout.setContentsMargins(0, 0, 0, 0)
         self.column_2_layout.addWidget(image_buttons, alignment=QtCore.Qt.AlignBottom)
+        self.column_2_layout.setContentsMargins(0, 0, 0, 0)
 
     @property
     def data_handler(self):
@@ -147,6 +151,7 @@ class PreprocessingTab(Tab):
         self.image_view.image_label.setText(
             name + ", Original Size: (%s, %s), Cropped Size: (%s, %s)" % (
             total_size[1], total_size[0], cur_size[1], cur_size[0]))
+        self.main_widget.console.updateText("Setting current background to: %s" % name)
 
     def set_image_display(self, data):
         self.trial_selector_input.setParent(None)

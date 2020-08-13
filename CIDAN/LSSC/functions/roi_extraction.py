@@ -269,6 +269,31 @@ def pixel_distance(eigen_vectors: np.ndarray, pixel_num: int) -> np.ndarray:
                   axis=1)
 
 
+def number_connected_components(pixel_length: int, original_shape: Tuple[int, int, int],
+                                pixels_in_roi: np.ndarray):
+    """
+        Runs a connected component analysis on a group of pixels in an image
+        Parameters
+        ----------
+        pixel_length
+            Number of pixels in image
+        original_shape
+            the original shape of image
+        pixels_in_roi
+            A list of pixels in the roi
+
+
+        Returns
+        -------
+        Number of groups of pixels in the image
+    """
+    original_zeros = np.zeros(pixel_length)
+    original_zeros[pixels_in_roi] = 1
+    pixel_image = np.reshape(original_zeros, original_shape[1:])
+    # runs connected component analysis on image
+    blobs_labels = np.reshape(measure.label(pixel_image, background=0),
+                              (-1))
+    return np.unique(blobs_labels).shape[0]
 def connected_component(pixel_length: int, original_shape: Tuple[int, int, int],
                         pixels_in_roi: np.ndarray,
                         initial_pixel_number: int) -> np.ndarray:

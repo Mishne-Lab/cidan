@@ -17,7 +17,7 @@ class ROIImageViewModule(ImageViewModule):
         super(ROIImageViewModule, self).__init__(main_widget, histogram=False)
         self.tab = tab
         self.resetting_view = False  # Way to prevent infinite loops of reset_view
-        self.current_foreground_intensity = 80
+        self.current_foreground_intensity = 30
         self.click_event = False
         self.outlines = True
         self.trial_selector_input = OptionInput(
@@ -29,6 +29,7 @@ class ROIImageViewModule(ImageViewModule):
         self.set_background("", "Max Image", update_image=False)
         self.image_item.mouseClickEvent = lambda x: self.roi_view_click(x)
         self.image_item.mouseDragEvent = lambda x: self.roi_view_drag(x)
+
 
         shape = main_widget.data_handler.shape
         self.select_image_flat = np.zeros([shape[0] * shape[1], 3])
@@ -87,7 +88,7 @@ class ROIImageViewModule(ImageViewModule):
         label_10 = QLabel("10")
         label_10.setStyleSheet("QWidget {border: 0px solid #32414B;}")
         background_slider_layout.addWidget(label_10)
-        label_overlay = QLabel("Change overlay intensity:")
+        label_overlay = QLabel("Change background intensity:")
         label_overlay.setStyleSheet("QWidget {border: 0px solid #32414B;}")
         self.display_settings_layout.addWidget(label_overlay)
         self.display_settings_layout.addLayout(background_slider_layout)
@@ -116,14 +117,15 @@ class ROIImageViewModule(ImageViewModule):
         return self.display_settings_layout
 
     def intensitySliderChanged(self):
-        self.current_foreground_intensity = 10 - (
+        self.current_foreground_intensity = (
                 float(self.background_slider.value()) / 10)
 
         self.updateImageDisplay()
 
     def set_background(self, name, func_name, update_image=True, reset_override=False):
         if (not self.resetting_view or reset_override):
-
+            self.main_widget.console.updateText(
+                "Setting current background to: %s" % func_name)
             # Background refers to the image behind the rois
             shape = self.main_widget.data_handler.shape
             if func_name == "Mean Image":
@@ -153,6 +155,9 @@ class ROIImageViewModule(ImageViewModule):
                     self.current_background_name = "Eigen Norm Image"
                 except AttributeError:
                     print("Eigen vectors aren't currently generated or valid")
+                    self.main_widget.console.updateText(
+                        "Can't display EigenNorm image, Eigen vectors aren't currently generated or valid")
+
                     self.current_background = self.main_widget.data_handler.max_images[
                                                   self.data_handler.trials_loaded.index(
                                                       self.trial_selector_input.current_state())][
@@ -204,9 +209,12 @@ class ROIImageViewModule(ImageViewModule):
             # TODO add in update with image paint layer
             shape = self.main_widget.data_handler.shape
             # range_list = self.main_widget.roi_image_view.image_view.view.viewRange()
-            background_max = self.current_background.max()
-            background_image_scaled = (self.current_foreground_intensity * 255 / (
-                background_max if background_max != 0 else 1)) * self.current_background
+            background_max = np.percentile(self.current_background, 98)
+            background_min = np.percentile(self.current_background, 2)
+            background_image_scaled = (self.current_foreground_intensity / 10 * (
+                    self.current_background - background_min) * 235 / (
+                                           (background_max - background_min) if (
+                                                                                        background_max - background_min) != 0 else 1))
             background_image_scaled_3_channel = np.hstack(
                 [background_image_scaled, background_image_scaled,
                  background_image_scaled])
@@ -214,7 +222,8 @@ class ROIImageViewModule(ImageViewModule):
                                    "edge_roi_image_flat"):
                 self.image_item.image = background_image_scaled_3_channel.reshape(
                     (shape[0], shape[1], 3))
-                self.image_item.updateImage(autoLevels=True)
+                self.image_item.updateImage(autoLevels=False)
+                self.image_item.setLevels((0, 255))
             elif new:
                 # if self.add_image:
                 combined = self.roi_image_flat + background_image_scaled_3_channel + self.select_image_flat
@@ -224,11 +233,15 @@ class ROIImageViewModule(ImageViewModule):
                 #     mask = np.any(self.roi_image_flat != [0, 0, 0], axis=1)
                 #     combined[mask] = self.roi_image_flat[mask]
                 combined_reshaped = combined.reshape((shape[0], shape[1], 3))
+                self.image_item.setLevels((0, 255))
+
                 self.tab.image_view.setImage(combined_reshaped)
             else:
                 self.image_item.image = background_image_scaled_3_channel.reshape(
                     (shape[0], shape[1], 3))
-                self.image_item.updateImage(autoLevels=True)
+                self.image_item.updateImage(autoLevels=False)
+                self.image_item.setLevels((0, 255))
+
 
                 # if self.add_image:
                 combined = (self.roi_image_flat + self.select_image_flat).reshape(
@@ -261,9 +274,13 @@ class ROIImageViewModule(ImageViewModule):
         except AttributeError:
             pass
         except IndexError:
+            self.main_widget.console.updateText(
+                "Please regenerate ROIs before trying this operation")
+
             print("Please regenerate ROIs before trying this operation")
         except ValueError as e:
             if "shape" in e.args[0]:
+                self.main_widget.console.updateText("Error please try again")
                 print("Error please try again")
                 self.reset_view()
 
@@ -281,6 +298,7 @@ class ROIImageViewModule(ImageViewModule):
             self.updateImageDisplay()
         except ValueError as e:
             if "shape" in e.args[0]:
+                self.main_widget.console.updateText("Error please try again")
                 print("Error please try again")
                 self.reset_view()
 

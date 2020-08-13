@@ -52,6 +52,8 @@ class ROIListModule(QFrame):
         self.roi_item_list = []
         self.setLayout(self.layout)
 
+    def keyPressEvent(self, event):
+        self.roi_tab.keyPressEvent(event)
     def set_current_select(self, num):
         self.list.setCurrentIndex(self.model.index(int(num - 1), 0))
         self.roi_time_check_list[num - 1] = not self.roi_time_check_list[num - 1]
