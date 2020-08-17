@@ -3,11 +3,12 @@ import os
 from PySide2.QtCore import QThreadPool
 from qtpy import QtGui
 
+from CIDAN.GUI.Data_Interaction.demoDownload import demoDownload
 from CIDAN.GUI.Tabs.AnalysisTab import AnalysisTab
 
 os.environ['QT_API'] = 'pyside2'
 from qtpy.QtWidgets import QTabWidget
-from CIDAN.GUI.Tabs.FileOpenTab import FileOpenTab
+from CIDAN.GUI.Tabs.FileOpenTab import FileOpenTab, createFileDialog
 from CIDAN.GUI.Tabs.ROIExtractionTab import *
 from CIDAN.GUI.Tabs.PreprocessingTab import *
 import qdarkstyle
@@ -159,7 +160,10 @@ class MainWidget(QWidget):
         openPrevAction.setStatusTip('Open a previous session')
         openPrevAction.triggered.connect(lambda: self.selectOpenFileTab(2))
         fileMenu.addAction(openPrevAction)
-
+        openPrevAction = QAction("Download and Open Demo Dataset", self)
+        openPrevAction.setStatusTip('Download and Open Demo Dataset')
+        openPrevAction.triggered.connect(lambda: self.downloadOpenDemo())
+        fileMenu.addAction(openPrevAction)
         # Below here in this function is just code for testing
         # TODO check if it can load data twice
         if preload and dev:
@@ -275,6 +279,24 @@ class MainWidget(QWidget):
         for x in self.tabs:
             x.updateTab()
 
+    def downloadOpenDemo(self):
+        path = createFileDialog(directory="~/Desktop", forOpen=False,
+                                isFolder=True)
+        self.console.updateText("Downloading Demo Dataset to: " + path)
+        if demoDownload(path):
+            self.console.updateText("Finished Downloading, now processing")
+            path_full = os.path.join(path, "CIDAN_Demo/")
+
+            self.data_handler = DataHandler(
+
+                path_full,
+                path_full,
+                trials=["demo_dataset_1.tif"],
+                save_dir_already_created=False)
+            self.init_w_data()
+        else:
+            self.console.updateText("Download Unsuccessful")
+
 
 if __name__ == "__main__":
     # client = Client(processes=False, threads_per_worker=16,
@@ -290,6 +312,6 @@ if __name__ == "__main__":
     app = QApplication([])
 
     app.setApplicationName("CIDAN")
-    widget = MainWindow(dev=True, preload=True)
+    widget = MainWindow(dev=True, preload=False)
 
     sys.exit(app.exec_())
