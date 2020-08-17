@@ -23,7 +23,7 @@ def calcAffinityMatrix(*, pixel_list: np.ndarray, metric: str, knn: int,
                        num_threads:
                        int, spatial_box_num: int, temporal_box_num: int,
                        total_num_spatial_boxes: int, total_num_time_steps: int,
-                       save_dir: str):
+                       save_dir: str, progress_signal=None):
     """
     Calculates an pairwise affinity matrix for the image stack
     Parameters
@@ -111,7 +111,8 @@ def calcAffinityMatrix(*, pixel_list: np.ndarray, metric: str, knn: int,
     with open(os.path.join(save_dir, "temp_files/embedding/s_%s_t_%s" % (
     str(spatial_box_num), str(temporal_box_num))), "w") as f:
         f.write("done")
-    printProgressBarROI(total_num_spatial_boxes, total_num_time_steps, save_dir)
+    printProgressBarROI(total_num_spatial_boxes, total_num_time_steps, save_dir,
+                        progress_signal=progress_signal)
     return K_sym
 
 

@@ -3,11 +3,12 @@ import os
 from PySide2.QtCore import QThreadPool
 from qtpy import QtGui
 
+from CIDAN.GUI.Data_Interaction.demoDownload import demoDownload
 from CIDAN.GUI.Tabs.AnalysisTab import AnalysisTab
 
 os.environ['QT_API'] = 'pyside2'
 from qtpy.QtWidgets import QTabWidget
-from CIDAN.GUI.Tabs.FileOpenTab import FileOpenTab
+from CIDAN.GUI.Tabs.FileOpenTab import FileOpenTab, createFileDialog
 from CIDAN.GUI.Tabs.ROIExtractionTab import *
 from CIDAN.GUI.Tabs.PreprocessingTab import *
 import qdarkstyle
@@ -36,23 +37,24 @@ class MainWindow(QMainWindow):
         scale = (self.logicalDpiX() / 96.0-1)/2+1
         sizeObject = QtGui.QGuiApplication.primaryScreen().availableGeometry()
 
-
-        self.width = 1200 * scale
+        self.width = 1500 * scale
         self.height = 1066.6 * scale
-        if self.height > sizeObject.height() * .90:
-            self.height = sizeObject.height() * .90
+        if self.height > sizeObject.height() * .95:
+            self.height = sizeObject.height() * .95
         if self.width > sizeObject.width() * .95:
             self.width = sizeObject.width() * .95
         self.setWindowTitle(self.title)
-        self.setMinimumSize(self.width, self.height)
+        self.setMinimumSize(int(self.width), int(self.height))
         self.main_menu = self.menuBar()
         self.setContentsMargins(0, 0, 0, 0)
         self.table_widget = MainWidget(self, dev=dev, preload=preload)
         self.setCentralWidget(self.table_widget)
         # self.setStyleSheet(qdarkstyle.load_stylesheet())
         style = str("""
+            
             QWidget {font-size: %dpx;}
-            QTabWidget {font-size: %dpx; padding:0px; margin:%dpx;}
+            QTabWidget {font-size: %dpx; padding:0px; margin:%dpx;
+                border:0px;}
             QTabBar::tab {
                 background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
                                            stop: 0 #E1E1E1, stop: 0.4 #DDDDDD,
@@ -70,7 +72,7 @@ class MainWindow(QMainWindow):
               height: %dpx;
             }
             """ % (
-            25 * scale, 25 * scale, 0 * scale, 0 * scale, 0 * scale, 25 * scale))
+            20 * scale, 20 * scale, 0 * scale, 0 * scale, 0 * scale, 20 * scale))
         self.setStyleSheet(qdarkstyle.load_stylesheet() + style)
 
         # extractAction.triggered.connect()
@@ -117,6 +119,7 @@ class MainWidget(QWidget):
         self.scale = (self.logicalDpiX() / 96.0-1)/2+1
         self.main_window = parent
         self.threadpool = QThreadPool()
+        self.progress_signal = None
         self.main_menu = self.main_window.main_menu
         self.layout = QVBoxLayout(self)
         self.data_handler = None
@@ -125,6 +128,7 @@ class MainWidget(QWidget):
 
         self.dev = dev
         self.tab_widget = QTabWidget()
+        self.tab_widget.setContentsMargins(0, 0, 0, 0)
         self.fileOpenTab = FileOpenTab(self)
         self.tab_widget.addTab(self.fileOpenTab, "Open Dataset")
 
@@ -136,6 +140,7 @@ class MainWidget(QWidget):
         self.layout.addWidget(self.tab_widget)
         #
         self.console = ConsoleWidget()
+        self.console.setContentsMargins(0, 0, 0, 0)
         # self.console.setMaximumHeight(150)
         # self.console.setMinimumHeight(150)
         self.layout.addWidget(self.console)
@@ -155,7 +160,10 @@ class MainWidget(QWidget):
         openPrevAction.setStatusTip('Open a previous session')
         openPrevAction.triggered.connect(lambda: self.selectOpenFileTab(2))
         fileMenu.addAction(openPrevAction)
-
+        openPrevAction = QAction("Download and Open Demo Dataset", self)
+        openPrevAction.setStatusTip('Download and Open Demo Dataset')
+        openPrevAction.triggered.connect(lambda: self.downloadOpenDemo())
+        fileMenu.addAction(openPrevAction)
         # Below here in this function is just code for testing
         # TODO check if it can load data twice
         if preload and dev:
@@ -271,6 +279,24 @@ class MainWidget(QWidget):
         for x in self.tabs:
             x.updateTab()
 
+    def downloadOpenDemo(self):
+        path = createFileDialog(directory="~/Desktop", forOpen=False,
+                                isFolder=True)
+        self.console.updateText("Downloading Demo Dataset to: " + path)
+        if demoDownload(path):
+            self.console.updateText("Finished Downloading, now processing")
+            path_full = os.path.join(path, "CIDAN_Demo/")
+
+            self.data_handler = DataHandler(
+
+                path_full,
+                path_full,
+                trials=["demo_dataset_1.tif"],
+                save_dir_already_created=False)
+            self.init_w_data()
+        else:
+            self.console.updateText("Download Unsuccessful")
+
 
 if __name__ == "__main__":
     # client = Client(processes=False, threads_per_worker=16,
@@ -286,6 +312,6 @@ if __name__ == "__main__":
     app = QApplication([])
 
     app.setApplicationName("CIDAN")
-    widget = MainWindow(dev=True, preload=True)
+    widget = MainWindow(dev=True, preload=False)
 
     sys.exit(app.exec_())

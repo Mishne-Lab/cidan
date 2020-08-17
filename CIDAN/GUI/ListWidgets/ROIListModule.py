@@ -44,6 +44,7 @@ class ROIListModule(QFrame):
             label3 = QLabel(text="Time Trace On")
             label3.setMaximumWidth(100*((self.logicalDpiX() / 96.0-1)/2+1))
             self.top_labels_layout.addWidget(label3, alignment=QtCore.Qt.AlignRight)
+        self.setMinimumHeight(200 * ((self.logicalDpiX() / 96.0 - 1) / 2 + 1))
         self.model = QStandardItemModel(self.list)
         self.list.setModel(self.model)
         self.layout = QVBoxLayout()

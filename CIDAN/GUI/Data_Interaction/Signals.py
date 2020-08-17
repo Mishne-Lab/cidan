@@ -16,6 +16,12 @@ class StrSignal(QObject):
     sig = Signal(str)
 
 
+class StrIntSignal(QObject):
+    def __init__(self):
+        super().__init__()
+
+    sig = Signal(str, int)
+
 class BoolSignal(QObject):
     def __init__(self):
         super().__init__()

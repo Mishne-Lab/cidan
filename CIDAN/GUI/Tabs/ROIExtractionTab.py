@@ -292,10 +292,10 @@ class ROIExtractionTab(Tab):
                 self.image_view.clearPixelSelection()
             if event.key() == 65:  # A
                 self.modify_roi(self.roi_list_module.current_selected_roi, "add")
-            if event.key() == 83:  # S
+            if event.key() == 83:  #S
                 self.modify_roi(self.roi_list_module.current_selected_roi, "subtract")
             if event.key() == 68:  # D
-                self.add_new_roi()  # F
+                self.add_new_roi()  #F
             if event.key() == 70:
                 self.delete_roi(self.roi_list_module.current_selected_roi)
 
@@ -366,13 +366,13 @@ class ROIExtractionTab(Tab):
         """
         if (self.main_widget.checkThreadRunning()):
 
-            if roi_num is None or roi_num < 1:
+            if roi_num is None or roi_num <1:
                 self.main_widget.console.updateText("Invalid ROI Selected")
                 print("Invalid ROI Selected")
                 return
             roi_num = roi_num - 1
             try:
-                self.main_widget.console.updateText("Deleting ROI #%s" % str(roi_num+1))
+                self.main_widget.console.updateText("Deleting ROI #%s" % str(roi_num + 1))
                 self.data_handler.rois.pop(roi_num)
                 self.data_handler.gen_roi_display_variables()
                 self.data_handler.time_traces.pop(roi_num)

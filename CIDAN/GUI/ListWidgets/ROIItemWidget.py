@@ -59,7 +59,7 @@ class ROIItemWidget(QWidget):
             lay.addWidget(QLabel())
         # lay.addWidget(
         #     QLabel(str(round(self.roi_tab.data_handler.roi_circ_list[roi_num - 1], 3))))
-        lay.addWidget(self.zoom_button, alignment=QtCore.Qt.AlignRight)
+        lay.addWidget(self.zoom_button)
         if display_time:
             lay.addWidget(self.check_box_time_trace, alignment=QtCore.Qt.AlignRight)
         lay.setContentsMargins(0, 0, 0, 0)

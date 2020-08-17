@@ -2,6 +2,7 @@ import logging
 
 from qtpy import QtWidgets
 
+from CIDAN.GUI.Data_Interaction.Signals import StrIntSignal
 from CIDAN.GUI.Data_Interaction.Thread import Thread
 
 logger = logging.getLogger("CIDAN.GUI.Data_Interaction.ROIExctractionThread")
@@ -13,16 +14,18 @@ class ROIExtractionThread(Thread):
         self.roi_tab = roi_tab
         self.roi_list_module = roi_list_module
         self.button = button
+        self.reportProgress = StrIntSignal()
+        self.reportProgress.sig.connect(main_widget.console.updateProgressBar)
         self.signal.sig.connect(lambda x: self.endThread(x))
 
     def run(self):
         if self.main_widget.dev:
-            self.data_handler.calculate_roi_extraction()
+            self.data_handler.calculate_roi_extraction(self.reportProgress)
             print("Finished ROI extraction")
             self.signal.sig.emit(True)
         else:
             try:
-                self.data_handler.calculate_roi_extraction()
+                self.data_handler.calculate_roi_extraction(self.reportProgress)
                 print("Finished ROI extraction")
                 self.signal.sig.emit(True)
             except AttributeError as e:
@@ -42,7 +45,7 @@ class ROIExtractionThread(Thread):
         if not any([x.isRunning() for x in self.main_widget.thread_list]):
             print("Starting ROI extraction")
             # self.button.setEnabled(False)
-            self.run()
+            self.start()
         else:
             print(
                 "Previous process in process, please wait to start new one till finished")
@@ -51,3 +54,4 @@ class ROIExtractionThread(Thread):
         self.button.setEnabled(True)
         if success:
             self.main_widget.updateTabs()
+            self.main_widget.console.updateText("Finished ROI extraction sequence")

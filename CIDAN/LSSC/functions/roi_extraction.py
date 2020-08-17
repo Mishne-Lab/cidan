@@ -24,7 +24,7 @@ def roi_extract_image(*, e_vectors: np.ndarray,
                       roi_size_limit: int, box_num: int, total_num_spatial_boxes=0,
                       total_num_time_steps=0, save_dir=0, print_progress=False,
                       initial_pixel=-1,
-                      print_info=True) -> List[
+                      print_info=True, progress_signal=None) -> List[
     np.ndarray]:
     """
     Computes the Local Selective Spectral roi_extraction algorithm on an set of
@@ -217,7 +217,8 @@ def roi_extract_image(*, e_vectors: np.ndarray,
         with open(os.path.join(save_dir, "temp_files/rois/s_%s" % str(box_num)),
                   "w") as f:
             f.write("done")
-        printProgressBarROI(total_num_spatial_boxes, total_num_time_steps, save_dir)
+        printProgressBarROI(total_num_spatial_boxes, total_num_time_steps, save_dir,
+                            progress_signal=progress_signal)
     return roi_list
 
 

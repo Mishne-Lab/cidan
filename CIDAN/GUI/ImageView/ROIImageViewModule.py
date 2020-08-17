@@ -155,15 +155,20 @@ class ROIImageViewModule(ImageViewModule):
                     self.current_background_name = "Eigen Norm Image"
                 except AttributeError:
                     print("Eigen vectors aren't currently generated or valid")
-                    self.main_widget.console.updateText(
-                        "Can't display EigenNorm image, Eigen vectors aren't currently generated or valid")
+
 
                     self.current_background = self.main_widget.data_handler.max_images[
                                                   self.data_handler.trials_loaded.index(
                                                       self.trial_selector_input.current_state())][
                                               :].reshape(
                         [-1, 1])
+                    if update_image:
+                        self.updateImageDisplay()
+                    self.main_widget.console.updateText(
+                        "Can't display Eigen Norm image, Eigen vectors aren't currently generated or valid")
+
                     self.current_background_name = "Max Image"
+                    return
             else:
                 self.current_background_name = "Max Image"
                 try:
