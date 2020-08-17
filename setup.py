@@ -1,7 +1,11 @@
 from setuptools import setup, find_packages
 
-with open("README.md", 'r') as f:
-    long_description = f.read()
+try:
+    with open("README.md", 'r') as f:
+        long_description = f.read()
+
+except:
+    long_description = ""
 
 setup(
     name='CIDAN',
