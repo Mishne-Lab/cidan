@@ -694,14 +694,14 @@ class DataHandler:
         printProgressBarFilter(
             total_num_spatial_boxes=self.box_params["total_num_spatial_boxes"],
             total_num_time_steps=self.box_params["total_num_time_steps"],
-            save_dir=self.save_dir_path)
+            save_dir=self.save_dir_path, progress_signal=self.progress_signal)
 
         if self.load_into_mem:
             return cur_stack
         else:
             return z1
 
-    def calculate_filters(self):
+    def calculate_filters(self, progress_signal=None):
         """
         Applies filter to each trial, sets them to self.dataset_trials_filtered
 
@@ -712,7 +712,7 @@ class DataHandler:
         if self.global_params["need_recalc_filter_params"] or self.global_params[
             "need_recalc_dataset_params"] or \
                 not hasattr(self, "dataset_trials_filtered"):
-
+            self.progress_signal = progress_signal
             print("Started Calculating Filters")
 
             self.update_trial_list()
@@ -728,7 +728,7 @@ class DataHandler:
             printProgressBarFilter(
                 total_num_spatial_boxes=self.box_params["total_num_spatial_boxes"],
                 total_num_time_steps=self.box_params["total_num_time_steps"],
-                save_dir=self.save_dir_path)
+                save_dir=self.save_dir_path, progress_signal=self.progress_signal)
 
             self.dataset_trials_filtered = [False] * len(self.trials_all)
             if self.filter_params["pca"]:
@@ -765,7 +765,7 @@ class DataHandler:
             printProgressBarFilter(
                 total_num_spatial_boxes=self.box_params["total_num_spatial_boxes"],
                 total_num_time_steps=self.box_params["total_num_time_steps"],
-                save_dir=self.save_dir_path)
+                save_dir=self.save_dir_path, progress_signal=self.progress_signal)
 
             max_image_stack = np.dstack(self.max_images)
             with open(os.path.join(self.save_dir_path,
@@ -785,7 +785,7 @@ class DataHandler:
             printProgressBarFilter(
                 total_num_spatial_boxes=self.box_params["total_num_spatial_boxes"],
                 total_num_time_steps=self.box_params["total_num_time_steps"],
-                save_dir=self.save_dir_path)
+                save_dir=self.save_dir_path, progress_signal=self.progress_signal)
 
             # self.mean_images = [np.mean(x[:], axis=0) for x in
             #                     self.dataset_trials_filtered_loaded]
@@ -875,7 +875,8 @@ class DataHandler:
             self.trials_loaded_time_trace_indices = [num for num, x in
                                                      enumerate(self.trials_all)
                                                      if x in self.trials_loaded]
-    def calculate_roi_extraction(self):
+
+    def calculate_roi_extraction(self, progress_signal=None):
         """
         Extracts Rois and sets them to self.rois
         """
@@ -960,7 +961,8 @@ class DataHandler:
                                              "roi_size_max"],
                                          pca=self.filter_params["pca"],
                                          pca_data= self.pca_decomp if self.filter_params[
-                                             "pca"] else False)
+                                             "pca"] else False,
+                                         progress_signal=progress_signal)
                 self.box_params_processed = temp_params
                 self.save_new_param_json()
                 roi_valid_list = filterRoiList(self.rois, self.shape)

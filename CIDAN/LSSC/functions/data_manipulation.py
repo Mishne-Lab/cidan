@@ -162,8 +162,7 @@ def save_image(volume: np.ndarray, name: str, directory: str, shape: tuple,
 def filter_stack(*, stack: np.ndarray, median_filter: bool,
                  median_filter_size: Tuple[int, int, int],
                  z_score: bool, hist_eq=False, localSpatialDenoising=False):
-    if localSpatialDenoising:
-        stack = applyLocalSpatialDenoising(stack)
+
 
         # stack = ndimage.filters.convolve(stack, np.full((3, 3, 3), 1.0 / 27))
     if z_score and not hist_eq:
@@ -191,6 +190,8 @@ def filter_stack(*, stack: np.ndarray, median_filter: bool,
         stack_equalized_filtered = ndimage.median_filter(stack_equalized_squared,
                                                          (1, 1, 3))
         stack = np.transpose(stack_equalized_filtered, (2, 0, 1))
+        if localSpatialDenoising:
+            stack = applyLocalSpatialDenoising(stack)
     if median_filter:
         stack = ndimage.median_filter(stack, median_filter_size)
     return stack

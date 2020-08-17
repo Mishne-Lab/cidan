@@ -5,7 +5,7 @@ from qtpy import QtWidgets
 
 
 def downloadDemo(save_path):
-    url = ""
+    url = "https://github.com/Mishne-Lab/CIDAN/blob/master/demo/demo_dataset_1.tif"
     if not os.path.isdir(save_path) and save_path != "":
         error_dialog = QtWidgets.QErrorMessage()
         error_dialog.showMessage("Please Select a valid folder")
@@ -15,3 +15,4 @@ def downloadDemo(save_path):
     demo_dataset_path = os.path.join(demo_folder_path, "demo_dataset.tif")
     with open(demo_dataset_path, 'wb') as f:
         f.write(r.content)
+    return True

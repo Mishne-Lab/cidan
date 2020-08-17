@@ -36,23 +36,24 @@ class MainWindow(QMainWindow):
         scale = (self.logicalDpiX() / 96.0-1)/2+1
         sizeObject = QtGui.QGuiApplication.primaryScreen().availableGeometry()
 
-
-        self.width = 1200 * scale
+        self.width = 1500 * scale
         self.height = 1066.6 * scale
-        if self.height > sizeObject.height() * .90:
-            self.height = sizeObject.height() * .90
+        if self.height > sizeObject.height() * .95:
+            self.height = sizeObject.height() * .95
         if self.width > sizeObject.width() * .95:
             self.width = sizeObject.width() * .95
         self.setWindowTitle(self.title)
-        self.setMinimumSize(self.width, self.height)
+        self.setMinimumSize(int(self.width), int(self.height))
         self.main_menu = self.menuBar()
         self.setContentsMargins(0, 0, 0, 0)
         self.table_widget = MainWidget(self, dev=dev, preload=preload)
         self.setCentralWidget(self.table_widget)
         # self.setStyleSheet(qdarkstyle.load_stylesheet())
         style = str("""
+            
             QWidget {font-size: %dpx;}
-            QTabWidget {font-size: %dpx; padding:0px; margin:%dpx;}
+            QTabWidget {font-size: %dpx; padding:0px; margin:%dpx;
+                border:0px;}
             QTabBar::tab {
                 background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
                                            stop: 0 #E1E1E1, stop: 0.4 #DDDDDD,
@@ -70,7 +71,7 @@ class MainWindow(QMainWindow):
               height: %dpx;
             }
             """ % (
-            25 * scale, 25 * scale, 0 * scale, 0 * scale, 0 * scale, 25 * scale))
+            20 * scale, 20 * scale, 0 * scale, 0 * scale, 0 * scale, 20 * scale))
         self.setStyleSheet(qdarkstyle.load_stylesheet() + style)
 
         # extractAction.triggered.connect()
@@ -117,6 +118,7 @@ class MainWidget(QWidget):
         self.scale = (self.logicalDpiX() / 96.0-1)/2+1
         self.main_window = parent
         self.threadpool = QThreadPool()
+        self.progress_signal = None
         self.main_menu = self.main_window.main_menu
         self.layout = QVBoxLayout(self)
         self.data_handler = None
@@ -125,6 +127,7 @@ class MainWidget(QWidget):
 
         self.dev = dev
         self.tab_widget = QTabWidget()
+        self.tab_widget.setContentsMargins(0, 0, 0, 0)
         self.fileOpenTab = FileOpenTab(self)
         self.tab_widget.addTab(self.fileOpenTab, "Open Dataset")
 
@@ -136,6 +139,7 @@ class MainWidget(QWidget):
         self.layout.addWidget(self.tab_widget)
         #
         self.console = ConsoleWidget()
+        self.console.setContentsMargins(0, 0, 0, 0)
         # self.console.setMaximumHeight(150)
         # self.console.setMinimumHeight(150)
         self.layout.addWidget(self.console)
