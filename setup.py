@@ -24,7 +24,7 @@ setup(
                       "dask[complete]", "matplotlib", "scipy", "tiffile",
                       "scikit-image", "pybind11", "hnswlib", "pillow",
                       'tifffile', "zarr", "neurofinder", "sklearn", 'pandas', 'future',
-                      "peakutils"],
+                      "peakutils", "requests"],
     scripts=[
         "CIDAN/LSSC/process_data.py",
         "CIDAN/TimeTrace/deltaFOverF.py",
