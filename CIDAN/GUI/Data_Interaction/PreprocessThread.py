@@ -31,7 +31,7 @@ class PreprocessThread(Thread):
             except Exception as e:
                 logger.error(e)
                 print("Unexpected error:", sys.exc_info()[0])
-                self.main_widget.console.updateText("Unexpected error:",
+                self.main_widget.console.updateText("Unexpected error: " +
                                                     sys.exc_info()[0])
                 error_dialog = QtWidgets.QErrorMessage()
                 error_dialog.showMessage("Unexpected error: " + str(e))

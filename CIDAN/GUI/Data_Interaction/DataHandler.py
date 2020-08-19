@@ -998,13 +998,19 @@ class DataHandler:
             [self.shape[0] * self.shape[1]])
         self.pixel_with_rois_color_flat = np.zeros(
             [self.shape[0] * self.shape[1], 3])
+        edge_roi_image = np.zeros([self.shape[0], self.shape[1]])
         for num, roi in enumerate(self.rois):
             cur_color = self.color_list[num % len(self.color_list)]
             self.pixel_with_rois_flat[roi] = num + 1
             self.pixel_with_rois_color_flat[roi] = cur_color
-        edge_roi_image = feature.canny(np.reshape(self.pixel_with_rois_flat,
+            roi_edge = np.zeros(
+                [self.shape[0] * self.shape[1]])
+            roi_edge[roi] = 255
+            edge_roi_image += feature.canny(np.reshape(roi_edge,
                                                   [self.shape[0],
                                                    self.shape[1]]))
+
+        edge_roi_image[edge_roi_image > 255] = 255
         self.edge_roi_image_flat = np.reshape(edge_roi_image, [-1, 1]) * 255
         self.pixel_with_rois_color = np.reshape(self.pixel_with_rois_color_flat,
                                                 [self.shape[0],

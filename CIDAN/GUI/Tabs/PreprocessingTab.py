@@ -133,7 +133,7 @@ class PreprocessingTab(Tab):
         # if button != None:
         #     button.setStyleSheet("QPushButton {border 1px solid #148CD2; }")
         self.trial_selector_input = OptionInput("", "", set_image, val_list=trial_names,
-                                                tool_tip="Select Trial to display",
+                                                tool_tip="Select time block to display",
                                                 display_tool_tip=False, default_index=0,
                                                 show_name=False)
         self.trial_selector_input.input_box.setCurrentIndex(current)
@@ -157,7 +157,7 @@ class PreprocessingTab(Tab):
         self.trial_selector_input.setParent(None)
         self.trial_selector_input = OptionInput("", "", lambda x, y: 3,
                                                 val_list=["All"],
-                                                tool_tip="Select Trial to display",
+                                                tool_tip="Select Timeblock to display",
                                                 display_tool_tip=False, default_index=0,
                                                 show_name=False)
         self._image_buttons_layout.addWidget(self.trial_selector_input)

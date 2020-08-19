@@ -75,21 +75,21 @@ class ROIExtractionTab(Tab):
         roi_modification_button_top_widget.setLayout(roi_modification_button_top_layout)
         # roi_modification_tab_layout.addLayout(roi_modification_button_top_layout)
 
-        add_new_roi = QPushButton(text="Create ROI from\nSelection (D)")
+        add_new_roi = QPushButton(text="Create ROI from\nMask (D)")
         add_new_roi.clicked.connect(lambda x: self.add_new_roi())
-        add_new_roi.setToolTip("Use this button to create a new ROI from selection. \n"
+        add_new_roi.setToolTip("Use this button to create a new ROI from mask. \n"
                                "ROI is added to bottiom of ROI list")
-        add_to_roi = QPushButton(text="Add to Selected\nROI (A)")
+        add_to_roi = QPushButton(text="Add Mask to Selected\nROI (A)")
         add_to_roi.clicked.connect(
             lambda x: self.modify_roi(self.roi_list_module.current_selected_roi, "add"))
-        add_to_roi.setToolTip("Use this button to add the current selection to"
+        add_to_roi.setToolTip("Use this button to add the current mask to"
                               " the selected ROI. \n"
                               "Select an roi in the ROI list below")
-        sub_to_roi = QPushButton(text="Subtract from\nSelected ROI (S)")
+        sub_to_roi = QPushButton(text="Subtract Mask from\nSelected ROI (S)")
         sub_to_roi.clicked.connect(
             lambda x: self.modify_roi(self.roi_list_module.current_selected_roi,
                                       "subtract"))
-        sub_to_roi.setToolTip("Use this button to subtract the current selection from"
+        sub_to_roi.setToolTip("Use this button to subtract the current mask from"
                               " the selected ROI. \n"
                               "Select an roi in the ROI list below")
         delete_roi = QPushButton(text="Delete Selected\nROI (F)")
@@ -111,16 +111,16 @@ class ROIExtractionTab(Tab):
         painter_button_group = QButtonGroup()
         self.off_button = QRadioButton(text="Off (Q)")
         self.off_button.setChecked(True)
-        self.off_button.setToolTip("Turns off the selector brush")
-        self.on_button = QRadioButton(text="Add to Selection (W)")
+        self.off_button.setToolTip("Turns off the mask brush")
+        self.on_button = QRadioButton(text="Add to Mask (W)")
         self.on_button.setToolTip(
             "Turns on the selector brush, draw on the image by right clicking")
-        self.sub_button = QRadioButton(text="Subtract from Selection (E)")
+        self.sub_button = QRadioButton(text="Subtract from Mask (E)")
         self.sub_button.setToolTip(
             "Turns the selector brush to subtract mode. Removing currently selected pixels")
         self.magic_wand = QRadioButton(text="Magic Wand (R)")
         self.magic_wand.setToolTip(
-            "Turns the selector brush to magic wand mode. Click on where you believe \n"
+            "Turns the Mask brush to magic wand mode. Click on where you believe \n"
             "there should be an ROI, and it will attempt to create one for you.\n Note just click one at a time. ")
         self.off_button.setStyleSheet("QWidget {border: 0px solid #32414B;}")
         self.on_button.setStyleSheet("QWidget {border: 0px solid #32414B;}")
@@ -142,7 +142,7 @@ class ROIExtractionTab(Tab):
 
         painter_layout = QVBoxLayout()
         painter_widget.setLayout(painter_layout)
-        label = QLabel(text="Selector Brush: ")
+        label = QLabel(text="Mask Brush: ")
         label.setStyleSheet("QWidget {border: 0px solid #32414B;}")
         painter_layout.addWidget(label)
 
@@ -161,7 +161,7 @@ class ROIExtractionTab(Tab):
                                                 "35"])
         self._brush_size_options.setStyleSheet("QWidget {border: 0px solid #32414B;}")
         painter_layout.addWidget(self._brush_size_options)
-        clear_from_selection = QPushButton(text="Clear Selection (T)")
+        clear_from_selection = QPushButton(text="Clear Mask (T)")
         clear_from_selection.setStyleSheet("QWidget {border: 0px solid #32414B;}")
         clear_from_selection.clicked.connect(
             lambda x: self.image_view.clearPixelSelection())
@@ -247,7 +247,10 @@ class ROIExtractionTab(Tab):
         self._time_trace_trial_select_list.set_items_from_list(
             self.data_handler.trials_all,
             self.data_handler.trials_loaded_time_trace_indices)
-        time_trace_settings_layout.addWidget(self._time_trace_trial_select_list,
+        if not len(self.data_handler.trials_loaded) == 1 and not \
+        self.data_handler.dataset_params["single_file_mode"] and not \
+        self.data_handler.dataset_params["trial_split"]:
+            time_trace_settings_layout.addWidget(self._time_trace_trial_select_list,
                                              stretch=5)
         time_trace_update_button = QPushButton("Update Time Traces")
         time_trace_settings_layout.addWidget(time_trace_update_button)
@@ -454,6 +457,7 @@ class ROIExtractionTab(Tab):
             self.off_button.setChecked(True)
             self.image_view.setSelectorBrushType("off")
             self.update_roi(new=False)
+            self.main_widget.tabs[2].updateTab()
             if add_subtract == "subtract":
                 self.main_widget.console.updateText(
                     "Subtracting Selection from ROI #" + str(roi_num + 1))

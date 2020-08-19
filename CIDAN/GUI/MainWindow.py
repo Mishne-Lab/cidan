@@ -292,7 +292,7 @@ class MainWidget(QWidget):
                 path_full,
                 path_full,
                 trials=["demo_dataset_1.tif"],
-                save_dir_already_created=False)
+                save_dir_already_created=False, load_into_mem=True)
             self.init_w_data()
         else:
             self.console.updateText("Download Unsuccessful")
@@ -312,6 +312,6 @@ if __name__ == "__main__":
     app = QApplication([])
 
     app.setApplicationName("CIDAN")
-    widget = MainWindow(dev=True, preload=False)
+    widget = MainWindow(dev=True, preload=True)
 
     sys.exit(app.exec_())

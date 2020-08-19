@@ -21,9 +21,9 @@ class ROIImageViewModule(ImageViewModule):
         self.click_event = False
         self.outlines = True
         self.trial_selector_input = OptionInput(
-            "Trial:", "", self.set_background,
+            "Time Block:", "", self.set_background,
             val_list=self.data_handler.trials_loaded,
-            tool_tip="Select Trial to display",
+            tool_tip="Select Time block to display",
             display_tool_tip=False, default_index=0,
             show_name=True)
         self.set_background("", "Max Image", update_image=False)

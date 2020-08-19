@@ -96,6 +96,8 @@ def load_filter_tif_stack(*, path, filter: bool, median_filter: bool,
                         :, :]
             if not trial_split and crop_stack:
                 image = z1[:, crop_x[0]:crop_x[1], crop_y[0]:crop_y[1]]
+            if not trial_split and not crop_stack:
+                image = z1[:]
             if len(image.shape) == 2:
                 image = image.reshape((1, image.shape[0], image.shape[1]))
             if slice_stack:
