@@ -1,4 +1,5 @@
 import shutil
+import time
 
 import neurofinder
 from PySide2.QtWidgets import QApplication
@@ -17,11 +18,12 @@ def test_accuracy():
     main_widget = widget.table_widget
     load_new_dataset(main_widget, file_path="test_files/small_dataset1.tif",
                      save_dir_path="test_files/save_dir", load_into_mem=True)
-
+    main_widget.open_dataset_thread.wait()
+    time.sleep(10)
     data_handler = main_widget.data_handler
 
     data_handler.change_filter_param("median_filter", True)
-    data_handler.change_roi_extraction_param("roi_circ_threshold", 40)
+    data_handler.change_roi_extraction_param("roi_circ_threshold", 20)
     main_widget.thread_list[1].run()
     assert main_widget.tabs[1].image_view.magic_wand(70, 127)
 
@@ -33,8 +35,8 @@ def test_accuracy():
     inclusion, exclusion = neurofinder.shapes(a, b)
     assert percision > .8
     assert recall > .8
-    assert exclusion > .7
-    assert inclusion > .7
+    assert exclusion > .6
+    assert inclusion > .6
     image_good = io.imread("test_files/embedding_norm_image.png")
     image_test = io.imread(
         "test_files/save_dir/embedding_norm_images/embedding_norm_image.png")

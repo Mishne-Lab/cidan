@@ -17,13 +17,14 @@ from CIDAN.LSSC.functions.data_manipulation import load_filter_tif_stack, filter
     reshape_to_2d_over_time, pixel_num_to_2d_cord, applyPCA
 from CIDAN.LSSC.functions.eigen import loadEigenVectors
 from CIDAN.LSSC.functions.pickle_funcs import *
-from CIDAN.LSSC.functions.progress_bar import printProgressBarFilter
+from CIDAN.LSSC.functions.progress_bar import printProgressBarFilter, printProgressBar
 from CIDAN.LSSC.functions.roi_extraction import roi_extract_image, combine_rois
 from CIDAN.LSSC.functions.roi_filter import filterRoiList
 from CIDAN.LSSC.functions.spatial_footprint import classify_components_ep
 from CIDAN.LSSC.process_data import process_data
 from CIDAN.TimeTrace.deltaFOverF import calculateDeltaFOverF
 from CIDAN.TimeTrace.mean import calculateMeanTrace
+from CIDAN.TimeTrace.waveletDenoise import waveletDenoise
 
 logger1 = logging.getLogger("CIDAN.DataHandler")
 
@@ -746,7 +747,6 @@ class DataHandler:
                 self.dataset_trials_filtered = list(
                     dask.compute(*self.dataset_trials_filtered))
             else:
-
                 for num, trial_num in enumerate(self._trials_loaded_indices):
                     self.dataset_trials_filtered[trial_num] = self.load_trial_filter_step(
                         trial_num, self.load_trial_dataset_step(trial_num), loaded_num=num)
@@ -803,6 +803,10 @@ class DataHandler:
             # self.global_params["need_recalc_eigen_params"] = True
         return self.dataset_trials_filtered
 
+    @property
+    def real_trials(self):
+        return not (self.dataset_params["single_file_mode"] or self.dataset_params[
+            "trial_split"] or len(self.trials_loaded) == 1)
     def load_data(self):
         self.update_trial_list()
         self.dataset_trials_filtered = [False] * len(self.trials_all)
@@ -1021,8 +1025,11 @@ class DataHandler:
                              "embedding_norm_images/embedding_norm_image.png")))
         except:
             print("Can't generate eigen Norm image please try again")
+        self.roi_time_trace_need_update = []
+        for _ in range(len(self.rois)):
+            self.roi_time_trace_need_update.append(False)
 
-    def calculate_time_traces(self):
+    def calculate_time_traces(self, report_progress=None):
         """
         Calculates the time traces for every roi in self.rois
         """
@@ -1034,21 +1041,46 @@ class DataHandler:
                 self.time_traces[-1].append(False)
         calc_list = []
         for trial_num in self.trials_loaded_time_trace_indices:
-            if type(self.dataset_trials_filtered[trial_num]) == bool:
-                data = self.load_trial_filter_step(
-                    trial_num).compute()
-                self.dataset_trials_filtered[trial_num] = data
-                data_2d = reshape_to_2d_over_time(data[:])
-                del data
-            else:
-                data_2d = reshape_to_2d_over_time(
-                    self.dataset_trials_filtered[trial_num])[:]
+            data = self.load_trial_dataset_step(trial_num).compute()
+            data_2d = reshape_to_2d_over_time(data[:])
+            del data
+            # if type(self.dataset_trials_filtered[trial_num]) == bool:
+            #     data = self.load_trial_filter_step(
+            #         trial_num).compute()
+            #     self.dataset_trials_filtered[trial_num] = data
+            #
+            #     del data
+            # else:
+            #     data_2d = reshape_to_2d_over_time(
+            #         self.dataset_trials_filtered[trial_num])[:]
             calc_list = []
             for roi in range(len(self.rois)):
                 calc_list.append(
                     (delayed)(
                         self.calculate_time_trace(roi + 1, trial_num, data_2d=data_2d)))
             dask.compute(*calc_list)
+            if report_progress is not None:
+                printProgressBar(self.trials_loaded_time_trace_indices.index(trial_num),
+                                 total=len(self.trials_loaded_time_trace_indices) + 2,
+                                 prefix="Time Trace Calculation Progress:",
+                                 suffix="Complete", progress_signal=report_progress)
+        if not self.real_trials:
+            for roi_num in range(len(self.time_traces)):
+                self.time_traces[roi_num] = [np.hstack(
+                    [self.time_traces[roi_num][x] for x in
+                     self.trials_loaded_time_trace_indices])]
+                if self.time_trace_params["time_trace_type"] == "DeltaF Over F":
+                    self.time_traces[roi_num] = [
+                        calculateDeltaFOverF(0, self.time_traces[roi_num][0],
+                                             denoise=self.time_trace_params[
+                                                 "denoise"], given_mean=True)]
+                elif self.time_trace_params["denoise"]:
+                    self.time_traces[roi_num] = [waveletDenoise(
+                        self.time_traces[roi_num][0].reshape((1, -1))).reshape((-1))]
+
+        self.roi_time_trace_need_update = [False for _ in
+                                           self.roi_time_trace_need_update]
+
         if os.path.isdir(self.save_dir_path):
             pickle_save(self.time_traces,
                         "time_traces_{0}{1}".format(
@@ -1081,17 +1113,16 @@ class DataHandler:
             if data_2d is None:
                 data_2d = reshape_to_2d_over_time(
                     self.dataset_trials_filtered[trial_num])
-            if self.time_trace_params["time_trace_type"] == "DeltaF Over F":
+            if self.time_trace_params[
+                "time_trace_type"] == "DeltaF Over F" and self.real_trials:
                 time_trace = calculateDeltaFOverF(roi, data_2d,
                                                   denoise=self.time_trace_params[
-                                                      "denoise"])
+                                                      "denoise"] if self.real_trials else False)
             else:
                 time_trace = calculateMeanTrace(roi, data_2d,
                                                 denoise=self.time_trace_params[
-                                                    "denoise"])
-            calculateDeltaFOverF(roi, data_2d)
+                                                    "denoise"] if self.real_trials else False)
             self.time_traces[roi_num - 1][trial_num] = time_trace
-
 
     def get_time_trace(self, num, trial=None):
         """
@@ -1105,13 +1136,22 @@ class DataHandler:
         -------
         np.ndarray of the time trace
         """
+        if not self.real_trials:
+            if len(self.time_traces) > num - 1 and type(
+                    self.time_traces[num - 1][0]) != bool:
+                return self.time_traces[num - 1][0]
+            else:
+                return False
         if (trial == None):
             num = num - 1
-            output = np.ndarray(shape=(0))
-            for trial_num in self.trials_loaded_time_trace_indices:
-                if type(self.time_traces[num][trial_num]) == bool:
-                    self.calculate_time_trace(num + 1, trial_num)
-                output = np.hstack([output, self.time_traces[num][trial_num]])
+            if self.real_trials:
+                output = np.ndarray(shape=(0))
+                for trial_num in self.trials_loaded_time_trace_indices:
+                    if type(self.time_traces[num][trial_num]) == bool:
+                        self.calculate_time_trace(num + 1, trial_num)
+                    output = np.hstack([output, self.time_traces[num][trial_num]])
+            else:
+                return self.time_traces[num]
         else:
             num = num - 1
             if type(self.time_traces[num][trial]) == bool:

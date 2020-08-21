@@ -3,7 +3,7 @@ import numpy as np
 from CIDAN.TimeTrace.mean import calculateMeanTrace
 
 
-def calculateDeltaFOverF(roi, data, denoise=True):
+def calculateDeltaFOverF(roi, data, denoise=True, given_mean=False):
     """
     Calcualtes the DeltaF Over F time trace for a given roi and data
     Parameters
@@ -18,7 +18,10 @@ def calculateDeltaFOverF(roi, data, denoise=True):
     -------
     A 1d nd array with the time trace for the ROI
     """
-    time_trace = calculateMeanTrace(roi, data, denoise)
+    if not given_mean:
+        time_trace = calculateMeanTrace(roi, data, denoise)
+    else:
+        time_trace = data
     bottom_10_number = np.percentile(time_trace, 10)
 
     bottom_10_frames = time_trace[time_trace < bottom_10_number]

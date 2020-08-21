@@ -1,4 +1,5 @@
 import shutil
+import time
 
 from PySide2.QtWidgets import QApplication
 
@@ -17,6 +18,8 @@ def test_main():
     main_widget = widget.table_widget
     load_new_dataset(main_widget, file_path="test_files/small_dataset1.tif",
                      save_dir_path="test_files/save_dir", load_into_mem=False)
+    main_widget.open_dataset_thread.wait()
+    time.sleep(25)
     assert main_widget.data_handler.shape == [400, 150]
     assert main_widget.data_handler.rois_loaded == False
     assert main_widget.data_handler.trials_loaded == ["0"]
@@ -46,14 +49,14 @@ def test_main():
     for x in range(14):
         roi_image_view.pixel_paint(x, 2)
     main_widget.tabs[1].roi_list_module.set_current_select(2)
-    assert main_widget.tabs[1].modify_roi(2, add_subtract="add")
+    assert main_widget.tabs[1].modify_roi(2, add_subtract="add", override=True)
     assert list(roi_2_pixels) != list(main_widget.data_handler.rois[1])
-    assert not main_widget.tabs[1].modify_roi(2, add_subtract="add")
+    assert not main_widget.tabs[1].modify_roi(2, add_subtract="add", override=True)
 
     for x in range(14):
         roi_image_view.pixel_paint(x, 2)
     main_widget.tabs[1].roi_list_module.set_current_select(2)
-    assert main_widget.tabs[1].modify_roi(2, add_subtract="subtract")
+    assert main_widget.tabs[1].modify_roi(2, add_subtract="subtract", override=True)
     assert list(roi_2_pixels) == list(main_widget.data_handler.rois[1])
     num_rois = len(data_handler.rois)
     main_widget.tabs[1].delete_roi(2)
@@ -69,7 +72,7 @@ def test_main():
     roi_image_view.select_mode = "subtract"
     for x in range(14):
         roi_image_view.pixel_paint(x, 2)
-    assert not main_widget.tabs[1].modify_roi(2, add_subtract="add")
+    assert not main_widget.tabs[1].modify_roi(2, add_subtract="add", override=True)
     # assert roi_image_view.magic_wand(50, 120)
 
     roi_image_view.set_background("", "Mean Image")
@@ -111,6 +114,7 @@ def test_main():
     main_widget = widget.table_widget
     load_prev_session(main_widget,
                       save_dir_path="test_files/save_dir")
+    main_widget.open_dataset_thread.wait()
     assert len(main_widget.data_handler.rois) != 0
     assert main_widget.data_handler.shape == [200, 150]
     assert main_widget.data_handler.rois_loaded == True
@@ -123,6 +127,8 @@ def test_main():
     load_new_dataset(main_widget, file_path="test_files/",
                      save_dir_path="test_files/save_dir",
                      trials=["small_dataset1.tif", "small_dataset2.tif"])
+    main_widget.open_dataset_thread.wait()
+    time.sleep(15)
     assert main_widget.data_handler.shape == [400, 150]
     assert main_widget.data_handler.trials_loaded == ["small_dataset1.tif",
                                                       "small_dataset2.tif"]

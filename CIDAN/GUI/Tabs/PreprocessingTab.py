@@ -35,9 +35,6 @@ class PreprocessingTab(Tab):
         main_widget.thread_list.append(thread)  # Appends the thread to the main
         # widget thread list
         process_button.clicked.connect(lambda: thread.runThread())
-        # This assumes that the data is already loaded in
-        self.data_handler.calculate_filters()
-
 
         # Section that creates all the buttons to change which image is displayed
         image_buttons = QWidget()

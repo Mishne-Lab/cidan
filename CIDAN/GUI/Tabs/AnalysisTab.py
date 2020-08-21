@@ -112,6 +112,10 @@ class AnalysisTab(Tab):
 
     def deselectRoiTime(self):
         if (self.main_widget.checkThreadRunning()):
+            if any(self.data_handler.roi_time_trace_need_update):
+                self.main_widget.console.updateText(
+                    "Some time traces are out of date, please recalculate",
+                    warning=True)
             if self.update_time:
                 if self.plot_by_input.current_state() == "Neuron":
                     if self.cur_plot_type != "neuron":

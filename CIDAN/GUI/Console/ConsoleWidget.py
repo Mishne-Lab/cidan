@@ -53,12 +53,16 @@ class ConsoleWidget(QWidget):
         # sys.stdout.newText.connect(self.onUpdateText)
         self.update = True
 
-    def updateText(self, text):
+    def updateText(self, text, warning=False):
         # self.label.show()
         self.progress_bar.hide()
         self.label.show()
         self.label_start.hide()
         self.label.setText(text)
+        if warning:
+            self.label.setStyleSheet("font-size: 15pt;background-color:#CC2936;")
+        else:
+            self.label.setStyleSheet("font-size: 15pt;")
         # if self.update:
         #     self.update =False
         #     print(text)

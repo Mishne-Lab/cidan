@@ -3,7 +3,8 @@ import os
 from PySide2.QtCore import QThreadPool
 from qtpy import QtGui
 
-from CIDAN.GUI.Data_Interaction.demoDownload import demoDownload
+from CIDAN.GUI.Data_Interaction.DemoDownloadThread import DemoDownloadThread
+from CIDAN.GUI.Data_Interaction.OpenDatasetThread import OpenDatasetThread
 from CIDAN.GUI.Tabs.AnalysisTab import AnalysisTab
 
 os.environ['QT_API'] = 'pyside2'
@@ -131,7 +132,6 @@ class MainWidget(QWidget):
         self.tab_widget.setContentsMargins(0, 0, 0, 0)
         self.fileOpenTab = FileOpenTab(self)
         self.tab_widget.addTab(self.fileOpenTab, "Open Dataset")
-
         # This part add placeholder tabs until data is loaded
         self.tabs = ["Preprocessing", "ROI Extraction", "Analysis"]
         for num, tab in enumerate(self.tabs):
@@ -145,6 +145,11 @@ class MainWidget(QWidget):
         # self.console.setMinimumHeight(150)
         self.layout.addWidget(self.console)
         self.setLayout(self.layout)
+
+        self.demo_download_thread = DemoDownloadThread(main_widget=self)
+        self.thread_list.append(self.demo_download_thread)
+        self.open_dataset_thread = OpenDatasetThread(main_widget=self)
+        self.thread_list.append(self.open_dataset_thread)
 
         # Initialize top bar menu
         fileMenu = self.main_menu.addMenu('&File')
@@ -175,6 +180,7 @@ class MainWidget(QWidget):
                     "/Users/sschickler/Documents/LSSC-python",
                     trials=["small_dataset1.tif"],
                     save_dir_already_created=True)
+                self.data_handler.calculate_filters()
                 self.init_w_data()
             except IndentationError:
                 pass
@@ -197,7 +203,8 @@ class MainWidget(QWidget):
         """
         self.thread_list = []
         self.preprocess_image_view = ImageViewModule(self)
-
+        # This assumes that the data is already loaded in
+        self.data_handler.calculate_filters()
         for num, _ in enumerate(self.tabs):
             self.tab_widget.removeTab(1)
 
@@ -280,22 +287,25 @@ class MainWidget(QWidget):
             x.updateTab()
 
     def downloadOpenDemo(self):
+        def endfunc(success):
+            if success:
+                self.console.updateText("Finished Downloading, now processing")
+                path_full = os.path.join(path, "CIDAN_Demo/")
+
+                self.data_handler = DataHandler(
+
+                    path_full,
+                    path_full,
+                    trials=["demo_dataset_1.tif"],
+                    save_dir_already_created=False, load_into_mem=True)
+                self.init_w_data()
+            else:
+                self.console.updateText("Download Unsuccessful")
         path = createFileDialog(directory="~/Desktop", forOpen=False,
                                 isFolder=True)
-        self.console.updateText("Downloading Demo Dataset to: " + path)
-        if demoDownload(path):
-            self.console.updateText("Finished Downloading, now processing")
-            path_full = os.path.join(path, "CIDAN_Demo/")
+        self.demo_download_thread.runThread(path, endfunc)
+        # self.console.updateText("Downloading Demo Dataset to: " + path)
 
-            self.data_handler = DataHandler(
-
-                path_full,
-                path_full,
-                trials=["demo_dataset_1.tif"],
-                save_dir_already_created=False, load_into_mem=True)
-            self.init_w_data()
-        else:
-            self.console.updateText("Download Unsuccessful")
 
 
 if __name__ == "__main__":
