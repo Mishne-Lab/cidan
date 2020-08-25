@@ -19,7 +19,7 @@ def test_main():
     load_new_dataset(main_widget, file_path="test_files/small_dataset1.tif",
                      save_dir_path="test_files/save_dir", load_into_mem=False)
     main_widget.open_dataset_thread.wait()
-    time.sleep(25)
+    main_widget.init_w_data()
     assert main_widget.data_handler.shape == [400, 150]
     assert main_widget.data_handler.rois_loaded == False
     assert main_widget.data_handler.trials_loaded == ["0"]

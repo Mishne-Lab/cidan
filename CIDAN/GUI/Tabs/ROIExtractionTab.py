@@ -15,7 +15,7 @@ from CIDAN.GUI.ListWidgets.TrialListWidget import TrialListWidget
 from CIDAN.GUI.SettingWidget.SettingsModule import roi_extraction_settings
 from CIDAN.GUI.Tabs.Tab import Tab
 from CIDAN.LSSC.functions.roi_extraction import combine_rois, \
-    number_connected_components
+    number_connected_components, fill_holes_func
 
 logger1 = logging.getLogger("CIDAN.ROIExtractionTab")
 
@@ -58,8 +58,8 @@ class ROIExtractionTab(Tab):
 
         roi_modification_tab_layout = QVBoxLayout()
 
-        roi_modification_tab_layout.setContentsMargins(2, 2, 2, 2)
-        roi_modification_tab_layout_top = QHBoxLayout()
+        roi_modification_tab_layout.setContentsMargins(1, 1, 1, 1)
+        roi_modification_tab_layout_top = QVBoxLayout()
         roi_modification_tab_layout_top.setContentsMargins(0, 0, 0, 0)
         roi_modification_tab_layout.addLayout(roi_modification_tab_layout_top)
         display_settings = self.image_view.createSettings()
@@ -71,8 +71,11 @@ class ROIExtractionTab(Tab):
         self.roi_list_module = ROIListModule(main_widget.data_handler, self,
                                              select_multiple=False, display_time=False)
         roi_modification_tab_layout.addWidget(self.roi_list_module)
-        roi_modification_button_top_layout = QVBoxLayout()
+        roi_modification_button_top_layout = QHBoxLayout()
+        roi_modification_button_top_layout.setContentsMargins(2, 2, 2, 2)
         roi_modification_button_top_widget = QWidget()
+        roi_modification_button_top_widget.setStyleSheet(
+            "QWidget {border: 0px solid #32414B;}")
         roi_modification_button_top_widget.setLayout(roi_modification_button_top_layout)
         # roi_modification_tab_layout.addLayout(roi_modification_button_top_layout)
 
@@ -80,7 +83,7 @@ class ROIExtractionTab(Tab):
         add_new_roi.clicked.connect(lambda x: self.add_new_roi())
         add_new_roi.setToolTip("Use this button to create a new ROI from mask. \n"
                                "ROI is added to bottiom of ROI list")
-        add_to_roi = QPushButton(text="Add Mask to Selected\nROI (A)")
+        add_to_roi = QPushButton(text="Add Mask to \nSelected ROI (A)")
         add_to_roi.clicked.connect(
             lambda x: self.modify_roi(self.roi_list_module.current_selected_roi, "add"))
         add_to_roi.setToolTip("Use this button to add the current mask to"
@@ -145,12 +148,19 @@ class ROIExtractionTab(Tab):
         painter_widget.setLayout(painter_layout)
         label = QLabel(text="Mask Brush: ")
         label.setStyleSheet("QWidget {border: 0px solid #32414B;}")
-        painter_layout.addWidget(label)
 
-        painter_layout.addWidget(self.off_button)
-        painter_layout.addWidget(self.on_button)
-        painter_layout.addWidget(self.sub_button)
-        painter_layout.addWidget(self.magic_wand)
+        painter_layout_sub_1 = QHBoxLayout()
+        painter_layout_sub_1.addWidget(label)
+        painter_layout_sub_1.addWidget(self.off_button)
+        painter_layout_sub_2 = QHBoxLayout()
+        painter_layout_sub_2.addWidget(self.on_button)
+        painter_layout_sub_2.addWidget(self.magic_wand)
+        painter_layout_sub_3 = QHBoxLayout()
+        painter_layout_sub_3.addWidget(self.sub_button)
+
+        painter_layout.addLayout(painter_layout_sub_1)
+        painter_layout.addLayout(painter_layout_sub_2)
+        painter_layout.addLayout(painter_layout_sub_3)
 
         self._brush_size_options = OptionInput("Brush Size:", "",
                                                lambda x,
@@ -161,7 +171,7 @@ class ROIExtractionTab(Tab):
                                                 "11", "15", "21", "27",
                                                 "35"])
         self._brush_size_options.setStyleSheet("QWidget {border: 0px solid #32414B;}")
-        painter_layout.addWidget(self._brush_size_options)
+        painter_layout_sub_3.addWidget(self._brush_size_options)
         clear_from_selection = QPushButton(text="Clear Mask (T)")
         clear_from_selection.setStyleSheet("QWidget {border: 0px solid #32414B;}")
         clear_from_selection.clicked.connect(
@@ -171,8 +181,9 @@ class ROIExtractionTab(Tab):
             "QWidget {border: 2px solid #32414B; font-size: %dpx}" % (
                     self.main_widget.scale * 20))
         painter_widget.setStyleSheet("QWidget {border: 2px solid #32414B;}")
-        roi_modification_tab_layout_top.addWidget(roi_modification_button_top_widget)
         roi_modification_tab_layout_top.addWidget(painter_widget)
+        roi_modification_tab_layout_top.addWidget(roi_modification_button_top_widget)
+
         recalc_time_traces_button = QPushButton(text="Recalculate Time Traces")
         recalc_time_traces_button.clicked.connect(lambda: self.update_time_traces())
         roi_modification_tab_layout.addWidget(recalc_time_traces_button)
@@ -269,6 +280,9 @@ class ROIExtractionTab(Tab):
                          column_1=[self.tab_selector_roi],
                          column_2=[self.image_view, tab_selector_time_trace],
                          column_2_display=True, horiz_moveable=True)
+        self._brush_size_options.setMinimumHeight(
+            int(30 * ((self.logicalDpiX() / 96.0 - 1) / 2 + 1)))
+
 
     def keyPressEvent(self, event):
         super(ROIExtractionTab, self).keyPressEvent(event)
@@ -304,8 +318,8 @@ class ROIExtractionTab(Tab):
             if event.key() == 83:  #S
                 self.modify_roi(self.roi_list_module.current_selected_roi, "subtract")
             if event.key() == 68:  # D
-                self.add_new_roi()  #F
-            if event.key() == 70:
+                self.add_new_roi()
+            if event.key() == 70 or 16777219 == event.key():  # F or delete
                 self.delete_roi(self.roi_list_module.current_selected_roi)
 
     @property
@@ -326,6 +340,25 @@ class ROIExtractionTab(Tab):
             num = number_connected_components(
                 self.data_handler.shape[0] * self.data_handler.shape[1],
                 [0] + self.data_handler.shape, temp_roi)
+            holes_filled = fill_holes_func([temp_roi], self.data_handler.shape[0] *
+                                           self.data_handler.shape[1],
+                                           [0] + self.data_handler.shape)
+            if len(holes_filled[0]) != len(temp_roi):
+                msg = QMessageBox()
+                msg.setIcon(QMessageBox.Information)
+                msg.setStyleSheet(qdarkstyle.load_stylesheet())
+
+                msg.setText(
+                    "Would you like to fill in your selection?")
+                # msg.setInformativeText("This is additional information")
+                # msg.setWindowTitle("MessageBox demo")
+                # msg.setDetailedText("The details are as follows:")
+                msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+                retval = msg.exec_()
+                if retval == 16384:
+                    temp_roi = holes_filled[0]
+                else:
+                    return False
             if num == 2:
 
                 pass
@@ -346,7 +379,7 @@ class ROIExtractionTab(Tab):
                 else:
                     return False
             self.data_handler.rois.append(
-                np.array(self.image_view.current_selected_pixels_list))
+                temp_roi)
             self.data_handler.gen_roi_display_variables()
             self.data_handler.time_traces.append([])
             for _ in range(len(self.data_handler.trials_all)):
@@ -451,6 +484,7 @@ class ROIExtractionTab(Tab):
                         self.data_handler.roi_time_trace_need_update[roi_num] = True
                     else:
                         return False
+
 
             if add_subtract == "subtract":
                 print("Subtracting Selection from ROI #" + str(roi_num + 1))

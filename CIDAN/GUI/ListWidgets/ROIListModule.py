@@ -30,6 +30,7 @@ class ROIListModule(QFrame):
   border-radius: 4px;
 }""")
         self.top_labels_layout = QHBoxLayout()
+        self.top_labels_layout.setContentsMargins(0, 0, 0, 0)
         label1 = QLabel(text="ROI Selected")
         label1.setMaximumWidth(170 * ((self.logicalDpiX() / 96.0)))
         self.top_labels_layout.addWidget(label1, alignment=QtCore.Qt.AlignRight)
@@ -48,6 +49,7 @@ class ROIListModule(QFrame):
         self.model = QStandardItemModel(self.list)
         self.list.setModel(self.model)
         self.layout = QVBoxLayout()
+        self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.addLayout(self.top_labels_layout)
         self.layout.addWidget(self.list)
         self.roi_item_list = []

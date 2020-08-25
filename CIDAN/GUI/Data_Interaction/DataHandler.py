@@ -21,6 +21,7 @@ from CIDAN.LSSC.functions.progress_bar import printProgressBarFilter, printProgr
 from CIDAN.LSSC.functions.roi_extraction import roi_extract_image, combine_rois
 from CIDAN.LSSC.functions.roi_filter import filterRoiList
 from CIDAN.LSSC.functions.spatial_footprint import classify_components_ep
+from CIDAN.LSSC.functions.temporal_correlation import calculate_temporal_correlation
 from CIDAN.LSSC.process_data import process_data
 from CIDAN.TimeTrace.deltaFOverF import calculateDeltaFOverF
 from CIDAN.TimeTrace.mean import calculateMeanTrace
@@ -69,7 +70,8 @@ class DataHandler:
         "crop_x": [0, 0],
         "crop_y": [0, 0],
         "trial_split": False,
-        "trial_length": 400
+        "trial_length": 400,
+        "auto_crop": False
     }
 
     _filter_params_default = {
@@ -190,7 +192,7 @@ class DataHandler:
                     self.global_params["need_recalc_box_params"] = temp
             else:
                 temp = self.global_params["need_recalc_box_params"]
-                self.calculate_filters()
+                self.calculate_filters(auto_crop=True)
                 self.global_params["need_recalc_box_params"] = temp
             # if there are ROIs saved in the save dir load them and calculate time
             # traces
@@ -292,6 +294,9 @@ class DataHandler:
             for time_box_num in range(self.box_params["total_num_time_steps"])]
         return all(pickle_exist(x, output_directory=eigen_dir) for x in file_names)
 
+    @property
+    def auto_crop(self):
+        return self.dataset_params["auto_crop"]
     @property
     def rois_exist(self):
         """
@@ -628,23 +633,58 @@ class DataHandler:
         -------
         Filtered trial as a np.ndarray
         """
-        if not self.load_into_mem:
-            cur_stack = filter_stack(
+        dataset = dataset if type(
+            dataset) != bool else self.load_trial_dataset_step(
+            trial_num).compute()
+        if self.auto_crop:
+            crop_y_bools = (dataset <= dataset.min()).all(1).any(0)
+            y_iter_1 = 0
+            while True:
+                if crop_y_bools[y_iter_1]:
+                    y_iter_1 += 1
+                else:
+                    break
+            y_iter_2 = 0
+            while True:
+                if crop_y_bools[-(y_iter_2 + 1)]:
+                    y_iter_2 += 1
+                else:
+                    break
 
-                stack=dataset if type(
-                    dataset) != bool else self.load_trial_dataset_step(
-                    trial_num).compute(),
-                median_filter_size=(self.filter_params[
-                                        "median_filter_size"],
-                                    self.filter_params[
-                                        "median_filter_size"],
-                                    self.filter_params[
-                                        "median_filter_size"]),
-                median_filter=self.filter_params[
-                    "median_filter"],
-                z_score=self.filter_params["z_score"],
-                hist_eq=self.filter_params["hist_eq"],
-                localSpatialDenoising=self.filter_params["localSpatialDenoising"])
+            crop_x_bools = (dataset <= dataset.min()).all(2).any(0)
+            x_iter_1 = 0
+            while True:
+                if crop_x_bools[x_iter_1]:
+                    x_iter_1 += 1
+                else:
+                    break
+            x_iter_2 = 0
+            while True:
+                if crop_x_bools[-(x_iter_2 + 1)]:
+                    x_iter_2 += 1
+                else:
+                    break
+
+            self.suggested_crops[trial_num] = [[x_iter_1, x_iter_2],
+                                               [y_iter_1, y_iter_2]]
+
+        cur_stack = filter_stack(
+
+            stack=dataset,
+            median_filter_size=(self.filter_params[
+                                    "median_filter_size"],
+                                self.filter_params[
+                                    "median_filter_size"],
+                                self.filter_params[
+                                    "median_filter_size"]),
+            median_filter=self.filter_params[
+                "median_filter"],
+            z_score=self.filter_params["z_score"],
+            hist_eq=self.filter_params["hist_eq"],
+            localSpatialDenoising=self.filter_params["localSpatialDenoising"])
+        del dataset
+        if not self.load_into_mem:
+
             z1 = zarr.open(os.path.join(self.save_dir_path,
                                         'temp_files/%s.zarr' % self.trials_all[
                                             trial_num]), mode='w',
@@ -654,28 +694,19 @@ class DataHandler:
             if type(loaded_num) != bool:
                 self.mean_images[loaded_num] = np.mean(cur_stack, axis=0)
                 self.max_images[loaded_num] = np.max(cur_stack, axis=0)
+                self.temporal_correlation_images[
+                    loaded_num] = calculate_temporal_correlation(cur_stack).compute()
 
 
         else:
-            cur_stack = filter_stack(
 
-                stack=dataset if type(
-                    dataset) != bool else self.load_trial_dataset_step(
-                    trial_num).compute(),
-                median_filter_size=(self.filter_params[
-                                        "median_filter_size"],
-                                    self.filter_params[
-                                        "median_filter_size"],
-                                    self.filter_params[
-                                        "median_filter_size"]),
-                median_filter=self.filter_params[
-                    "median_filter"],
-                z_score=self.filter_params["z_score"],
-                hist_eq=self.filter_params["hist_eq"])
 
             if type(loaded_num) != bool:
                 self.mean_images[loaded_num] = np.mean(cur_stack, axis=0)
                 self.max_images[loaded_num] = np.max(cur_stack, axis=0)
+                self.temporal_correlation_images[
+                    loaded_num] = calculate_temporal_correlation(
+                    cur_stack).compute()
         if self.filter_params["pca"] and type(loaded_num) != bool:
             pca = applyPCA(cur_stack, self.filter_params["pca_threshold"])
             if self.load_into_mem:
@@ -702,7 +733,7 @@ class DataHandler:
         else:
             return z1
 
-    def calculate_filters(self, progress_signal=None):
+    def calculate_filters(self, progress_signal=None, auto_crop=False):
         """
         Applies filter to each trial, sets them to self.dataset_trials_filtered
 
@@ -710,6 +741,7 @@ class DataHandler:
         -------
         A list of filtered trials
         """
+        self.dataset_params["auto_crop"] = auto_crop
         if self.global_params["need_recalc_filter_params"] or self.global_params[
             "need_recalc_dataset_params"] or \
                 not hasattr(self, "dataset_trials_filtered"):
@@ -717,6 +749,7 @@ class DataHandler:
             print("Started Calculating Filters")
 
             self.update_trial_list()
+
             save_dir = self.save_dir_path
             if not os.path.isdir(os.path.join(save_dir, "temp_files/filter")):
                 os.mkdir(os.path.join(save_dir, "temp_files/filter"))
@@ -730,12 +763,16 @@ class DataHandler:
                 total_num_spatial_boxes=self.box_params["total_num_spatial_boxes"],
                 total_num_time_steps=self.box_params["total_num_time_steps"],
                 save_dir=self.save_dir_path, progress_signal=self.progress_signal)
-
+            if auto_crop:
+                self.suggested_crops = [[[0, 0], [0, 0]] for _ in self.trials_all]
             self.dataset_trials_filtered = [False] * len(self.trials_all)
             if self.filter_params["pca"]:
                 self.pca_decomp = [False] * len(self._trials_loaded_indices)
             self.max_images = [False] * len(self._trials_loaded_indices)
             self.mean_images = [False] * len(self._trials_loaded_indices)
+
+            self.temporal_correlation_images = [False] * len(
+                self._trials_loaded_indices)
             if not self.load_into_mem:
                 for num, trial_num in enumerate(self._trials_loaded_indices):
                     self.dataset_trials_filtered[trial_num] = self.load_trial_filter_step(
@@ -758,6 +795,45 @@ class DataHandler:
             if self.dataset_params["crop_x"][1] == 0:
                 self.dataset_params["crop_x"][1] = self.shape[0]
                 self.dataset_params["crop_y"][1] = self.shape[1]
+            if auto_crop:
+                crop = [[max([x[0][0] for x in self.suggested_crops]),
+                         -max([x[0][1] for x in self.suggested_crops])],
+                        [max([x[1][0] for x in self.suggested_crops]),
+                         -max([x[1][1] for x in self.suggested_crops])]]
+                self.dataset_params["crop_x"][0] = self.dataset_params["crop_x"][0] + \
+                                                   crop[0][0]
+                self.dataset_params["crop_x"][1] = self.dataset_params["crop_x"][1] + \
+                                                   crop[0][1]
+                self.dataset_params["crop_y"][0] = self.dataset_params["crop_y"][0] + \
+                                                   crop[1][0]
+                self.dataset_params["crop_y"][1] = self.dataset_params["crop_y"][1] + \
+                                                   crop[1][1]
+
+                for trial_num in self._trials_loaded_indices:
+                    self.dataset_trials_filtered[trial_num] = \
+                        self.dataset_trials_filtered[trial_num][
+                        :, crop[0][0]:crop[0][1], crop[1][0]:crop[1][1]]
+                    self.mean_images[trial_num] = self.mean_images[trial_num][
+                                                  crop[0][0]:crop[0][1],
+                                                  crop[1][0]:crop[1][1]]
+                    self.max_images[trial_num] = self.max_images[trial_num][
+                                                 crop[0][0]:crop[0][1],
+                                                 crop[1][0]:crop[1][1]]
+                    self.temporal_correlation_images[trial_num] = \
+                    self.temporal_correlation_images[trial_num][
+                    crop[0][0]:crop[0][1], crop[1][0]:crop[1][1]]
+                    if self.filter_params["pca"]:
+                        self.pca_decomp[trial_num] = self.pca_decomp[trial_num][
+                                                     :, crop[0][0]:crop[0][1],
+                                                     crop[1][0]:crop[1][1]]
+                self.dataset_params["crop_stack"] = True
+                self.dataset_params["auto_crop"] = False
+                self.shape = [
+                    self.dataset_trials_filtered[self._trials_loaded_indices[0]].shape[
+                        1],
+                    self.dataset_trials_filtered[self._trials_loaded_indices[0]].shape[
+                        2]]
+
             mean_image_stack = np.dstack(self.mean_images)
             with open(os.path.join(self.save_dir_path,
                                    'temp_files/filter/mean'), "w") as f:

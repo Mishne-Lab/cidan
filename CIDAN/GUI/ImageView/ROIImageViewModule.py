@@ -21,7 +21,8 @@ class ROIImageViewModule(ImageViewModule):
         self.click_event = False
         self.outlines = True
         self.trial_selector_input = OptionInput(
-            "Time Block:", "", self.set_background,
+            "Time Block:", "",
+            lambda x, y: self.set_background("", self.current_background_name),
             val_list=self.data_handler.trials_loaded,
             tool_tip="Select Time block to display",
             display_tool_tip=False, default_index=0,

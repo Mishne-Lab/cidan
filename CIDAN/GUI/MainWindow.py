@@ -176,11 +176,11 @@ class MainWidget(QWidget):
                 # auto loads a small dataset
                 self.data_handler = DataHandler(
 
-                    "/Users/sschickler/Code_Devel/LSSC-python/input_images/",
+                    "/Users/sschickler/Code_Devel/HigleyData/",
                     "/Users/sschickler/Documents/LSSC-python",
-                    trials=["small_dataset1.tif"],
-                    save_dir_already_created=True)
-                self.data_handler.calculate_filters()
+                    trials=["File6_som_l5_gcamp6s_alka.tif"],
+                    save_dir_already_created=False)
+                self.data_handler.calculate_filters(auto_crop=True)
                 self.init_w_data()
             except IndentationError:
                 pass

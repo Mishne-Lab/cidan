@@ -28,7 +28,7 @@ class ROIExtractionThread(Thread):
                 self.data_handler.calculate_roi_extraction(self.reportProgress)
                 print("Finished ROI extraction")
                 self.signal.sig.emit(True)
-            except AttributeError as e:
+            except Exception as e:
                 if (type(e) == AssertionError):
                     error_dialog = QtWidgets.QErrorMessage()
                     error_dialog.showMessage("Unexpected error: " + str(e.args[0]))

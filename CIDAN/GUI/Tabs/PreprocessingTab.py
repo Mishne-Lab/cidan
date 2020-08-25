@@ -65,10 +65,17 @@ class PreprocessingTab(Tab):
             lambda: self.set_image_display_list(self.data_handler.trials_loaded,
                                                 self.data_handler.mean_images,
                                                 "Mean Image", self.mean_image_button))
-
+        self.temporal_correlation_image_button = QPushButton()
+        self.temporal_correlation_image_button.setText("Temporal Correlation Image")
+        self.temporal_correlation_image_button.clicked.connect(
+            lambda: self.set_image_display_list(self.data_handler.trials_loaded,
+                                                self.data_handler.temporal_correlation_images,
+                                                "Temporal Correlation Image",
+                                                self.temporal_correlation_image_button))
         self._image_buttons_layout.addWidget(stack_button)
         self._image_buttons_layout.addWidget(self.max_image_button)
         self._image_buttons_layout.addWidget(self.mean_image_button)
+        self._image_buttons_layout.addWidget(self.temporal_correlation_image_button)
         self._image_buttons_layout.addWidget(self.pca_stack_button)
 
         main_widget.preprocess_image_view.setContentsMargins(0, 0, 0, 0)
@@ -117,7 +124,7 @@ class PreprocessingTab(Tab):
         def set_image(x, trial_name):
             try:
                 self.main_widget.preprocess_image_view.setImage(
-                    data_list[trial_names.index(trial_name)][:].copy())
+                    data_list[trial_names.index(trial_name)][:])
             except TypeError:
                 self.updateTab()
 

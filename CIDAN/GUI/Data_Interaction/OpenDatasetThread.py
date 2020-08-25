@@ -1,6 +1,8 @@
 import logging
 import sys
 
+import qdarkstyle
+from PySide2.QtWidgets import QMessageBox
 from qtpy import QtWidgets
 
 from CIDAN.GUI.Data_Interaction.DataHandler import DataHandler
@@ -25,12 +27,19 @@ class OpenDatasetThread(Thread):
                                                         save_dir_path=self.save_dir_path,
                                                         save_dir_already_created=self.save_dir_already_created,
                                                         load_into_mem=self.load_into_mem)
-            self.main_widget.data_handler.calculate_filters(self.reportProgress)
+            self.main_widget.data_handler.calculate_filters(self.reportProgress,
+                                                            auto_crop=self.auto_crop)
 
             self.signal.sig.emit(True)
         else:
             try:
-
+                self.main_widget.data_handler = DataHandler(data_path=self.data_path,
+                                                            trials=self.trials,
+                                                            save_dir_path=self.save_dir_path,
+                                                            save_dir_already_created=self.save_dir_already_created,
+                                                            load_into_mem=self.load_into_mem)
+                self.main_widget.data_handler.calculate_filters(self.reportProgress,
+                                                                auto_crop=self.auto_crop)
                 self.signal.sig.emit(True)
             except Exception as e:
                 logger.error(e)
@@ -48,10 +57,29 @@ class OpenDatasetThread(Thread):
         self.save_dir_path = save_dir_path
         self.save_dir_already_created = save_dir_already_created
         self.load_into_mem = load_into_mem
+        self.auto_crop = False
+
         if not any([x.isRunning() for x in self.main_widget.thread_list]):
             print("Opening Dataset")
             self.main_widget.console.updateText("Opening Dataset")
+
             # self.button.setEnabled(False)
+            if not save_dir_already_created:
+                msg = QMessageBox()
+                msg.setIcon(QMessageBox.Information)
+                msg.setStyleSheet(qdarkstyle.load_stylesheet())
+
+                msg.setText(
+                    "Do you want auto crop out motion correction artifacts(recommended)?")
+                # msg.setInformativeText("This is additional information")
+                # msg.setWindowTitle("MessageBox demo")
+                # msg.setDetailedText("The details are as follows:")
+                msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+                retval = msg.exec_()
+                if retval == 16384:
+                    self.auto_crop = True
+
+
             self.start()
         else:
             print(
