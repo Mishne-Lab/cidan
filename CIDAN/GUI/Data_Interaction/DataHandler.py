@@ -155,6 +155,10 @@ class DataHandler:
             self.create_new_save_dir()
             valid = self.load_param_json()
             self.global_params = DataHandler._global_params_default.copy()
+            if self.dataset_params["single_file_mode"]:
+                if not os.path.isdir(
+                        os.path.join(self.save_dir_path, "temp_files/dataset.zarr")):
+                    self.transform_data_to_zarr()
             # these indices are used for which trials to use for roi extract
             self._trials_loaded_indices = [num for num, x in enumerate(self.trials_all)
                                            if x in self.trials_loaded]
@@ -764,7 +768,7 @@ class DataHandler:
                 total_num_spatial_boxes=self.box_params["total_num_spatial_boxes"],
                 total_num_time_steps=self.box_params["total_num_time_steps"],
                 save_dir=self.save_dir_path, progress_signal=self.progress_signal)
-            if auto_crop:
+            if self.auto_crop:
                 self.suggested_crops = [[[0, 0], [0, 0]] for _ in self.trials_all]
             self.dataset_trials_filtered = [False] * len(self.trials_all)
             if self.filter_params["pca"]:
@@ -930,6 +934,7 @@ class DataHandler:
         if self.dataset_params["trial_split"] and self.dataset_params[
             "original_folder_trial_split"] != "":
             if self.dataset_params["single_file_mode"]:
+
                 z1 = zarr.open(
                     os.path.join(self.save_dir_path, "temp_files/dataset.zarr"),
                     mode="r")

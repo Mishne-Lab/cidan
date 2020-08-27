@@ -49,9 +49,8 @@ def calcAffinityMatrix(*, pixel_list: np.ndarray, metric: str, knn: int,
     knn_graph = hnsw.Index(space=metric, dim=dim)
     knn_graph.init_index(max_elements=num_elements, ef_construction=accuracy,
                          M=connections)
-    knn_graph.add_items(pixel_list, num_threads=num_threads)
-    indices, distances = knn_graph.knn_query(pixel_list, k=int(knn),
-                                             num_threads=num_threads)
+    knn_graph.add_items(pixel_list)
+    indices, distances = knn_graph.knn_query(pixel_list, k=int(knn))
     # import faiss  # make faiss available
     # index = faiss.IndexFlatL2(dim)
     # pixel_list = np.ascontiguousarray(pixel_list.astype('float32'))

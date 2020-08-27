@@ -1,3 +1,3 @@
 #!/bin/bash
-conda activate CIDAN2
-python -m CIDAN -h True -ll error -p $1
+conda activate lab02
+python -m CIDAN --headless True -ll error -p $1
