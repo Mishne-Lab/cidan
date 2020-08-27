@@ -1363,8 +1363,8 @@ class DataHandler:
                 self.time_trace_params["denoise"] = denoise
                 self.time_trace_params["time_trace_type"] = time_type
                 self.calculate_time_traces()
-                if time_type == "Mean" and denoise:
-                    self.calculate_statistics()
+                # if time_type == "Mean" and denoise:
+                #     self.calculate_statistics()
         self.time_trace_params["time_trace_type"] = temp_type
         self.save_rois(self.rois)
         roi_save_object = []
