@@ -70,7 +70,7 @@ def main():
                                   "w") as f2:
                             json.dump(json.load(f), f2)
 
-                parameter_file_path = os.path.join(curr_out_dir, "parameter.json")
+                parameter_file_path = os.path.join(curr_out_dir, "parameters.json")
                 with open(parameter_file_path, "w") as f:
                     json.dump(curr_json, f)
 
