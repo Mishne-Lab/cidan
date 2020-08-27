@@ -175,18 +175,18 @@ def dataset_setting_block_crop(main_widget):
                                              tool_tip="Crop columns",
                                              min=0, max=100000, step=1),
                                ] + ([BoolInput(
-                                  display_name="Split into trials(recomended):",
+                                  display_name="Split into Time Blocks(recomended):",
                                   program_name="trial_split",
                                   on_change_function=lambda x,
                                                             y: data_handler.change_dataset_param(
                                       x, y),
                                   default_val=data_handler.dataset_params[
                                       "trial_split"],
-                                  tool_tip="Splits the timesteps into separate trials better for processing "
+                                  tool_tip="Splits the timesteps into separate time blocks better for processing "
                                            "every x timestep. This setting is recomended for all large datasets",
                                   display_tool_tip=False),
                                                                       IntInput(
-                                                                          display_name="Trial Length",
+                                                                          display_name="Time Block Length",
                                                                           program_name="trial_length",
                                                                           on_change_function=lambda x,
                                                                              y: data_handler.change_dataset_param(
@@ -194,7 +194,7 @@ def dataset_setting_block_crop(main_widget):
                                                                           default_val=
                                                    data_handler.dataset_params[
                                                        "trial_length"],
-                                                                          tool_tip="Length of each trial",
+                                                                          tool_tip="Length of each timeblock",
                                                                           display_tool_tip=False,
                                                                           min=25,
                                                                           max=2000,

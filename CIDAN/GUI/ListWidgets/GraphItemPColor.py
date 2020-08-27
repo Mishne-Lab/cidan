@@ -47,7 +47,7 @@ class GraphItemPColor(QWidget):
         # layout_h.addWidget(test)
         layout_h.addWidget(self.graph)
 
-        layout.addLayout(layout_h, stretch=10)
+        layout.addLayout(layout_h, stretch=20)
         # layout.addWidget(QLabel(x_label), alignment=QtCore.Qt.AlignCenter,stretch=1)
 
         self.setLayout(layout)

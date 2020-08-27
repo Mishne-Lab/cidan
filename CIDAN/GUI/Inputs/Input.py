@@ -20,7 +20,7 @@ class Input(QFrame):
         self.default_val = default_val
         self.display_name = display_name
         self.layout_main = QVBoxLayout()
-        self.layout_main.setContentsMargins(2, 2, 2, 2)
+        self.layout_main.setContentsMargins(0, 0, 0, 0)
         self.layout_h = QHBoxLayout()
         self.layout_h.setContentsMargins(0, 0, 0, 0)
         if show_name:

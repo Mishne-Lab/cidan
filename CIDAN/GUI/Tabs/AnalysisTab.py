@@ -18,7 +18,8 @@ class AnalysisTab(Tab):
         self.main_widget = main_widget
         self.cur_plot_type = "neuron"
 
-        self.image_view = ROIImageViewModule(self.main_widget, self, True)
+        self.image_view = ROIImageViewModule(self.main_widget, self, settings_tab=False)
+
         self.roi_list_module = ROIListModule(main_widget.data_handler, self,
                                              select_multiple=True, display_time=False)
         self.thread = ROIExtractionThread(main_widget, QPushButton(),
@@ -58,7 +59,15 @@ class AnalysisTab(Tab):
 
         time_trace_settings = QWidget()
         time_trace_settings_layout = QVBoxLayout()
-        settings_tabs.addTab(time_trace_settings, "Trial Selector")
+        if not len(self.data_handler.trials_loaded) == 1 and not \
+        self.data_handler.dataset_params["single_file_mode"] and not \
+        self.data_handler.dataset_params["trial_split"]:
+            settings_tabs.addTab(time_trace_settings, "Trial Selector")
+        else:
+            plot_settings_layout.addWidget(time_trace_settings)
+            time_trace_settings.hide()
+
+        settings_tabs.addTab(self.image_view.createSettings(), "Display Settings")
         time_trace_settings_layout.setContentsMargins(0, 0, 0, 0)
         time_trace_settings.setLayout(time_trace_settings_layout)
         self._time_trace_trial_select_list = TrialListWidget(False)
@@ -103,6 +112,10 @@ class AnalysisTab(Tab):
 
     def deselectRoiTime(self):
         if (self.main_widget.checkThreadRunning()):
+            if any(self.data_handler.roi_time_trace_need_update):
+                self.main_widget.console.updateText(
+                    "Some time traces are out of date, please recalculate",
+                    warning=True)
             if self.update_time:
                 if self.plot_by_input.current_state() == "Neuron":
                     if self.cur_plot_type != "neuron":
@@ -178,5 +191,14 @@ class AnalysisTab(Tab):
             if self.data_handler.rois_loaded:
                 self.roi_list_module.set_list_items(self.main_widget.data_handler.rois)
                 self.selectAll(False)
-
-            self.image_view.reset_view()
+                self.image_view.reset_view()
+                try:
+                    # self.update_time = False
+                    for x in self.roi_list_module.roi_item_list[:1]:
+                        x.check_box.setChecked(True)
+                    # self.deselectRoiTime()
+                    # self.update_time = True
+                except:
+                    pass
+            else:
+                self.image_view.reset_view()

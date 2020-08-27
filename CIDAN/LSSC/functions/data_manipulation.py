@@ -96,14 +96,18 @@ def load_filter_tif_stack(*, path, filter: bool, median_filter: bool,
                         :, :]
             if not trial_split and crop_stack:
                 image = z1[:, crop_x[0]:crop_x[1], crop_y[0]:crop_y[1]]
+            if not trial_split and not crop_stack:
+                image = z1[:]
             if len(image.shape) == 2:
                 image = image.reshape((1, image.shape[0], image.shape[1]))
             if slice_stack:
                 image = image[slice_start::slice_every]
-            size = [image.shape[1], image.shape[2]]
+            size = [z1.shape[1], z1.shape[2]]
             image = image.astype(np.float32)
     else:
         raise Exception("Invalid Inputs ")
+    if np.isclose(np.mean(image[0]), 2 ** 15, 0, 2000):
+        image = image - 2 ** 15
     return size, image
     # zarr_array = zarr.open('data/example.zarr', mode='w', shape=(10000, 10000),
     #          chunks=(1000, 1000), dtype='i4')

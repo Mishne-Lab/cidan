@@ -11,10 +11,12 @@ except:
 
 setup(
     name='CIDAN',
-    version='0.1.23',
+    version='0.1.26',
     description='CIDAN-Calcium Imaging Data ANalysis',
     license="MIT",
     long_description=long_description,
+
+    long_description_content_type="text/markdown",
     author='Sam Schickler',
     author_email='sschickl@ucsd.edu',
     # url="http://www.foopackage.com/",

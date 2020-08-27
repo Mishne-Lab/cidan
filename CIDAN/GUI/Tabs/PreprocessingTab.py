@@ -35,9 +35,6 @@ class PreprocessingTab(Tab):
         main_widget.thread_list.append(thread)  # Appends the thread to the main
         # widget thread list
         process_button.clicked.connect(lambda: thread.runThread())
-        # This assumes that the data is already loaded in
-        self.data_handler.calculate_filters()
-
 
         # Section that creates all the buttons to change which image is displayed
         image_buttons = QWidget()
@@ -68,10 +65,17 @@ class PreprocessingTab(Tab):
             lambda: self.set_image_display_list(self.data_handler.trials_loaded,
                                                 self.data_handler.mean_images,
                                                 "Mean Image", self.mean_image_button))
-
+        self.temporal_correlation_image_button = QPushButton()
+        self.temporal_correlation_image_button.setText("Temporal Correlation Image")
+        self.temporal_correlation_image_button.clicked.connect(
+            lambda: self.set_image_display_list(self.data_handler.trials_loaded,
+                                                self.data_handler.temporal_correlation_images,
+                                                "Temporal Correlation Image",
+                                                self.temporal_correlation_image_button))
         self._image_buttons_layout.addWidget(stack_button)
         self._image_buttons_layout.addWidget(self.max_image_button)
         self._image_buttons_layout.addWidget(self.mean_image_button)
+        self._image_buttons_layout.addWidget(self.temporal_correlation_image_button)
         self._image_buttons_layout.addWidget(self.pca_stack_button)
 
         main_widget.preprocess_image_view.setContentsMargins(0, 0, 0, 0)
@@ -120,7 +124,7 @@ class PreprocessingTab(Tab):
         def set_image(x, trial_name):
             try:
                 self.main_widget.preprocess_image_view.setImage(
-                    data_list[trial_names.index(trial_name)][:].copy())
+                    data_list[trial_names.index(trial_name)][:])
             except TypeError:
                 self.updateTab()
 
@@ -133,7 +137,7 @@ class PreprocessingTab(Tab):
         # if button != None:
         #     button.setStyleSheet("QPushButton {border 1px solid #148CD2; }")
         self.trial_selector_input = OptionInput("", "", set_image, val_list=trial_names,
-                                                tool_tip="Select Trial to display",
+                                                tool_tip="Select time block to display",
                                                 display_tool_tip=False, default_index=0,
                                                 show_name=False)
         self.trial_selector_input.input_box.setCurrentIndex(current)
@@ -157,7 +161,7 @@ class PreprocessingTab(Tab):
         self.trial_selector_input.setParent(None)
         self.trial_selector_input = OptionInput("", "", lambda x, y: 3,
                                                 val_list=["All"],
-                                                tool_tip="Select Trial to display",
+                                                tool_tip="Select Timeblock to display",
                                                 display_tool_tip=False, default_index=0,
                                                 show_name=False)
         self._image_buttons_layout.addWidget(self.trial_selector_input)

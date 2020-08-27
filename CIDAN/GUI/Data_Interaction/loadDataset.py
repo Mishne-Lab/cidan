@@ -3,7 +3,6 @@ import os
 
 from qtpy import QtWidgets
 
-from CIDAN.GUI.Data_Interaction.DataHandler import DataHandler
 from CIDAN.GUI.Inputs.FileInput import createFileDialog
 
 logger1 = logging.getLogger("CIDAN.loadDataset")
@@ -42,14 +41,13 @@ def load_new_dataset(main_widget, file_path, save_dir_path, trials=None,
         if single:
             try:
                 dir_path = os.path.dirname(file_path)
-
-                main_widget.data_handler = DataHandler(data_path=dir_path,
-                                                       trials=[
+                main_widget.open_dataset_thread.runThread(data_path=dir_path,
+                                                          trials=[
                                                            os.path.basename(file_path)],
-                                                       save_dir_path=save_dir_path,
-                                                       save_dir_already_created=False,
-                                                       load_into_mem=load_into_mem)
-                main_widget.init_w_data()
+                                                          save_dir_path=save_dir_path,
+                                                          save_dir_already_created=False,
+                                                          load_into_mem=load_into_mem)
+
             except Exception as e:
                 logger1.error(e)
                 error_dialog = QtWidgets.QErrorMessage(main_widget.main_window)
@@ -61,13 +59,12 @@ def load_new_dataset(main_widget, file_path, save_dir_path, trials=None,
             try:
                 dir_path = os.path.dirname(file_path)
 
-                main_widget.data_handler = DataHandler(data_path=dir_path,
-                                                       trials=[
+                main_widget.open_dataset_thread.runThread(data_path=dir_path,
+                                                          trials=[
                                                            os.path.basename(file_path)],
-                                                       save_dir_path=save_dir_path,
-                                                       save_dir_already_created=False,
-                                                       load_into_mem=load_into_mem)
-                main_widget.init_w_data()
+                                                          save_dir_path=save_dir_path,
+                                                          save_dir_already_created=False,
+                                                          load_into_mem=load_into_mem)
             except Exception as e:
                 logger1.error(e)
                 error_dialog = QtWidgets.QErrorMessage()
@@ -80,12 +77,11 @@ def load_new_dataset(main_widget, file_path, save_dir_path, trials=None,
                 error_dialog = QtWidgets.QErrorMessage()
                 error_dialog.showMessage("Please select at least one trial")
             try:
-                main_widget.data_handler = DataHandler(data_path=file_path,
-                                                       trials=trials,
-                                                       save_dir_path=save_dir_path,
-                                                       save_dir_already_created=False,
-                                                       load_into_mem=load_into_mem)
-                main_widget.init_w_data()
+                main_widget.open_dataset_thread.runThread(data_path=file_path,
+                                                          trials=trials,
+                                                          save_dir_path=save_dir_path,
+                                                          save_dir_already_created=False,
+                                                          load_into_mem=load_into_mem)
             except Exception as e:
                 logger1.error(e)
                 error_dialog = QtWidgets.QErrorMessage()
@@ -111,10 +107,11 @@ def load_prev_session(main_widget, save_dir_path):
     """
     if (main_widget.checkThreadRunning()):
         try:
-            main_widget.data_handler = DataHandler(data_path="",
-                                                   save_dir_path=save_dir_path,
-                                                   save_dir_already_created=True)
-            main_widget.init_w_data()
+            main_widget.open_dataset_thread.runThread(data_path="",
+                                                      save_dir_path=save_dir_path,
+                                                      save_dir_already_created=True,
+                                                      load_into_mem=None, trials=None)
+
         except Exception as e:
             logger1.error(e)
             print(
