@@ -741,7 +741,8 @@ class DataHandler:
         -------
         A list of filtered trials
         """
-        self.dataset_params["auto_crop"] = auto_crop
+        if not self.auto_crop:
+            self.dataset_params["auto_crop"] = auto_crop
         if self.global_params["need_recalc_filter_params"] or self.global_params[
             "need_recalc_dataset_params"] or \
                 not hasattr(self, "dataset_trials_filtered"):
@@ -800,13 +801,13 @@ class DataHandler:
                          -max([x[0][1] for x in self.suggested_crops])],
                         [max([x[1][0] for x in self.suggested_crops]),
                          -max([x[1][1] for x in self.suggested_crops])]]
-                self.dataset_params["crop_x"][0] = self.dataset_params["crop_x"][0] + \
+                self.dataset_params["crop_x"][0] = 0 + \
                                                    crop[0][0]
-                self.dataset_params["crop_x"][1] = self.dataset_params["crop_x"][1] + \
+                self.dataset_params["crop_x"][1] = self.total_size[0] + \
                                                    crop[0][1]
-                self.dataset_params["crop_y"][0] = self.dataset_params["crop_y"][0] + \
+                self.dataset_params["crop_y"][0] = 0 + \
                                                    crop[1][0]
-                self.dataset_params["crop_y"][1] = self.dataset_params["crop_y"][1] + \
+                self.dataset_params["crop_y"][1] = self.total_size[1] + \
                                                    crop[1][1]
 
                 for trial_num in self._trials_loaded_indices:
@@ -970,7 +971,7 @@ class DataHandler:
                     "total_num_spatial_boxes"] ** .5)) ** 2 == self.box_params[
                        "total_num_spatial_boxes"], "Please make sure Number of Spatial Boxes is a square number"
             try:
-                self.calculate_filters()
+                self.calculate_filters(progress_signal=progress_signal)
                 eigen_need_recalc = self.global_params["need_recalc_eigen_params"] or self.global_params[
                     "need_recalc_box_params"]
                 self.global_params["need_recalc_eigen_params"] = False

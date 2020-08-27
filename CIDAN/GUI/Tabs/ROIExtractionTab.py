@@ -101,10 +101,10 @@ class ROIExtractionTab(Tab):
                               "Select an roi in the ROI list below")
         delete_roi.clicked.connect(
             lambda x: self.delete_roi(self.roi_list_module.current_selected_roi))
-
+        roi_modification_button_top_layout.addWidget(add_new_roi)
         roi_modification_button_top_layout.addWidget(add_to_roi)
         roi_modification_button_top_layout.addWidget(sub_to_roi)
-        roi_modification_button_top_layout.addWidget(add_new_roi)
+
         roi_modification_button_top_layout.addWidget(delete_roi)
         add_to_roi.setStyleSheet("QWidget {border: 0px solid #32414B;}")
         sub_to_roi.setStyleSheet("QWidget {border: 0px solid #32414B;}")
@@ -146,7 +146,7 @@ class ROIExtractionTab(Tab):
 
         painter_layout = QVBoxLayout()
         painter_widget.setLayout(painter_layout)
-        label = QLabel(text="Mask Brush: ")
+        label = QLabel(text="Mask Brush (green): ")
         label.setStyleSheet("QWidget {border: 0px solid #32414B;}")
 
         painter_layout_sub_1 = QHBoxLayout()

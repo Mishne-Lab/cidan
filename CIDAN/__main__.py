@@ -1,7 +1,9 @@
 import argparse
 import logging
+import os
 import sys
 
+os.environ['QT_API'] = 'pyside2'
 from qtpy.QtWidgets import QApplication
 
 from CIDAN.GUI import MainWindow
