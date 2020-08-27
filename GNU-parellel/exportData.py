@@ -26,12 +26,11 @@ def main():
             task_list.append(row[0])
 
     parameters_to_search = {"median_filter": [True, False], "hist_eq": [True, False],
-                            "pca": [True, False], "total_num_spatial_boxes": [1, 4, 9],
+                            "pca": [True, False], "total_num_spatial_boxes": [1, 4],
                             "num_eig": [50], "trial_split": [True],
                             "z_score": [True, False],
-                            "trial_length": [250, 500, 1000],
-                            "localSpatialDenoising": [True], "knn": [7],
-                            "normalize_w_k": [1E-2, 1E-3, 1E-4, 1E-5]}
+                            "trial_length": [200, 400],
+                            "localSpatialDenoising": [True, False]}
     total_parameters_combinations = reduce(lambda x, y: x * y,
                                            [len(parameters_to_search[x]) for x in
                                             parameters_to_search])

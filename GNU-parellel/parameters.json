@@ -7,45 +7,45 @@
     "need_recalc_eigen_params": true,
     "need_recalc_roi_extraction_params": true,
     "load_into_mem": true,
-    "num_threads": 16
+    "num_threads": 8
   },
   "dataset_params": {
-    "dataset_folder_path": "/Users/sschickler/Downloads",
+    "dataset_folder_path": "/Users/sschickler/Code_Devel/HigleyData",
     "trials_loaded": [
-      "02"
     ],
     "trials_all": [
-
     ],
-    "original_folder_trial_split": "02",
+    "single_file_mode": true,
+    "original_folder_trial_split": "File1_CPn_l5_gcamp6s_lan.tif",
     "slice_stack": false,
     "slice_every": 3,
     "slice_start": 0,
     "crop_stack": false,
     "crop_x": [
-      30,
-      480
+      0,
+      0
     ],
     "crop_y": [
-      30,
-      480
+      0,
+      0
     ],
     "trial_split": true,
-    "trial_length": 250
+    "trial_length": 400,
+    "auto_crop": true
   },
   "filter_params": {
-    "median_filter": true,
+    "median_filter": false,
     "median_filter_size": 3,
     "z_score": false,
     "hist_eq": false,
     "localSpatialDenoising": true,
-    "pca": true,
-    "pca_threshold": 0.99
+    "pca": false,
+    "pca_threshold": 0.97
   },
   "box_params": {
     "total_num_time_steps": 1,
-    "total_num_spatial_boxes": 9,
-    "spatial_overlap": 50
+    "total_num_spatial_boxes": 1,
+    "spatial_overlap": 40
   },
   "eigen_params": {
     "eigen_vectors_already_generated": false,
@@ -54,6 +54,7 @@
     "metric": "l2",
     "knn": 32,
     "accuracy": 75,
+    "eigen_accuracy": 5,
     "connections": 40
   },
   "roi_extraction_params": {
@@ -61,7 +62,7 @@
     "elbow_threshold_value": 1,
     "eigen_threshold_method": true,
     "eigen_threshold_value": 0.1,
-    "num_eigen_vector_select": 2,
+    "num_eigen_vector_select": 5,
     "merge_temporal_coef": 0.9,
     "roi_size_min": 30,
     "roi_size_max": 600,
@@ -70,7 +71,7 @@
     "fill_holes": true,
     "refinement": true,
     "max_iter": 100,
-    "roi_circ_threshold": 40
+    "roi_circ_threshold": 20
   },
   "time_trace_params": {
     "time_trace_type": "Mean",
