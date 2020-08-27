@@ -74,7 +74,7 @@ def main():
                 with open(parameter_file_path, "w") as f:
                     json.dump(curr_json, f)
 
-                task_list_writer.writerow([parameter_file_path])
+                task_list_writer.writerow([curr_out_dir])
 
 
 def list_dirs(dir, depth_left):
