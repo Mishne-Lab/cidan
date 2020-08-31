@@ -48,13 +48,11 @@ class AnalysisTab(Tab):
                                          val_list=["Neuron", "Trial"])
         plot_settings_layout.addWidget(self.plot_by_input)
         self.time_trace_type = OptionInput("Time Trace Type", "",
-                                           lambda x, y: self.update_time_traces(),
+                                           lambda x, y: self.deselectRoiTime(),
                                            default_index=0,
                                            tool_tip="Select way to calculate time trace",
-                                           val_list=["Mean Florescence Denoised",
-                                                     "Mean Florescence",
-                                                     "DeltaF Over F Denoised",
-                                                     "DeltaF Over F"])
+                                           val_list=list(
+                                               self.data_handler.time_trace_possibilities_functions.keys()))
         plot_settings_layout.addWidget(self.time_trace_type)
 
         time_trace_settings = QWidget()
@@ -130,7 +128,8 @@ class AnalysisTab(Tab):
                                 self.roi_list_module.roi_time_check_list):
                             if x:
                                 data_list.append(
-                                    self.main_widget.data_handler.get_time_trace(num2))
+                                    self.main_widget.data_handler.get_time_trace(num2,
+                                                                                 trace_type=self.time_trace_type.current_state()))
                                 roi_names.append(num2)
                         self.plot_widget.set_list_items(data_list, roi_names, [],
                                                         p_color=self.plot_type_input.current_state() == "Color Mesh",
@@ -168,17 +167,10 @@ class AnalysisTab(Tab):
     @property
     def data_handler(self):
         return self.main_widget.data_handler
+
     def update_time_traces(self):
         if (self.main_widget.checkThreadRunning()):
-            curr_type = "Mean" if "Mean" in self.time_trace_type.current_state() else "DeltaF Over F"
-            denoise = "Denoised" in self.time_trace_type.current_state()
-            if (self.data_handler.time_trace_params[
-                "time_trace_type"] != curr_type or self.data_handler.time_trace_params[
-                "denoise"] != denoise):
-                self.data_handler.time_trace_params[
-                    "time_trace_type"] = curr_type
-                self.data_handler.time_trace_params["denoise"] = denoise
-                self.data_handler.calculate_time_traces()
+            self.data_handler.calculate_time_traces()
             self.data_handler.update_selected_trials(
                 self._time_trace_trial_select_list.selectedTrials())
             self.deselectRoiTime()

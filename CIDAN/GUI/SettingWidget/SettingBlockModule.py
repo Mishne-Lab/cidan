@@ -155,7 +155,7 @@ def dataset_setting_block_crop(main_widget):
                                              "crop_stack"],
                                          tool_tip="Used to crop image stack",
                                          display_tool_tip=False),
-                               IntRangeInput(display_name="Crop Row:",
+                               IntRangeInput(display_name="Crop X:",
                                              program_name="crop_y",
                                              on_change_function=lambda x,
                                                                        y: data_handler.change_dataset_param(
@@ -164,7 +164,7 @@ def dataset_setting_block_crop(main_widget):
                                                  "crop_y"],
                                              tool_tip="Crop rows",
                                              min=0, max=10000, step=1),
-                               IntRangeInput(display_name="Crop Column:",
+                               IntRangeInput(display_name="Crop Y:",
                                              # different because the way we display images is weird x is first dim y is second dim
                                              program_name="crop_x",
                                              on_change_function=lambda x,

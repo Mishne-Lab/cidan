@@ -5,6 +5,7 @@ import pyqtgraph as pg
 import qdarkstyle
 from qtpy.QtWidgets import *
 
+from CIDAN.GUI.Data_Interaction import DataHandler
 from CIDAN.GUI.Data_Interaction.ROIExtractionThread import ROIExtractionThread
 from CIDAN.GUI.Data_Interaction.TimeTraceCalculateThread import TimeTraceCalculateThread
 from CIDAN.GUI.ImageView.ROIPaintImageViewModule import ROIPaintImageViewModule
@@ -248,14 +249,12 @@ class ROIExtractionTab(Tab):
         time_trace_settings_layout.setContentsMargins(0, 0, 0, 0)
         time_trace_settings.setLayout(time_trace_settings_layout)
         self.time_trace_type = OptionInput("Time Trace Type", "",
-                                           lambda x, y: x + y,
+                                           lambda x, y: self.deselectRoiTime(),
                                            default_index=0,
                                            tool_tip="Select way to calculate time trace,"
                                                     " \ncheck github for more details",
-                                           val_list=["Mean Florescence Denoised",
-                                                     "Mean Florescence",
-                                                     "DeltaF Over F Denoised",
-                                                     "DeltaF Over F"])
+                                           val_list=list(
+                                               self.data_handler.time_trace_possibilities_functions.keys()))
         time_trace_settings_layout.addWidget(self.time_trace_type,
                                              stretch=1)
         # A list widget to select what trials to calculate/display time traces for
@@ -532,7 +531,8 @@ class ROIExtractionTab(Tab):
                             warning=True)
                     pen = pg.mkPen(color=color_roi, width=3)
                     self.time_plot.plot(
-                        self.main_widget.data_handler.get_time_trace(num),
+                        self.main_widget.data_handler.get_time_trace(num,
+                                                                     trace_type=self.time_trace_type.current_state()),
                         pen=pen)
                     self.time_plot.enableAutoRange(axis=0)
             except AttributeError:
@@ -556,7 +556,9 @@ class ROIExtractionTab(Tab):
 
                         pen = pg.mkPen(color=color_roi, width=3)
                         self.time_plot.plot(
-                            self.main_widget.data_handler.get_time_trace(num2), pen=pen)
+                            self.main_widget.data_handler.get_time_trace(num2,
+                                                                         trace_type=self.time_trace_type.current_state()),
+                            pen=pen)
             except AttributeError:
                 print("No ROIs have been generated yet")
 
@@ -568,16 +570,10 @@ class ROIExtractionTab(Tab):
             self.deselectRoiTime()
             self.main_widget.tabs[2].updateTab()
         if self.main_widget.checkThreadRunning():
-            curr_type = "Mean" if "Mean" in self.time_trace_type.current_state() \
-                else "DeltaF Over F"
-            denoise = "Denoised" in self.time_trace_type.current_state()
-            if (self.data_handler.time_trace_params[
-                "time_trace_type"] != curr_type or self.data_handler.time_trace_params[
-                    "denoise"] != denoise) or any(
+
+            if any(
                 self.data_handler.roi_time_trace_need_update):
-                self.data_handler.time_trace_params[
-                    "time_trace_type"] = curr_type
-                self.data_handler.time_trace_params["denoise"] = denoise
+
                 # self.data_handler.calculate_time_traces()
                 self.time_trace_thread.runThread(end_func)
 

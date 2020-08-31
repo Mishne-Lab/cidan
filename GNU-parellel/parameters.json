@@ -3,9 +3,9 @@
     "save_intermediate_steps": true,
     "need_recalc_dataset_params": false,
     "need_recalc_filter_params": false,
-    "need_recalc_box_params": false,
-    "need_recalc_eigen_params": false,
-    "need_recalc_roi_extraction_params": false,
+    "need_recalc_box_params": true,
+    "need_recalc_eigen_params": true,
+    "need_recalc_roi_extraction_params": true,
     "load_into_mem": false,
     "num_threads": 8
   },
@@ -18,18 +18,18 @@
     "slice_stack": false,
     "slice_every": 3,
     "slice_start": 0,
-    "crop_stack": false,
+    "crop_stack": true,
     "crop_x": [
-      0,
-      256
+      5,
+      251
     ],
     "crop_y": [
-      0,
-      256
+      3,
+      246
     ],
     "trial_split": true,
     "trial_length": 400,
-    "auto_crop": true
+    "auto_crop": false
   },
   "filter_params": {
     "median_filter": false,

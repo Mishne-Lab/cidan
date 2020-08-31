@@ -51,7 +51,7 @@ class ROIImageViewModule(ImageViewModule):
                                     on_change_function=self.set_image,
                                     default_index=0,
                                     tool_tip="Choose background to display",
-                                    val_list=["Outlines", "Blob"])
+                                    val_list=["Outlines", "Blob", "Neuropil"])
 
         self.display_settings_layout.addWidget(image_chooser)
 
@@ -204,7 +204,9 @@ class ROIImageViewModule(ImageViewModule):
             if func_name == "Blob":
                 self.outlines = False
                 self.roi_image_flat = self.main_widget.data_handler.pixel_with_rois_color_flat
-
+            if func_name == "Neuropil":
+                self.outlines = False
+                self.roi_image_flat = self.main_widget.data_handler.neuropil_image_display
             if update_image:
                 self.updateImageDisplay()
 

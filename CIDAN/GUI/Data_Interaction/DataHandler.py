@@ -25,7 +25,7 @@ from CIDAN.LSSC.functions.temporal_correlation import calculate_temporal_correla
 from CIDAN.LSSC.process_data import process_data
 from CIDAN.TimeTrace.deltaFOverF import calculateDeltaFOverF
 from CIDAN.TimeTrace.mean import calculateMeanTrace
-from CIDAN.TimeTrace.waveletDenoise import waveletDenoise
+from CIDAN.TimeTrace.neuropil import calculate_nueropil
 
 logger1 = logging.getLogger("CIDAN.DataHandler")
 
@@ -46,6 +46,30 @@ class DataHandler:
 
 
     """
+    # x is for roi data, y is for neuropil data
+    time_trace_possibilities_functions = {
+        "Mean Florescence Denoised": lambda x, y: calculateMeanTrace(x, y,
+                                                                     denoise=True),
+        "Mean Florescence": lambda x, y: calculateMeanTrace(x, y, denoise=False),
+        "DeltaF Over F Denoised": lambda x, y: calculateDeltaFOverF(x, y, denoise=True),
+        "DeltaF Over F": lambda x, y: calculateDeltaFOverF(x, y, denoise=False),
+        "Mean Floresence Denoised (Neuropil Corrected)": lambda x,
+                                                                y: calculateMeanTrace(x,
+                                                                                      y,
+                                                                                      denoise=True,
+                                                                                      sub_neuropil=True),
+        "Mean Floresence  (Neuropil Corrected)": lambda x, y: calculateMeanTrace(x, y,
+                                                                                 denoise=False,
+                                                                                 sub_neuropil=True),
+        "DeltaF Over F  (Neuropil Corrected)": lambda x, y: calculateDeltaFOverF(x, y,
+                                                                                 denoise=False,
+                                                                                 sub_neuropil=True),
+        "DeltaF Over F Denoised (Neuropil Corrected)": lambda x,
+                                                              y: calculateDeltaFOverF(x,
+                                                                                      y,
+                                                                                      denoise=True,
+                                                                                      sub_neuropil=True)
+    }
     _global_params_default = {
         "save_intermediate_steps": True,
         "need_recalc_dataset_params": True,
@@ -114,11 +138,11 @@ class DataHandler:
         "fill_holes": True,
         "refinement": True,
         "max_iter": 100,
-        "roi_circ_threshold": 20
+        "roi_circ_threshold": 20,
+
     }
     _time_trace_params_default = {
-        "time_trace_type": "Mean",
-        "denoise": True
+        "min_neuropil_pixels": 25
     }
 
     def __init__(self, data_path, save_dir_path, save_dir_already_created, trials=[],
@@ -147,7 +171,7 @@ class DataHandler:
                            (22, 132, 249), (224, 22, 249), (249, 22, 160)]
 
         self.save_dir_path = save_dir_path
-
+        self.time_trace_possibilities_functions = DataHandler.time_trace_possibilities_functions
         self.rois_loaded = False  # whether roi variables have been created
         if parameter_file:
             self.parameter_file_name = os.path.basename(parameter_file)
@@ -196,7 +220,7 @@ class DataHandler:
                     self.global_params["need_recalc_box_params"] = temp
             else:
                 temp = self.global_params["need_recalc_box_params"]
-                self.calculate_filters(auto_crop=True)
+                self.calculate_filters()
                 self.global_params["need_recalc_box_params"] = temp
             # if there are ROIs saved in the save dir load them and calculate time
             # traces
@@ -204,10 +228,11 @@ class DataHandler:
             if self.rois_exist:
                 try:
                     self.load_rois()
-                    self.calculate_time_traces()
+
                     self.rois_loaded = True
                 except:
                     print("ROI loading Failed")
+                self.calculate_time_traces()
             if not valid:
                 raise FileNotFoundError("Save directory not valid")
         else:
@@ -301,6 +326,7 @@ class DataHandler:
     @property
     def auto_crop(self):
         return self.dataset_params["auto_crop"]
+
     @property
     def rois_exist(self):
         """
@@ -315,6 +341,7 @@ class DataHandler:
     @property
     def load_into_mem(self):
         return self.global_params["load_into_mem"]
+
     def load_rois(self):
         """
         Loads the ROIs if they exist and then generates the other variables associated
@@ -693,7 +720,7 @@ class DataHandler:
                                         'temp_files/%s.zarr' % self.trials_all[
                                             trial_num]), mode='w',
                            shape=cur_stack.shape,
-                           chunks=(32,128,128), dtype=np.float32)
+                           chunks=(32, 128, 128), dtype=np.float32)
             z1[:] = cur_stack
             if type(loaded_num) != bool:
                 self.mean_images[loaded_num] = np.mean(cur_stack, axis=0)
@@ -703,7 +730,6 @@ class DataHandler:
 
 
         else:
-
 
             if type(loaded_num) != bool:
                 self.mean_images[loaded_num] = np.mean(cur_stack, axis=0)
@@ -780,8 +806,10 @@ class DataHandler:
                 self._trials_loaded_indices)
             if not self.load_into_mem:
                 for num, trial_num in enumerate(self._trials_loaded_indices):
-                    self.dataset_trials_filtered[trial_num] = self.load_trial_filter_step(
-                        trial_num, self.load_trial_dataset_step(trial_num), loaded_num = num)
+                    self.dataset_trials_filtered[
+                        trial_num] = self.load_trial_filter_step(
+                        trial_num, self.load_trial_dataset_step(trial_num),
+                        loaded_num=num)
                     if num % 3 == 0:
                         self.dataset_trials_filtered = list(
                             dask.compute(*self.dataset_trials_filtered))
@@ -790,8 +818,10 @@ class DataHandler:
                     dask.compute(*self.dataset_trials_filtered))
             else:
                 for num, trial_num in enumerate(self._trials_loaded_indices):
-                    self.dataset_trials_filtered[trial_num] = self.load_trial_filter_step(
-                        trial_num, self.load_trial_dataset_step(trial_num), loaded_num=num)
+                    self.dataset_trials_filtered[
+                        trial_num] = self.load_trial_filter_step(
+                        trial_num, self.load_trial_dataset_step(trial_num),
+                        loaded_num=num)
                 self.dataset_trials_filtered = list(
                     dask.compute(*self.dataset_trials_filtered))
             self.shape = [
@@ -800,7 +830,7 @@ class DataHandler:
             if self.dataset_params["crop_x"][1] == 0:
                 self.dataset_params["crop_x"][1] = self.shape[0]
                 self.dataset_params["crop_y"][1] = self.shape[1]
-            if auto_crop:
+            if self.auto_crop:
                 crop = [[max([x[0][0] for x in self.suggested_crops]),
                          -max([x[0][1] for x in self.suggested_crops])],
                         [max([x[1][0] for x in self.suggested_crops]),
@@ -825,8 +855,8 @@ class DataHandler:
                                                  crop[0][0]:crop[0][1],
                                                  crop[1][0]:crop[1][1]]
                     self.temporal_correlation_images[trial_num] = \
-                    self.temporal_correlation_images[trial_num][
-                    crop[0][0]:crop[0][1], crop[1][0]:crop[1][1]]
+                        self.temporal_correlation_images[trial_num][
+                        crop[0][0]:crop[0][1], crop[1][0]:crop[1][1]]
                     if self.filter_params["pca"]:
                         self.pca_decomp[trial_num] = self.pca_decomp[trial_num][
                                                      :, crop[0][0]:crop[0][1],
@@ -888,6 +918,7 @@ class DataHandler:
     def real_trials(self):
         return not (self.dataset_params["single_file_mode"] or self.dataset_params[
             "trial_split"] or len(self.trials_loaded) == 1)
+
     def load_data(self):
         self.update_trial_list()
         self.dataset_trials_filtered = [False] * len(self.trials_all)
@@ -943,10 +974,10 @@ class DataHandler:
                                                                      "trial_length"]))]
             else:
                 self.trials_loaded = [str(x) for x in range(ceil(len(os.listdir(
-                os.path.join(self.dataset_params["dataset_folder_path"],
-                             self.dataset_params["original_folder_trial_split"]))) /
-                                                             self.dataset_params[
-                                                                 "trial_length"]))]
+                    os.path.join(self.dataset_params["dataset_folder_path"],
+                                 self.dataset_params["original_folder_trial_split"]))) /
+                                                                 self.dataset_params[
+                                                                     "trial_length"]))]
             self.trials_all = self.trials_loaded.copy()
             self.box_params["total_num_time_steps"] = len(self.trials_loaded)
         elif self.dataset_params["original_folder_trial_split"] != "":
@@ -977,8 +1008,9 @@ class DataHandler:
                        "total_num_spatial_boxes"], "Please make sure Number of Spatial Boxes is a square number"
             try:
                 self.calculate_filters(progress_signal=progress_signal)
-                eigen_need_recalc = self.global_params["need_recalc_eigen_params"] or self.global_params[
-                    "need_recalc_box_params"]
+                eigen_need_recalc = self.global_params["need_recalc_eigen_params"] or \
+                                    self.global_params[
+                                        "need_recalc_box_params"]
                 self.global_params["need_recalc_eigen_params"] = False
                 self.global_params[
                     "need_recalc_roi_extraction_params"] = False
@@ -1046,7 +1078,7 @@ class DataHandler:
                                          roi_size_max=self.roi_extraction_params[
                                              "roi_size_max"],
                                          pca=self.filter_params["pca"],
-                                         pca_data= self.pca_decomp if self.filter_params[
+                                         pca_data=self.pca_decomp if self.filter_params[
                                              "pca"] else False,
                                          progress_signal=progress_signal)
                 self.box_params_processed = temp_params
@@ -1093,20 +1125,34 @@ class DataHandler:
                 [self.shape[0] * self.shape[1]])
             roi_edge[roi] = 255
             edge_roi_image += feature.canny(np.reshape(roi_edge,
-                                                  [self.shape[0],
-                                                   self.shape[1]]))
+                                                       [self.shape[0],
+                                                        self.shape[1]]))
 
         edge_roi_image[edge_roi_image > 255] = 255
         self.edge_roi_image_flat = np.reshape(edge_roi_image, [-1, 1]) * 255
         self.pixel_with_rois_color = np.reshape(self.pixel_with_rois_color_flat,
                                                 [self.shape[0],
                                                  self.shape[1], 3])
+
         try:
             self.eigen_norm_image = np.asarray(Image.open(
                 os.path.join(self.save_dir_path,
                              "embedding_norm_images/embedding_norm_image.png")))
         except:
             print("Can't generate eigen Norm image please try again")
+        self.neuropil_pixels = calculate_nueropil(image_shape=edge_roi_image.shape,
+                                                  roi_list=self.rois,
+                                                  roi_mask_flat=self.pixel_with_rois_flat,
+                                                  min_pixels=100)  # self.time_trace_params["min_neuropil_pixels"])
+        self.neuropil_image_display = np.zeros(
+            [self.shape[0] * self.shape[1]])
+        for neurolpil in self.neuropil_pixels:
+            self.neuropil_image_display[neurolpil] = 255
+        self.neuropil_image_display = np.reshape(
+            np.dstack([self.neuropil_image_display, np.zeros(
+                [self.shape[0] * self.shape[1]]),
+                       (self.pixel_with_rois_flat > 0) * 255]),
+            [self.shape[0] * self.shape[1], 3])
         self.roi_time_trace_need_update = []
         for _ in range(len(self.rois)):
             self.roi_time_trace_need_update.append(False)
@@ -1116,12 +1162,24 @@ class DataHandler:
         Calculates the time traces for every roi in self.rois
         """
 
-        self.time_traces = []
-        for _ in range(len(self.rois)):
-            self.time_traces.append([])
-            for _ in range(len(self.trials_all)):
-                self.time_traces[-1].append(False)
+        self.time_traces = {x: [] for x in
+                            list(DataHandler.time_trace_possibilities_functions)}
+        for x in self.time_traces.keys():
+            for _ in range(len(self.rois)):
+                self.time_traces[x].append([])
+                for _ in range(len(self.trials_all)):
+                    self.time_traces[x][-1].append(False)
         calc_list = []
+        roi_time_traces_by_pixel = []
+        for _ in range(len(self.rois)):
+            roi_time_traces_by_pixel.append([])
+            for _ in range(len(self.trials_all)):
+                roi_time_traces_by_pixel[-1].append(False)
+        roi_neuropil_traces_by_pixel = []
+        for _ in range(len(self.rois)):
+            roi_neuropil_traces_by_pixel.append([])
+            for _ in range(len(self.trials_all)):
+                roi_neuropil_traces_by_pixel[-1].append(False)
         for trial_num in self.trials_loaded_time_trace_indices:
             data = self.load_trial_dataset_step(trial_num).compute()
             data_2d = reshape_to_2d_over_time(data[:])
@@ -1137,37 +1195,42 @@ class DataHandler:
             #         self.dataset_trials_filtered[trial_num])[:]
             calc_list = []
             for roi in range(len(self.rois)):
-                calc_list.append(
-                    (delayed)(
-                        self.calculate_time_trace(roi + 1, trial_num, data_2d=data_2d)))
-            dask.compute(*calc_list)
+                roi_time_traces_by_pixel[roi][trial_num] = data_2d[self.rois[roi]]
+                roi_neuropil_traces_by_pixel[roi][trial_num] = data_2d[
+                    self.neuropil_pixels[roi]]
             if report_progress is not None:
                 printProgressBar(self.trials_loaded_time_trace_indices.index(trial_num),
-                                 total=len(self.trials_loaded_time_trace_indices) + 2,
+                                 total=len(
+                                     self.trials_loaded_time_trace_indices) * 2 + 2,
                                  prefix="Time Trace Calculation Progress:",
                                  suffix="Complete", progress_signal=report_progress)
         if not self.real_trials:
-            for roi_num in range(len(self.time_traces)):
-                self.time_traces[roi_num] = [np.hstack(
-                    [self.time_traces[roi_num][x] for x in
-                     self.trials_loaded_time_trace_indices])]
-                if self.time_trace_params["time_trace_type"] == "DeltaF Over F":
-                    self.time_traces[roi_num] = [
-                        calculateDeltaFOverF(0, self.time_traces[roi_num][0],
-                                             denoise=self.time_trace_params[
-                                                 "denoise"], given_mean=True)]
-                elif self.time_trace_params["denoise"]:
-                    self.time_traces[roi_num] = [waveletDenoise(
-                        self.time_traces[roi_num][0].reshape((1, -1))).reshape((-1))]
-
+            for roi_counter, roi_data, neuropil_data in zip(range(len(self.rois)),
+                                                            roi_time_traces_by_pixel,
+                                                            roi_neuropil_traces_by_pixel):
+                roi_data_combined = np.hstack(
+                    [roi_data[x] for x in self.trials_loaded_time_trace_indices])
+                neuropil_data_combined = np.hstack(
+                    [neuropil_data[x] for x in self.trials_loaded_time_trace_indices])
+                for key in self.time_traces.keys():
+                    self.time_traces[key][roi_counter] = [
+                        DataHandler.time_trace_possibilities_functions[key](
+                            roi_data_combined, neuropil_data_combined)]
+        if self.real_trials:
+            for roi_counter, roi_data, neuropil_data in zip(range(len(self.rois)),
+                                                            roi_time_traces_by_pixel,
+                                                            roi_neuropil_traces_by_pixel):
+                for key in self.time_traces.keys():
+                    for trial_num in self.trials_loaded_time_trace_indices:
+                        self.time_traces[key][roi_counter][trial_num] = \
+                        DataHandler.time_trace_possibilities_functions[key](
+                            roi_data[trial_num], neuropil_data[trial_num])
         self.roi_time_trace_need_update = [False for _ in
                                            self.roi_time_trace_need_update]
 
         if os.path.isdir(self.save_dir_path):
             pickle_save(self.time_traces,
-                        "time_traces_{0}{1}".format(
-                            self.time_trace_params["time_trace_type"],
-                            "_denoised" if self.time_trace_params["denoise"] else ""),
+                        "time_traces",
                         output_directory=self.save_dir_path)
         self.rois_loaded = True
 
@@ -1206,7 +1269,7 @@ class DataHandler:
                                                     "denoise"] if self.real_trials else False)
             self.time_traces[roi_num - 1][trial_num] = time_trace
 
-    def get_time_trace(self, num, trial=None):
+    def get_time_trace(self, num, trial=None, trace_type="Mean Florescence"):
         """
         Returns the time trace for a certain roi over all currently selected trials
         Parameters
@@ -1219,9 +1282,9 @@ class DataHandler:
         np.ndarray of the time trace
         """
         if not self.real_trials:
-            if len(self.time_traces) > num - 1 and type(
-                    self.time_traces[num - 1][0]) != bool:
-                return self.time_traces[num - 1][0]
+            if len(self.time_traces[trace_type][num - 1]) == 1 and type(
+                    self.time_traces[trace_type][num - 1][0]) != bool:
+                return self.time_traces[trace_type][num - 1][0]
             else:
                 return False
         if (trial == None):
@@ -1229,9 +1292,8 @@ class DataHandler:
             if self.real_trials:
                 output = np.ndarray(shape=(0))
                 for trial_num in self.trials_loaded_time_trace_indices:
-                    if type(self.time_traces[num][trial_num]) == bool:
-                        self.calculate_time_trace(num + 1, trial_num)
-                    output = np.hstack([output, self.time_traces[num][trial_num]])
+                    output = np.hstack(
+                        [output, self.time_traces[trace_type][num][trial_num]])
             else:
                 return self.time_traces[num]
         else:
@@ -1357,15 +1419,15 @@ class DataHandler:
         pass
 
     def export(self):
-        temp_type = self.time_trace_params["time_trace_type"]
-        for time_type in ["Mean", "DeltaF Over F"]:
-            for denoise in [True, False]:
-                self.time_trace_params["denoise"] = denoise
-                self.time_trace_params["time_trace_type"] = time_type
-                self.calculate_time_traces()
-                # if time_type == "Mean" and denoise:
-                #     self.calculate_statistics()
-        self.time_trace_params["time_trace_type"] = temp_type
+        # temp_type = self.time_trace_params["time_trace_type"]
+        # for time_type in ["Mean", "DeltaF Over F"]:
+        #     for denoise in [True, False]:
+        #         self.time_trace_params["denoise"] = denoise
+        #         self.time_trace_params["time_trace_type"] = time_type
+        #         self.calculate_time_traces()
+        #         # if time_type == "Mean" and denoise:
+        #         #     self.calculate_statistics()
+        # self.time_trace_params["time_trace_type"] = temp_type
         self.save_rois(self.rois)
         roi_save_object = []
         spatial_box = SpatialBox(0, 1, image_shape=self.shape, spatial_overlap=0)
@@ -1413,6 +1475,7 @@ class DataHandler:
                         (self.shape[0], self.shape[1], 3)) / (
                      image.max() - image.min()) * 255).astype("uint8"))
         img.save(path)
+
     def delete_roi_vars(self):
         self.rois = []
         self.rois_loaded = False
