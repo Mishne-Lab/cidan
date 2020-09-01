@@ -156,8 +156,8 @@ class ROIPaintImageViewModule(ROIImageViewModule):
             # range_list = self.main_widget.roi_image_view.image_view.view.viewRange()
             background_max = np.percentile(self.current_background, 98)
             background_min = np.percentile(self.current_background, 2)
-            background_image_scaled = (self.current_foreground_intensity / 10 * (
-                    self.current_background - background_min) * 235 / (
+            background_image_scaled = (self.current_foreground_intensity / 7 * (
+                    self.current_background - background_min) * 255 / (
                                            (background_max - background_min) if (
                                                                                         background_max - background_min) != 0 else 1))
             background_image_scaled_3_channel = np.hstack(
@@ -171,7 +171,7 @@ class ROIPaintImageViewModule(ROIImageViewModule):
                 self.image_item.setLevels((0, 255))
             elif new:
                 # if self.add_image:
-                combined = self.roi_image_flat + background_image_scaled_3_channel + self.select_image_flat
+                combined = self.roi_image_flat * .45 + background_image_scaled_3_channel * .45 + self.select_image_flat * .45
 
                 # else:
                 #     combined = background_image_scaled + self.select_image_flat
@@ -184,12 +184,12 @@ class ROIPaintImageViewModule(ROIImageViewModule):
                 self.image_item.setLevels((0, 255))
             else:
                 self.image_item.image = background_image_scaled_3_channel.reshape(
-                    (shape[0], shape[1], 3))
-                self.image_item.updateImage(autoLevels=False)
+                    (shape[0], shape[1], 3)) * .45
                 self.image_item.setLevels((0, 255))
 
                 # if self.add_image:
-                combined = (self.roi_image_flat + self.select_image_flat).reshape(
+                combined = (
+                            self.roi_image_flat * .45 + self.select_image_flat * .45).reshape(
                     (shape[0], shape[1], 3))
                 self.image_item.image += combined
                 self.image_item.image[

@@ -72,7 +72,7 @@ class GraphDisplayWidget(QWidget):
                                                        display_y_axis_ticks=True,
                                                        display_roi_labels=True,
                                                        roi_labels=roi_names, colors=[
-                            self.color_list[x % len(self.color_list)] for x in
+                            self.color_list[(x - 1) % len(self.color_list)] for x in
                             roi_names])
                     self.layout.addWidget(self.current_graph)
                 else:
@@ -115,7 +115,7 @@ class GraphDisplayWidget(QWidget):
                                                        display_y_axis_ticks=True,
                                                        display_roi_labels=True,
                                                        roi_labels=trial_names, colors=[
-                            self.color_list[x % len(self.color_list)] for x in
+                            self.color_list[(x - 1) % len(self.color_list)] for x in
                             range(len(trial_names))])
                     self.layout.addWidget(self.current_graph)
                 else:

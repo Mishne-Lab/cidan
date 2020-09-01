@@ -219,8 +219,8 @@ class ROIImageViewModule(ImageViewModule):
             # range_list = self.main_widget.roi_image_view.image_view.view.viewRange()
             background_max = np.percentile(self.current_background, 98)
             background_min = np.percentile(self.current_background, 2)
-            background_image_scaled = (self.current_foreground_intensity / 10 * (
-                    self.current_background - background_min) * 235 / (
+            background_image_scaled = (self.current_foreground_intensity / 7 * (
+                    self.current_background - background_min) * 255 / (
                                            (background_max - background_min) if (
                                                                                         background_max - background_min) != 0 else 1))
             background_image_scaled_3_channel = np.hstack(
@@ -234,7 +234,7 @@ class ROIImageViewModule(ImageViewModule):
                 self.image_item.setLevels((0, 255))
             elif new:
                 # if self.add_image:
-                combined = self.roi_image_flat + background_image_scaled_3_channel + self.select_image_flat
+                combined = self.roi_image_flat * .45 + background_image_scaled_3_channel * .45 + self.select_image_flat * .45
 
                 # else:
                 #     combined = background_image_scaled + self.select_image_flat
@@ -246,13 +246,14 @@ class ROIImageViewModule(ImageViewModule):
                 self.tab.image_view.setImage(combined_reshaped)
             else:
                 self.image_item.image = background_image_scaled_3_channel.reshape(
-                    (shape[0], shape[1], 3))
+                    (shape[0], shape[1], 3)) * .45
                 self.image_item.updateImage(autoLevels=False)
                 self.image_item.setLevels((0, 255))
 
 
                 # if self.add_image:
-                combined = (self.roi_image_flat + self.select_image_flat).reshape(
+                combined = (
+                            self.roi_image_flat * .45 + self.select_image_flat * .45).reshape(
                     (shape[0], shape[1], 3))
                 self.image_item.image += combined
 
@@ -273,7 +274,7 @@ class ROIImageViewModule(ImageViewModule):
 
     def selectRoi(self, num):
         try:
-            color_select = (245, 249, 22)
+            color_select = (245, 249, 22) if self.outlines else (255, 255, 255)
             color_roi = self.main_widget.data_handler.color_list[
                 (num - 1) % len(self.main_widget.data_handler.color_list)]
             self.select_image_flat[
@@ -298,11 +299,7 @@ class ROIImageViewModule(ImageViewModule):
                 (num - 1) % len(self.main_widget.data_handler.color_list)]
             shape_flat = self.data_handler.edge_roi_image_flat.shape
             self.select_image_flat[self.main_widget.data_handler.rois[
-                num - 1]] = color if not self.outlines \
-                else np.hstack([self.data_handler.edge_roi_image_flat,
-                                np.zeros(shape_flat),
-                                np.zeros(shape_flat)])[
-                self.main_widget.data_handler.rois[num - 1]]
+                num - 1]] = (0, 0, 0)
             self.updateImageDisplay()
         except ValueError as e:
             if "shape" in e.args[0]:

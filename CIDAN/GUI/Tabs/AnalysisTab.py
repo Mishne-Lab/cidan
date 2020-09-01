@@ -124,7 +124,8 @@ class AnalysisTab(Tab):
                         data_list = []
                         roi_names = []
                         for num2, x in zip(
-                                range(1, len(self.roi_list_module.roi_time_check_list)),
+                                range(1, len(
+                                    self.roi_list_module.roi_time_check_list) + 1),
                                 self.roi_list_module.roi_time_check_list):
                             if x:
                                 data_list.append(

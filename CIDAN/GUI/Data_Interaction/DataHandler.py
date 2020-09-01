@@ -24,8 +24,9 @@ from CIDAN.LSSC.functions.spatial_footprint import classify_components_ep
 from CIDAN.LSSC.functions.temporal_correlation import calculate_temporal_correlation
 from CIDAN.LSSC.process_data import process_data
 from CIDAN.TimeTrace.deltaFOverF import calculateDeltaFOverF
-from CIDAN.TimeTrace.mean import calculateMeanTrace
+from CIDAN.TimeTrace.mean import calculateMeanTrace, neuropil
 from CIDAN.TimeTrace.neuropil import calculate_nueropil
+from CIDAN.TimeTrace.waveletDenoise import waveletDenoise
 
 logger1 = logging.getLogger("CIDAN.DataHandler")
 
@@ -46,29 +47,39 @@ class DataHandler:
 
 
     """
-    # x is for roi data, y is for neuropil data
+    # x is for roi data, y is for neuropil data, z is roi data denoised
     time_trace_possibilities_functions = {
-        "Mean Florescence Denoised": lambda x, y: calculateMeanTrace(x, y,
-                                                                     denoise=True),
-        "Mean Florescence": lambda x, y: calculateMeanTrace(x, y, denoise=False),
-        "DeltaF Over F Denoised": lambda x, y: calculateDeltaFOverF(x, y, denoise=True),
-        "DeltaF Over F": lambda x, y: calculateDeltaFOverF(x, y, denoise=False),
+        "Mean Florescence Denoised": lambda x, y, z: calculateMeanTrace(x, y, z,
+                                                                        denoise=True),
+        "Mean Florescence": lambda x, y, z: calculateMeanTrace(x, y, z, denoise=False),
+        "DeltaF Over F Denoised": lambda x, y, z: calculateDeltaFOverF(x, y, z,
+                                                                       denoise=True),
+        "DeltaF Over F": lambda x, y, z: calculateDeltaFOverF(x, y, z, denoise=False),
         "Mean Floresence Denoised (Neuropil Corrected)": lambda x,
-                                                                y: calculateMeanTrace(x,
+                                                                y,
+                                                                z: calculateMeanTrace(x,
                                                                                       y,
+                                                                                      z,
                                                                                       denoise=True,
                                                                                       sub_neuropil=True),
-        "Mean Floresence  (Neuropil Corrected)": lambda x, y: calculateMeanTrace(x, y,
-                                                                                 denoise=False,
-                                                                                 sub_neuropil=True),
-        "DeltaF Over F  (Neuropil Corrected)": lambda x, y: calculateDeltaFOverF(x, y,
-                                                                                 denoise=False,
-                                                                                 sub_neuropil=True),
+        "Mean Floresence  (Neuropil Corrected)": lambda x, y, z: calculateMeanTrace(x,
+                                                                                    y,
+                                                                                    z,
+                                                                                    denoise=False,
+                                                                                    sub_neuropil=True),
+        "DeltaF Over F  (Neuropil Corrected)": lambda x, y, z: calculateDeltaFOverF(x,
+                                                                                    y,
+                                                                                    z,
+                                                                                    denoise=False,
+                                                                                    sub_neuropil=True),
         "DeltaF Over F Denoised (Neuropil Corrected)": lambda x,
-                                                              y: calculateDeltaFOverF(x,
+                                                              y,
+                                                              z: calculateDeltaFOverF(x,
                                                                                       y,
+                                                                                      z,
                                                                                       denoise=True,
-                                                                                      sub_neuropil=True)
+                                                                                      sub_neuropil=True),
+        "Neuropil": lambda x, y, z: neuropil(x, y, z)
     }
     _global_params_default = {
         "save_intermediate_steps": True,
@@ -329,7 +340,7 @@ class DataHandler:
 
     @property
     def rois_exist(self):
-        """
+        """ƒc
         Return if the roi save file exists
         """
         return not (self.global_params["need_recalc_eigen_params"] or
@@ -1201,7 +1212,8 @@ class DataHandler:
             if report_progress is not None:
                 printProgressBar(self.trials_loaded_time_trace_indices.index(trial_num),
                                  total=len(
-                                     self.trials_loaded_time_trace_indices) * 2 + 2,
+                                     self.trials_loaded_time_trace_indices) + len(
+                                     self.rois) + 2,
                                  prefix="Time Trace Calculation Progress:",
                                  suffix="Complete", progress_signal=report_progress)
         if not self.real_trials:
@@ -1212,19 +1224,40 @@ class DataHandler:
                     [roi_data[x] for x in self.trials_loaded_time_trace_indices])
                 neuropil_data_combined = np.hstack(
                     [neuropil_data[x] for x in self.trials_loaded_time_trace_indices])
+                roi_data_denoised_combined = waveletDenoise(roi_data_combined)
                 for key in self.time_traces.keys():
                     self.time_traces[key][roi_counter] = [
                         DataHandler.time_trace_possibilities_functions[key](
-                            roi_data_combined, neuropil_data_combined)]
+                            roi_data_combined, neuropil_data_combined,
+                            roi_data_denoised_combined)]
+                if report_progress is not None:
+                    printProgressBar(
+                        len(
+                            self.trials_loaded_time_trace_indices) + roi_counter + 1,
+                        total=len(
+                            self.trials_loaded_time_trace_indices) + len(self.rois) + 2,
+                        prefix="Time Trace Calculation Progress:",
+                        suffix="Complete", progress_signal=report_progress)
         if self.real_trials:
             for roi_counter, roi_data, neuropil_data in zip(range(len(self.rois)),
                                                             roi_time_traces_by_pixel,
                                                             roi_neuropil_traces_by_pixel):
+                roi_data_denoised = [waveletDenoise(x) if type(x) != bool else False for
+                                     x in roi_data]
                 for key in self.time_traces.keys():
                     for trial_num in self.trials_loaded_time_trace_indices:
                         self.time_traces[key][roi_counter][trial_num] = \
                         DataHandler.time_trace_possibilities_functions[key](
-                            roi_data[trial_num], neuropil_data[trial_num])
+                            roi_data[trial_num], neuropil_data[trial_num],
+                            roi_data_denoised[trial_num])
+                if report_progress is not None:
+                    printProgressBar(
+                        len(
+                            self.trials_loaded_time_trace_indices) + roi_counter + 1,
+                        total=len(
+                            self.trials_loaded_time_trace_indices) + len(self.rois) + 2,
+                        prefix="Time Trace Calculation Progress:",
+                        suffix="Complete", progress_signal=report_progress)
         self.roi_time_trace_need_update = [False for _ in
                                            self.roi_time_trace_need_update]
 
@@ -1234,40 +1267,40 @@ class DataHandler:
                         output_directory=self.save_dir_path)
         self.rois_loaded = True
 
-    def calculate_time_trace(self, roi_num, trial_num=None, data_2d=None):
-        """
-        Calculates a time trace for a certain ROI and save to time trace list
-        Parameters
-        ----------
-        roi_num
-            roi to calculate for this starts at [1..number of rois]
-        trial_num
-            indice of trial in trials_all starts at [0, number of trials-1] if
-            none then calculates for all trials
-        """
-        trial_nums = [trial_num]
-        if trial_num == None:
-            trial_nums = self.trials_loaded_time_trace_indices
-        for trial_num in trial_nums:
-            roi = self.rois[roi_num - 1]
-
-            if type(self.dataset_trials_filtered[
-                        trial_num]) == bool and data_2d == None:
-                self.dataset_trials_filtered[trial_num] = self.load_trial_filter_step(
-                    trial_num).compute()
-            if data_2d is None:
-                data_2d = reshape_to_2d_over_time(
-                    self.dataset_trials_filtered[trial_num])
-            if self.time_trace_params[
-                "time_trace_type"] == "DeltaF Over F" and self.real_trials:
-                time_trace = calculateDeltaFOverF(roi, data_2d,
-                                                  denoise=self.time_trace_params[
-                                                      "denoise"] if self.real_trials else False)
-            else:
-                time_trace = calculateMeanTrace(roi, data_2d,
-                                                denoise=self.time_trace_params[
-                                                    "denoise"] if self.real_trials else False)
-            self.time_traces[roi_num - 1][trial_num] = time_trace
+    # def calculate_time_trace(self, roi_num, trial_num=None, data_2d=None):
+    #     """
+    #     Calculates a time trace for a certain ROI and save to time trace list
+    #     Parameters
+    #     ----------
+    #     roi_num
+    #         roi to calculate for this starts at [1..number of rois]
+    #     trial_num
+    #         indice of trial in trials_all starts at [0, number of trials-1] if
+    #         none then calculates for all trials
+    #     """
+    #     trial_nums = [trial_num]
+    #     if trial_num == None:
+    #         trial_nums = self.trials_loaded_time_trace_indices
+    #     for trial_num in trial_nums:
+    #         roi = self.rois[roi_num - 1]
+    #
+    #         if type(self.dataset_trials_filtered[
+    #                     trial_num]) == bool and data_2d == None:
+    #             self.dataset_trials_filtered[trial_num] = self.load_trial_filter_step(
+    #                 trial_num).compute()
+    #         if data_2d is None:
+    #             data_2d = reshape_to_2d_over_time(
+    #                 self.dataset_trials_filtered[trial_num])
+    #         if self.time_trace_params[
+    #             "time_trace_type"] == "DeltaF Over F" and self.real_trials:
+    #             time_trace = calculateDeltaFOverF(roi, data_2d,
+    #                                               denoise=self.time_trace_params[
+    #                                                   "denoise"] if self.real_trials else False)
+    #         else:
+    #             time_trace = calculateMeanTrace(roi, data_2d,
+    #                                             denoise=self.time_trace_params[
+    #                                                 "denoise"] if self.real_trials else False)
+    #         self.time_traces[roi_num - 1][trial_num] = time_trace
 
     def get_time_trace(self, num, trial=None, trace_type="Mean Florescence"):
         """
@@ -1298,8 +1331,6 @@ class DataHandler:
                 return self.time_traces[num]
         else:
             num = num - 1
-            if type(self.time_traces[num][trial]) == bool:
-                self.calculate_time_trace(num + 1, trial)
             output = self.time_traces[num][trial]
         return output
 

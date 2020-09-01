@@ -179,8 +179,8 @@ class MainWidget(QWidget):
                     "/Users/sschickler/Code_Devel/HigleyData/",
                     "/Users/sschickler/Documents/LSSC-python",
                     trials=["File6_som_l5_gcamp6s_alka.tif"],
-                    save_dir_already_created=False)
-                self.data_handler.calculate_filters(auto_crop=True)
+                    save_dir_already_created=True)
+                # self.data_handler.calculate_filters(auto_crop=True)
                 self.init_w_data()
             except IndentationError:
                 pass
