@@ -322,6 +322,6 @@ if __name__ == "__main__":
     app = QApplication([])
 
     app.setApplicationName("CIDAN")
-    widget = MainWindow(dev=True, preload=True)
+    widget = MainWindow(dev=False, preload=False)
 
     sys.exit(app.exec_())

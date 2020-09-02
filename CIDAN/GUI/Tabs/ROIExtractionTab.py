@@ -380,11 +380,11 @@ class ROIExtractionTab(Tab):
             self.data_handler.rois.append(
                 temp_roi)
             self.data_handler.gen_roi_display_variables()
-            self.data_handler.time_traces.append([])
-            for _ in range(len(self.data_handler.trials_all)):
-                self.data_handler.time_traces[-1].append(False)
+            # self.data_handler.time_traces.append([])
+            # for _ in range(len(self.data_handler.trials_all)):
+            #     self.data_handler.time_traces[-1].append(False)
             self.data_handler.roi_time_trace_need_update.append(True)
-            self.data_handler.time_traces.append([np.zeros(50)])
+            # self.data_handler.time_traces.append([np.zeros(50)])
             self.image_view.clearPixelSelection()
             self.update_roi(False)
             self.roi_list_module.set_list_items(self.data_handler.rois)
@@ -417,7 +417,9 @@ class ROIExtractionTab(Tab):
                 self.main_widget.console.updateText("Deleting ROI #%s" % str(roi_num + 1))
                 self.data_handler.rois.pop(roi_num)
                 self.data_handler.gen_roi_display_variables()
-                self.data_handler.time_traces.pop(roi_num)
+                for x in self.data_handler.time_traces.keys():
+                    self.data_handler.time_traces[x].pop(roi_num)
+
                 self.data_handler.roi_time_trace_need_update.pop(roi_num)
                 self.update_roi(False)
                 self.roi_list_module.set_list_items(self.data_handler.rois)
@@ -530,9 +532,11 @@ class ROIExtractionTab(Tab):
                             "Some time traces are out of date, please recalculate",
                             warning=True)
                     pen = pg.mkPen(color=color_roi, width=3)
-                    self.time_plot.plot(
-                        self.main_widget.data_handler.get_time_trace(num,
-                                                                     trace_type=self.time_trace_type.current_state()),
+                    time_trace = self.main_widget.data_handler.get_time_trace(num,
+                                                                              trace_type=self.time_trace_type.current_state())
+                    if type(time_trace) == bool:
+                        return
+                    self.time_plot.plot(time_trace,
                         pen=pen)
                     self.time_plot.enableAutoRange(axis=0)
             except AttributeError:

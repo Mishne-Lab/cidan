@@ -846,6 +846,7 @@ class DataHandler:
                          -max([x[0][1] for x in self.suggested_crops])],
                         [max([x[1][0] for x in self.suggested_crops]),
                          -max([x[1][1] for x in self.suggested_crops])]]
+
                 self.dataset_params["crop_x"][0] = 0 + \
                                                    crop[0][0]
                 self.dataset_params["crop_x"][1] = self.total_size[0] + \
@@ -854,7 +855,10 @@ class DataHandler:
                                                    crop[1][0]
                 self.dataset_params["crop_y"][1] = self.total_size[1] + \
                                                    crop[1][1]
-
+                if crop[0][1] == 0:
+                    crop[0][1] = self.total_size[0]
+                if crop[1][1] == 0:
+                    crop[1][1] = self.total_size[1]
                 for trial_num in self._trials_loaded_indices:
                     self.dataset_trials_filtered[trial_num] = \
                         self.dataset_trials_filtered[trial_num][
@@ -1164,15 +1168,15 @@ class DataHandler:
                 [self.shape[0] * self.shape[1]]),
                        (self.pixel_with_rois_flat > 0) * 255]),
             [self.shape[0] * self.shape[1], 3])
-        self.roi_time_trace_need_update = []
-        for _ in range(len(self.rois)):
-            self.roi_time_trace_need_update.append(False)
+
 
     def calculate_time_traces(self, report_progress=None):
         """
         Calculates the time traces for every roi in self.rois
         """
-
+        self.roi_time_trace_need_update = []
+        for _ in range(len(self.rois)):
+            self.roi_time_trace_need_update.append(False)
         self.time_traces = {x: [] for x in
                             list(DataHandler.time_trace_possibilities_functions)}
         for x in self.time_traces.keys():
@@ -1315,11 +1319,16 @@ class DataHandler:
         np.ndarray of the time trace
         """
         if not self.real_trials:
-            if len(self.time_traces[trace_type][num - 1]) == 1 and type(
-                    self.time_traces[trace_type][num - 1][0]) != bool:
-                return self.time_traces[trace_type][num - 1][0]
-            else:
+            try:
+                if len(self.time_traces[trace_type][num - 1]) == 1 and type(
+                        self.time_traces[trace_type][num - 1][0]) != bool:
+                    return self.time_traces[trace_type][num - 1][0]
+                else:
+                    return False
+
+            except IndexError:
                 return False
+
         if (trial == None):
             num = num - 1
             if self.real_trials:
