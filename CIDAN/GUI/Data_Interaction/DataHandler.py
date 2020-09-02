@@ -21,7 +21,6 @@ from CIDAN.LSSC.functions.progress_bar import printProgressBarFilter, printProgr
 from CIDAN.LSSC.functions.roi_extraction import roi_extract_image, combine_rois
 from CIDAN.LSSC.functions.roi_filter import filterRoiList
 from CIDAN.LSSC.functions.spatial_footprint import classify_components_ep
-from CIDAN.LSSC.functions.temporal_correlation import calculate_temporal_correlation
 from CIDAN.LSSC.process_data import process_data
 from CIDAN.TimeTrace.deltaFOverF import calculateDeltaFOverF
 from CIDAN.TimeTrace.mean import calculateMeanTrace, neuropil
@@ -1158,7 +1157,14 @@ class DataHandler:
                              "embedding_norm_images/embedding_norm_image.png")))
         except:
             print("Can't generate eigen Norm image please try again")
-        self.neuropil_pixels = calculate_nueropil(image_shape=edge_roi_image.shape,
+
+
+
+    def calculate_time_traces(self, report_progress=None):
+        """
+        Calculates the time traces for every roi in self.rois
+        """
+        self.neuropil_pixels = calculate_nueropil(image_shape=self.shape,
                                                   roi_list=self.rois,
                                                   roi_mask_flat=self.pixel_with_rois_flat,
                                                   min_pixels=100)  # self.time_trace_params["min_neuropil_pixels"])
@@ -1171,12 +1177,6 @@ class DataHandler:
                 [self.shape[0] * self.shape[1]]),
                        (self.pixel_with_rois_flat > 0) * 255]),
             [self.shape[0] * self.shape[1], 3])
-
-
-    def calculate_time_traces(self, report_progress=None):
-        """
-        Calculates the time traces for every roi in self.rois
-        """
         self.roi_time_trace_need_update = []
         for _ in range(len(self.rois)):
             self.roi_time_trace_need_update.append(False)
