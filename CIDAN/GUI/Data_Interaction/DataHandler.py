@@ -736,8 +736,8 @@ class DataHandler:
             if type(loaded_num) != bool:
                 self.mean_images[loaded_num] = np.mean(cur_stack, axis=0)
                 self.max_images[loaded_num] = np.max(cur_stack, axis=0)
-                self.temporal_correlation_images[
-                    loaded_num] = calculate_temporal_correlation(cur_stack).compute()
+                # self.temporal_correlation_images[
+                #     loaded_num] = calculate_temporal_correlation(cur_stack).compute()
 
 
         else:
@@ -745,9 +745,9 @@ class DataHandler:
             if type(loaded_num) != bool:
                 self.mean_images[loaded_num] = np.mean(cur_stack, axis=0)
                 self.max_images[loaded_num] = np.max(cur_stack, axis=0)
-                self.temporal_correlation_images[
-                    loaded_num] = calculate_temporal_correlation(
-                    cur_stack).compute()
+                # self.temporal_correlation_images[
+                #     loaded_num] = calculate_temporal_correlation(
+                #     cur_stack).compute()
         if self.filter_params["pca"] and type(loaded_num) != bool:
             pca = applyPCA(cur_stack, self.filter_params["pca_threshold"])
             if self.load_into_mem:
@@ -833,6 +833,9 @@ class DataHandler:
                         trial_num] = self.load_trial_filter_step(
                         trial_num, self.load_trial_dataset_step(trial_num),
                         loaded_num=num)
+                if num % 7 == 0:
+                    self.dataset_trials_filtered = list(
+                        dask.compute(*self.dataset_trials_filtered))
                 self.dataset_trials_filtered = list(
                     dask.compute(*self.dataset_trials_filtered))
             self.shape = [
@@ -869,9 +872,9 @@ class DataHandler:
                     self.max_images[trial_num] = self.max_images[trial_num][
                                                  crop[0][0]:crop[0][1],
                                                  crop[1][0]:crop[1][1]]
-                    self.temporal_correlation_images[trial_num] = \
-                        self.temporal_correlation_images[trial_num][
-                        crop[0][0]:crop[0][1], crop[1][0]:crop[1][1]]
+                    # self.temporal_correlation_images[trial_num] = \
+                    #     self.temporal_correlation_images[trial_num][
+                    #     crop[0][0]:crop[0][1], crop[1][0]:crop[1][1]]
                     if self.filter_params["pca"]:
                         self.pca_decomp[trial_num] = self.pca_decomp[trial_num][
                                                      :, crop[0][0]:crop[0][1],

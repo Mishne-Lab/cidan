@@ -75,7 +75,7 @@ class PreprocessingTab(Tab):
         self._image_buttons_layout.addWidget(stack_button)
         self._image_buttons_layout.addWidget(self.max_image_button)
         self._image_buttons_layout.addWidget(self.mean_image_button)
-        self._image_buttons_layout.addWidget(self.temporal_correlation_image_button)
+        # self._image_buttons_layout.addWidget(self.temporal_correlation_image_button)
         self._image_buttons_layout.addWidget(self.pca_stack_button)
 
         main_widget.preprocess_image_view.setContentsMargins(0, 0, 0, 0)
