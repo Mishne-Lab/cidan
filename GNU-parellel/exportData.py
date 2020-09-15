@@ -1,7 +1,7 @@
 import argparse
 import csv
+import json
 import os
-from functools import reduce
 
 import neurofinder
 import pandas
@@ -25,23 +25,7 @@ def main():
         for row in reader:
             task_list.append(row[0])
 
-    parameters_to_search = {"median_filter": [True, False], "hist_eq": [True, False],
-                            "pca": [True, False], "total_num_spatial_boxes": [1, 4],
-                            "num_eig": [50], "trial_split": [True],
-                            "z_score": [True, False],
-                            "trial_length": [200, 400],
-                            "localSpatialDenoising": [True, False]}
-    total_parameters_combinations = reduce(lambda x, y: x * y,
-                                           [len(parameters_to_search[x]) for x in
-                                            parameters_to_search])
-    print(total_parameters_combinations)
-    parameter_keys = list(parameters_to_search)
-    parameter_remainders = []
-    for num, key in enumerate(parameter_keys):
-        remainder = 1
-        for x in range(num + 1):
-            remainder *= len(parameters_to_search[parameter_keys[x]])
-        parameter_remainders.append(remainder)
+    parameter_keys = []
 
     rows = []
     for num, path in enumerate([os.path.dirname(x) for x in task_list]):
@@ -53,11 +37,16 @@ def main():
         else:
             percision, recall, inclusion, exclusion = -1, -1, -1, -1
         current_row = [num + 1, percision, recall, inclusion, exclusion]
+        parameter_keys = []
 
-        for remainder, key in zip(parameter_remainders, parameter_keys):
-            val = parameters_to_search[key][num % remainder // (
-                    remainder // len(parameters_to_search[key]))]
-            current_row.append(val)
+        with open(os.path.join(path, "parameters.json"), "r") as parameters:
+            parameters = json.load(parameters)
+            for x in parameters.keys():
+                for y in parameters[x].keys():
+                    parameter_keys.append(y)
+                    current_row.append([parameters[x][y]])
+
+
         rows.append(current_row)
         if os.path.isfile(
                 os.path.join(path, "embedding_norm_images/embedding_norm_image.png")):

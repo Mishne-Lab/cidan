@@ -6,13 +6,13 @@ from PySide2.QtWidgets import QApplication
 from skimage import io
 from skimage.metrics import structural_similarity
 
-from CIDAN.GUI.Data_Interaction.loadDataset import load_new_dataset
-from CIDAN.GUI.MainWindow import MainWindow
+from cidan.GUI.Data_Interaction.loadDataset import load_new_dataset
+from cidan.GUI.MainWindow import MainWindow
 
 
 def test_accuracy():
     app = QApplication([])
-    app.setApplicationName("CIDAN")
+    app.setApplicationName("cidan")
     widget = MainWindow(dev=True, preload=False)
 
     main_widget = widget.table_widget

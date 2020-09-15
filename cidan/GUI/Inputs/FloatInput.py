@@ -1,0 +1,28 @@
+from qtpy.QtWidgets import *
+
+from cidan.GUI.Inputs.Input import Input
+
+
+class FloatInput(Input):
+    def __init__(self, display_name, program_name, on_change_function, default_val,
+                 tool_tip,
+                 min, max, step, display_tool_tip=False
+                 ):
+        super().__init__(display_name, program_name, on_change_function, default_val,
+                         tool_tip, display_tool_tip)
+
+        self.input_box = QDoubleSpinBox()
+        self.input_box.setMinimum(min)
+        self.input_box.setMaximum(max)
+        self.input_box.setMaximumWidth(75*((self.logicalDpiX() / 96.0-1)/2+1))
+        self.input_box.setSingleStep(step)
+        self.input_box.setValue(self.default_val)
+        self.input_box.valueChanged.connect(self.on_change)
+        self.input_box.setToolTip(self.tool_tip)
+        self.layout_h.addWidget(self.input_box)
+
+    def current_state(self):
+        return self.input_box.value()
+
+    def set_default_val(self):
+        self.input_box.setValue(self.default_val)

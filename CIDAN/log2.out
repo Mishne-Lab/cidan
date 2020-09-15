@@ -1,0 +1,6 @@
+DEBUG:CIDAN:Program started
+DEBUG:qdarkstyle:Reading QSS file in: :qdarkstyle/style.qss
+INFO:qdarkstyle:QSS file sucessfuly loaded.
+DEBUG:qdarkstyle:Checking patches for being applied.
+INFO:qdarkstyle:Found OS patches to be applied.
+INFO:qdarkstyle:Found application patches to be applied.

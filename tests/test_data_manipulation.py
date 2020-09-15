@@ -1,6 +1,6 @@
 import numpy as np
 
-from CIDAN.LSSC.functions.data_manipulation import load_filter_tif_stack
+from cidan.LSSC.functions.data_manipulation import load_filter_tif_stack
 
 
 def test_load_filter_tif_stack():

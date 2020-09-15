@@ -2,8 +2,8 @@ import numpy as np
 from dask import compute
 from scipy.sparse import csr_matrix
 
-from CIDAN.LSSC.functions.eigen import generateEigenVectors
-from CIDAN.LSSC.functions.embeddings import calcAffinityMatrix
+from cidan.LSSC.functions.eigen import generateEigenVectors
+from cidan.LSSC.functions.embeddings import calcAffinityMatrix
 
 knn= 45
 num_elements = 40000
