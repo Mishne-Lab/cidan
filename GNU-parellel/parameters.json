@@ -20,16 +20,16 @@
     "slice_start": 0,
     "crop_stack": true,
     "crop_x": [
-      5,
-      251
+      10,
+      245
     ],
     "crop_y": [
-      3,
-      246
+      10,
+      245
     ],
     "trial_split": true,
     "trial_length": 400,
-    "auto_crop": false
+    "auto_crop": true
   },
   "filter_params": {
     "median_filter": false,
@@ -65,7 +65,7 @@
     "roi_size_min": 30,
     "roi_size_max": 600,
     "merge": true,
-    "num_rois": 60,
+    "num_rois": 80,
     "fill_holes": true,
     "refinement": true,
     "max_iter": 100,

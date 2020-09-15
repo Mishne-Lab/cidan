@@ -19,12 +19,11 @@ def main():
     args = parser.parse_args()
     with open(args.parameter, "r") as f:
         parameter_json = json.load(f)
-    parameters_to_search = {"median_filter": [True, False], "hist_eq": [True, False],
-                            "pca": [True, False], "total_num_spatial_boxes": [1, 4],
+    parameters_to_search = {"median_filter": [False], "hist_eq": [True],
+                            "pca": [False], "total_num_spatial_boxes": [1,4],
                             "num_eig": [50], "trial_split": [True],
-                            "z_score": [True, False],
-                            "trial_length": [200, 400],
-                            "localSpatialDenoising": [True, False]}
+                            "trial_length": [400],
+                            "localSpatialDenoising": [True], "auto_crop":[False], "num_rois":[70,120], "num_iter":[100,200,300]}
     total_parameters_combinations = reduce(lambda x, y: x * y,
                                            [len(parameters_to_search[x]) for x in
                                             parameters_to_search])
@@ -36,10 +35,12 @@ def main():
         for x in range(num + 1):
             remainder *= len(parameters_to_search[parameter_keys[x]])
         parameter_remainders.append(remainder)
+    if os.path.isdir(args.input_dir):
+        directory_list = list_dirs(args.input_dir, 1)
+    else:
+        directory_list = [os.path.basename(args.input_dir)]
 
-    directory_list = list_dirs(args.input_dir, 1)
-
-    with open("task_list.csv", mode="w") as task_list:
+    with open("task_list.csv", mode="a") as task_list:
         task_list_writer = csv.writer(task_list, delimiter=',', quotechar='"',
                                       quoting=csv.QUOTE_MINIMAL)
 
@@ -47,7 +48,7 @@ def main():
 
             for x in range(total_parameters_combinations):
                 curr_json = parameter_json.copy()
-                curr_out_dir = os.path.join(args.output_dir, curr_dir + str(x))
+                curr_out_dir = os.path.join(args.output_dir, curr_dir + str(x+16))
                 if not os.path.isdir(curr_out_dir):
                     os.mkdir(curr_out_dir)
                 for remainder, key in zip(parameter_remainders, parameter_keys):
