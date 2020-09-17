@@ -20,10 +20,10 @@ def main():
     with open(args.parameter, "r") as f:
         parameter_json = json.load(f)
     parameters_to_search = {"median_filter": [False], "hist_eq": [True],
-                            "pca": [False], "total_num_spatial_boxes": [1,4],
+                            "pca": [False], "total_num_spatial_boxes": [1],
                             "num_eig": [50], "trial_split": [True],
-                            "trial_length": [400],
-                            "localSpatialDenoising": [True], "auto_crop":[False], "num_rois":[70,120], "num_iter":[100,200,300]}
+                            "trial_length": [400],"eigen_accuracy":[7],
+                            "localSpatialDenoising": [True], "auto_crop":[True], "num_rois":[70,120], "num_iter":[100,200,300]}
     total_parameters_combinations = reduce(lambda x, y: x * y,
                                            [len(parameters_to_search[x]) for x in
                                             parameters_to_search])
@@ -48,7 +48,7 @@ def main():
 
             for x in range(total_parameters_combinations):
                 curr_json = parameter_json.copy()
-                curr_out_dir = os.path.join(args.output_dir, curr_dir + str(x+16))
+                curr_out_dir = os.path.join(args.output_dir, curr_dir + str(x+6))
                 if not os.path.isdir(curr_out_dir):
                     os.mkdir(curr_out_dir)
                 for remainder, key in zip(parameter_remainders, parameter_keys):

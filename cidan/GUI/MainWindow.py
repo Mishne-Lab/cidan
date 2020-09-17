@@ -48,6 +48,22 @@ class MainWindow(QMainWindow):
         self.setMinimumSize(int(self.width), int(self.height))
         self.main_menu = self.menuBar()
         self.setContentsMargins(0, 0, 0, 0)
+
+        import cidan
+        cidanpath = os.path.dirname(os.path.realpath(cidan.__file__))
+        print(cidanpath)
+        icon_path = os.path.join(
+            cidanpath, "logo", "logo.png"
+        )
+
+        app_icon = QtGui.QIcon()
+        app_icon.addFile(icon_path, QtCore.QSize(16, 16))
+        app_icon.addFile(icon_path, QtCore.QSize(24, 24))
+        app_icon.addFile(icon_path, QtCore.QSize(32, 32))
+        app_icon.addFile(icon_path, QtCore.QSize(48, 48))
+        app_icon.addFile(icon_path, QtCore.QSize(96, 96))
+        app_icon.addFile(icon_path, QtCore.QSize(256, 256))
+        self.setWindowIcon(app_icon)
         self.table_widget = MainWidget(self, dev=dev, preload=preload)
         self.setCentralWidget(self.table_widget)
         # self.setStyleSheet(qdarkstyle.load_stylesheet())
