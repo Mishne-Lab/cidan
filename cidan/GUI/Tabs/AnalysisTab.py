@@ -89,13 +89,20 @@ class AnalysisTab(Tab):
         button_layout = QHBoxLayout()
         button_layout.addWidget(self.select_all_button)
         button_layout.addWidget(self.deselect_all_button)
+        export_overlapping_rois = QPushButton(text="Export Overlapping ROIs")
+        export_overlapping_rois.hide()
+        export_overlapping_rois.clicked.connect(lambda: self.export_overlap_rois())
+        if self.main_widget.dev:
+            export_overlapping_rois.show()
+
 
         # bottom_half.addWidget(self.plot_widget, stretch=2)
         if self.main_widget.data_handler.rois_loaded:
             self.updateTab()
             # self.plot_widget.set_list_items([self.data_handler.get_time_trace(x) for x in range(20)], [x for x in range(20)], None)
         super().__init__("Analysis",
-                         column_1=[self.roi_list_module, button_layout, settings_tabs],
+                         column_1=[self.roi_list_module, button_layout,
+                                   export_overlapping_rois, settings_tabs],
                          column_2=[self.image_view, self.plot_widget],
                          column_2_display=True, column2_moveable=True)
 
@@ -195,3 +202,13 @@ class AnalysisTab(Tab):
                     pass
             else:
                 self.image_view.reset_view()
+
+    def export_overlap_rois(self):
+        roi_nums = []
+        for num, x in zip(range(1, len(self.roi_list_module.roi_time_check_list) + 1),
+                          self.roi_list_module.roi_time_check_list):
+            if x:
+                roi_nums.append(num)
+        if len(roi_nums) == 2:
+            self.data_handler.export_overlapping_rois(roi_nums[0], roi_nums[1])
+            print("export success")

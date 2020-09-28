@@ -30,6 +30,10 @@ from cidan.TimeTrace.waveletDenoise import waveletDenoise
 logger1 = logging.getLogger("cidan.DataHandler")
 
 
+def connected_components_graph(A_csr, param, return_labels):
+    pass
+
+
 class DataHandler:
     """
     Interacts with the algorithm and stores the current image data
@@ -112,7 +116,7 @@ class DataHandler:
         "median_filter": False,
         "median_filter_size": 3,
         "z_score": False,
-        "hist_eq": False,
+        "hist_eq": True,
         "localSpatialDenoising": True,
         "pca": False,
         "pca_threshold": .97
@@ -130,7 +134,7 @@ class DataHandler:
         "metric": "l2",
         "knn": 32,
         "accuracy": 75,
-        "eigen_accuracy": 5,
+        "eigen_accuracy": 7,
         "connections": 40
 
     }
@@ -140,7 +144,7 @@ class DataHandler:
         "eigen_threshold_method": True,
         "eigen_threshold_value": .1,
         "num_eigen_vector_select": 5,
-        "merge_temporal_coef": .90,
+        "merge_temporal_coef": .80,
         "roi_size_min": 30,
         "roi_size_max": 600,
         "merge": True,
@@ -1158,8 +1162,6 @@ class DataHandler:
         except:
             print("Can't generate eigen Norm image please try again")
 
-
-
     def calculate_time_traces(self, report_progress=None):
         """
         Calculates the time traces for every roi in self.rois
@@ -1254,9 +1256,9 @@ class DataHandler:
                 for key in self.time_traces.keys():
                     for trial_num in self.trials_loaded_time_trace_indices:
                         self.time_traces[key][roi_counter][trial_num] = \
-                        DataHandler.time_trace_possibilities_functions[key](
-                            roi_data[trial_num], neuropil_data[trial_num],
-                            roi_data_denoised[trial_num])
+                            DataHandler.time_trace_possibilities_functions[key](
+                                roi_data[trial_num], neuropil_data[trial_num],
+                                roi_data_denoised[trial_num])
                 if report_progress is not None:
                     printProgressBar(
                         len(
@@ -1530,3 +1532,32 @@ class DataHandler:
         self.edge_roi_image_flat = None
         self.pixel_with_rois_color = None
         self.eigen_norm_image = None
+
+    def export_overlapping_rois(self, current_roi_num_1, current_roi_num_2):
+        """THis is only used in dev version it allows the user to export time trace of all pixels in this roi and in overlapping rois"""
+        current_roi_num_1 = current_roi_num_1 - 1
+        current_roi_num_2 = current_roi_num_2 - 1
+        pixels_in_1_not_2 = [x for x in self.rois[current_roi_num_1] if
+                             x not in self.rois[current_roi_num_2]]
+        pixels_in_2_not_1 = [x for x in self.rois[current_roi_num_2] if
+                             x not in self.rois[current_roi_num_1]]
+        pixels_in_1_and_2 = [x for x in self.rois[current_roi_num_2] if
+                             x in self.rois[current_roi_num_1]]
+        time_traces_1_not_2 = []
+        time_traces_2_not_1 = []
+        time_traces_1_and_2 = []
+
+        for trial_num in self.trials_loaded_time_trace_indices:
+            data = self.load_trial_dataset_step(trial_num).compute()
+            data_2d = reshape_to_2d_over_time(data[:])
+            del data
+            time_traces_1_and_2.append(data_2d[pixels_in_1_and_2])
+            time_traces_1_not_2.append(data_2d[pixels_in_1_not_2])
+            time_traces_2_not_1.append(data_2d[pixels_in_2_not_1])
+        time_traces_2_not_1 = np.hstack(time_traces_2_not_1)
+        time_traces_1_not_2 = np.hstack(time_traces_1_not_2)
+        time_traces_1_and_2 = np.hstack(time_traces_1_and_2)
+        out = {"time_trace_2_not_1": time_traces_2_not_1,
+               "time_trace_1_not_2": time_traces_1_not_2,
+               "time_traces_1_and_2": time_traces_1_and_2}
+        pickle_save(out, "roi_overlap.pickle", output_directory=self.save_dir_path)
