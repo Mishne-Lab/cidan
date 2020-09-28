@@ -36,7 +36,7 @@ MANIFEST
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
-CIDAN/log.out
+cidan/log.out
 
 # Unit test / coverage reports
 htmlcov/
@@ -140,4 +140,4 @@ dmypy.json
 /my3.png
 /output_images/
 /tmp_pickle/
-/CIDAN/log.out
+/cidan/log.out

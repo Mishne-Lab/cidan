@@ -3,14 +3,14 @@ import time
 
 from PySide2.QtWidgets import QApplication
 
-from CIDAN.GUI.Data_Interaction.loadDataset import load_new_dataset, load_prev_session
-from CIDAN.GUI.MainWindow import MainWindow
+from cidan.GUI.Data_Interaction.loadDataset import load_new_dataset, load_prev_session
+from cidan.GUI.MainWindow import MainWindow
 
 
 def test_main():
     try:
         app = QApplication([])
-        app.setApplicationName("CIDAN")
+        app.setApplicationName("cidan")
     except RuntimeError:
         pass
     widget = MainWindow(dev=True, preload=False)
