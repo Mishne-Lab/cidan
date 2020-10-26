@@ -326,7 +326,8 @@ class MainWidget(QWidget):
             else:
                 self.console.updateText("Download Unsuccessful")
         path = createFileDialog(directory="~/Desktop", forOpen=False,
-                                isFolder=True)
+                                isFolder=True,
+                                name="Choose location to save demo dataset")
         self.demo_download_thread.runThread(path, endfunc)
         # self.console.updateText("Downloading Demo Dataset to: " + path)
 
@@ -346,6 +347,6 @@ if __name__ == "__main__":
     app = QApplication([])
 
     app.setApplicationName("cidan")
-    widget = MainWindow(dev=True, preload=True)
+    widget = MainWindow(dev=True, preload=False)
 
     sys.exit(app.exec_())

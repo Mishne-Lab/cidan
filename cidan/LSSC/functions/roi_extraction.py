@@ -484,26 +484,37 @@ def merge_rois(roi_list: List,
         if len(group) != 0:
 
 
-            group_zipped = list(enumerate(group))
             timetraces = [np.mean(original_2d_vol[roi], axis=0) for roi in group]
-            while len(group_zipped) > 0:
-                roi_sizes = [x.shape[0] for y,x in group_zipped]
-                first_num, first_roi = group_zipped.pop(roi_sizes.index(max(roi_sizes)))
+            while len(group) > 0:
+                roi_sizes = [x.shape[0] for x in group]
+                first_roi = group.pop(roi_sizes.index(max(roi_sizes)))
+                timetrace_first = timetraces.pop(roi_sizes.index(max(roi_sizes)))
                 similarity = [np.count_nonzero(np.in1d(x, first_roi,
-                                                       assume_unique=True, invert=False)) for y,x in group_zipped]
+                                                       assume_unique=True,
+                                                       invert=False)) for x in group]
 
-                group_zipped = [group_zipped[x] for x in list(np.argsort(similarity))][::-1]
+                group = [group[x] for x in list(np.argsort(similarity))][::-1]
+                timetraces = [timetraces[x] for x in list(np.argsort(similarity))][::-1]
+                group_zipped = list(enumerate(group))
                 rois_to_merge = []
-                for num, roi in enumerate(group_zipped):
-                    if compare_time_traces(timetraces[first_num],
-                                           timetraces[roi[0]]) > temporal_coefficient:
+                for num, roi in group_zipped:
+                    if compare_time_traces(timetrace_first,
+                                           timetraces[num]) > temporal_coefficient:
                         rois_to_merge.append(num)
                 first_roi = list(reduce(combine_rois,
                                         [first_roi] + [group_zipped[x][1] for x in
                                                        rois_to_merge]))
-                for num in rois_to_merge[::-1]:
-                    group_zipped.pop(num)
+                cur_num = 0
+                while len(rois_to_merge) > 0 and cur_num < len(group_zipped):
+                    if group_zipped[cur_num][0] in rois_to_merge:
+                        rois_to_merge.remove(group_zipped[cur_num][0])
+                        group_zipped.pop(cur_num)
+
+                    else:
+                        cur_num += 1
+
                 new_rois.append(np.array(first_roi))
+                group = [y for x, y in group_zipped]
 
     return new_rois
 

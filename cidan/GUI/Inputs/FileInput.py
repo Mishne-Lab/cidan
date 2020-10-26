@@ -5,12 +5,13 @@ from cidan.GUI.Inputs.Input import Input
 
 class FileInput(Input):
     def __init__(self, display_name, program_name, on_change_function, default_val,
-                 tool_tip, isFolder, forOpen):
+                 tool_tip, isFolder, forOpen, name="Choose dataset"):
         super().__init__(display_name, program_name, on_change_function,
                          default_val, tool_tip)
         self.isFolder = isFolder
         self.forOpen = forOpen
         self.path = ""
+        self.name = name
 
         self.current_location = QLabel()
         self.current_location.setStyleSheet("background-color: #32414B")
@@ -24,7 +25,7 @@ class FileInput(Input):
 
     def on_browse_button(self):
         self.path = createFileDialog(directory="~/Desktop", forOpen=self.forOpen,
-                                     isFolder=self.isFolder)
+                                     isFolder=self.isFolder, name=self.name)
         self.current_location.setText(self.path)
         if self.on_change_function is not None:
             self.on_change_function(self.path)
@@ -33,14 +34,15 @@ class FileInput(Input):
         return self.path
 
 
-def createFileDialog(directory='', forOpen=True, fmt='', isFolder=0):
+def createFileDialog(directory='', forOpen=True, fmt='', isFolder=0,
+                     name="Choose Dataset:"):
     directory = "/Users/sschickler/Documents/LSSC-python/input_images"
     options = QFileDialog.Options()
     options |= QFileDialog.DontUseNativeDialog
     options |= QFileDialog.DontUseCustomDirectoryIcons
     dialog = QFileDialog()
     dialog.setOptions(options)
-
+    dialog.setWindowTitle(name)
     dialog.setFilter(dialog.filter())
 
     # ARE WE TALKING ABOUT FILES OR FOLDERS

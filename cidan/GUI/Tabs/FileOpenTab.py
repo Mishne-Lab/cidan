@@ -21,7 +21,8 @@ class FileOpenTab(Tab):
         save_dir_new_file = FileInput("Save Directory Location(Empty Directory):", "",
                                       None, "",
                                       "Select a place to save outputs", isFolder=1,
-                                      forOpen=False)
+                                      forOpen=False,
+                                      name="Choose directory to save results in:")
         save_dir_new_folder = FileInput("Save Directory Location(Empty Directory):", "",
                                         None, "",
                                         "Select a place to save outputs", isFolder=1,
@@ -29,8 +30,12 @@ class FileOpenTab(Tab):
 
         save_dir_load = FileInput("Previous Session Location:", "", None, "",
                                   tool_tip="Select the save directory for a previous session",
-                                  isFolder=1, forOpen=True)
-
+                                  isFolder=1, forOpen=True,
+                                  name="Choose directory of previous session")
+        file_demo_button = QPushButton()
+        file_demo_button.setContentsMargins(0, 0, 0, 11)
+        file_demo_button.setText("Download and Load Demo File")
+        file_demo_button.clicked.connect(lambda: main_widget.downloadOpenDemo())
         file_open_button = QPushButton()
         file_open_button.setContentsMargins(0, 0, 0, 11)
         file_open_button.setText("Load")
@@ -61,7 +66,7 @@ class FileOpenTab(Tab):
         file_open = Tab("File Open", column_2=[], column_2_display=False,
                         column_1=[dataset_file_input, save_dir_new_file,
                                   self.file_load_into_mem,
-                                  file_open_button])
+                                  file_open_button, file_demo_button])
         folder_open = Tab("Folder Open", column_2=[self.trial_list_widget],
                           column_2_display=True,
                           column_1=[dataset_folder_input, save_dir_new_folder,
