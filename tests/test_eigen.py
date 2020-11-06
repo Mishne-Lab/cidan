@@ -25,7 +25,7 @@ def test_eigen():
     K = calcAffinityMatrix(pixel_list=image, metric="l2", knn=20,
                            accuracy=80, connections=30,
                            normalize_w_k=15, num_threads=8, spatial_box_num=0,
-                           temporal_box_num=0)
+                           temporal_box_num=0).compute()
     # K_new = np.zeros((15 * 25, 15 * 25))
     # for i in range(0, num_points, 1):
     #     for j in range(0, 25, 1):
