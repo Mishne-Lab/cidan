@@ -3,6 +3,7 @@ import csv
 import json
 import os
 from functools import reduce
+from shutil import copyfile
 
 import neurofinder
 import pandas
@@ -18,6 +19,9 @@ def main():
                         help="Where to output all eigen vector images and csv data",
                         )
     parser.add_argument("--roi_true", type=str, default='', required=False,
+                        help="Where the roi True jsons are",
+                        )
+    parser.add_argument("--threshold", type=int, default=10, required=False,
                         help="Where the roi True jsons are",
                         )
     # parser.add_argument("--task_log", type=str, default='', required=True)
@@ -71,8 +75,8 @@ def main():
 
                 a = neurofinder.load(os.path.join(path, "roi_true.json") if roi_true_path is None else roi_true_path)
                 b = neurofinder.load(json.dumps(json_b_actual))
-                percision, recall = neurofinder.centers(a, b, threshold=10)
-                inclusion, exclusion = neurofinder.shapes(a, b, threshold=10)
+                percision, recall = neurofinder.centers(a, b, threshold=args.threshold)
+                inclusion, exclusion = neurofinder.shapes(a, b, threshold=args.threshold)
                 num_rois_a, num_rois_b = a.count, b.count
                 if percision != 0 and recall != 0:
                     combined = 2 * percision *recall / ( percision + recall)
@@ -95,13 +99,15 @@ def main():
                     parameter_keys.append(y)
                     current_row.append([parameters[x][y]])
         rows.append(current_row)
-        files_to_copy = ["roi_outline_background.png", "roi_blob.png", "roi_blob_background.png"]
+        files_to_copy = ["roi_outline_background.png", "roi_blob.png", "roi_blob_background.png", "pca_shape.text"]
         for file in files_to_copy:
-            if os.path.isfile(
-                    os.path.join(path, file)):
-                Image.open(os.path.join(path,
-                                        file)).save(
-                    os.path.join(args.output_dir, os.path.basename(path) + "_" + file))
+            if os.path.isfile(os.path.join(path, file)):
+                if ".png" in file:
+                    Image.open(os.path.join(path,
+                                            file)).save(
+                        os.path.join(args.output_dir, os.path.basename(path) + "_" + file))
+                else:
+                    copyfile(os.path.join(path, file), os.path.join(args.output_dir, os.path.basename(path) + "_" + file))
         file = "embedding_norm_images/embedding_norm_image.png"
         if os.path.isfile(
                 os.path.join(path, file)):
@@ -113,7 +119,7 @@ def main():
                                          "Exclusion", "Combined", "Num Rois truth", "Num rois detected"] + parameter_keys)
     # task_log = pandas.read_csv(args.task_log)
     # result = pandas.concat([df, task_log], axis=1)
-    df.to_csv(os.path.join(args.output_dir, "out_10.csv"))
+    df.to_csv(os.path.join(args.output_dir, f"out_{str(os.path.basename(args.output_dir[:-1]))}_{str(args.threshold)}.csv"))
 
 
 if __name__ == '__main__':

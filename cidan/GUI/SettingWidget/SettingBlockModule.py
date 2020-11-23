@@ -197,7 +197,7 @@ def dataset_setting_block_crop(main_widget):
                                                                           tool_tip="Length of each timeblock",
                                                                           display_tool_tip=False,
                                                                           min=25,
-                                                                          max=2000,
+                                                                          max=10000,
                                                                           step=1)] if
                                                                   data_handler.dataset_params[
                                                                       "original_folder_trial_split"] != "" else []))
@@ -325,6 +325,16 @@ def roi_advanced_settings_block(main_widget):
                                           data_handler.roi_extraction_params[
                                               "eigen_threshold_value"],
                                           tool_tip="Number of eigen vectors to select for each ROI. Multiply number of trials by the number of eigen vectors \n if this number is below 300, then it might help to increase this value to .3 or .5",
+                                          min=0, max=1, step=.01),
+                               FloatInput(display_name="ROI Eccentricity value:",
+                                          program_name="roi_eccentricity_limit",
+                                          on_change_function=lambda x,
+                                                                    y: data_handler.change_roi_extraction_param(
+                                              x, y),
+                                          default_val=
+                                          data_handler.roi_extraction_params[
+                                              "roi_eccentricity_limit"],
+                                          tool_tip="",
                                           min=0, max=1, step=.01),
                                # FloatInput(display_name="Elbow threshold value:",
                                #            program_name="elbow_threshold_value",

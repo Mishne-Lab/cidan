@@ -1,5 +1,4 @@
 #!/bin/bash
-conda activate lab02
 export QT_API=pyside2
 python -m cidan --headless True -ll error -p $1/parameters.json
 rm -r $1/temp_files

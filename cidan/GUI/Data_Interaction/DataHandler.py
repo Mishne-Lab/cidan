@@ -153,6 +153,7 @@ class DataHandler:
         "refinement": True,
         "max_iter": 100,
         "roi_circ_threshold": 20,
+        "roi_eccentricity_limit": .2,
 
     }
     _time_trace_params_default = {
@@ -933,6 +934,11 @@ class DataHandler:
             self.save_new_param_json()
             self.delete_roi_vars()
             # self.global_params["need_recalc_eigen_params"] = True
+            if self.filter_params["pca"]:
+                with open(os.path.join(self.save_dir_path,
+                                       'pca_shape.text'), "w") as f:
+                    f.write("shapes")
+                    f.write(str([x.shape for x in self.pca_decomp if type(x)!= bool]))
         return self.dataset_trials_filtered
 
     @property
@@ -1101,6 +1107,7 @@ class DataHandler:
                                          pca=self.filter_params["pca"],
                                          pca_data=self.pca_decomp if self.filter_params[
                                              "pca"] else False,
+                                         roi_eccentricity_limit=self.roi_extraction_params["roi_eccentricity_limit"],
                                          progress_signal=progress_signal)
                 self.box_params_processed = temp_params
                 self.save_new_param_json()
@@ -1442,7 +1449,7 @@ class DataHandler:
                                         "merge_temporal_coef"],
                                     roi_size_limit=1000,
                                     initial_pixel=box_point_1d,
-                                    print_info=False).compute()
+                                    print_info=False,roi_eccentricity_limit=1).compute()
 
             if len(roi) > 0 and box_point_1d in roi[0]:
                 rois.append(box.redefine_spatial_cord_1d(roi).compute()[0])

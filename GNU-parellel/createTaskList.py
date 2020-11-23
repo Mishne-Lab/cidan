@@ -16,14 +16,21 @@ def main():
     parser.add_argument("-p", "--parameter", type=str, default='', required=True,
                         help="Parameter file to base off of",
                         )
+    parser.add_argument("--num_rois", type=int, default=70, required=False,
+                        help="Number of rois",
+                        )
+    parser.add_argument("--num_spatial_boxes", type=int, default=1, required=False,
+                        help="Number of rois",
+                        )
+    parser.add_argument("--start",type=int, default=0, required=False, )
     args = parser.parse_args()
     with open(args.parameter, "r") as f:
         parameter_json = json.load(f)
-    parameters_to_search = {"median_filter": [False], "hist_eq": [True],
-                            "pca": [False], "total_num_spatial_boxes": [1],
-                            "num_eig": [50], "trial_split": [True],
-                            "trial_length": [400],"eigen_accuracy":[7],
-                            "localSpatialDenoising": [True], "auto_crop":[True], "num_rois":[70,120], "num_iter":[100,200,300]}
+    parameters_to_search = {"median_filter": [False,True], "hist_eq": [True, False],
+                            "pca": [True,False], "total_num_spatial_boxes": [1],
+                            "num_eig": [21,51, 101], "trial_split": [True],
+                            "trial_length": [400,800,2000,8000],"eigen_accuracy":[7],
+                            "localSpatialDenoising": [True, False], "auto_crop":[True], "num_rois":[30,40,50], "max_iter":[100], "roi_circ_threshold":[0]}
     total_parameters_combinations = reduce(lambda x, y: x * y,
                                            [len(parameters_to_search[x]) for x in
                                             parameters_to_search])
@@ -48,7 +55,7 @@ def main():
 
             for x in range(total_parameters_combinations):
                 curr_json = parameter_json.copy()
-                curr_out_dir = os.path.join(args.output_dir, curr_dir + str(x+6))
+                curr_out_dir = os.path.join(args.output_dir, curr_dir + str(x+args.start))
                 if not os.path.isdir(curr_out_dir):
                     os.mkdir(curr_out_dir)
                 for remainder, key in zip(parameter_remainders, parameter_keys):

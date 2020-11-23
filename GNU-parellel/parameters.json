@@ -29,7 +29,7 @@
     ],
     "trial_split": true,
     "trial_length": 400,
-    "auto_crop": true
+    "auto_crop": false
   },
   "filter_params": {
     "median_filter": false,
@@ -37,7 +37,7 @@
     "z_score": false,
     "hist_eq": false,
     "localSpatialDenoising": true,
-    "pca": false,
+    "pca": true,
     "pca_threshold": 0.97
   },
   "box_params": {
@@ -48,11 +48,11 @@
   "eigen_params": {
     "eigen_vectors_already_generated": false,
     "num_eig": 50,
-    "normalize_w_k": 25,
+    "normalize_w_k": 32,
     "metric": "l2",
-    "knn": 32,
+    "knn": 50,
     "accuracy": 75,
-    "eigen_accuracy": 5,
+    "eigen_accuracy": 6,
     "connections": 40
   },
   "roi_extraction_params": {
@@ -61,7 +61,7 @@
     "eigen_threshold_method": true,
     "eigen_threshold_value": 0.1,
     "num_eigen_vector_select": 5,
-    "merge_temporal_coef": 0.9,
+    "merge_temporal_coef": 0.8,
     "roi_size_min": 30,
     "roi_size_max": 600,
     "merge": true,

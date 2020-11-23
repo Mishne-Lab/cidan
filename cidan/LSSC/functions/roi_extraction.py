@@ -21,7 +21,7 @@ def roi_extract_image(*, e_vectors: np.ndarray,
                       elbow_threshold_method: bool, elbow_threshold_value: float,
                       eigen_threshold_method: bool,
                       eigen_threshold_value: float, merge_temporal_coef: float,
-                      roi_size_limit: int, box_num: int, total_num_spatial_boxes=0,
+                      roi_size_limit: int, box_num: int, roi_eccentricity_limit: float, total_num_spatial_boxes=0,
                       total_num_time_steps=0, save_dir=0, print_progress=False,
                       initial_pixel=-1,
                       print_info=True, progress_signal=None) -> List[
@@ -35,6 +35,8 @@ def roi_extract_image(*, e_vectors: np.ndarray,
         Eigen vector in 2D numpy array
     original_shape
         Original shape of image
+        Original
+        shape of image
     original_2d_vol
         A flattened 2d volume of the original image, used for mergestep
     num_rois
@@ -185,7 +187,9 @@ def roi_extract_image(*, e_vectors: np.ndarray,
         # print( len(
         #         pixels_in_roi_final))
         if roi_size_min < len(
-                pixels_in_roi_final) < roi_size_limit:
+                pixels_in_roi_final) < roi_size_limit and roi_eccentricity(pixel_length,
+                                                        original_shape,
+                                                        pixels_in_roi_final)<=roi_eccentricity_limit:
             roi_list.append(pixels_in_roi_final)
             iter_counter = 0
             # takes all pixels in current roi out of initial_pixel_list
@@ -209,9 +213,14 @@ def roi_extract_image(*, e_vectors: np.ndarray,
     if merge:
         roi_list = merge_rois(roi_list,
                               temporal_coefficient=merge_temporal_coef,
-                              original_2d_vol=original_2d_vol)
+                              original_2d_vol=original_2d_vol, roi_eccentricity_limit=roi_eccentricity_limit)
         if fill_holes:
             roi_list = fill_holes_func(roi_list, pixel_length, original_shape)
+    new_rois_filtered= []
+    for roi in roi_list:
+        if roi_eccentricity(pixel_length,original_shape,roi)<=roi_eccentricity_limit:
+            new_rois_filtered.append(roi)
+    roi_list=new_rois_filtered
     # print("Went through " + str(total_counter) + " iterations")
     if print_progress:
         with open(os.path.join(save_dir, "temp_files/rois/s_%s" % str(box_num)),
@@ -331,6 +340,32 @@ def connected_component(pixel_length: int, original_shape: Tuple[int, int, int],
     pixels_in_roi_new = np.nonzero(
         blobs_labels == correct_label)[0]
     return pixels_in_roi_new
+def roi_eccentricity(pixel_length: int, original_shape: Tuple[int, int, int],
+                        pixels_in_roi: np.ndarray) -> np.ndarray:
+    """
+    Runs a eccentricity analysis on a group of pixels in an image
+    Parameters
+    ----------
+    pixel_length
+        Number of pixels in image
+    original_shape
+        the original shape of image
+    pixels_in_roi
+        A list of pixels in the roi
+
+
+
+    Returns
+    -------
+    Eccentricity of roi, with 0 being circle 1 being a line
+    """
+    # TODO add in im fill before connected component
+    # first creates an image with pixel values of 1 if pixel in roi
+    original_zeros = np.zeros(pixel_length, dtype=int)
+    original_zeros[pixels_in_roi] = 1
+    pixel_image = np.reshape(original_zeros, original_shape[1:])
+    eccentricity = measure.regionprops(pixel_image)[0]["eccentricity"]
+    return eccentricity
 
 
 def select_eigen_vectors(eigen_vectors: np.ndarray,
@@ -450,7 +485,7 @@ def elbow_threshold(pixel_vals: np.ndarray, pixel_val_sort_indices: np.ndarray,
 
 
 def merge_rois(roi_list: List,
-               temporal_coefficient: float, original_2d_vol: np.ndarray):
+               temporal_coefficient: float, original_2d_vol: np.ndarray, roi_eccentricity_limit=1.0):
     # TODO is this the most efficient implementation I can do
     """
     Merges rois based on temporal and spacial overlap
@@ -499,7 +534,7 @@ def merge_rois(roi_list: List,
                 rois_to_merge = []
                 for num, roi in group_zipped:
                     if compare_time_traces(timetrace_first,
-                                           timetraces[num]) > temporal_coefficient:
+                                           timetraces[num]) > temporal_coefficient and any([x in roi for x in first_roi]):
                         rois_to_merge.append(num)
                 first_roi = list(reduce(combine_rois,
                                         [first_roi] + [group_zipped[x][1] for x in
