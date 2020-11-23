@@ -116,7 +116,7 @@ class DataHandler:
         "median_filter": False,
         "median_filter_size": 3,
         "z_score": False,
-        "hist_eq": True,
+        "hist_eq": False,
         "localSpatialDenoising": True,
         "pca": False,
         "pca_threshold": .97
