@@ -597,7 +597,7 @@ class DataHandler:
         z1 = zarr.open(os.path.join(self.save_dir_path,
                                     'temp_files/dataset.zarr'), mode='w',
                        shape=image.shape,
-                       chunks=(32, 128, 128), dtype=np.float32)
+                       chunks=(32, 128, 128), dtype=image.dtype)
         z1[:] = image
 
     def calculate_dataset(self, ) -> np.ndarray:
