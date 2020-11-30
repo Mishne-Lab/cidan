@@ -109,7 +109,8 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
     all_rois = []
     all_boxes_eigen_vectors = []
     for spatial_box in spatial_boxes:
-        spatial_box_data_list = [spatial_box.extract_box(x) for x in image_data]
+        spatial_box_data_list = [convert_to_float(spatial_box.extract_box(x)) for x in
+                                 image_data]
         if pca:
             spatial_box_data_list_pca = [spatial_box.extract_box(x) for x in pca_data]
         if len(spatial_box_data_list) == 1:
@@ -302,3 +303,8 @@ if __name__ == '__main__':
 @delayed
 def sliceData(data, start_end):
     return data[0][start_end[0]:start_end[1], :, :]
+
+
+@delayed
+def convert_to_float(data):
+    return data.astype(np.float32)

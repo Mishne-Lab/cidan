@@ -682,6 +682,7 @@ class DataHandler:
         dataset = dataset if type(
             dataset) != bool else self.load_trial_dataset_step(
             trial_num).compute()
+        # dataset =dataset.astype(np.float32)
         if self.auto_crop:
             crop_y_bools = (dataset <= dataset.min()).all(1).any(0)
             y_iter_1 = 0

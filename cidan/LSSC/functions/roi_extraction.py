@@ -87,6 +87,7 @@ def roi_extract_image(*, e_vectors: np.ndarray,
         pixel_embedings))  # creates a list of pixels with the highest values
     # in the eigenspace this list is used to decide on the initial point
     # for the roi
+
     if initial_pixel != -1:
         initial_pixel_list = np.array([initial_pixel])
     roi_list = []  # output list of rois

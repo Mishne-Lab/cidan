@@ -336,16 +336,16 @@ def roi_advanced_settings_block(main_widget):
                                               "roi_eccentricity_limit"],
                                           tool_tip="",
                                           min=0, max=1, step=.01),
-                               # FloatInput(display_name="Elbow threshold value:",
-                               #            program_name="elbow_threshold_value",
-                               #            on_change_function=lambda x,
-                               #                                      y: data_handler.change_roi_extraction_param(
-                               #                x, y),
-                               #            default_val=
-                               #            data_handler.roi_extraction_params[
-                               #                "elbow_threshold_value"],
-                               #            tool_tip="Number of eigen vectors to select at each point",
-                               #            min=0, max=1.5, step=.01),
+                               FloatInput(display_name="Elbow threshold value:",
+                                          program_name="elbow_threshold_value",
+                                          on_change_function=lambda x,
+                                                                    y: data_handler.change_roi_extraction_param(
+                                              x, y),
+                                          default_val=
+                                          data_handler.roi_extraction_params[
+                                              "elbow_threshold_value"],
+                                          tool_tip="Number of eigen vectors to select at each point",
+                                          min=0, max=1.5, step=.01),
                                # BoolInput(
                                #     display_name="Merge ROIs:",
                                #     program_name="merge",

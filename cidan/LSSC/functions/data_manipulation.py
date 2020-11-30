@@ -66,7 +66,7 @@ def load_filter_tif_stack(*, path, filter: bool, median_filter: bool,
 
         image = np.vstack(volumes)
         del volumes
-        image = image.astype(np.float32)
+        # image = image
     elif os.path.isfile(path):
         if type(zarr_path) == bool:
             image = tifffile.imread(path)

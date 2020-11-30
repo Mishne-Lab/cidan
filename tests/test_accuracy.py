@@ -24,7 +24,8 @@ def test_accuracy():
 
     data_handler.change_filter_param("median_filter", True)
     data_handler.change_roi_extraction_param("roi_circ_threshold", 20)
-    main_widget.thread_list[1].run()
+    main_widget.thread_list[2].run()
+    # main_widget.thread_list[2].run()
     assert main_widget.tabs[1].image_view.magic_wand(70, 127)
 
     data_handler.export()
