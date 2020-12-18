@@ -57,7 +57,7 @@
   },
   "roi_extraction_params": {
     "elbow_threshold_method": true,
-    "elbow_threshold_value": 1,
+    "elbow_threshold_value": 0.9,
     "eigen_threshold_method": true,
     "eigen_threshold_value": 0.1,
     "num_eigen_vector_select": 5,
@@ -69,7 +69,8 @@
     "fill_holes": true,
     "refinement": true,
     "max_iter": 100,
-    "roi_circ_threshold": 20
+    "roi_circ_threshold": 20,
+    "roi_eccentricity_limit": 0.9
   },
   "time_trace_params": {
     "time_trace_type": "Mean",

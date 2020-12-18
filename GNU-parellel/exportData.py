@@ -42,23 +42,23 @@ def main():
                     if os.path.isdir(os.path.join(args.task_list,o))]
         print(task_list)
 
-    parameters_to_search = {"median_filter": [True, False], "hist_eq": [True, False],
-                            "pca": [True, False], "total_num_spatial_boxes": [1],
-                            "num_eig": [50], "trial_split": [True],
-                            "z_score": [True,False],
-                            "trial_length": [200, 400],
-                            "localSpatialDenoising": [True, False]}
-    total_parameters_combinations = reduce(lambda x, y: x * y,
-                                           [len(parameters_to_search[x]) for x in
-                                            parameters_to_search])
-    print(total_parameters_combinations)
-    parameter_keys = list(parameters_to_search)
-    parameter_remainders = []
-    for num, key in enumerate(parameter_keys):
-        remainder = 1
-        for x in range(num + 1):
-            remainder *= len(parameters_to_search[parameter_keys[x]])
-        parameter_remainders.append(remainder)
+    # parameters_to_search = {"median_filter": [True, False], "hist_eq": [True, False],
+    #                         "pca": [True, False], "total_num_spatial_boxes": [1],
+    #                         "num_eig": [50], "trial_split": [True],
+    #                         "z_score": [True,False],
+    #                         "trial_length": [200, 400],
+    #                         "localSpatialDenoising": [True, False]}
+    # total_parameters_combinations = reduce(lambda x, y: x * y,
+    #                                        [len(parameters_to_search[x]) for x in
+    #                                         parameters_to_search])
+    # print(total_parameters_combinations)
+    # parameter_keys = list(parameters_to_search)
+    # parameter_remainders = []
+    # for num, key in enumerate(parameter_keys):
+    #     remainder = 1
+    #     for x in range(num + 1):
+    #         remainder *= len(parameters_to_search[parameter_keys[x]])
+    #     parameter_remainders.append(remainder)
 
     rows = []
     parameter_keys=[]
@@ -94,10 +94,19 @@ def main():
 
         with open(os.path.join(path, "parameters.json"), "r") as parameters:
             parameters = json.load(parameters)
+            if 'min_neuropil_pixels' not in parameters["time_trace_params"].keys():
+                parameters["time_trace_params"]['min_neuropil_pixels'] = 0
+            if 'time_trace_type' not in parameters["time_trace_params"].keys():
+                parameters["time_trace_params"]['time_trace_type'] = 'Mean'
+            if 'denoise' not in parameters["time_trace_params"].keys():
+                parameters["time_trace_params"]['denoise'] = True
+            if "roi_eccentricity_limit" not in parameters["roi_extraction_params"].keys():
+                parameters["roi_extraction_params"]["roi_eccentricity_limit"] = 1
             for x in parameters.keys():
                 for y in parameters[x].keys():
                     parameter_keys.append(y)
                     current_row.append([parameters[x][y]])
+
         rows.append(current_row)
         files_to_copy = ["roi_outline_background.png", "roi_blob.png", "roi_blob_background.png", "pca_shape.text"]
         for file in files_to_copy:

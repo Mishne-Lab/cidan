@@ -27,10 +27,10 @@ def main():
     with open(args.parameter, "r") as f:
         parameter_json = json.load(f)
     parameters_to_search = {"median_filter": [False,True], "hist_eq": [True, False],
-                            "pca": [True,False], "total_num_spatial_boxes": [1],
-                            "num_eig": [21,51, 101], "trial_split": [True],
-                            "trial_length": [400,800,2000,8000],"eigen_accuracy":[7],
-                            "localSpatialDenoising": [True, False], "auto_crop":[True], "num_rois":[30,40,50], "max_iter":[100], "roi_circ_threshold":[0]}
+                            "pca": [False], "total_num_spatial_boxes": [1],
+                            "num_eig": [51], "trial_split": [True],
+                            "trial_length": [400,800,1200],"eigen_accuracy":[7],
+                            "localSpatialDenoising": [True], "auto_crop":[False], "num_rois":[args.num_rois], "max_iter":[100], "roi_circ_threshold":[0],"roi_eccentricity_limit": [.9,.95]}
     total_parameters_combinations = reduce(lambda x, y: x * y,
                                            [len(parameters_to_search[x]) for x in
                                             parameters_to_search])

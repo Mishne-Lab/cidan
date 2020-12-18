@@ -153,7 +153,7 @@ class DataHandler:
         "refinement": True,
         "max_iter": 100,
         "roi_circ_threshold": 20,
-        "roi_eccentricity_limit": .2,
+        "roi_eccentricity_limit": .9,
 
     }
     _time_trace_params_default = {

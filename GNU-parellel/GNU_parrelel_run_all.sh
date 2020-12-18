@@ -1,2 +1,2 @@
-parallel --jobs 1  --joblog task_file_eig.log  --progress \
+parallel --jobs 1 --resume --joblog task_file.log  --progress \
                --colsep ',' -a task_list.csv ./GNU_run_task.sh {}
