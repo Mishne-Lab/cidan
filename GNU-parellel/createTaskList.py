@@ -30,7 +30,7 @@ def main():
                             "pca": [False], "total_num_spatial_boxes": [1],
                             "num_eig": [51], "trial_split": [True],
                             "trial_length": [400,800,1200],"eigen_accuracy":[7],
-                            "localSpatialDenoising": [True], "auto_crop":[False], "num_rois":[args.num_rois], "max_iter":[100], "roi_circ_threshold":[0],"roi_eccentricity_limit": [.9,.95]}
+                            "localSpatialDenoising": [False], "auto_crop":[False], "num_rois":[args.num_rois], "max_iter":[100], "roi_circ_threshold":[0],"roi_eccentricity_limit": [.9,.95,1]}
     total_parameters_combinations = reduce(lambda x, y: x * y,
                                            [len(parameters_to_search[x]) for x in
                                             parameters_to_search])

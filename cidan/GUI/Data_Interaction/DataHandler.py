@@ -1517,7 +1517,7 @@ class DataHandler:
         self.save_image(roi_image_outline_w_background,
                         os.path.join(self.save_dir_path, "roi_outline_background.png"))
         self.save_image(roi_image_blob_w_background,
-                        os.path.join(self.save_dir_path, "roi_blob_background.png"))
+                    os.path.join(self.save_dir_path, "roi_blob_background.png"))
         self.save_image(np.hstack(
             [max_image, max_image, max_image]),
             os.path.join(self.save_dir_path, "max.png"))

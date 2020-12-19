@@ -4,7 +4,7 @@ import json
 import os
 from functools import reduce
 from shutil import copyfile
-
+import numpy as np
 import neurofinder
 import pandas
 from PIL import Image
@@ -42,6 +42,27 @@ def main():
                     if os.path.isdir(os.path.join(args.task_list,o))]
         print(task_list)
 
+    def save_image(image, path):
+
+        img = Image.fromarray(
+            (np.reshape(image - image.min(),
+                        (300, 300, 3)) / (
+                     image.max() - image.min()) * 255).astype("uint8"))
+        img.save(path)
+
+    size = 256
+    image = np.zeros((size, size, 3), dtype="int")
+    color_list = [(218, 67, 34),
+                  (132, 249, 22), (22, 249, 140), (22, 245, 249),
+                  (22, 132, 249), (224, 22, 249), (249, 22, 160)]
+    color_list_len = len(color_list)
+    with open(roi_true_path, "r") as json_true:
+        json_b_actual = json.load(json_true)
+    for num, x in enumerate(json_b_actual):
+        cords = x["coordinates"]
+        for pixel in cords:
+            image[pixel[0]-1, pixel[1]-1] += color_list[num % color_list_len]
+    image_true=image[10:245,10:245,:]
     # parameters_to_search = {"median_filter": [True, False], "hist_eq": [True, False],
     #                         "pca": [True, False], "total_num_spatial_boxes": [1],
     #                         "num_eig": [50], "trial_split": [True],
@@ -115,6 +136,33 @@ def main():
                     Image.open(os.path.join(path,
                                             file)).save(
                         os.path.join(args.output_dir, os.path.basename(path) + "_" + file))
+                    if file=="roi_blob.png":
+                        try:
+                            roi_blob = np.array(Image.open(os.path.join(path,
+                                                    file)))
+                            embed = np.array(Image.open(os.path.join(path,
+                                        "embedding_norm_images/embedding_norm_image.png")))
+
+                            roi_image_blob_w_background = roi_blob + (np.dstack(
+                [embed, embed, embed])  / embed.max() * 255)
+                            roi_image_blob_w_background = (roi_image_blob_w_background/roi_image_blob_w_background.max()*255).astype(np.uint8)
+                            roi_image_pil = Image.fromarray(roi_image_blob_w_background)
+                            roi_image_pil.save(
+                    os.path.join(args.output_dir, os.path.basename(path) + "_embedding_norm_image_blob.png"))
+
+
+                            roi_image_true_blob_w_background = image_true + (np.dstack(
+                                [embed, embed, embed]) / embed.max() * 255)
+                            roi_image_true_blob_w_background = (
+                                        roi_image_true_blob_w_background / roi_image_true_blob_w_background.max() * 255).astype(
+                                np.uint8)
+                            roi_image_pil = Image.fromarray(roi_image_true_blob_w_background)
+                            roi_image_pil.save(
+                                os.path.join(args.output_dir,
+                                             os.path.basename(path) + "_embedding_norm_image_blob_true.png"))
+                        except ValueError:
+                            print("Error on number: "+os.path.basename(path))
+
                 else:
                     copyfile(os.path.join(path, file), os.path.join(args.output_dir, os.path.basename(path) + "_" + file))
         file = "embedding_norm_images/embedding_norm_image.png"
@@ -126,6 +174,7 @@ def main():
 
     df = pandas.DataFrame(rows, columns=["Seq", "Percision", "Recall", "Inclusion",
                                          "Exclusion", "Combined", "Num Rois truth", "Num rois detected"] + parameter_keys)
+
     # task_log = pandas.read_csv(args.task_log)
     # result = pandas.concat([df, task_log], axis=1)
     df.to_csv(os.path.join(args.output_dir, f"out_{str(os.path.basename(args.output_dir[:-1]))}_{str(args.threshold)}.csv"))

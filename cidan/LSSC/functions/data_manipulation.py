@@ -65,6 +65,7 @@ def load_filter_tif_stack(*, path, filter: bool, median_filter: bool,
             # print("Loading: " + x)
 
         image = np.vstack(volumes)
+        image = image.astype(znp.float32)
         del volumes
         # image = image
     elif os.path.isfile(path):
@@ -81,7 +82,7 @@ def load_filter_tif_stack(*, path, filter: bool, median_filter: bool,
                 image = filter_stack(stack=image, median_filter=median_filter,
                                      median_filter_size=median_filter_size,
                                      z_score=z_score)
-            # image = image.astype(np.float32)
+            image = image.astype(np.float32)
         else:
             z1 = zarr.open(zarr_path,
                            mode="r")
@@ -103,11 +104,15 @@ def load_filter_tif_stack(*, path, filter: bool, median_filter: bool,
             if slice_stack:
                 image = image[slice_start::slice_every]
             size = [z1.shape[1], z1.shape[2]]
-            # image = image.astype(np.float32)
+            image = image.astype(np.float32)
     else:
         raise Exception("Invalid Inputs ")
+
+    # print(np.mean(image[0]),np.max(image[0]),np.min(image[0]),np.median(image[0]))
     if np.isclose(np.mean(image[0]), 2 ** 15, 0, 2000):
-        image = image - 2 ** 15
+        image = image - 2 ** 15+128
+        # print(np.mean(image[0]), np.max(image[0]), np.min(image[0]), np.median(image[0]))
+
     return size, image
     # zarr_array = zarr.open('data/example.zarr', mode='w', shape=(10000, 10000),
     #          chunks=(1000, 1000), dtype='i4')
