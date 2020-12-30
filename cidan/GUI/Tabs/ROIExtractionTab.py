@@ -521,50 +521,50 @@ class ROIExtractionTab(Tab):
             self.image_view.reset_view(new=new)
 
     def selectRoiTime(self, num):
-        if (self.main_widget.checkThreadRunning()):
-            try:
-                color_roi = self.main_widget.data_handler.color_list[
-                    (num - 1) % len(self.main_widget.data_handler.color_list)]
 
-                if (self.roi_list_module.roi_time_check_list[num - 1]):
-                    if self.data_handler.roi_time_trace_need_update[num - 1]:
+        try:
+            color_roi = self.main_widget.data_handler.color_list[
+                (num - 1) % len(self.main_widget.data_handler.color_list)]
+
+            if (self.roi_list_module.roi_time_check_list[num - 1]):
+                if self.data_handler.roi_time_trace_need_update[num - 1]:
+                    self.main_widget.console.updateText(
+                        "Some time traces are out of date, please recalculate",
+                        warning=True)
+                pen = pg.mkPen(color=color_roi, width=3)
+                time_trace = self.main_widget.data_handler.get_time_trace(num,
+                                                                          trace_type=self.time_trace_type.current_state())
+                if type(time_trace) == bool:
+                    return
+                self.time_plot.plot(time_trace,
+                                    pen=pen)
+                self.time_plot.enableAutoRange(axis=0)
+        except AttributeError:
+            pass
+
+    def deselectRoiTime(self):
+
+        try:
+            self.time_plot.clear()
+            self.time_plot.enableAutoRange(axis=0)
+            for num2, x in zip(
+                    range(1, len(self.roi_list_module.roi_time_check_list)),
+                    self.roi_list_module.roi_time_check_list):
+                if x:
+                    if self.data_handler.roi_time_trace_need_update[num2 - 1]:
                         self.main_widget.console.updateText(
                             "Some time traces are out of date, please recalculate",
                             warning=True)
+                    color_roi = self.main_widget.data_handler.color_list[
+                        (num2 - 1) % len(self.main_widget.data_handler.color_list)]
+
                     pen = pg.mkPen(color=color_roi, width=3)
-                    time_trace = self.main_widget.data_handler.get_time_trace(num,
-                                                                              trace_type=self.time_trace_type.current_state())
-                    if type(time_trace) == bool:
-                        return
-                    self.time_plot.plot(time_trace,
+                    self.time_plot.plot(
+                        self.main_widget.data_handler.get_time_trace(num2,
+                                                                     trace_type=self.time_trace_type.current_state()),
                         pen=pen)
-                    self.time_plot.enableAutoRange(axis=0)
-            except AttributeError:
-                pass
-
-    def deselectRoiTime(self):
-        if (self.main_widget.checkThreadRunning()):
-            try:
-                self.time_plot.clear()
-                self.time_plot.enableAutoRange(axis=0)
-                for num2, x in zip(
-                        range(1, len(self.roi_list_module.roi_time_check_list)),
-                        self.roi_list_module.roi_time_check_list):
-                    if x:
-                        if self.data_handler.roi_time_trace_need_update[num2 - 1]:
-                            self.main_widget.console.updateText(
-                                "Some time traces are out of date, please recalculate",
-                                warning=True)
-                        color_roi = self.main_widget.data_handler.color_list[
-                            (num2 - 1) % len(self.main_widget.data_handler.color_list)]
-
-                        pen = pg.mkPen(color=color_roi, width=3)
-                        self.time_plot.plot(
-                            self.main_widget.data_handler.get_time_trace(num2,
-                                                                         trace_type=self.time_trace_type.current_state()),
-                            pen=pen)
-            except AttributeError:
-                print("No ROIs have been generated yet")
+        except AttributeError:
+            print("No ROIs have been generated yet")
 
     def update_time_traces(self):
         def end_func():
