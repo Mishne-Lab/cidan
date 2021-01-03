@@ -20,8 +20,7 @@ from cidan.LSSC.functions.progress_bar import printProgressBarROI
 @delayed
 def calcAffinityMatrix(*, pixel_list: np.ndarray, metric: str, knn: int,
                        accuracy: int, connections: int, normalize_w_k: int,
-                       num_threads:
-                       int, spatial_box_num: int, temporal_box_num: int,
+                       num_threads: int, spatial_box_num: int, temporal_box_num: int,
                        total_num_spatial_boxes: int, total_num_time_steps: int,
                        save_dir: str, progress_signal=None):
     """
