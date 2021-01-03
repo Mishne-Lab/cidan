@@ -154,6 +154,7 @@ class DataHandler:
         "max_iter": 100,
         "roi_circ_threshold": 20,
         "roi_eccentricity_limit": .9,
+        "local_max_method": False
 
     }
     _time_trace_params_default = {
@@ -1109,6 +1110,10 @@ class DataHandler:
                                          pca_data=self.pca_decomp if self.filter_params[
                                              "pca"] else False,
                                          roi_eccentricity_limit=self.roi_extraction_params["roi_eccentricity_limit"],
+                                         local_max_method=
+                                         self.roi_extraction_params[
+                                             "local_max_method"],
+
                                          progress_signal=progress_signal)
                 self.box_params_processed = temp_params
                 self.save_new_param_json()

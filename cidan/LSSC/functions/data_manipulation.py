@@ -12,7 +12,6 @@ from scipy import ndimage, sparse
 from sklearn.decomposition import PCA
 
 from cidan.LSSC.functions.embeddings import calcDInv
-from cidan.LSSC.functions.roi_extraction import elbow_threshold
 
 
 def load_filter_tif_stack(*, path, filter: bool, median_filter: bool,
@@ -256,6 +255,8 @@ def saveTempImage(data, save_dir, spatial_box_num):
 
 
 def applyPCA(data, pca_threshold):
+    from cidan.LSSC.functions.roi_extraction import elbow_threshold
+
     pca = PCA()
     pca.fit(reshape_to_2d_over_time(data).transpose())
     threshold = elbow_threshold(pca.singular_values_,

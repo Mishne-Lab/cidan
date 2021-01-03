@@ -36,7 +36,8 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                  eigen_threshold_method: bool,
                  eigen_threshold_value: float, merge_temporal_coef: float,
                  roi_size_max: int, pca: bool, pca_data: np.ndarray,
-                 eigen_accuracy: int, roi_eccentricity_limit: float, progress_signal=None):
+                 eigen_accuracy: int, roi_eccentricity_limit: float,
+                 local_max_method: bool, progress_signal=None):
     logger1.debug("""Inputs: num_threads {0},test_images {1}, test_output_dir {2},
                  save_dir {3}, save_intermediate_steps {4},
                  load_data {5}, data_path {6},
@@ -218,7 +219,8 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                                  total_num_time_steps=total_num_time_steps,
                                  total_num_spatial_boxes=total_num_spatial_boxes,
                                  roi_eccentricity_limit=roi_eccentricity_limit,
-                                 save_dir=save_dir, progress_signal=progress_signal)
+                                 save_dir=save_dir, local_max_method=local_max_method,
+                                 progress_signal=progress_signal)
         if test_images:
             pass
             # delayed(save_roi_images)(

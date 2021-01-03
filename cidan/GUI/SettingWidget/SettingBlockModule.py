@@ -423,7 +423,16 @@ def roi_advanced_settings_block(main_widget):
                                #          "Number of time steps to break" +
                                #          "the processing into",
                                #          min=1, max=10000, step=1),
-                               #
+                               BoolInput(
+                                   display_name="Local Max Methods:",
+                                   program_name="local_max_method",
+                                   on_change_function=lambda x,
+                                                             y: data_handler.change_roi_extraction_param(
+                                       x, y),
+                                   default_val=
+                                   data_handler.roi_extraction_params[
+                                       "local_max_method"],
+                                   tool_tip=""),
                                ]
                               )
 # TODO add fill holes/number rois per spatial box to inputs

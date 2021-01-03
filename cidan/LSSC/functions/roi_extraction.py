@@ -4,10 +4,12 @@ from typing import List, Tuple
 
 import numpy as np
 from dask import delayed
+from scipy.ndimage import gaussian_filter
 from scipy.ndimage.morphology import binary_fill_holes
 from scipy.sparse import csr_matrix
 from scipy.sparse.csgraph import connected_components as connected_components_graph
 from skimage import measure
+from skimage.feature import peak_local_max
 
 from cidan.LSSC.functions.embeddings import embedEigenSqrdNorm
 from cidan.LSSC.functions.progress_bar import printProgressBarROI
@@ -24,7 +26,8 @@ def roi_extract_image(*, e_vectors: np.ndarray,
                       roi_size_limit: int, box_num: int, roi_eccentricity_limit: float, total_num_spatial_boxes=0,
                       total_num_time_steps=0, save_dir=0, print_progress=False,
                       initial_pixel=-1,
-                      print_info=True, progress_signal=None) -> List[
+                      print_info=True, progress_signal=None, local_max_method=False) -> \
+List[
     np.ndarray]:
     """
     Computes the Local Selective Spectral roi_extraction algorithm on an set of
@@ -76,15 +79,33 @@ def roi_extract_image(*, e_vectors: np.ndarray,
                           np.array  of pixels roi 2] ... ]
     It will have length num_rois unless max_iter amount is surpassed
     """
+    from CIDAN.LSSC.functions.data_manipulation import cord_2d_to_pixel_num
+
     # if print_info:
     #     print("Spatial Box {}: Starting ROI selection process".format(box_num))
     pixel_length = e_vectors.shape[0]
     if len(original_shape) == 2:
         original_shape = (1, original_shape[0], original_shape[1])
+
     pixel_embedings = embedEigenSqrdNorm(
         e_vectors)  # embeds the pixels in the eigen space
-    initial_pixel_list = np.flip(np.argsort(
-        pixel_embedings))  # creates a list of pixels with the highest values
+    if local_max_method:
+        image = np.reshape(pixel_embedings, original_shape[1:])
+        image = gaussian_filter(image, np.std(image))
+        local_max = peak_local_max(image, min_distance=int(
+            roi_size_min * .25) if roi_size_min * .25 > 5 else 5)
+
+        initial_pixel_list = cord_2d_to_pixel_num(local_max.transpose(),
+                                                  original_shape[1:])
+        sort_ind = np.flip(np.argsort(pixel_embedings[initial_pixel_list]))
+        initial_pixel_list = initial_pixel_list[sort_ind]
+        print(len(initial_pixel_list))
+        # if num_rois!=60:
+        #     return [np.array([int(x)]) for x in initial_pixel_list]
+        unassigned_pixels = np.arange(0, pixel_length, 1, dtype=int)
+    else:
+        initial_pixel_list = np.flip(np.argsort(
+            pixel_embedings))  # creates a list of pixels with the highest values
     # in the eigenspace this list is used to decide on the initial point
     # for the roi
 
@@ -189,8 +210,8 @@ def roi_extract_image(*, e_vectors: np.ndarray,
         #         pixels_in_roi_final))
         if roi_size_min < len(
                 pixels_in_roi_final) < roi_size_limit and roi_eccentricity(pixel_length,
-                                                        original_shape,
-                                                        pixels_in_roi_final)<=roi_eccentricity_limit:
+                                                                           original_shape,
+                                                                           pixels_in_roi_final) >= roi_eccentricity_limit:
             roi_list.append(pixels_in_roi_final)
             iter_counter = 0
             # takes all pixels in current roi out of initial_pixel_list
