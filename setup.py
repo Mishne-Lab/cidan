@@ -11,7 +11,7 @@ except:
 
 setup(
     name='cidan',
-    version='0.1.30',
+    version='0.1.31',
     description='cidan-Calcium Imaging Data ANalysis',
     license="MIT",
     long_description=long_description,

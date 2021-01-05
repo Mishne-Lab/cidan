@@ -211,7 +211,7 @@ List[
         if roi_size_min < len(
                 pixels_in_roi_final) < roi_size_limit and roi_eccentricity(pixel_length,
                                                                            original_shape,
-                                                                           pixels_in_roi_final) >= roi_eccentricity_limit:
+                                                                           pixels_in_roi_final) <= roi_eccentricity_limit:
             roi_list.append(pixels_in_roi_final)
             iter_counter = 0
             # takes all pixels in current roi out of initial_pixel_list
