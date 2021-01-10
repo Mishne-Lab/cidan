@@ -38,7 +38,7 @@ class AnalysisTab(Tab):
                                                                      y: self.deselectRoiTime(),
                                            default_index=0, tool_tip="",
                                            display_tool_tip=False,
-                                           val_list=["Color Mesh", "Line"])
+                                           val_list=["Line", "Color Mesh"])
         plot_settings_layout.addWidget(self.plot_type_input)
         self.plot_by_input = OptionInput(display_name="Plot By", program_name="",
                                          on_change_function=lambda x,

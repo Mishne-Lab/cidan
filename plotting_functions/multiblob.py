@@ -57,7 +57,7 @@ def create_roi_image(size, color, path, blobs=True):
             image_temp = np.zeros((size[0], size[1], 3), dtype="int")
 
             for pixel in cords:
-                image_temp[pixel[0], pixel[1]] = color
+                image_temp[pixel[0] - 20, pixel[1] - 20] = color
             if not blobs:
                 edge = feature.canny(
                     np.sum(image_temp, axis=2) / np.max(np.sum(image_temp, axis=2)))
