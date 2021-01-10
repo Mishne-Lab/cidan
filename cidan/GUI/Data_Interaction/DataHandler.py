@@ -9,6 +9,7 @@ import numpy as np
 import zarr
 from PIL import Image
 from dask import delayed
+from scipy.io import savemat
 from skimage import feature
 from tifffile import tifffile
 
@@ -134,17 +135,17 @@ class DataHandler:
         "metric": "l2",
         "knn": 32,
         "accuracy": 75,
-        "eigen_accuracy": 7,
+        "eigen_accuracy": 8,
         "connections": 40
 
     }
     _roi_extraction_params_default = {
         "elbow_threshold_method": True,
-        "elbow_threshold_value": 1,
+        "elbow_threshold_value": .95,
         "eigen_threshold_method": True,
         "eigen_threshold_value": .1,
         "num_eigen_vector_select": 5,
-        "merge_temporal_coef": .80,
+        "merge_temporal_coef": .9,
         "roi_size_min": 30,
         "roi_size_max": 600,
         "merge": True,
@@ -152,7 +153,7 @@ class DataHandler:
         "fill_holes": True,
         "refinement": True,
         "max_iter": 100,
-        "roi_circ_threshold": 20,
+        "roi_circ_threshold": 0,
         "roi_eccentricity_limit": .9,
         "local_max_method": False
 
@@ -1476,7 +1477,7 @@ class DataHandler:
             np.vstack([self.get_time_trace(x + 1) for x in range(len(self.rois))]))
         pass
 
-    def export(self):
+    def export(self, matlab=False):
         # temp_type = self.time_trace_params["time_trace_type"]
         # for time_type in ["Mean", "DeltaF Over F"]:
         #     for denoise in [True, False]:
@@ -1526,6 +1527,15 @@ class DataHandler:
         self.save_image(np.hstack(
             [max_image, max_image, max_image]),
             os.path.join(self.save_dir_path, "max.png"))
+        if matlab:
+            time_trace_dir = os.path.join(self.save_dir_path, "time_traces")
+            if not os.path.isdir(time_trace_dir):
+                os.mkdir(time_trace_dir)
+            for time_type in self.time_traces:
+                savemat(os.path.join(time_trace_dir, x + ".mat"),
+                        {"data": np.vstack(self.time_traces[time_type])})
+
+
 
     def save_image(self, image, path):
         img = Image.fromarray(

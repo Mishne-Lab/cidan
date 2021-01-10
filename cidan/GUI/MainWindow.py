@@ -256,15 +256,17 @@ class MainWidget(QWidget):
         dialog = QDialog()
         dialog.setStyleSheet(qdarkstyle.load_stylesheet())
         dialog.layout = QVBoxLayout()
-        dialog.setWindowTitle("Select Trials to Export")
+
         trial_dialog = TrialListWidget()
         trial_dialog.set_items_from_list(self.data_handler.trials_all,
                                          trials_selected_indices=self.data_handler.trials_loaded_time_trace_indices)
+        export_matlab = QCheckBox("Export Matlab files:")
+        export_matlab.toggle()
 
         def export_func():
             self.data_handler.update_selected_trials(
                 trial_dialog.selectedTrials())
-            self.data_handler.export()
+            self.data_handler.export(matlab=export_matlab.isChecked())
             dialog.close()
             msg = QMessageBox()
             msg.setStyleSheet(qdarkstyle.load_stylesheet())
@@ -274,10 +276,14 @@ class MainWidget(QWidget):
             msg.setIcon(QMessageBox.Information)
             x = msg.exec_()
 
-        dialog.layout.addWidget(trial_dialog)
+        if self.data_handler.real_trials:
+            dialog.setWindowTitle("Select Trials to Export")
+            dialog.layout.addWidget(trial_dialog)
+        else:
+            dialog.setWindowTitle("Export:")
         export_button = QPushButton("Export")
         export_button.clicked.connect(lambda x: export_func())
-
+        dialog.layout.addWidget(export_matlab)
         dialog.layout.addWidget(export_button)
         dialog.setLayout(dialog.layout)
         dialog.show()

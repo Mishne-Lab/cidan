@@ -18,14 +18,16 @@ class FileOpenTab(Tab):
                                          lambda x: self.add_trial_selection(x), "",
                                          "Select a folder to load in", isFolder=1,
                                          forOpen=True)
-        save_dir_new_file = FileInput("Save Directory Location(Empty Directory):", "",
+        save_dir_new_file = FileInput("Save Directory Location:", "",
                                       None, "",
-                                      "Select a place to save outputs", isFolder=1,
+                                      "Select a place to save outputs, preferably an empty directory",
+                                      isFolder=1,
                                       forOpen=False,
                                       name="Choose directory to save results in:")
-        save_dir_new_folder = FileInput("Save Directory Location(Empty Directory):", "",
+        save_dir_new_folder = FileInput("Save Directory Location:", "",
                                         None, "",
-                                        "Select a place to save outputs", isFolder=1,
+                                        "Select a place to save outputs, preferably an empty directory",
+                                        isFolder=1,
                                         forOpen=False)
 
         save_dir_load = FileInput("Previous Session Location:", "", None, "",
