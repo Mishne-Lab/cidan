@@ -45,7 +45,7 @@ def create_image_from_eigen_vectors(path, shape):
     return all_vectors_shaped * 255 / (all_vectors_shaped.max())
 
 
-def create_roi_image(size, color, path, blobs=True):
+def create_roi_image(size, color, path, blobs=True, offset=0):
     image = np.zeros((size[0], size[1], 3), dtype="int")
 
     with open(path, "r") as json_true:
@@ -57,7 +57,7 @@ def create_roi_image(size, color, path, blobs=True):
             image_temp = np.zeros((size[0], size[1], 3), dtype="int")
 
             for pixel in cords:
-                image_temp[pixel[0] - 20, pixel[1] - 20] = color
+                image_temp[pixel[0] + offset, pixel[1] + offset] = color
             if not blobs:
                 edge = feature.canny(
                     np.sum(image_temp, axis=2) / np.max(np.sum(image_temp, axis=2)))
@@ -68,10 +68,14 @@ def create_roi_image(size, color, path, blobs=True):
 
 
 def create_graph(bg_path="", shape=None, e_dir="", data_1="", data_2="", out_file="",
-                 percent=99, blobs=True,
-                 color_1=(245, 40, 40), color_2=(241, 196, 15), overlap_c=(211, 84, 0)):
+                 percent=99, blobs=True, pad=(0, 0),
+                 color_1=(245, 40, 40), color_2=(241, 196, 15), overlap_c=(211, 84, 0),
+                 offset=0):
     if bg_path != "":
         background_image = mpimg.imread(bg_path) * 200 / 255
+        if pad[0] != 0:
+            background_image = np.pad(background_image,
+                                      [(pad[0], pad[0] + 1), (pad[1], pad[1] + 1)])
         # background_image = gaussian_filter(background_image, .02)
     if shape is None:
         shape = background_image.shape
@@ -101,8 +105,9 @@ def create_graph(bg_path="", shape=None, e_dir="", data_1="", data_2="", out_fil
         colors.append(color_2)
 
     for x, color in zip(data_list, colors):
-        roi_image = create_roi_image(shape, color, x, blobs=blobs)
-        roi_image_single = create_roi_image(shape, (1, 0, 0), x, blobs=blobs)
+        roi_image = create_roi_image(shape, color, x, blobs=blobs, offset=offset)
+        roi_image_single = create_roi_image(shape, (1, 0, 0), x, blobs=blobs,
+                                            offset=offset)
 
         roi_image_combined += roi_image
         roi_image_combined_single += roi_image_single

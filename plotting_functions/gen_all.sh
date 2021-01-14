@@ -21,3 +21,8 @@ python multiblob.py --e_dir demo_files/eigen_vectors  --blobs False \
 python multiblob.py --e_dir demo_files/eigen_vectors  --blobs False \
 --data_1 "demo_files/roi_list2.json" --color_1 "(255,255,255)" \
 --bg_path demo_files/embedding_norm_image.png --out_file plots/demo_edge_2.png
+python run_multiblob.py --data_1 /Users/sschickler/Code_Devel/LSSC-python/plotting_functions/cidan \
+--data_2 /Users/sschickler/Code_Devel/LSSC-python/plotting_functions/caiman \
+--data_3 /Users/sschickler/Code_Devel/LSSC-python/plotting_functions/suite2p \
+--data_4 /Users/sschickler/Code_Devel/LSSC-python/plotting_functions/true
+cp plots/* visualizer/web/images
