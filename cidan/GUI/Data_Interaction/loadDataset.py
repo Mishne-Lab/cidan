@@ -1,7 +1,9 @@
 import logging
 import os
 
+import qdarkstyle
 from qtpy import QtWidgets
+from qtpy.QtWidgets import QMessageBox
 
 from cidan.GUI.Inputs.FileInput import createFileDialog
 
@@ -38,6 +40,28 @@ def load_new_dataset(main_widget, file_path, save_dir_path, trials=None,
             main_widget.data_handler.__del__()
             main_widget.data_handler = None
             pass
+        if save_dir_path == "":
+            msg = QMessageBox()
+            msg.setStyleSheet(qdarkstyle.load_stylesheet())
+            msg.setWindowTitle("Error")
+
+            msg.setText(
+                "Please select a save directory for cidan to save its outputs in")
+            msg.setIcon(QMessageBox.Information)
+            x = msg.exec_()
+
+            return
+        if file_path == "":
+            msg = QMessageBox()
+            msg.setStyleSheet(qdarkstyle.load_stylesheet())
+            msg.setWindowTitle("Error")
+
+            msg.setText(
+                "Please select a file for cidan")
+            msg.setIcon(QMessageBox.Information)
+            x = msg.exec_()
+
+            return
         if single:
             try:
                 dir_path = os.path.dirname(file_path)
@@ -76,6 +100,7 @@ def load_new_dataset(main_widget, file_path, save_dir_path, trials=None,
             if len(trials) == 0:
                 error_dialog = QtWidgets.QErrorMessage()
                 error_dialog.showMessage("Please select at least one trial")
+                return
             try:
                 main_widget.open_dataset_thread.runThread(data_path=file_path,
                                                           trials=trials,

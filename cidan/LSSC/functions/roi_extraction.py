@@ -1,6 +1,10 @@
 from functools import reduce
 from typing import List
 
+
+import numpy as np
+from dask import delayed
+
 from scipy.ndimage import gaussian_filter
 from scipy.ndimage.morphology import binary_fill_holes
 from scipy.sparse import csr_matrix
@@ -24,8 +28,10 @@ def roi_extract_image(*, e_vectors: np.ndarray,
                       roi_size_limit: int, box_num: int, roi_eccentricity_limit: float, total_num_spatial_boxes=0,
                       total_num_time_steps=0, save_dir=0, print_progress=False,
                       initial_pixel=-1,
+
                       print_info=True, progress_signal=None, wide_field=False,
-                      mask=None) -> List[
+                      mask=None, local_max_method=False) -> 
+List[
     np.ndarray]:
     from cidan.LSSC.functions.data_manipulation import cord_2d_to_pixel_num
 
@@ -79,14 +85,19 @@ def roi_extract_image(*, e_vectors: np.ndarray,
                           np.array  of pixels roi 2] ... ]
     It will have length num_rois unless max_iter amount is surpassed
     """
+    from CIDAN.LSSC.functions.data_manipulation import cord_2d_to_pixel_num
+
     # if print_info:
     #     print("Spatial Box {}: Starting ROI selection process".format(box_num))
     pixel_length = e_vectors.shape[0]
     if len(original_shape) == 2:
         original_shape = (1, original_shape[0], original_shape[1])
+
     pixel_embedings = embedEigenSqrdNorm(
         e_vectors)  # embeds the pixels in the eigen space
-    if wide_field or True:
+
+    if local_max_method or wide_field:
+
         image = np.reshape(pixel_embedings, original_shape[1:])
         image = gaussian_filter(image, np.std(image))
         local_max = peak_local_max(image, min_distance=int(
@@ -236,10 +247,12 @@ def roi_extract_image(*, e_vectors: np.ndarray,
         # print("iter counter: ", iter_counter)
         # print( len(
         #         pixels_in_roi_final))
+
         if wide_field or (roi_size_min < len(
-                pixels_in_roi_final) < 600 and roi_eccentricity(pixel_length,
-                                                                original_shape,
-                                                                pixels_in_roi_final) <= roi_eccentricity_limit):
+                pixels_in_roi_final)  < roi_size_limit and roi_eccentricity(pixel_length,
+                                                                           original_shape,
+                                                                           pixels_in_roi_final) <= roi_eccentricity_limit:
+
             roi_list.append(pixels_in_roi_final)
 
             iter_counter = 0
