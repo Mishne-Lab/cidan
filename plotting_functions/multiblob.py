@@ -30,11 +30,13 @@ from skimage import feature
 # eigen_path = "/Users/sschickler/Code_Devel/LSSC-python/plotting_functions/neurofinder2.0"
 
 
+
 def create_image_from_eigen_vectors(path, shape):
     onlyfiles = [f for f in listdir(path) if isfile(join(path, f))]
     vectors = []
     for x in onlyfiles:
         with open(os.path.join(path, x), "rb") as file:
+
             vectors.append(pickle.load(file)[:, 1:])
     all_vectors = np.hstack(vectors)
     all_vectors_sum = np.sum(np.abs(all_vectors), axis=1)
@@ -51,6 +53,7 @@ def create_roi_image(size, color, path, blobs=True, offset=0):
     with open(path, "r") as json_true:
         json_b_actual = json.load(json_true)
     for num, x in enumerate(json_b_actual):
+
 
         cords = x["coordinates"]
         if len(cords) < 600:
@@ -125,3 +128,4 @@ def create_graph(bg_path="", shape=None, e_dir="", data_1="", data_2="", out_fil
 
 if __name__ == '__main__':
     fire.Fire(create_graph)
+

@@ -226,6 +226,28 @@ def pixel_num_to_2d_cord(pixel_list, volume_shape: Tuple[int, int]):
     return np.apply_along_axis(convert_one, axis=0, arr=pixel_list)
 
 
+def cord_2d_to_pixel_num(cord_list, volume_shape: Tuple[int, int]):
+    """
+    Takes a list of cords and converts it to a list of pixel number for each pixel
+
+    Parameters
+    ----------
+    pixel_list : np.ndarray
+        list of cords
+    volume_shape : tuple
+        shape of the original dataset [x,y]
+
+    Returns
+    -------
+    a list of numbers for pixel # for each pixel
+
+    """
+
+    def convert_one(num):
+        return num[0] * volume_shape[1] + num[1]
+
+    return np.apply_along_axis(convert_one, axis=0, arr=cord_list)
+
 @delayed
 def join_data_list(data_list):
     """

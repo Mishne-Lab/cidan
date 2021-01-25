@@ -116,61 +116,60 @@ class AnalysisTab(Tab):
         self.deselectRoiTime()
 
     def deselectRoiTime(self):
-        if (self.main_widget.checkThreadRunning()):
-            if any(self.data_handler.roi_time_trace_need_update):
-                self.main_widget.console.updateText(
-                    "Some time traces are out of date, please recalculate",
-                    warning=True)
-            if self.update_time:
-                if self.plot_by_input.current_state() == "Neuron":
-                    if self.cur_plot_type != "neuron":
-                        self.cur_plot_type = "neuron"
-                        self.roi_list_module.select_multiple = True
+        if any(self.data_handler.roi_time_trace_need_update):
+            self.main_widget.console.updateText(
+                "Some time traces are out of date, please recalculate",
+                warning=True)
+        if self.update_time:
+            if self.plot_by_input.current_state() == "Neuron":
+                if self.cur_plot_type != "neuron":
+                    self.cur_plot_type = "neuron"
+                    self.roi_list_module.select_multiple = True
 
-                    try:
+                try:
+                    data_list = []
+                    roi_names = []
+                    for num2, x in zip(
+                            range(1, len(
+                                self.roi_list_module.roi_time_check_list) + 1),
+                            self.roi_list_module.roi_time_check_list):
+                        if x:
+                            data_list.append(
+                                self.main_widget.data_handler.get_time_trace(num2,
+                                                                             trace_type=self.time_trace_type.current_state()))
+                            roi_names.append(num2)
+                    self.plot_widget.set_list_items(data_list, roi_names, [],
+                                                    p_color=self.plot_type_input.current_state() == "Color Mesh",
+                                                    type="neuron")
+                except AttributeError as e:
+                    print("No ROIs have been generated yet")
+            else:
+                if self.cur_plot_type != "trial":
+                    self.roi_list_module.select_multiple = False
+                    self.cur_plot_type = "trial"
+                    self.selectAll(False)
+
+                try:
+                    print(self.roi_list_module.current_selected_roi)
+                    if self.roi_list_module.current_selected_roi is not None:
+                        roi = self.roi_list_module.current_selected_roi
                         data_list = []
-                        roi_names = []
-                        for num2, x in zip(
-                                range(1, len(
-                                    self.roi_list_module.roi_time_check_list) + 1),
-                                self.roi_list_module.roi_time_check_list):
-                            if x:
-                                data_list.append(
-                                    self.main_widget.data_handler.get_time_trace(num2,
-                                                                                 trace_type=self.time_trace_type.current_state()))
-                                roi_names.append(num2)
-                        self.plot_widget.set_list_items(data_list, roi_names, [],
+                        roi_names = [roi]
+                        for x in self.data_handler.trials_loaded_time_trace_indices:
+                            data_list.append(
+                                self.main_widget.data_handler.get_time_trace(roi,
+                                                                             x))
+                        self.plot_widget.set_list_items(data_list, roi_names,
+                                                        self.data_handler.trials_loaded_time_trace_indices,
                                                         p_color=self.plot_type_input.current_state() == "Color Mesh",
-                                                        type="neuron")
-                    except AttributeError as e:
-                        print("No ROIs have been generated yet")
-                else:
-                    if self.cur_plot_type != "trial":
-                        self.roi_list_module.select_multiple = False
-                        self.cur_plot_type = "trial"
-                        self.selectAll(False)
-
-                    try:
-                        print(self.roi_list_module.current_selected_roi)
-                        if self.roi_list_module.current_selected_roi is not None:
-                            roi = self.roi_list_module.current_selected_roi
-                            data_list = []
-                            roi_names = [roi]
-                            for x in self.data_handler.trials_loaded_time_trace_indices:
-                                data_list.append(
-                                    self.main_widget.data_handler.get_time_trace(roi,
-                                                                                 x))
-                            self.plot_widget.set_list_items(data_list, roi_names,
-                                                            self.data_handler.trials_loaded_time_trace_indices,
-                                                            p_color=self.plot_type_input.current_state() == "Color Mesh",
-                                                            type="trial")
-                        else:
-                            self.plot_widget.set_list_items([], [],
-                                                            [],
-                                                            p_color=self.plot_type_input.current_state() == "Color Mesh",
-                                                            type="trial")
-                    except AttributeError:
-                        print("No ROIs have been generated yet")
+                                                        type="trial")
+                    else:
+                        self.plot_widget.set_list_items([], [],
+                                                        [],
+                                                        p_color=self.plot_type_input.current_state() == "Color Mesh",
+                                                        type="trial")
+                except AttributeError:
+                    print("No ROIs have been generated yet")
 
     @property
     def data_handler(self):
