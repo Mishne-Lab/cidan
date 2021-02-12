@@ -1,9 +1,10 @@
-import os
 from functools import reduce
-from typing import List, Tuple
+from typing import List
+
 
 import numpy as np
 from dask import delayed
+
 from scipy.ndimage import gaussian_filter
 from scipy.ndimage.morphology import binary_fill_holes
 from scipy.sparse import csr_matrix
@@ -13,6 +14,7 @@ from skimage.feature import peak_local_max
 
 from cidan.LSSC.functions.embeddings import embedEigenSqrdNorm
 from cidan.LSSC.functions.progress_bar import printProgressBarROI
+from cidan.LSSC.functions.widefield_functions import *
 
 
 @delayed
@@ -26,9 +28,13 @@ def roi_extract_image(*, e_vectors: np.ndarray,
                       roi_size_limit: int, box_num: int, roi_eccentricity_limit: float, total_num_spatial_boxes=0,
                       total_num_time_steps=0, save_dir=0, print_progress=False,
                       initial_pixel=-1,
-                      print_info=True, progress_signal=None, local_max_method=False) -> \
+
+                      print_info=True, progress_signal=None, wide_field=False,
+                      mask=None, local_max_method=False) -> 
 List[
     np.ndarray]:
+    from cidan.LSSC.functions.data_manipulation import cord_2d_to_pixel_num
+
     """
     Computes the Local Selective Spectral roi_extraction algorithm on an set of
     eigen vectors
@@ -89,7 +95,9 @@ List[
 
     pixel_embedings = embedEigenSqrdNorm(
         e_vectors)  # embeds the pixels in the eigen space
-    if local_max_method:
+
+    if local_max_method or wide_field:
+
         image = np.reshape(pixel_embedings, original_shape[1:])
         image = gaussian_filter(image, np.std(image))
         local_max = peak_local_max(image, min_distance=int(
@@ -117,8 +125,10 @@ List[
     # from initial_pixel_list
     iter_counter = 0
     total_counter = 0
+    pixels_assigned_set = {}
     while len(roi_list) < num_rois and len(
-            initial_pixel_list) > 0 and iter_counter < max_iter:
+            initial_pixel_list) > 0 and iter_counter < max_iter and (
+            not wide_field or float(len(pixels_assigned_set)) / pixel_length > .95):
         iter_counter += 1
         total_counter += 1
         # print(iter_counter, len(roi_list.json),
@@ -145,16 +155,28 @@ List[
         # selects pixels in roi
         pixels_in_roi = np.nonzero(
             small_pixel_distance <= small_pixel_embeding_norm)[0]
+        if wide_field:
+            # runs a connected component analysis around the initial point
+            # in original image
+            pixels_in_roi_comp = connected_component(pixel_length,
+                                                     original_shape,
+                                                     mask_to_data_point(
+                                                         pixels_in_roi, mask,
+                                                         original_shape),
+                                                     mask_to_data_point(
+                                                         initial_pixel, mask,
+                                                         original_shape), )
 
-        # runs a connected component analysis around the initial point
-        # in original image
-        pixels_in_roi_comp = connected_component(pixel_length,
-                                                 original_shape,
-                                                 pixels_in_roi,
-                                                 initial_pixel)
+            pixels_in_roi_final = pixels_in_roi_comp
+        else:
+            # runs a connected component analysis around the initial point
+            # in original image
+            pixels_in_roi_comp = connected_component(pixel_length,
+                                                     original_shape,
+                                                     pixels_in_roi,
+                                                     initial_pixel)
 
-        pixels_in_roi_final = pixels_in_roi_comp
-
+            pixels_in_roi_final = pixels_in_roi_comp
         # runs refinement step if enabled and if enough pixels in roi
         if refinement:  # TODO Look at this again
             # and len(pixels_in_roi_final) > \
@@ -194,40 +216,68 @@ List[
 
             # runs a connected component analysis around the initial point
             # in original image
-            rf_pixels_in_roi_comp = connected_component(pixel_length,
-                                                        original_shape,
-                                                        rf_pixels_in_roi,
-                                                        rf_initial_point)
-            rf_pixels_in_roi_filled = \
-                fill_holes_func([rf_pixels_in_roi_comp], pixel_length, original_shape)[
-                    0]
-            pixels_in_roi_final = rf_pixels_in_roi_filled
+            if wide_field:
+                rf_pixels_in_roi_comp = connected_component(pixel_length,
+                                                            original_shape,
+                                                            mask_to_data_point(
+                                                                rf_pixels_in_roi, mask,
+                                                                original_shape),
+                                                            mask_to_data_point(
+                                                                rf_initial_point, mask,
+                                                                original_shape))
+                rf_pixels_in_roi_filled = \
+                    fill_holes_func([rf_pixels_in_roi_comp], pixel_length,
+                                    original_shape)[
+                        0]  # TODO do we fill the rois in widefield
+                pixels_in_roi_final = rf_pixels_in_roi_filled
+
+            else:
+                rf_pixels_in_roi_comp = connected_component(pixel_length,
+                                                            original_shape,
+                                                            rf_pixels_in_roi,
+                                                            rf_initial_point)
+                rf_pixels_in_roi_filled = \
+                    fill_holes_func([rf_pixels_in_roi_comp], pixel_length,
+                                    original_shape)[
+                        0]
+                pixels_in_roi_final = rf_pixels_in_roi_filled
 
         # checks if roi is big enough
         # print("roi size:", len(pixels_in_roi_final))
         # print("iter counter: ", iter_counter)
         # print( len(
         #         pixels_in_roi_final))
-        if roi_size_min < len(
-                pixels_in_roi_final) < roi_size_limit and roi_eccentricity(pixel_length,
+
+        if wide_field or (roi_size_min < len(
+                pixels_in_roi_final)  < roi_size_limit and roi_eccentricity(pixel_length,
                                                                            original_shape,
                                                                            pixels_in_roi_final) <= roi_eccentricity_limit:
+
             roi_list.append(pixels_in_roi_final)
+
             iter_counter = 0
-            # takes all pixels in current roi out of initial_pixel_list
-            initial_pixel_list = np.extract(
-                np.in1d(initial_pixel_list, pixels_in_roi_final,
-                        assume_unique=True, invert=True),
-                initial_pixel_list)
-            if initial_pixel not in pixels_in_roi_final:
+            if wide_field:
                 initial_pixel_list = np.delete(initial_pixel_list, 0)
+
+            else:
+
+                # takes all pixels in current roi out of initial_pixel_list
+                initial_pixel_list = np.extract(
+                    np.in1d(initial_pixel_list, pixels_in_roi_final,
+                            assume_unique=True, invert=True),
+                    initial_pixel_list)
+                if initial_pixel not in pixels_in_roi_final:
+                    initial_pixel_list = np.delete(initial_pixel_list, 0)
 
             # print(len(initial_pixel_list))
         else:
-            # takes current initial point and moves it to end of
-            # initial_pixel_list
-            initial_pixel_list = np.delete(
-                np.append(initial_pixel_list, initial_pixel_list[0]), 0)
+            if wide_field:
+                initial_pixel_list = np.delete(initial_pixel_list, 0)
+            else:
+                # takes current initial point and moves it to end of
+                # initial_pixel_list
+                initial_pixel_list = np.delete(
+                    np.append(initial_pixel_list, initial_pixel_list[0]), 0)
     if fill_holes:
         # TODO combine into connected component function
         roi_list = fill_holes_func(roi_list, pixel_length, original_shape)
@@ -238,6 +288,9 @@ List[
                               original_2d_vol=original_2d_vol, roi_eccentricity_limit=roi_eccentricity_limit)
         if fill_holes:
             roi_list = fill_holes_func(roi_list, pixel_length, original_shape)
+    if wide_field:
+        # handles overlapping rois
+        roi_list = remove_overlap_widefield(roi_list, mask, original_shape, e_vectors)
     new_rois_filtered= []
     for roi in roi_list:
         if roi_eccentricity(pixel_length,original_shape,roi)<=roi_eccentricity_limit:
@@ -251,6 +304,32 @@ List[
         printProgressBarROI(total_num_spatial_boxes, total_num_time_steps, save_dir,
                             progress_signal=progress_signal)
     return roi_list
+
+
+def remove_overlap_widefield(roi_list, mask, original_shape, e_vectors):
+    """
+    Removes overlapping pixels in widefield.
+    Parameters
+    ----------
+    roi_list
+    mask
+    original_shape
+    e_vectors
+
+    Returns
+    -------
+
+    """
+
+    A = np.zeros([original_shape[1] * original_shape[2], len(roi_list)], dtype=bool)
+    for num, roi in enumerate(roi_list):
+        A[roi, num] = True
+    A_graph = np.matmul(A.transpose(), A)
+    A_graph_sum = np.sum(A_graph, axis=1)
+    row_numbers = np.arange(0, original_shape[1] * original_shape[2], 1)
+    rows_with_multiple = row_numbers[A_graph_sum > 1]
+    for x in list(rows_with_multiple):
+        row = A_graph[x, :]
 
 
 def fill_holes_func(roi_list: List[np.ndarray], pixel_length: int,
