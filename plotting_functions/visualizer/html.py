@@ -1,4 +1,5 @@
 import os
+from glob import glob
 
 import dominate
 from dominate.tags import *
@@ -54,11 +55,14 @@ class HTML:
 if __name__ == '__main__':
     html = HTML('web/', 'test_html')
     html.add_header('Plots')
-    all_plots = os.listdir("web/images")
-    for file in ["File1", "File2", "File3", "File4", "File5", "File6"]:
-        file_plots = sorted([x for x in all_plots if file in x])
-        file_plots = [file_plots[x] for x in [4, 1, 2, 3, 0]]
-        html.add_images([os.path.join("images/", x) for x in file_plots],
+
+    directories = sorted(glob("web/images/*/"))
+
+    for directory in directories:
+        all_plots = os.listdir(directory)
+        file_plots = sorted(all_plots)
+        # file_plots = [file_plots[x] for x in [4, 1, 2, 3, 0,5]]
+        html.add_images([os.path.join(directory[4:], x) for x in file_plots],
                         [x[:-4] for x in file_plots],
-                        [os.path.join("images/", x) for x in file_plots])
+                        [os.path.join(directory[4:], x) for x in file_plots])
     html.save()
