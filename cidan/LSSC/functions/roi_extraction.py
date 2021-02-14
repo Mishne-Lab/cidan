@@ -1,10 +1,9 @@
+import os
 from functools import reduce
-from typing import List
-
+from typing import List, Tuple
 
 import numpy as np
 from dask import delayed
-
 from scipy.ndimage import gaussian_filter
 from scipy.ndimage.morphology import binary_fill_holes
 from scipy.sparse import csr_matrix
@@ -30,11 +29,8 @@ def roi_extract_image(*, e_vectors: np.ndarray,
                       initial_pixel=-1,
 
                       print_info=True, progress_signal=None, wide_field=False,
-                      mask=None, local_max_method=False) -> 
-List[
+                      mask=None, local_max_method=False) -> List[
     np.ndarray]:
-    from cidan.LSSC.functions.data_manipulation import cord_2d_to_pixel_num
-
     """
     Computes the Local Selective Spectral roi_extraction algorithm on an set of
     eigen vectors
@@ -249,9 +245,9 @@ List[
         #         pixels_in_roi_final))
 
         if wide_field or (roi_size_min < len(
-                pixels_in_roi_final)  < roi_size_limit and roi_eccentricity(pixel_length,
+                pixels_in_roi_final) < roi_size_limit and roi_eccentricity(pixel_length,
                                                                            original_shape,
-                                                                           pixels_in_roi_final) <= roi_eccentricity_limit:
+                                                                           pixels_in_roi_final) <= roi_eccentricity_limit):
 
             roi_list.append(pixels_in_roi_final)
 

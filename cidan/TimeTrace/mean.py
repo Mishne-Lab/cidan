@@ -1,7 +1,9 @@
 import numpy as np
 
+from cidan.TimeTrace.waveletDenoise import waveletDenoise
 
-def calculateMeanTrace(roi_data, neuropil_data, roi_denoised_data, denoise=True,
+
+def calculateMeanTrace(roi_data, neuropil_data, denoise=True,
                        sub_neuropil=False):
     """
     Calcualtes the mean time trace for a given roi and data
@@ -14,12 +16,12 @@ def calculateMeanTrace(roi_data, neuropil_data, roi_denoised_data, denoise=True,
     -------
     A 1d nd array with the time trace for the ROI
     """
-    if denoise:
-        roi_data = roi_denoised_data
+
     mean = np.mean(roi_data, axis=0)
     if sub_neuropil:
         mean = mean - np.mean(neuropil_data, axis=0)
-
+    if denoise:
+        mean = waveletDenoise(mean)
     return mean
 
 

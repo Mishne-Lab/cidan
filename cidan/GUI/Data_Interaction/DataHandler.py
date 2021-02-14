@@ -1271,8 +1271,7 @@ class DataHandler:
                     for trial_num in self.trials_loaded_time_trace_indices:
                         self.time_traces[key][roi_counter][trial_num] = \
                             DataHandler.time_trace_possibilities_functions[key](
-                                roi_data[trial_num], neuropil_data[trial_num],
-                                roi_data_denoised[trial_num])
+                                roi_data[trial_num], neuropil_data[trial_num])
                 if report_progress is not None:
                     printProgressBar(
                         len(
@@ -1527,13 +1526,14 @@ class DataHandler:
         self.save_image(np.hstack(
             [max_image, max_image, max_image]),
             os.path.join(self.save_dir_path, "max.png"))
-        if matlab:
-            time_trace_dir = os.path.join(self.save_dir_path, "time_traces")
-            if not os.path.isdir(time_trace_dir):
-                os.mkdir(time_trace_dir)
-            for time_type in self.time_traces:
-                savemat(os.path.join(time_trace_dir, x + ".mat"),
-                        {"data": np.vstack(self.time_traces[time_type])})
+        if True:
+            test = {x[:31].replace(" ", "_"): np.vstack(self.time_traces[x]) for x in
+                    self.time_traces.keys()}
+
+            savemat(os.path.join(self.save_dir_path, "time_traces.mat"), {"data": test},
+                    appendmat=True)
+            savemat(os.path.join(self.save_dir_path, "rois.mat"), {"data": self.rois},
+                    appendmat=True)
 
 
 
