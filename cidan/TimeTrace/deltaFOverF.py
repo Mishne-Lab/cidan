@@ -3,7 +3,7 @@ import numpy as np
 from cidan.TimeTrace.mean import calculateMeanTrace
 
 
-def calculateDeltaFOverF(roi_data, neuropil, denoise=True,
+def calculateDeltaFOverF(roi_data, neuropil,
                          sub_neuropil=False):
     """
     Calcualtes the DeltaF Over F time trace for a given roi and data
@@ -13,14 +13,13 @@ def calculateDeltaFOverF(roi_data, neuropil, denoise=True,
         list of pixels for data (1D cords)
     data : np.ndarray
         2D list of data for a single trials with pixel num as dim 0, time as dim 1
-    denoise : bool
-        Whether to denoise mean floresence of data using wavelets
+
     Returns
     -------
     A 1d nd array with the time trace for the ROI
     """
 
-    time_trace = calculateMeanTrace(roi_data, neuropil, denoise,
+    time_trace = calculateMeanTrace(roi_data, neuropil,
                                     sub_neuropil)
 
     bottom_10_number = np.percentile(time_trace, 10)

@@ -65,7 +65,7 @@ def extract_roi(image, roi_pixels, size, offset=0):
     return image_padded
 
 
-def create_graph(bg_path="", shape=None, e_dir="", data="", out_file="",
+def create_graph(bg_path="", shape=None, e_dir="", rois="", out_file="",
                  percent=99, pad=(0, 0),
                  offset=-10, roi_select=""):
     if bg_path != "":
@@ -83,12 +83,12 @@ def create_graph(bg_path="", shape=None, e_dir="", data="", out_file="",
     background_image[background_image > 1] = 1
     background_image = background_image * 200 + 55
     background_image[background_image < 0] = 0
-    with open(data, "r") as json_true:
+    with open(rois, "r") as json_true:
         json_b_actual = json.load(json_true)
     roi_images = []
     roi_list = [x["coordinates"] for x in json_b_actual]
     if roi_select != "":
-        roi_list = [roi_list[x] for x in roi_select]
+        roi_list = [roi_list[int(x)] for x in roi_select.split(" ")]
     size = (
     max([max([x[0] for x in roi]) - min([x[0] for x in roi]) for roi in roi_list]) + 5,
     max([max([x[1] for x in roi]) - min([x[1] for x in roi]) for roi in roi_list]) + 5)
@@ -112,3 +112,5 @@ def create_graph(bg_path="", shape=None, e_dir="", data="", out_file="",
 
 if __name__ == '__main__':
     fire.Fire(create_graph)
+    #  good rois in file 4 "0 2 7 15 16 22 23 24 25 26 28 32 33 35 37 42 43 47 48 49"
+# 27 28 29 30 31 32 33 34 35 37 38 39 40 41"

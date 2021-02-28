@@ -260,14 +260,56 @@ class MainWidget(QWidget):
         trial_dialog = TrialListWidget()
         trial_dialog.set_items_from_list(self.data_handler.trials_all,
                                          trials_selected_indices=self.data_handler.trials_loaded_time_trace_indices)
-        export_matlab = QCheckBox("Export Matlab files:")
+        settings_layout = QHBoxLayout()
+        style = str("""
+                    QVBoxLayout {
+                
+                        border:%dpx;
+                    }
+
+
+                    """ % (2))
+        dialog.setStyleSheet(qdarkstyle.load_stylesheet() + style)
+        image_selection_layout = QVBoxLayout()
+        image_selection_layout.addWidget(QLabel("Select background images to use:"),
+                                         alignment=QtCore.Qt.AlignTop)
+
+        image_selection_buttons = []
+        for button_name in ["Max Image", "Mean Image", "Eigen Norm Image"]:
+            temp = QCheckBox(button_name)
+            temp.toggle()
+            image_selection_layout.addWidget(temp, alignment=QtCore.Qt.AlignTop)
+            image_selection_buttons.append(temp)
+        color_map_selection_layout = QVBoxLayout()
+        color_map_selection_layout.addWidget(QLabel("Select color maps to use:"),
+                                             alignment=QtCore.Qt.AlignTop)
+        color_map_buttons = []
+        for button_name in ["Grey Scale", "Green Scale", "Magma", "Virdis", "Plasma",
+                            "Cividis", "Hot"]:
+            temp = QCheckBox(button_name)
+            color_map_selection_layout.addWidget(temp, alignment=QtCore.Qt.AlignTop)
+            color_map_buttons.append(temp)
+        color_map_buttons[0].toggle()
+        settings_layout.addLayout(image_selection_layout, alignment=QtCore.Qt.AlignTop)
+        settings_layout.addLayout(color_map_selection_layout,
+                                  alignment=QtCore.Qt.AlignTop)
+        export_matlab = QCheckBox("Export Matlab files")
         export_matlab.toggle()
 
         def export_func():
+            dialog.close()
             self.data_handler.update_selected_trials(
                 trial_dialog.selectedTrials())
-            self.data_handler.export(matlab=export_matlab.isChecked())
-            dialog.close()
+            self.data_handler.export(matlab=export_matlab.isChecked(),
+                                     background_images=[x for num, x in enumerate(
+                                         ["max", "mean", "eigen_norm"]) if
+                                                        color_map_buttons[
+                                                            num].isChecked()],
+                                     color_maps=[x for num, x in enumerate(
+                                         ["gray", "green", "magma", "plasma", "cividis",
+                                          "hot"]) if color_map_buttons[num].isChecked()]
+                                     )
+
             msg = QMessageBox()
             msg.setStyleSheet(qdarkstyle.load_stylesheet())
             msg.setWindowTitle("Export data")
@@ -283,8 +325,9 @@ class MainWidget(QWidget):
             dialog.setWindowTitle("Export:")
         export_button = QPushButton("Export")
         export_button.clicked.connect(lambda x: export_func())
-        dialog.layout.addWidget(export_matlab)
-        dialog.layout.addWidget(export_button)
+        dialog.layout.addLayout(settings_layout, alignment=QtCore.Qt.AlignCenter)
+        dialog.layout.addWidget(export_matlab, alignment=QtCore.Qt.AlignCenter)
+        dialog.layout.addWidget(export_button, alignment=QtCore.Qt.AlignCenter)
         dialog.setLayout(dialog.layout)
         dialog.show()
 

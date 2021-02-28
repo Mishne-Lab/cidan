@@ -5,7 +5,7 @@ import multiblob
 
 
 def run_multiblob(data_1, data_2, data_3, data_4):
-    for file in ["File1", "File2", "File3", "File4", "File5", "File6"]:
+    for file in ["File5", "File2", "File3", "File4", "File1", "File6"]:
         for background in ["_median_mean", "_max", "_median_max", "_median_median",
                            "_mean", "_median", "_eigennorm"]:
             if not os.path.isdir("plots/" + file + background):

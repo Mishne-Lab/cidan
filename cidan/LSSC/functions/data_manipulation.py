@@ -2,6 +2,7 @@ import os
 import warnings
 from typing import Tuple, List
 
+import matplotlib.pyplot as plt
 import numpy as np
 import tifffile
 import zarr
@@ -137,7 +138,44 @@ def reshape_to_2d_over_time(volume):
     return np.transpose(np.reshape(volume, (volume.shape[0], -1), order="C"))
 
 
-def save_image(volume: np.ndarray, name: str, directory: str, shape: tuple,
+def save_image(image: np.ndarray, path):
+    """
+    Function to save image
+    Parameters
+    ----------
+    image
+    name
+    directory
+
+
+    Returns
+    -------
+    None
+    """
+    # pass
+    percent = 99
+    image_temp = image.copy()
+    image[image < 0] = 0
+    image = (((image - np.percentile(image, 1)) / (
+            np.percentile(image, percent) - np.percentile(
+        image, 1))))
+    if np.percentile(image, 30) > .25:
+        image = (
+            ((image_temp - np.percentile(image_temp, 10)) / (
+                    np.percentile(image_temp, percent) - np.percentile(
+                image_temp, 10))))
+
+    image[image > 1] = 1
+    image = image * 255
+    image[image < 0] = 0
+
+    combined_image = np.dstack([np.zeros_like(image), image,
+                                np.zeros_like(image)])
+    final_image = combined_image.astype(np.uint8)
+    plt.imsave(path, final_image, vmin=0, vmax=255)
+
+
+def save_image_multiple(volume: np.ndarray, name: str, directory: str, shape: tuple,
                number_save: int):
     """
     Function to save images from a 3d volume
@@ -153,18 +191,18 @@ def save_image(volume: np.ndarray, name: str, directory: str, shape: tuple,
     -------
     None
     """
-    pass
-    # for x in range(number_save):
-    #     fig, ax = plt.subplots()
-    #     imgplot = ax.imshow(np.reshape(volume,
-    #                                    shape)[shape[0] // number_save * x])
-    #     fig.savefig(os.path.join(directory, name + "_" + str(x)))
+    # pass
+    for x in range(number_save):
+        fig, ax = plt.subplots()
+        imgplot = ax.imshow(np.reshape(volume,
+                                       shape)[shape[0] // number_save * x])
+        fig.savefig(os.path.join(directory, name + "_" + str(x)))
 
-        # img = Image.fromarray(
-        #     np.reshape(volume,
-        #                shape)[shape[0]/number_save*x] * 255).convert('L')
-        # img.save(
-        #     os.path.join(directory,name+"_"+str(x)))
+        img = Image.fromarray(
+            np.reshape(volume,
+                       shape)[shape[0] / number_save * x] * 255).convert('L')
+        img.save(
+            os.path.join(directory, name + "_" + str(x)))
 
 
 def filter_stack(*, stack: np.ndarray, median_filter: bool,

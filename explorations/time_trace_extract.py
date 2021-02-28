@@ -20,10 +20,10 @@ def extract_time_trace(input_file, rois, output):
     time_traces = []
     for roi in rois:
         roi = roi["coordinates"]
-        roi_1d = [x[0] + x[1] * data[0][1] for x in roi]
+        roi_1d = [x[1] + x[0] * data[0][1] for x in roi]
 
         time_traces.append(
-            calculateMeanTrace(data_2[roi_1d], None, denoise=False, sub_neuropil=False))
+            calculateMeanTrace(data_2[roi_1d], None, sub_neuropil=False))
     with open(output, "wb") as file:
         pickle.dump(np.vstack(time_traces), file, protocol=4)
 
