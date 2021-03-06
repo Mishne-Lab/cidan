@@ -9,7 +9,7 @@ import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy import ndimage
-from skimage import feature
+from skimage import feature, measure
 # data_list = [
 #     "/Users/sschickler/Code_Devel/LSSC-python/plotting_functions/demo_files/roi_list1.json",
 #     "/Users/sschickler/Code_Devel/LSSC-python/plotting_functions/demo_files/roi_list2.json"]
@@ -91,16 +91,21 @@ def create_roi_image_cont(size, color, path, fig, offset=0, ):
             # edge = feature.canny(
             #     np.sum(image_temp, axis=2) / np.max(np.sum(image_temp, axis=2)))
             # image[edge] = 1
-            image_temp = ndimage.morphology.binary_dilation(image_temp)
             # image_temp = ndimage.morphology.binary_dilation(image_temp)
+
+            image_temp = ndimage.morphology.binary_opening(image_temp)
+            test = measure.label(image_temp, background=0, connectivity=1)
             # image_temp = ndimage.morphology.binary_erosion(image_temp)
             #
             # image_temp = ndimage.morphology.binary_erosion(image_temp)
             # image_temp = ndimage.binary_closing(image_temp)
-            contour = find_contours(image_temp, .3)
-            print(contour[0][:, 0])
-            # plt.imshow(image)
-            fig.plot(contour[0][:, 1], contour[0][:, 0], color=color, linewidth=2)
+            print(test.max())
+            for x in range(test.max()):
+                image = np.zeros((size[0], size[1]), dtype=float)
+                image[test==x+1]=1
+                contour = find_contours(image, .3)
+                if len(contour) != 0:
+                    fig.plot(contour[0][:, 1], contour[0][:, 0], color=color, linewidth=2)
     return image
 
 

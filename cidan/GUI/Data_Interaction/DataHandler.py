@@ -14,13 +14,14 @@ from cidan.GUI.Data_Interaction.data_handler_functions.export import \
 from cidan.GUI.Data_Interaction.data_handler_functions.gen_rois_functions import \
     gen_roi_display_variables, genRoiFromPoint, calculate_roi_extraction
 from cidan.GUI.Data_Interaction.data_handler_functions.load_filter_functions import \
-    load_data, calculate_filters, load_trial_filter_step, load_trial_dataset_step, \
-    calculate_dataset, transform_data_to_zarr
+    calculate_dataset, transform_data_to_zarr, reset_data, load_dataset, \
+    compute_trial_filter_step
 from cidan.GUI.Data_Interaction.data_handler_functions.save_functions import \
     load_param_json, save_new_param_json
 from cidan.GUI.Data_Interaction.data_handler_functions.time_trace_functions import \
     calculate_time_traces, get_time_trace
 from cidan.LSSC.SpatialBox import SpatialBox
+from cidan.LSSC.functions.data_manipulation import auto_crop
 from cidan.LSSC.functions.eigen import loadEigenVectors
 from cidan.LSSC.functions.pickle_funcs import *
 from cidan.TimeTrace.deltaFOverF import calculateDeltaFOverF
@@ -32,7 +33,7 @@ logger1 = logging.getLogger("cidan.DataHandler")
 def connected_components_graph(A_csr, param, return_labels):
     pass
 
-
+# NOW rewrite the original initiation function to include new stuff
 class DataHandler:
     """
     Interacts with the algorithm and stores the current image data
@@ -81,8 +82,7 @@ class DataHandler:
         "need_recalc_box_params": True,
         "need_recalc_eigen_params": True,
         "need_recalc_roi_extraction_params": True,
-        "load_into_mem": False,
-        "num_threads": 8
+        "load_into_mem": True,
     }
 
     _dataset_params_default = {
@@ -98,7 +98,7 @@ class DataHandler:
         "crop_x": [0, 0],
         "crop_y": [0, 0],
         "trial_split": False,
-        "trial_length": 400,
+        "trial_length": 35,
         "auto_crop": False
     }
 
@@ -185,7 +185,8 @@ class DataHandler:
             self.create_new_save_dir()
             valid = self.load_param_json()
             self.global_params = DataHandler._global_params_default.copy()
-            if self.dataset_params["single_file_mode"]:
+            self.global_params["load_into_mem"] = load_into_mem
+            if self.dataset_params["single_file_mode"] and not load_into_mem:
                 if not os.path.isdir(
                         os.path.join(self.save_dir_path, "temp_files/dataset.zarr")):
                     self.transform_data_to_zarr()
@@ -196,12 +197,17 @@ class DataHandler:
             self.trials_loaded_time_trace_indices = [num for num, x in
                                                      enumerate(self.trials_all)
                                                      if x in self.trials_loaded]
+            self.load_dataset(
+                [os.path.join(self.dataset_params["dataset_folder_path"], x) for
+                 x
+                 in self.trials_loaded])
+            self.reset_data()
 
 
         elif save_dir_already_created:  # this loads everything from the save dir
             valid = self.load_param_json()
             self.time_trace_params = DataHandler._time_trace_params_default.copy()
-            if self.dataset_params["single_file_mode"]:
+            if self.dataset_params["single_file_mode"] and not load_into_mem:
                 if not os.path.isdir(
                         os.path.join(self.save_dir_path, "temp_files/dataset.zarr")):
                     self.transform_data_to_zarr()
@@ -216,20 +222,33 @@ class DataHandler:
                                                      if x in self.trials_loaded]
             # this loads the dataset and calculate the specified filters
             if not self.load_into_mem:
-                try:
-                    self.load_data()
-                    print("Loaded Previous Session")
-                except:
-                    self.__delattr__("dataset_trials_filtered")
-                    temp = self.global_params["need_recalc_box_params"]
-                    self.calculate_filters()
-                    self.global_params["need_recalc_box_params"] = temp
+                self.load_dataset(
+                        [os.path.join(self.dataset_params["dataset_folder_path"], x) for
+                         x
+                         in self.trials_loaded])
+                self.reset_data()
+
+
+                self.dataset_trials_filtered[
+                    self._trials_loaded_indices[0]].compute()
+
+                print("Loaded Previous Session")
+
             else:
                 temp = self.global_params["need_recalc_box_params"]
-                self.calculate_filters()
+                self.load_dataset(
+                    [os.path.join(self.dataset_params["dataset_folder_path"], x) for x
+                     in self.trials_loaded])
+                self.reset_data()
+
+
+                self.dataset_trials_filtered[
+                    self._trials_loaded_indices[0]].compute()
+
                 self.global_params["need_recalc_box_params"] = temp
             # if there are ROIs saved in the save dir load them and calculate time
             # traces
+            self.reset_data()
 
             if self.rois_exist:
                 try:
@@ -277,14 +296,25 @@ class DataHandler:
             if not valid:
                 raise FileNotFoundError("Please chose an empty directory for your " +
                                         "save directory")
-            if self.dataset_params["single_file_mode"]:
+            if self.dataset_params["single_file_mode"] and not load_into_mem:
                 self.transform_data_to_zarr()
-            self.time_traces = []
+
+
+            self.load_dataset([os.path.join(self.dataset_params["dataset_folder_path"],x) for x in self.trials_loaded ])
+            if self.auto_crop:
+                self.dataset_params["auto_crop"]=False
+                auto_crop(self.dataset_list)
+
+
             self._trials_loaded_indices = [num for num, x in enumerate(self.trials_all)
                                            if x in self.trials_loaded]
             self.trials_loaded_time_trace_indices = [num for num, x in
                                                      enumerate(self.trials_all)
                                                      if x in self.trials_loaded]
+            self.reset_data()
+
+
+            self.dataset_trials_filtered[self._trials_loaded_indices[0]].compute()
             self.save_new_param_json()
 
     def __del__(self):
@@ -334,6 +364,9 @@ class DataHandler:
         return self.dataset_params["auto_crop"]
 
     @property
+    def load_into_mem(self):
+        return self.global_params["load_into_mem"]
+    @property
     def rois_exist(self):
         """ƒc
         Return if the roi save file exists
@@ -347,7 +380,11 @@ class DataHandler:
     @property
     def load_into_mem(self):
         return self.global_params["load_into_mem"]
-
+    @property
+    def single_dataset_mode(self):
+        # basically whether there are original trials
+        return self.dataset_params[
+            "original_folder_trial_split"] != ""
     def load_rois(self):
         """
         Loads the ROIs if they exist and then generates the other variables associated
@@ -427,22 +464,15 @@ class DataHandler:
         return transform_data_to_zarr(self)
 
     def update_trial_list(self):
-        if self.dataset_params["trial_split"] and self.dataset_params[
-            "original_folder_trial_split"] != "":
-            if self.dataset_params["single_file_mode"]:
-
-                z1 = zarr.open(
-                    os.path.join(self.save_dir_path, "temp_files/dataset.zarr"),
-                    mode="r")
-                self.trials_loaded = [str(x) for x in range(ceil(z1.shape[0] /
-                                                                 self.dataset_params[
-                                                                     "trial_length"]))]
-            else:
-                self.trials_loaded = [str(x) for x in range(ceil(len(os.listdir(
-                    os.path.join(self.dataset_params["dataset_folder_path"],
-                                 self.dataset_params["original_folder_trial_split"]))) /
-                                                                 self.dataset_params[
-                                                                     "trial_length"]))]
+        if not self.dataset_params["trial_split"]:
+            self.trials_loaded = ["0"]
+            self.trials_all = self.trials_loaded.copy()
+            self.box_params["total_num_time_steps"] = len(self.trials_loaded)
+        elif self.single_dataset_mode:
+            self.trials_loaded = [str(x) for x in
+                                  range(ceil(self.dataset_list[0].shape[0] /
+                                             self.dataset_params[
+                                                 "trial_length"]))]
             self.trials_all = self.trials_loaded.copy()
             self.box_params["total_num_time_steps"] = len(self.trials_loaded)
         elif self.dataset_params["original_folder_trial_split"] != "":
@@ -450,7 +480,7 @@ class DataHandler:
                 self.dataset_params["original_folder_trial_split"]]
             self.trials_all = [self.dataset_params["original_folder_trial_split"]]
             self.box_params["total_num_time_steps"] = len(self.trials_loaded)
-        if self.dataset_params["original_folder_trial_split"] != "":
+        if self.single_dataset_mode:
             self._trials_loaded_indices = [num for num, x in
                                            enumerate(self.trials_all)
                                            if x in self.trials_loaded]
@@ -463,8 +493,23 @@ class DataHandler:
 
         """
         return calculate_dataset(self)
+    def compute_trial_filter_step(self, trial_num,loaded_num,dataset=False,save_data=True ):
+        """
+            Delayed function step that applies filter to a single trial
+            Parameters
+            ----------
+            trial_num : int
+                trial num to load in trials_all
+            dataset : ndarray
+                Dataset to process if false load dataset
+            loaded_num :
+                trial num in array
 
-    @delayed
+            Returns
+            -------
+            Filtered trial as a np.ndarray
+            """
+        return compute_trial_filter_step(self, trial_num, loaded_num, dataset, save_data=save_data)
     def load_trial_dataset_step(self, trial_num):
         """
         Delayed function step that loads a single trial
@@ -479,7 +524,6 @@ class DataHandler:
         """
         return load_trial_dataset_step(self, trial_num)
 
-    @delayed
     def load_trial_filter_step(self, trial_num, dataset=False, loaded_num=False):
         """
         Delayed function step that applies filter to a single trial
@@ -495,24 +539,28 @@ class DataHandler:
         Filtered trial as a np.ndarray
         """
         return load_trial_filter_step(self, trial_num, dataset, loaded_num)
+    #
+    # def calculate_filters(self, trial=0,progress_signal=None, auto_crop=False):
+    #     """
+    #     Applies filter to each trial, sets them to self.dataset_trials_filtered
+    #
+    #     Returns
+    #     -------
+    #     A list of filtered trials
+    #     """
+    #     return calculate_filters(self, trial,progress_signal, auto_crop)
+    def reset_data(self):
+        # resets all the data attributes but doesn't reload data itself
+        return reset_data(self)
 
-    def calculate_filters(self, progress_signal=None, auto_crop=False):
-        """
-        Applies filter to each trial, sets them to self.dataset_trials_filtered
-
-        Returns
-        -------
-        A list of filtered trials
-        """
-        return calculate_filters(self, progress_signal, auto_crop)
-
+    def load_dataset(self, path):
+        # loads a dataset or loads a zarr in
+        return load_dataset(self, path)
     @property
     def real_trials(self):
         return not (self.dataset_params["single_file_mode"] or self.dataset_params[
             "trial_split"] or len(self.trials_loaded) == 1)
 
-    def load_data(self):
-        load_data(self)
 
     def calculate_roi_extraction(self, progress_signal=None):
         """
@@ -549,6 +597,13 @@ class DataHandler:
 
         return get_time_trace(self, num, trial, trace_type)
 
+    def calculate_filters(self, progress_signal=None):
+        if self.global_params["need_recalc_filter_params"] or self.global_params[
+            "need_recalc_dataset_params"] or \
+            not hasattr(self, "dataset_trials_filtered"):
+            self.reset_data()
+            self.save_new_param_json()
+            self.dataset_trials_filtered[self._trials_loaded_indices[0]].compute()
     def update_selected_trials(self, selected_trials):
         """
         Updates the loaded trials so don't have unnecessary loaded trials
@@ -600,7 +655,7 @@ class DataHandler:
     def calculate_statistics(self):
         return calculate_statistics(self)
 
-    def export(self, matlab=False, background_images=["max", "mean", "eigen_norm"],
+    def export(self, matlab=False, background_images=["max", "mean", "eigen_norm", "blank"],
                color_maps=['gray']):
         return export(self, matlab, background_images, color_maps)
 

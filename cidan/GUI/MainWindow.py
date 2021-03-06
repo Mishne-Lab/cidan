@@ -3,6 +3,8 @@ import os
 from PySide2.QtCore import QThreadPool
 from qtpy import QtGui
 
+from cidan.GUI.Data_Interaction.CalculateSingleTrialThread import \
+    CalculateSingleTrialThread
 from cidan.GUI.Data_Interaction.DemoDownloadThread import DemoDownloadThread
 from cidan.GUI.Data_Interaction.OpenDatasetThread import OpenDatasetThread
 from cidan.GUI.Tabs.AnalysisTab import AnalysisTab
@@ -166,6 +168,8 @@ class MainWidget(QWidget):
         self.thread_list.append(self.demo_download_thread)
         self.open_dataset_thread = OpenDatasetThread(main_widget=self)
         self.thread_list.append(self.open_dataset_thread)
+        self.calculate_single_trial_thread = CalculateSingleTrialThread(self)
+        self.thread_list.append(self.calculate_single_trial_thread)
 
         # Initialize top bar menu
         fileMenu = self.main_menu.addMenu('&File')
@@ -220,7 +224,6 @@ class MainWidget(QWidget):
         self.thread_list = []
         self.preprocess_image_view = ImageViewModule(self)
         # This assumes that the data is already loaded in
-        self.data_handler.calculate_filters()
         for num, _ in enumerate(self.tabs):
             self.tab_widget.removeTab(1)
 
@@ -275,7 +278,7 @@ class MainWidget(QWidget):
                                          alignment=QtCore.Qt.AlignTop)
 
         image_selection_buttons = []
-        for button_name in ["Max Image", "Mean Image", "Eigen Norm Image"]:
+        for button_name in ["Max Image", "Mean Image", "Eigen Norm Image", "Blank"]:
             temp = QCheckBox(button_name)
             temp.toggle()
             image_selection_layout.addWidget(temp, alignment=QtCore.Qt.AlignTop)
@@ -302,7 +305,7 @@ class MainWidget(QWidget):
                 trial_dialog.selectedTrials())
             self.data_handler.export(matlab=export_matlab.isChecked(),
                                      background_images=[x for num, x in enumerate(
-                                         ["max", "mean", "eigen_norm"]) if
+                                         ["max", "mean", "eigen_norm", "blank"]) if
                                                         color_map_buttons[
                                                             num].isChecked()],
                                      color_maps=[x for num, x in enumerate(

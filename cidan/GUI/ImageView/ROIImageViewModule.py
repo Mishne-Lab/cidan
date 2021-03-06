@@ -127,6 +127,12 @@ class ROIImageViewModule(ImageViewModule):
         if (not self.resetting_view or reset_override):
             self.main_widget.console.updateText(
                 "Setting current background to: %s" % func_name)
+            if type(self.main_widget.data_handler.mean_images[
+                        self.data_handler.trials_loaded.index(
+                            self.trial_selector_input.current_state())]) == bool:
+                self.data_handler.dataset_trials_filtered_loaded[
+                    self.data_handler.trials_loaded.index(
+                        self.trial_selector_input.current_state())].compute()
             # Background refers to the image behind the rois
             shape = self.main_widget.data_handler.shape
             if func_name == "Mean Image":
@@ -258,7 +264,10 @@ class ROIImageViewModule(ImageViewModule):
                 self.image_item.image += combined
 
                 self.image_item.updateImage(autoLevels=False)
-
+                # pen =mkPen('y', width=3, style=QtCore.Qt.DashLine)
+                # if self.outlines:
+                #     for roi_contour in self.data_handler.all_roi_contours:
+                #         self.plot_item.plot(roi_contour, clear=True)
                 # self.main_widget.roi_image_view.image_view.view.setRange(xRange=range_list[0],
                 #                                                      yRange=range_list[1])
                 # range_list = self.main_widget.roi_image_view.image_view.view.viewRange()

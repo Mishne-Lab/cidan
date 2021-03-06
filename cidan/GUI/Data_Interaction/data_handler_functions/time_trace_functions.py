@@ -1,5 +1,6 @@
 import logging
 
+import dask
 import numpy as np
 
 from cidan.LSSC.functions.data_manipulation import reshape_to_2d_over_time
@@ -36,54 +37,44 @@ def calculate_time_traces(self, report_progress=None):
     for x in self.time_traces.keys():
         for _ in range(len(self.rois)):
             self.time_traces[x].append([])
-            for _ in range(len(self.trials_all)):
+            for _ in range(1 if self.single_dataset_mode else len(self.signal_dataself.trials_all)):
                 self.time_traces[x][-1].append(False)
     calc_list = []
     roi_time_traces_by_pixel = []
     for _ in range(len(self.rois)):
         roi_time_traces_by_pixel.append([])
-        for _ in range(len(self.trials_all)):
+        for _ in range(1 if self.single_dataset_mode else len(self.signal_dataself.trials_all)):
             roi_time_traces_by_pixel[-1].append(False)
     roi_neuropil_traces_by_pixel = []
     for _ in range(len(self.rois)):
         roi_neuropil_traces_by_pixel.append([])
-        for _ in range(len(self.trials_all)):
+        for _ in range(1 if self.single_dataset_mode else len(self.signal_dataself.trials_all)):
             roi_neuropil_traces_by_pixel[-1].append(False)
-    for trial_num in self.trials_loaded_time_trace_indices:
-        data = self.load_trial_dataset_step(trial_num).compute()
-        data_2d = reshape_to_2d_over_time(data[:])
-        del data
-        # if type(self.dataset_trials_filtered[trial_num]) == bool:
-        #     data = self.load_trial_filter_step(
-        #         trial_num).compute()
-        #     self.dataset_trials_filtered[trial_num] = data
-        #
-        #     del data
-        # else:
-        #     data_2d = reshape_to_2d_over_time(
-        #         self.dataset_trials_filtered[trial_num])[:]
+
+
+    if not self.real_trials:
         calc_list = []
+        data_2d = reshape_to_2d_over_time(self.dataset_list[0][:])
         for roi in range(len(self.rois)):
-            roi_time_traces_by_pixel[roi][trial_num] = data_2d[self.rois[roi]]
-            roi_neuropil_traces_by_pixel[roi][trial_num] = data_2d[
+            roi_time_traces_by_pixel[roi][0] = data_2d[self.rois[roi]]
+            roi_neuropil_traces_by_pixel[roi][0] = data_2d[
                 self.neuropil_pixels[roi]]
         if report_progress is not None:
-            printProgressBar(self.trials_loaded_time_trace_indices.index(trial_num),
+            printProgressBar(self.trials_loaded_time_trace_indices[-1],
                              total=len(
                                  self.trials_loaded_time_trace_indices) + len(
                                  self.rois) + 2,
                              prefix="Time Trace Calculation Progress:",
                              suffix="Complete", progress_signal=report_progress)
-    if not self.real_trials:
-        for roi_counter, roi_data, neuropil_data in zip(range(len(self.rois)),
+        roi_time_traces_by_pixel_denoised = dask.compute(*[dask.delayed(waveletDenoise)(x[0]) for x in roi_time_traces_by_pixel])
+        roi_neuropil_traces_by_pixel_denoised = dask.compute(*[dask.delayed(waveletDenoise)(x[0]) for x in roi_time_traces_by_pixel])
+
+        for roi_counter, roi_data, neuropil_data,roi_data_denoised_combined,neuropil_data_denoised_combined in zip(range(len(self.rois)),
                                                         roi_time_traces_by_pixel,
-                                                        roi_neuropil_traces_by_pixel):
-            roi_data_combined = np.hstack(
-                [roi_data[x] for x in self.trials_loaded_time_trace_indices])
-            neuropil_data_combined = np.hstack(
-                [neuropil_data[x] for x in self.trials_loaded_time_trace_indices])
-            roi_data_denoised_combined = waveletDenoise(roi_data_combined)
-            neuropil_data_denoised_combined = waveletDenoise(neuropil_data_combined)
+                                                        roi_neuropil_traces_by_pixel,roi_time_traces_by_pixel_denoised,roi_neuropil_traces_by_pixel_denoised):
+            roi_data_combined = roi_data[0]
+            neuropil_data_combined = neuropil_data[0] #np.vstack([x[0] for x in roi_time_traces_by_pixel])
+
             for key in self.time_traces.keys():
                 if "Denoised" in key:
                     self.time_traces[key][roi_counter] = [
@@ -104,6 +95,31 @@ def calculate_time_traces(self, report_progress=None):
                     prefix="Time Trace Calculation Progress:",
                     suffix="Complete", progress_signal=report_progress)
     if self.real_trials:
+        for trial_num in self.trials_loaded_time_trace_indices:
+            data =self.dataset_list[trial_num]
+            data_2d = reshape_to_2d_over_time(data[:])
+            del data
+            # if type(self.dataset_trials_filtered[trial_num]) == bool:
+            #     data = self.load_trial_filter_step(
+            #         trial_num).compute()
+            #     self.dataset_trials_filtered[trial_num] = data
+            #
+            #     del data
+            # else:
+            #     data_2d = reshape_to_2d_over_time(
+            #         self.dataset_trials_filtered[trial_num])[:]
+            calc_list = []
+            for roi in range(len(self.rois)):
+                roi_time_traces_by_pixel[roi][trial_num] = data_2d[self.rois[roi]]
+                roi_neuropil_traces_by_pixel[roi][trial_num] = data_2d[
+                    self.neuropil_pixels[roi]]
+            if report_progress is not None:
+                printProgressBar(self.trials_loaded_time_trace_indices.index(trial_num),
+                                 total=len(
+                                     self.trials_loaded_time_trace_indices) + len(
+                                     self.rois) + 2,
+                                 prefix="Time Trace Calculation Progress:",
+                                 suffix="Complete", progress_signal=report_progress)
         for roi_counter, roi_data, neuropil_data in zip(range(len(self.rois)),
                                                         roi_time_traces_by_pixel,
                                                         roi_neuropil_traces_by_pixel):

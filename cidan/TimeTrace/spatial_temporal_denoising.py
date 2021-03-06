@@ -45,14 +45,19 @@ def calculate_spatial_time_denoising(dataset, rois, neuropil, eigen_norm_image):
                "A_mask.png")
 
     dataset_2d = reshape_to_2d_over_time(dataset)
-    A_b, t = optimize.nnls(dataset_2d.transpose(), C_b[0, :])
-    A_b = np.power(A_b.reshape([eigen_norm_image.shape[0], eigen_norm_image.shape[1]]),
-                   -1)
-    A_b[A_b == np.inf] = 0
+    pixels_to_calculate = np.nonzero(np.sum(reshape_to_2d_over_time(roi_images[:,:,:]),axis=1))[0]
+    total_list =dask.compute([dask.delayed(optimize.nnls)(
+        C_b.transpose(),dataset_2d[x,:]) for x
+                      in pixels_to_calculate])
+    for x, number in zip(total_list[0], pixels_to_calculate):
+        A_mask[number] = x[0]
+    A_b = A_mask
+    A_b = A_b.reshape([eigen_norm_image.shape[0], eigen_norm_image.shape[1]])
+
     save_image(A_b, "A_background.png")
 
     C = dask.compute([dask.delayed(optimize.nnls)(
         dataset_2d - A_b.reshape([-1, 1]) * C_b, reshape_to_2d_over_time(A)[:, x]) for x
-                      in range(len(rois))])
+                      in range(A.shape[0])])
     C = np.vstack([x[0] for x in C[0]]).transpose()
     return C

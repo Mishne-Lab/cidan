@@ -1,3 +1,4 @@
+import dask
 from qtpy import QtCore
 from qtpy.QtWidgets import *
 
@@ -5,7 +6,7 @@ from cidan.GUI.Data_Interaction.PreprocessThread import PreprocessThread
 from cidan.GUI.Inputs.OptionInput import OptionInput
 from cidan.GUI.SettingWidget.SettingsModule import preprocessing_settings
 from cidan.GUI.Tabs.Tab import Tab
-
+import numpy as np
 
 class PreprocessingTab(Tab):
     """Class controlling the Preprocessing tab, inherits from Tab
@@ -122,9 +123,25 @@ class PreprocessingTab(Tab):
         """
 
         def set_image(x, trial_name):
+            def end_func():
+                try:
+                    self.main_widget.preprocess_image_view.setImage(
+                        data_list[trial_names.index(trial_name)][:])
+                    self.main_widget.console.updateText(
+                        "Loaded filtered trial %s" % str(trial_name))
+                except TypeError:
+                    self.updateTab()
             try:
-                self.main_widget.preprocess_image_view.setImage(
-                    data_list[trial_names.index(trial_name)][:])
+                if type(data_list[trial_names.index(trial_name)])== bool or \
+                        type(self.data_handler.dataset_trials_filtered_loaded[trial_names.index(trial_name)])==type(dask.delayed(min)()):
+                    self.main_widget.console.updateText(
+                        "Applying filters to trial %s" % str(trial_name))
+                    self.main_widget.calculate_single_trial_thread.runThread(trial_names.index(trial_name),end_func)
+                else:
+                    self.main_widget.preprocess_image_view.setImage(
+                        data_list[trial_names.index(trial_name)][:])
+                    self.main_widget.console.updateText(
+                        "Loaded filtered trial %s" % str(trial_name))
             except TypeError:
                 self.updateTab()
 

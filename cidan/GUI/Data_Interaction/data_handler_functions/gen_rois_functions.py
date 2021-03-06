@@ -3,7 +3,9 @@ from functools import reduce
 
 import numpy as np
 from PIL import Image
-from skimage import feature
+from dask import delayed
+from skimage import feature, measure
+from skimage.measure import find_contours
 
 from cidan.LSSC.SpatialBox import SpatialBox
 from cidan.LSSC.functions.data_manipulation import pixel_num_to_2d_cord
@@ -40,13 +42,25 @@ def calculate_roi_extraction(self, progress_signal=None):
             temp_params = self.box_params.copy()
             self.global_params[
                 "need_recalc_box_params"] = False
-            self.rois = process_data(num_threads=self.global_params[
-                "num_threads"], test_images=False, test_output_dir="",
+            image_data = []
+            for num, trial_num in enumerate(self._trials_loaded_indices):
+                if type(self.dataset_trials_filtered_loaded[num]) == type(delayed(min)()):
+                    image_data.append(self.compute_trial_filter_step(
+                            trial_num,
+                            loaded_num=num, save_data=False))
+                else:
+                    image_data.append(self.dataset_trials_filtered_loaded[num])
+            self.rois = process_data( test_images=False, test_output_dir="",
                                      save_dir=self.save_dir_path,
+                                      shape=self.shape,
                                      save_intermediate_steps=self.global_params[
                                          "save_intermediate_steps"],
-                                     image_data=self.dataset_trials_filtered_loaded,
-                                     eigen_vectors_already_generated=(not
+                                     image_data_filtered=self.dataset_trials_filtered_loaded,
+                                     image_data=self.dataset_list,
+                                     crop= [self.dataset_params["crop_x"],self.dataset_params["crop_y"]] if self.dataset_params["crop_stack"] else False,
+                                     slicing = [self.dataset_params["slice_start"][0],self.dataset_params["slice_every"][0]] if self.dataset_params["slice_stack"] else [0,1],
+
+                                      eigen_vectors_already_generated=(not
                                                                       eigen_need_recalc) and
                                                                      self.global_params[
                                                                          "save_intermediate_steps"] and self.eigen_vectors_exist,
@@ -164,7 +178,28 @@ def gen_roi_display_variables(self):
     self.pixel_with_rois_color = np.reshape(self.pixel_with_rois_color_flat,
                                             [self.shape[0],
                                              self.shape[1], 3])
-
+    # self.all_roi_contours = []
+    # pixel_with_rois = self.pixel_with_rois_flat.reshape([self.shape[0],self.shape[1]])
+    # for num in range(len(self.rois)):
+    #
+    #
+    #     image_temp = pixel_with_rois==num+1
+    #
+    #     # edge = feature.canny(
+    #     #     np.sum(image_temp, axis=2) / np.max(np.sum(image_temp, axis=2)))
+    #     # image[edge] = 1
+    #     # image_temp = ndimage.morphology.binary_dilation(image_temp)
+    #     test = measure.label(image_temp, background=0, connectivity=1)
+    #     # image_temp = ndimage.morphology.binary_erosion(image_temp)
+    #     #
+    #     # image_temp = ndimage.morphology.binary_erosion(image_temp)
+    #     # image_temp = ndimage.binary_closing(image_temp)
+    #     # print(test.max())
+    #     for x in range(test.max()):
+    #         image = np.zeros((self.shape[0], self.shape[1]), dtype=float)
+    #         image[test == x + 1] = 1
+    #         contour = find_contours(image, .3)
+    #         self.all_roi_contours.append(contour)
     try:
         self.eigen_norm_image = np.asarray(Image.open(
             os.path.join(self.save_dir_path,

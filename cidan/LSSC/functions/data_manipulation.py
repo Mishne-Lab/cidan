@@ -14,14 +14,7 @@ from sklearn.decomposition import PCA
 
 from cidan.LSSC.functions.embeddings import calcDInv
 
-
-def load_filter_tif_stack(*, path, filter: bool, median_filter: bool,
-                          median_filter_size: Tuple[int, int, int],
-                          z_score: bool, slice_stack: bool,
-                          slice_every, slice_start: int, crop_stack: bool,
-                          crop_x: List[int], crop_y: List[int],
-                          load_into_mem: bool = True, trial_split=False,
-                          trial_split_length=100, trial_num=0, zarr_path=False):
+def load_tif_stack(path, convert_to_32=True):
     """
     This function reads a tiff stack file
     Parameters
@@ -34,92 +27,62 @@ def load_filter_tif_stack(*, path, filter: bool, median_filter: bool,
     a 3D numpy array with the tiff files together or a zarr array if not loading into memory
 
     """
+
     size = [0, 0]
-    # image = np.zeros((50,100,100), np.float32)
-    # for x in range(25):
-    #     image[x*2,:,0::10] = 255
-    # return [100,100], image.transpose((0,2,1))
+
     if os.path.isdir(path):
         volumes = []
         paths = path if type(path) == list else sorted(os.listdir(path))
-        if trial_split:
-            paths = paths[trial_num * trial_split_length:(
-                                                                 trial_num + 1) * trial_split_length if (
-                                                                                                                trial_num + 1) * trial_split_length < len(
-                paths) else len(paths)]
+        # if trial_split:
+        #     paths = paths[trial_num * trial_split_length:(
+        #                                                          trial_num + 1) * trial_split_length if (
+        #                                                                                                         trial_num + 1) * trial_split_length < len(
+        #         paths) else len(paths)]
         for num, x in enumerate(paths):
             file_path = x if type(path) == list else os.path.join(path, x)
             image = tifffile.imread(file_path)
             size = [image.shape[0], image.shape[1]]
             if len(image.shape) == 2:
                 image = image.reshape((1, image.shape[0], image.shape[1]))
-            if slice_stack:
-                image = image[slice_start::slice_every]
-            if crop_stack:
-                image = image[:, crop_x[0]:crop_x[1], crop_y[0]:crop_y[1]]
-            if filter:
-                image = filter_stack(stack=image, median_filter=median_filter,
-                                     median_filter_size=median_filter_size,
-                                     z_score=z_score)
             volumes.append(image)
-            # print("Loading: " + x)
+
 
         image = np.vstack(volumes)
-        image = image.astype(np.float32)
         del volumes
-        # image = image
     elif os.path.isfile(path):
-        if type(zarr_path) == bool:
-            image = tifffile.imread(path)
-            size = [image.shape[1], image.shape[2]]
-            if len(image.shape) == 2:
-                image = image.reshape((1, image.shape[0], image.shape[1]))
-            if slice_stack:
-                image = image[slice_start::slice_every]
-            if crop_stack:
-                image = image[:, crop_x[0]:crop_x[1], crop_y[0]:crop_y[1]]
-            if filter:
-                image = filter_stack(stack=image, median_filter=median_filter,
-                                     median_filter_size=median_filter_size,
-                                     z_score=z_score)
-            image = image.astype(np.float32)
-        else:
-            z1 = zarr.open(zarr_path,
-                           mode="r")
 
-            if trial_split and crop_stack:
-                image = z1[trial_num * trial_split_length:(
-                                                                      trial_num + 1) * trial_split_length,
-                        crop_x[0]:crop_x[1], crop_y[0]:crop_y[1]]
-            if trial_split and not crop_stack:
-                image = z1[trial_num * trial_split_length:(
-                                                                      trial_num + 1) * trial_split_length,
-                        :, :]
-            if not trial_split and crop_stack:
-                image = z1[:, crop_x[0]:crop_x[1], crop_y[0]:crop_y[1]]
-            if not trial_split and not crop_stack:
-                image = z1[:]
-            if len(image.shape) == 2:
-                image = image.reshape((1, image.shape[0], image.shape[1]))
-            if slice_stack:
-                image = image[slice_start::slice_every]
-            size = [z1.shape[1], z1.shape[2]]
-            image = image.astype(np.float32)
+        image = tifffile.imread(path)
+        size = [image.shape[1], image.shape[2]]
+        if len(image.shape) == 2:
+            image = image.reshape((1, image.shape[0], image.shape[1]))
+
+
     else:
         raise Exception("Invalid Inputs ")
 
     # print(np.mean(image[0]),np.max(image[0]),np.min(image[0]),np.median(image[0]))
-    if np.isclose(np.mean(image[0]), 2 ** 15, 0, 2000):
-        image = image - 2 ** 15+128
-        # print(np.mean(image[0]), np.max(image[0]), np.min(image[0]), np.median(image[0]))
 
-    return size, image
-    # zarr_array = zarr.open('data/example.zarr', mode='w', shape=(10000, 10000),
-    #          chunks=(1000, 1000), dtype='i4')
+    if convert_to_32:
+        image = image.astype(np.float32)
+        if np.isclose(np.mean(image[0]), 2 ** 15, 0, 4000):
+            image = image - 2 ** 15
+    return image
 
-    raise Exception("Invalid Inputs ")
-    # vol=ScanImageTiffReader(file_path).data()
+def load_tif_stack_trial(path):
+    """
+        This function loads only a specific trial
+        Parameters
+        ----------
+        path The path to zarr file of a single tiff stack, a folder with trials, or a folder with tiff images
 
+
+        Returns
+        -------
+        a 3D numpy array
+
+        """
+    pass
+# TODO Implement this
 
 def reshape_to_2d_over_time(volume):
     """
@@ -208,6 +171,9 @@ def save_image_multiple(volume: np.ndarray, name: str, directory: str, shape: tu
 def filter_stack(*, stack: np.ndarray, median_filter: bool,
                  median_filter_size: Tuple[int, int, int],
                  z_score: bool, hist_eq=False, localSpatialDenoising=False):
+    stack = stack.astype(np.float32)
+    if np.isclose(np.mean(stack[0]), 2 ** 15, 0, 4000):
+        stack = stack - 2 ** 15
     if localSpatialDenoising:
         stack = applyLocalSpatialDenoising(stack)
     if z_score and not hist_eq:
@@ -239,8 +205,59 @@ def filter_stack(*, stack: np.ndarray, median_filter: bool,
     if median_filter:
         stack = ndimage.median_filter(stack, median_filter_size)
     return stack
+def slice_crop_stack( image,slice_stack: bool,
+                          slice_every, slice_start: int, crop_stack: bool,
+                          crop_x: List[int], crop_y: List[int]):
+    if slice_stack:
+        image = image[slice_start::slice_every]
+    if crop_stack:
+        image = image[:, crop_x[0]:crop_x[1], crop_y[0]:crop_y[1]]
+    return image
+def auto_crop(dataset_list):
+    # takes in raw dataset or list of datasets and outputs suggested crops
+    suggested_crops = [0 for _ in dataset_list]
+    for num,dataset in enumerate(dataset_list):
+        crop_y_bools = (dataset <= dataset.min()).all(1).any(0)
+        y_iter_1 = 0
+        while True:
+            if crop_y_bools[y_iter_1]:
+                y_iter_1 += 1
+            else:
+                break
+        y_iter_2 = 0
+        while True:
+            if crop_y_bools[-(y_iter_2 + 1)]:
+                y_iter_2 += 1
+            else:
+                break
 
-
+        crop_x_bools = (dataset <= dataset.min()).all(2).any(0)
+        x_iter_1 = 0
+        while True:
+            if crop_x_bools[x_iter_1]:
+                x_iter_1 += 1
+            else:
+                break
+        x_iter_2 = 0
+        while True:
+            if crop_x_bools[-(x_iter_2 + 1)]:
+                x_iter_2 += 1
+            else:
+                break
+    crop_size = [[max([x[0][0] for x in suggested_crops]),
+             -max([x[0][1] for x in suggested_crops])],
+            [max([x[1][0] for x in suggested_crops]),
+             -max([x[1][1] for x in suggested_crops])]]
+    crop_final = [[0,0],[0,0]]
+    crop_final[0][0] = 0 + \
+                                       crop_size[0][0]
+    crop_final[0][1] = dataset_list[0].shape[1] + \
+                                       crop_size[0][1]
+    crop_final[1][0] = 0 + \
+                                       crop_size[1][0]
+    crop_final[1][1] = dataset_list[0].shape[2]  + \
+                                       crop_size[1][1]
+    return crop_final
 def pixel_num_to_2d_cord(pixel_list, volume_shape: Tuple[int, int]):
     """
     Takes a list of pixels and converts it to a list of cords for each pixel

@@ -31,7 +31,8 @@ class ImageViewModule(QFrame):
         # self.no_image_message = QPushButton("Please open a dataset first")
         # self.no_image_message.clicked.connect(main_widget.open_file_dialog)
         # self.no_image_message.setStyleSheet("QPushButton {font-size:80;}")
-        self.image_view = ImageView(view=PlotItem())
+        self.plot_item = PlotItem()
+        self.image_view = ImageView(view=self.plot_item)
         self.image_view.keyPressEvent = self.keyPressEvent
         self.image_view.ui.layoutWidget.setContentsMargins(0, 0, 0, 0)
         # self.image_view.ui.roiBtn.hide()

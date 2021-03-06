@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy import ndimage
 from scipy.io import savemat
+from skimage import measure
 from skimage.measure import find_contours
 
 from cidan.LSSC.SpatialBox import SpatialBox
@@ -78,10 +79,10 @@ def export(self, matlab, background_images, color_maps):
         if background_image_name == "mean":
             background_image = np.mean(
                 [self.mean_images[x] for x in self._trials_loaded_indices], axis=0)
-        if background_image_name == "max":
+        elif background_image_name == "max":
             background_image = np.max(
                 [self.max_images[x] for x in self._trials_loaded_indices], axis=0)
-        if background_image_name == "zeros":
+        elif background_image_name == "blank":
             background_image = np.zeros(shape)
         else:  # eigen norm is default
             background_image = create_image_from_eigen_vectors(
@@ -194,19 +195,30 @@ def create_roi_image_blob(color_list, rois, shape):
 def plot_roi_image_contour(shape, color, rois, fig):
     for num, cords in enumerate(rois):
 
-        if len(cords) < 600:
-            image_temp = np.zeros((shape[0], shape[1]), dtype=float)
+        image_temp = np.zeros((shape[0], shape[1]), dtype=float)
 
-            for pixel in cords:
-                image_temp[pixel[0], pixel[1]] = 1
+        for pixel in cords:
+            image_temp[pixel[0], pixel[1]] = 1
 
-            # edge = feature.canny(
-            #     np.sum(image_temp, axis=2) / np.max(np.sum(image_temp, axis=2)))
-            # image[edge] = 1
-            image_temp = ndimage.morphology.binary_dilation(image_temp)
-            contour = find_contours(image_temp, .2)
+        # edge = feature.canny(
+        #     np.sum(image_temp, axis=2) / np.max(np.sum(image_temp, axis=2)))
+        # image[edge] = 1
+        # image_temp = ndimage.morphology.binary_dilation(image_temp)
+        test = measure.label(image_temp, background=0, connectivity=1)
+        # image_temp = ndimage.morphology.binary_erosion(image_temp)
+        #
+        # image_temp = ndimage.morphology.binary_erosion(image_temp)
+        # image_temp = ndimage.binary_closing(image_temp)
+        # print(test.max())
+        for x in range(test.max()):
+            image = np.zeros((shape[0], shape[1]), dtype=float)
+            image[test == x + 1] = 1
+            contour = find_contours(image, .3)
+            if len(contour) != 0:
+                fig.plot(contour[0][:, 1], contour[0][:, 0], color=color,
+                         linewidth=2)
             # plt.imshow(image)
-            fig.plot(contour[0][:, 1], contour[0][:, 0], color=color, linewidth=2)
+            # fig.plot(contour[0][:, 1], contour[0][:, 0], color=color, linewidth=2)
 
 
 def export_overlapping_rois(self, current_roi_num_1, current_roi_num_2):
