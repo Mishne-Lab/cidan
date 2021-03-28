@@ -196,10 +196,11 @@ class MainWidget(QWidget):
                 # auto loads a small dataset
                 self.data_handler = DataHandler(
 
-                    "/Users/sschickler/Code_Devel/HigleyData/",
-                    "/Users/sschickler/Documents/LSSC-python",
-                    trials=["File6_som_l5_gcamp6s_alka.tif"],
-                    save_dir_already_created=True)
+                    "/Users/sschickler/Code_Devel/LSSC-python/tests/test_files/",
+                    "/Users/sschickler/Code_Devel/LSSC-python/tests/test_files/save_dir",
+                    trials=["small_dataset1.tif", "small_dataset2.tif"],
+                    save_dir_already_created=False, load_into_mem=False,
+                    auto_crop=False)
                 # self.data_handler.calculate_filters(auto_crop=True)
                 self.init_w_data()
             except IndentationError:
@@ -222,6 +223,13 @@ class MainWidget(QWidget):
 
         """
         self.thread_list = []
+        self.demo_download_thread = DemoDownloadThread(main_widget=self)
+        self.thread_list.append(self.demo_download_thread)
+        self.open_dataset_thread = OpenDatasetThread(main_widget=self)
+        self.thread_list.append(self.open_dataset_thread)
+        self.calculate_single_trial_thread = CalculateSingleTrialThread(self)
+        self.thread_list.append(self.calculate_single_trial_thread)
+
         self.preprocess_image_view = ImageViewModule(self)
         # This assumes that the data is already loaded in
         for num, _ in enumerate(self.tabs):

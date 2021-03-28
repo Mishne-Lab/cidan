@@ -9,7 +9,6 @@ from tifffile import tifffile
 from cidan.LSSC.functions.data_manipulation import load_tif_stack, filter_stack, \
     applyPCA, load_tif_stack_trial, slice_crop_stack
 from cidan.LSSC.functions.pickle_funcs import *
-from cidan.LSSC.functions.progress_bar import printProgressBarFilter
 
 logger1 = logging.getLogger("cidan.DataHandler")
 
@@ -73,14 +72,26 @@ def transform_data_to_zarr(self):
                    chunks=(4, image.shape[1],image.shape[2]), dtype=image.dtype)
     z1[:] = image
 
+
 def load_dataset(self, path_list):
     # TODO add in zarr load support to here
     if self.load_into_mem:
         if self.single_dataset_mode:
+
+            self.dataset_list = [load_tif_stack(path_list[0], convert_to_32=False)]
+        else:
+            self.dataset_list = dask.compute(
+                *[delayed(load_tif_stack)(x) for x in path_list])
+        self.total_size = [self.dataset_list[0].shape[1], self.dataset_list[0].shape[2]]
+    else:
+        if self.single_dataset_mode:
             self.dataset_list= [load_tif_stack(path_list[0], convert_to_32=False)]
         else:
-            self.dataset_list = dask.compute(*[delayed(load_tif_stack)(x) for x in self.self.dataset_params["original_folder_trial_split"] ])
+            self.dataset_list = dask.compute(
+                *[delayed(load_tif_stack)(x) for x in path_list])
         self.total_size = [self.dataset_list[0].shape[1],self.dataset_list[0].shape[2]]
+
+
 def calculate_dataset(self) -> np.ndarray:
     """
     Loads each trial, applying crop and slicing, sets them to self.dataset_trials

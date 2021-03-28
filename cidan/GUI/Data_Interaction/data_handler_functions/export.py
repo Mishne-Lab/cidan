@@ -5,7 +5,6 @@ from os.path import isfile, join
 
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy import ndimage
 from scipy.io import savemat
 from skimage import measure
 from skimage.measure import find_contours
@@ -73,7 +72,7 @@ def export(self, matlab, background_images, color_maps):
         cords = spatial_box.convert_1d_to_2d(roi)
         rois.append(cords)
     fig = plt.figure(frameon=False)
-    fig.set_size_inches(shape[0] / 100, shape[0] / 100)
+    fig.set_size_inches(shape[1] / 100, shape[0] / 100)
 
     for background_image_name in background_images:
         if background_image_name == "mean":
@@ -157,7 +156,7 @@ def create_image_from_eigen_vectors(path, shape):
         with open(os.path.join(path, x), "rb") as file:
             vectors.append(pickle.load(file)[:, 1:])
     all_vectors = np.hstack(vectors)
-    all_vectors_sum = np.sum(np.abs(all_vectors), axis=1)
+    all_vectors_sum = np.power(np.sum(np.power(all_vectors, 2), axis=1), .5)
     all_vectors_shaped = np.reshape(all_vectors_sum, shape)
     all_vectors_shaped[all_vectors_shaped < 0] = 0
     # if all_vectors_shaped.min()<0:

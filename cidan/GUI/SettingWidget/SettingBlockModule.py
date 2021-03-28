@@ -199,8 +199,7 @@ def dataset_setting_block_crop(main_widget):
                                                                           min=25,
                                                                           max=10000,
                                                                           step=1)] if
-                                                                  data_handler.dataset_params[
-                                                                      "original_folder_trial_split"] != "" else []))
+                                                                  data_handler.single_dataset_mode else []))
 
 
 def multiprocessing_settings_block(main_widget):

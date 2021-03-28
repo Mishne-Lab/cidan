@@ -37,7 +37,7 @@ def create_image_from_eigen_vectors(path, shape):
         with open(os.path.join(path, x), "rb") as file:
             vectors.append(pickle.load(file)[:, 1:])
     all_vectors = np.hstack(vectors)
-    all_vectors_sum = np.sum(np.abs(all_vectors), axis=1)
+    all_vectors_sum = np.power(np.sum(np.power(all_vectors, 2), axis=1), .5)
     all_vectors_shaped = np.reshape(all_vectors_sum, shape)
     all_vectors_shaped[all_vectors_shaped < 0] = 0
     # if all_vectors_shaped.min()<0:
@@ -150,14 +150,14 @@ def create_graph(bg_path="", shape=None, e_dir="", data_1="", data_2="", data_3=
     background_image[background_image < 0] = 0
     print(shape)
 
-    combined_image = np.dstack([np.zeros(shape), background_image,
-                                np.zeros(shape)])
+    combined_image = np.dstack([np.zeros(shape[:2]), background_image[:, :, 0],
+                                np.zeros(shape[:2])])
     roi_image_combined = np.dstack(
-        [np.zeros(shape), np.zeros(shape),
-         np.zeros(shape)])
+        [np.zeros(shape[:2]), np.zeros(shape[:2]),
+         np.zeros(shape[:2])])
     roi_image_combined_single = np.dstack(
-        [np.zeros(shape), np.zeros(shape),
-         np.zeros(shape)])
+        [np.zeros(shape[:2]), np.zeros(shape[:2]),
+         np.zeros(shape[:2])])
     data_list = []
     colors = []
     if data_1 != "":

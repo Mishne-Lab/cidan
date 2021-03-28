@@ -39,7 +39,7 @@ def create_image_from_eigen_vectors(path, shape):
 
             vectors.append(pickle.load(file)[:, 1:])
     all_vectors = np.hstack(vectors)
-    all_vectors_sum = np.sum(np.abs(all_vectors), axis=1)
+    all_vectors_sum = np.power(np.sum(np.power(all_vectors, 2), axis=1), .5)
     all_vectors_shaped = np.reshape(all_vectors_sum, shape)
     all_vectors_shaped[all_vectors_shaped < 0] = 0
     # if all_vectors_shaped.min()<0:

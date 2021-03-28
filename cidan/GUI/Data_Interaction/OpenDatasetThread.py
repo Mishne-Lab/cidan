@@ -26,9 +26,10 @@ class OpenDatasetThread(Thread):
                                                         trials=self.trials,
                                                         save_dir_path=self.save_dir_path,
                                                         save_dir_already_created=self.save_dir_already_created,
-                                                        load_into_mem=self.load_into_mem)
-            self.main_widget.data_handler.calculate_filters(self.reportProgress,
-                                                            auto_crop=self.auto_crop)
+                                                        load_into_mem=self.load_into_mem,
+                                                        auto_crop=self.auto_crop)
+            # self.main_widget.data_handler.calculate_filters(self.reportProgress,
+            #                                                 auto_crop=self.auto_crop)
 
             self.signal.sig.emit(True)
         else:
@@ -37,9 +38,10 @@ class OpenDatasetThread(Thread):
                                                             trials=self.trials,
                                                             save_dir_path=self.save_dir_path,
                                                             save_dir_already_created=self.save_dir_already_created,
-                                                            load_into_mem=self.load_into_mem)
-                self.main_widget.data_handler.calculate_filters(self.reportProgress,
-                                                                auto_crop=self.auto_crop)
+                                                            load_into_mem=self.load_into_mem,
+                                                            auto_crop=self.auto_crop)
+                # self.main_widget.data_handler.calculate_filters(self.reportProgress,
+                #                                                 auto_crop=auto_cropself.auto_crop)
                 self.signal.sig.emit(True)
             except Exception as e:
                 logger.error(e)
@@ -64,7 +66,7 @@ class OpenDatasetThread(Thread):
             self.main_widget.console.updateText("Opening Dataset")
 
             # self.button.setEnabled(False)
-            if not save_dir_already_created:
+            if not save_dir_already_created and self.load_into_mem and len(trials) == 1:
                 msg = QMessageBox()
                 msg.setIcon(QMessageBox.Information)
                 msg.setStyleSheet(qdarkstyle.load_stylesheet())

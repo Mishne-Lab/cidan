@@ -37,18 +37,18 @@ def calculate_time_traces(self, report_progress=None):
     for x in self.time_traces.keys():
         for _ in range(len(self.rois)):
             self.time_traces[x].append([])
-            for _ in range(1 if self.single_dataset_mode else len(self.signal_dataself.trials_all)):
+            for _ in range(1 if self.single_dataset_mode else len(self.trials_all)):
                 self.time_traces[x][-1].append(False)
     calc_list = []
     roi_time_traces_by_pixel = []
     for _ in range(len(self.rois)):
         roi_time_traces_by_pixel.append([])
-        for _ in range(1 if self.single_dataset_mode else len(self.signal_dataself.trials_all)):
+        for _ in range(1 if self.single_dataset_mode else len(self.trials_all)):
             roi_time_traces_by_pixel[-1].append(False)
     roi_neuropil_traces_by_pixel = []
     for _ in range(len(self.rois)):
         roi_neuropil_traces_by_pixel.append([])
-        for _ in range(1 if self.single_dataset_mode else len(self.signal_dataself.trials_all)):
+        for _ in range(1 if self.single_dataset_mode else len(self.trials_all)):
             roi_neuropil_traces_by_pixel[-1].append(False)
 
 
@@ -134,12 +134,12 @@ def calculate_time_traces(self, report_progress=None):
                         self.time_traces[key][roi_counter][trial_num] = \
                             self.time_trace_possibilities_functions[key](
                                 roi_data_denoised[trial_num],
-                                neuropil_data_denoised[trial_num], roi)
+                                neuropil_data_denoised[trial_num])
                 else:
                     for trial_num in self.trials_loaded_time_trace_indices:
                         self.time_traces[key][roi_counter][trial_num] = \
                             self.time_trace_possibilities_functions[key](
-                                roi_data[trial_num], neuropil_data[trial_num], roi)
+                                roi_data[trial_num], neuropil_data[trial_num])
             if report_progress is not None:
                 printProgressBar(
                     len(

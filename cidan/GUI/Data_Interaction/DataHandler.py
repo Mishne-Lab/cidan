@@ -1,12 +1,7 @@
 import logging
 from math import ceil
 
-import logging
-from math import ceil
-
 import numpy as np
-import zarr
-from dask import delayed
 
 from cidan.GUI.Data_Interaction.data_handler_functions.change_param import *
 from cidan.GUI.Data_Interaction.data_handler_functions.export import \
@@ -21,7 +16,7 @@ from cidan.GUI.Data_Interaction.data_handler_functions.save_functions import \
 from cidan.GUI.Data_Interaction.data_handler_functions.time_trace_functions import \
     calculate_time_traces, get_time_trace
 from cidan.LSSC.SpatialBox import SpatialBox
-from cidan.LSSC.functions.data_manipulation import auto_crop
+from cidan.LSSC.functions.data_manipulation import auto_crop as auto_crop_func
 from cidan.LSSC.functions.eigen import loadEigenVectors
 from cidan.LSSC.functions.pickle_funcs import *
 from cidan.TimeTrace.deltaFOverF import calculateDeltaFOverF
@@ -52,14 +47,14 @@ class DataHandler:
     """
     # x is for roi data, y is for neuropil data, z is roi data denoised
     time_trace_possibilities_functions = {
-        "Mean Florescence Denoised": lambda x, y: calculateMeanTrace(x, y),
+        # "Mean Florescence Denoised": lambda x, y: calculateMeanTrace(x, y),
         "Mean Florescence": lambda x, y: calculateMeanTrace(x, y),
-        "DeltaF Over F Denoised": lambda x, y: calculateDeltaFOverF(x, y),
+        # "DeltaF Over F Denoised": lambda x, y: calculateDeltaFOverF(x, y),
         "DeltaF Over F": lambda x, y: calculateDeltaFOverF(x, y),
-        "Mean Floresence Denoised (Neuropil Corrected)": lambda x,
-                                                                y: calculateMeanTrace(x,
-                                                                                      y,
-                                                                                      sub_neuropil=True),
+        # "Mean Floresence Denoised (Neuropil Corrected)": lambda x,
+        #                                                         y: calculateMeanTrace(x,
+        #                                                                               y,
+        #                                                                               sub_neuropil=True),
         "Mean Floresence  (Neuropil Corrected)": lambda x, y: calculateMeanTrace(x,
                                                                                  y,
 
@@ -68,11 +63,11 @@ class DataHandler:
                                                                                  y,
 
                                                                                  sub_neuropil=True),
-        "DeltaF Over F Denoised (Neuropil Corrected)": lambda x,
-                                                              y: calculateDeltaFOverF(x,
-                                                                                      y,
-
-                                                                                      sub_neuropil=True),
+        # "DeltaF Over F Denoised (Neuropil Corrected)": lambda x,
+        #                                                       y: calculateDeltaFOverF(x,
+        #                                                                               y,
+        #
+        #                                                                               sub_neuropil=True),
         "Neuropil": lambda x, y: neuropil(x, y)
     }
     _global_params_default = {
@@ -98,7 +93,7 @@ class DataHandler:
         "crop_x": [0, 0],
         "crop_y": [0, 0],
         "trial_split": False,
-        "trial_length": 35,
+        "trial_length": 400,
         "auto_crop": False
     }
 
@@ -132,8 +127,8 @@ class DataHandler:
         "elbow_threshold_method": True,
         "elbow_threshold_value": .95,
         "eigen_threshold_method": True,
-        "eigen_threshold_value": .1,
-        "num_eigen_vector_select": 5,
+        "eigen_threshold_value": .9,
+        "num_eigen_vector_select": 1,
         "merge_temporal_coef": .9,
         "roi_size_min": 30,
         "roi_size_max": 600,
@@ -152,7 +147,7 @@ class DataHandler:
     }
 
     def __init__(self, data_path, save_dir_path, save_dir_already_created, trials=[],
-                 parameter_file=False, load_into_mem=True):
+                 parameter_file=False, load_into_mem=True, auto_crop=False):
         """
         Initializes the object
         Parameters
@@ -207,7 +202,7 @@ class DataHandler:
         elif save_dir_already_created:  # this loads everything from the save dir
             valid = self.load_param_json()
             self.time_trace_params = DataHandler._time_trace_params_default.copy()
-            if self.dataset_params["single_file_mode"] and not load_into_mem:
+            if self.dataset_params["single_file_mode"] and not self.load_into_mem:
                 if not os.path.isdir(
                         os.path.join(self.save_dir_path, "temp_files/dataset.zarr")):
                     self.transform_data_to_zarr()
@@ -248,7 +243,6 @@ class DataHandler:
                 self.global_params["need_recalc_box_params"] = temp
             # if there are ROIs saved in the save dir load them and calculate time
             # traces
-            self.reset_data()
 
             if self.rois_exist:
                 try:
@@ -278,10 +272,14 @@ class DataHandler:
             if not os.path.isdir(
                     os.path.join(data_path, trials[0])) and len(
                 self.trials_loaded) == 1:
-                self.dataset_params["single_file_mode"] = True
+                self.dataset_params[
+                    "single_file_mode"] = True  # this is different from single dataset mode which is if the len(self.data_list)==1
+            if len(self.trials_loaded) > 1:
+                self.dataset_params["original_folder_trial_split"] = trials
+
             if len(self.trials_loaded) == 1:
                 self.dataset_params["trial_split"] = True
-                self.dataset_params["original_folder_trial_split"] = trials[0]
+                self.dataset_params["original_folder_trial_split"] = [trials[0]]
             # these are all files in the data_path directory if the user wants to
             # calculate time traces than for more trials than they originally loaded
             self.trials_all = sorted(os.listdir(data_path))
@@ -301,9 +299,7 @@ class DataHandler:
 
 
             self.load_dataset([os.path.join(self.dataset_params["dataset_folder_path"],x) for x in self.trials_loaded ])
-            if self.auto_crop:
-                self.dataset_params["auto_crop"]=False
-                auto_crop(self.dataset_list)
+
 
 
             self._trials_loaded_indices = [num for num, x in enumerate(self.trials_all)
@@ -311,10 +307,22 @@ class DataHandler:
             self.trials_loaded_time_trace_indices = [num for num, x in
                                                      enumerate(self.trials_all)
                                                      if x in self.trials_loaded]
-            self.reset_data()
 
+            if auto_crop:
+                self.dataset_params["auto_crop"] = False
+                self.dataset_params["crop_x"], self.dataset_params[
+                    "crop_y"] = auto_crop_func(self.dataset_list)
+                self.dataset_params["crop_stack"] = True
+                self.reset_data()
 
-            self.dataset_trials_filtered[self._trials_loaded_indices[0]].compute()
+                self.dataset_trials_filtered[self._trials_loaded_indices[0]].compute()
+            else:
+                self.reset_data()
+
+                self.dataset_trials_filtered[self._trials_loaded_indices[0]].compute()
+                self.dataset_params["crop_x"] = [0, self.shape[0]]
+                self.dataset_params["crop_y"] = [0, self.shape[1]]
+
             self.save_new_param_json()
 
     def __del__(self):
@@ -383,8 +391,8 @@ class DataHandler:
     @property
     def single_dataset_mode(self):
         # basically whether there are original trials
-        return self.dataset_params[
-            "original_folder_trial_split"] != ""
+        return len(self.dataset_params[
+                       "original_folder_trial_split"]) == 1
     def load_rois(self):
         """
         Loads the ROIs if they exist and then generates the other variables associated
@@ -464,7 +472,7 @@ class DataHandler:
         return transform_data_to_zarr(self)
 
     def update_trial_list(self):
-        if not self.dataset_params["trial_split"]:
+        if not self.dataset_params["trial_split"] and self.single_dataset_mode:
             self.trials_loaded = ["0"]
             self.trials_all = self.trials_loaded.copy()
             self.box_params["total_num_time_steps"] = len(self.trials_loaded)
@@ -475,10 +483,9 @@ class DataHandler:
                                                  "trial_length"]))]
             self.trials_all = self.trials_loaded.copy()
             self.box_params["total_num_time_steps"] = len(self.trials_loaded)
-        elif self.dataset_params["original_folder_trial_split"] != "":
-            self.trials_loaded = [
-                self.dataset_params["original_folder_trial_split"]]
-            self.trials_all = [self.dataset_params["original_folder_trial_split"]]
+        elif not self.single_dataset_mode:
+            self.trials_loaded = self.dataset_params["original_folder_trial_split"]
+            self.trials_all = self.dataset_params["original_folder_trial_split"]
             self.box_params["total_num_time_steps"] = len(self.trials_loaded)
         if self.single_dataset_mode:
             self._trials_loaded_indices = [num for num, x in

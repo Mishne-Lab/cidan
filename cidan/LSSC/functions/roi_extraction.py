@@ -81,7 +81,7 @@ def roi_extract_image(*, e_vectors: np.ndarray,
                           np.array  of pixels roi 2] ... ]
     It will have length num_rois unless max_iter amount is surpassed
     """
-    from CIDAN.LSSC.functions.data_manipulation import cord_2d_to_pixel_num
+    from cidan.LSSC.functions.data_manipulation import cord_2d_to_pixel_num
 
     # if print_info:
     #     print("Spatial Box {}: Starting ROI selection process".format(box_num))
@@ -469,7 +469,7 @@ def select_eigen_vectors(eigen_vectors: np.ndarray,
                          pixels_in_roi: np.ndarray,
                          num_eigen_vector_select: int,
                          threshold_method: bool = False,
-                         threshold: float = .1) -> np.ndarray:
+                         threshold: float = .9) -> np.ndarray:
     """
     Selects eigen vectors that are most descriptive of a set a points
     Parameters
@@ -491,7 +491,9 @@ def select_eigen_vectors(eigen_vectors: np.ndarray,
         dimensions number of pixels in image by numb_eigen_vector_select
 
     """
-    pixel_eigen_vec_values = np.abs(np.sum(eigen_vectors[pixels_in_roi], axis=0))
+    # pixel_eigen_vec_values = np.abs(np.sum(eigen_vectors[pixels_in_roi], axis=0))
+    pixel_eigen_vec_values = np.power(np.sum(eigen_vectors[pixels_in_roi], axis=0), 2)
+
     pixel_eigen_vec_values_sort_indices = np.flip(
         np.argsort(pixel_eigen_vec_values))
     if threshold_method:

@@ -51,7 +51,7 @@ def generateEigenVectors(*, K: sparse.csr_matrix, num_eig: int, maxiter=7,
         D_neg_sqrt.dot(eig_vectors_scaled),
         axis=1)  # this preforms matrix multiplication
 
-    return np.real(eig_vectors)
+    return np.real(eig_vectors)[:, 1:]
 
 
 @delayed
@@ -90,6 +90,7 @@ def saveEmbedingNormImage(*, e_vectors, image_shape, save_dir, spatial_box_num):
     embed_dir = os.path.join(save_dir, "embedding_norm_images")
     e_vectors_squared = np.power(e_vectors, 2)
     e_vectors_sum = np.sum(e_vectors_squared, axis=1)
+    e_vectors_sum = np.power(e_vectors_sum, .5)
 
     e_vectors_sum_rescaled = e_vectors_sum * (
             10.0 / e_vectors_sum.mean())  # add histogram equalization
@@ -129,6 +130,8 @@ def createEmbedingNormImageFromMultiple(*, spatial_box_list, save_dir, num_time_
 
             e_vectors_squared = np.power(e_vectors, 2)
             e_vectors_sum = np.sum(e_vectors_squared, axis=1)
+            e_vectors_sum = np.power(e_vectors_sum, .5)
+
             temp.append(e_vectors_sum)
 
         e_vectors_list.append(np.max(temp, axis=0))

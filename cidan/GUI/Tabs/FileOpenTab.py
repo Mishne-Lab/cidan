@@ -56,8 +56,9 @@ class FileOpenTab(Tab):
                                      trials=self.trial_list_widget.selectedTrials(),
                                      single=self.folder_open_single_trial.current_state(),
                                      load_into_mem=self.folder_load_into_mem.current_state()))
-        self.folder_open_single_trial = BoolInput("Open folder as single trial", "",
-                                                  None, False, "")
+        self.folder_open_single_trial = BoolInput(
+            "Open folder as single trial\n(Tiff images only, stacks not supported)", "",
+            None, False, "")
         self.folder_load_into_mem = BoolInput("Load data into memory", "", None, True,
                                               "")
         prev_session_open_button = QPushButton()
@@ -67,13 +68,13 @@ class FileOpenTab(Tab):
             lambda: load_prev_session(main_widget, save_dir_load.current_state()))
         file_open = Tab("File Open", column_2=[], column_2_display=False,
                         column_1=[dataset_file_input, save_dir_new_file,
-                                  self.file_load_into_mem,
+                                  # self.file_load_into_mem,
                                   file_open_button, file_demo_button])
         folder_open = Tab("Folder Open", column_2=[self.trial_list_widget],
                           column_2_display=True,
                           column_1=[dataset_folder_input, save_dir_new_folder,
                                     self.folder_open_single_trial,
-                                    self.folder_load_into_mem,
+                                    # self.folder_load_into_mem,
                                     folder_open_button]
                           )
         prev_session_open = Tab("Previous Session Open", column_2=[],

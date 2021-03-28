@@ -5,7 +5,7 @@ import scipy.stats
 
 def waveletDenoise(data):
     # data is num_neurons x time_frames
-
+    return data
     wavelet = pywt.Wavelet('db4')
 
     # Determine the maximum number of possible levels for image

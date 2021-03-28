@@ -20,7 +20,7 @@ def create_graph(time_trace_path, out, roi_select=""):
         x_var = np.arange(1, time_stack_scaled.shape[1] + 1)
         plt.figure(num)
         for num, x in enumerate(time_traces_scaled):
-            print((x + num).min(), (x + num).max(), np.mean(x))
+            # print((x + num).min(), (x + num).max(), np.mean(x))
             plt.plot(x_var, x + num - np.mean(x), color="black", linewidth=.5)
         plt.savefig(out[:-4] + key.replace(" ", "_") + ".png")
 

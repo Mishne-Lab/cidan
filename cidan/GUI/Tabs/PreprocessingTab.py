@@ -6,7 +6,7 @@ from cidan.GUI.Data_Interaction.PreprocessThread import PreprocessThread
 from cidan.GUI.Inputs.OptionInput import OptionInput
 from cidan.GUI.SettingWidget.SettingsModule import preprocessing_settings
 from cidan.GUI.Tabs.Tab import Tab
-import numpy as np
+
 
 class PreprocessingTab(Tab):
     """Class controlling the Preprocessing tab, inherits from Tab
@@ -121,7 +121,16 @@ class PreprocessingTab(Tab):
         -------
         Nothing
         """
-
+        if hasattr(self.data_handler, "total_size"):
+            total_size = (
+                str(self.data_handler.total_size[0]),
+                str(self.data_handler.total_size[1]))
+        else:
+            total_size = [0, 0]
+        if len(data_list[0].shape) == 3:
+            cur_size = [str(data_list[0].shape[1]), str(data_list[0].shape[2])]
+        else:
+            cur_size = [str(data_list[0].shape[0]), str(data_list[0].shape[1])]
         def set_image(x, trial_name):
             def end_func():
                 try:
@@ -129,51 +138,64 @@ class PreprocessingTab(Tab):
                         data_list[trial_names.index(trial_name)][:])
                     self.main_widget.console.updateText(
                         "Loaded filtered trial %s" % str(trial_name))
+                    self.image_view.image_label.setText(
+                        "Trial: %s, " % str(
+                            trial_name) + name + ", Original Size: (%s, %s), Cropped Size: (%s, %s)" % (
+                            total_size[1], total_size[0], cur_size[1], cur_size[0]))
+                    self.current_trial_name = trial_name
                 except TypeError:
                     self.updateTab()
-            try:
-                if type(data_list[trial_names.index(trial_name)])== bool or \
-                        type(self.data_handler.dataset_trials_filtered_loaded[trial_names.index(trial_name)])==type(dask.delayed(min)()):
-                    self.main_widget.console.updateText(
-                        "Applying filters to trial %s" % str(trial_name))
-                    self.main_widget.calculate_single_trial_thread.runThread(trial_names.index(trial_name),end_func)
-                else:
-                    self.main_widget.preprocess_image_view.setImage(
-                        data_list[trial_names.index(trial_name)][:])
-                    self.main_widget.console.updateText(
-                        "Loaded filtered trial %s" % str(trial_name))
-            except TypeError:
-                self.updateTab()
 
-        if hasattr(self, "trial_selector_input"):
-            self.trial_selector_input.setParent(None)
-        if hasattr(self, "trial_selector_input"):
-            current = self.trial_selector_input.input_box.currentIndex()
-        else:
-            current = 0
-        # if button != None:
-        #     button.setStyleSheet("QPushButton {border 1px solid #148CD2; }")
-        self.trial_selector_input = OptionInput("", "", set_image, val_list=trial_names,
-                                                tool_tip="Select time block to display",
-                                                display_tool_tip=False, default_index=0,
-                                                show_name=False)
-        self.trial_selector_input.input_box.setCurrentIndex(current)
-        self._image_buttons_layout.addWidget(self.trial_selector_input)
-        set_image("", trial_names[current])
-        if len(data_list[0].shape) == 3:
-            cur_size = [str(data_list[0].shape[1]), str(data_list[0].shape[2])]
-        else:
-            cur_size = [str(data_list[0].shape[0]), str(data_list[0].shape[1])]
-        if hasattr(self.data_handler, "total_size"):
-            total_size = (
-            str(self.data_handler.total_size[0]), str(self.data_handler.total_size[1]))
-        else:
-            total_size = [0, 0]
-        self.image_view.image_label.setText(
-            name + ", Original Size: (%s, %s), Cropped Size: (%s, %s)" % (
-            total_size[1], total_size[0], cur_size[1], cur_size[0]))
-        self.main_widget.console.updateText("Setting current background to: %s" % name)
+            if (self.main_widget.checkThreadRunning()):
+                try:
+                    if type(data_list[trial_names.index(trial_name)]) == bool or \
+                            type(self.data_handler.dataset_trials_filtered_loaded[
+                                     trial_names.index(trial_name)]) == type(
+                        dask.delayed(min)()):
+                        self.main_widget.console.updateText(
+                            "Applying filters to trial %s" % str(trial_name))
+                        self.main_widget.calculate_single_trial_thread.runThread(
+                            trial_names.index(trial_name), end_func)
+                    else:
+                        self.main_widget.preprocess_image_view.setImage(
+                            data_list[trial_names.index(trial_name)][:])
+                        self.main_widget.console.updateText(
+                            "Loaded filtered trial %s" % str(trial_name))
+                        self.image_view.image_label.setText(
+                            "Trial: %s, " % str(
+                                trial_name) + name + ", Original Size: (%s, %s), Cropped Size: (%s, %s)" % (
+                                total_size[1], total_size[0], cur_size[1], cur_size[0]))
+                        self.current_trial_name = trial_name
+                except TypeError:
+                    self.updateTab()
+            elif self.trial_selector_input.current_state() != self.current_trial_name:
+                self.trial_selector_input.set_val(self.current_trial_name)
+                print("Please wait until current process is done")
 
+        if (self.main_widget.checkThreadRunning()):
+            if hasattr(self, "trial_selector_input"):
+                self.trial_selector_input.setParent(None)
+            if hasattr(self, "trial_selector_input"):
+                current = self.trial_selector_input.input_box.currentIndex()
+            else:
+                current = 0
+            # if button != None:
+            #     button.setStyleSheet("QPushButton {border 1px solid #148CD2; }")
+            self.trial_selector_input = OptionInput("", "", set_image,
+                                                    val_list=trial_names,
+                                                    tool_tip="Select time block to display",
+                                                    display_tool_tip=False,
+                                                    default_index=0,
+                                                    show_name=False)
+            self.trial_selector_input.input_box.setCurrentIndex(current)
+            self._image_buttons_layout.addWidget(self.trial_selector_input)
+            self.current_trial_name = trial_names[current]
+            set_image("", trial_names[current])
+
+            self.main_widget.console.updateText(
+                "Setting current background to: %s" % name)
+        else:
+            print("Please wait until current process is done")
     def set_image_display(self, data):
         self.trial_selector_input.setParent(None)
         self.trial_selector_input = OptionInput("", "", lambda x, y: 3,

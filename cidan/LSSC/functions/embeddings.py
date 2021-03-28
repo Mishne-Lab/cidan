@@ -106,11 +106,13 @@ def calcAffinityMatrix(*, pixel_list: np.ndarray, metric: str, knn: int,
     # save_image(K_sym.todense(),0)
     # print(str(temporal_box_num)+" "+str(spatial_box_num) + "  " + str(
     #     np.count_nonzero(K_sym.diagonal()) / K_sym.diagonal().shape[0]))
-    with open(os.path.join(save_dir, "temp_files/embedding/s_%s_t_%s" % (
-    str(spatial_box_num), str(temporal_box_num))), "w") as f:
-        f.write("done")
-    printProgressBarROI(total_num_spatial_boxes, total_num_time_steps, save_dir,
-                        progress_signal=progress_signal)
+    if save_dir is not None:
+        with open(os.path.join(save_dir, "temp_files/embedding/s_%s_t_%s" % (
+                str(spatial_box_num), str(temporal_box_num))), "w") as f:
+            f.write("done")
+    if progress_signal is not None:
+        printProgressBarROI(total_num_spatial_boxes, total_num_time_steps, save_dir,
+                            progress_signal=progress_signal)
     return K_sym
 
 
@@ -127,6 +129,8 @@ def save_image(image, num):
     # plt.close()
     # image
     # img.save(image_path)
+
+
 def calcDInv(K: sparse.csr_matrix):
     """Calculates a scaling diagonal matrix D to rescale eigen vectors
 
@@ -140,7 +144,7 @@ def calcDInv(K: sparse.csr_matrix):
     """
     dim = K.shape[0]
     D_diag_inv = 1 / (
-                K.sum(axis=1) + .000000001)  # add small epsilon to each row in K.sum()
+            K.sum(axis=1) + .000000001)  # add small epsilon to each row in K.sum()
 
     # D_diag = 1 / K.sum(axis=1)
     # print("D_diag",D_diag)

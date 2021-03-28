@@ -5,7 +5,6 @@ from typing import Tuple, List
 import matplotlib.pyplot as plt
 import numpy as np
 import tifffile
-import zarr
 from PIL import Image
 from dask import delayed
 from scipy import ndimage, sparse
@@ -13,6 +12,7 @@ from scipy import ndimage, sparse
 from sklearn.decomposition import PCA
 
 from cidan.LSSC.functions.embeddings import calcDInv
+
 
 def load_tif_stack(path, convert_to_32=True):
     """
@@ -244,6 +244,7 @@ def auto_crop(dataset_list):
                 x_iter_2 += 1
             else:
                 break
+        suggested_crops[num] = [[x_iter_1, x_iter_2], [y_iter_1, y_iter_2]]
     crop_size = [[max([x[0][0] for x in suggested_crops]),
              -max([x[0][1] for x in suggested_crops])],
             [max([x[1][0] for x in suggested_crops]),
