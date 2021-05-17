@@ -1,0 +1,84 @@
+{
+  "global_params": {
+    "save_intermediate_steps": true,
+    "need_recalc_dataset_params": false,
+    "need_recalc_filter_params": false,
+    "need_recalc_box_params": false,
+    "need_recalc_eigen_params": false,
+    "need_recalc_roi_extraction_params": false,
+    "load_into_mem": true
+  },
+  "dataset_params": {
+    "dataset_folder_path": "/home/sschickl/Desktop/HigleyData/file4",
+    "trials_loaded": [
+      "File4_kf158_s.tif"
+    ],
+    "trials_all": [
+      "File4_kf158_s.tif"
+    ],
+    "single_file_mode": true,
+    "original_folder_trial_split": [
+      "File4_kf158_s.tif"
+    ],
+    "slice_stack": false,
+    "slice_every": 3,
+    "slice_start": 0,
+    "crop_stack": true,
+    "crop_x": [
+      10,
+      245
+    ],
+    "crop_y": [
+      10,
+      245
+    ],
+    "trial_split": true,
+    "trial_length": 400,
+    "auto_crop": false
+  },
+  "filter_params": {
+    "median_filter": false,
+    "median_filter_size": 3,
+    "z_score": false,
+    "hist_eq": true,
+    "localSpatialDenoising": true,
+    "pca": false,
+    "pca_threshold": 0.97
+  },
+  "box_params": {
+    "total_num_time_steps": 13,
+    "total_num_spatial_boxes": 1,
+    "spatial_overlap": 40
+  },
+  "eigen_params": {
+    "eigen_vectors_already_generated": false,
+    "num_eig": 50,
+    "normalize_w_k": 32,
+    "metric": "l2",
+    "knn": 50,
+    "accuracy": 75,
+    "eigen_accuracy": 9,
+    "connections": 40
+  },
+  "roi_extraction_params": {
+    "elbow_threshold_method": true,
+    "elbow_threshold_value": 0.9,
+    "eigen_threshold_method": true,
+    "eigen_threshold_value": 0.1,
+    "num_eigen_vector_select": 1,
+    "merge_temporal_coef": 0.80,
+    "roi_size_min": 10,
+    "roi_size_max": 600,
+    "merge": true,
+    "num_rois": 79,
+    "fill_holes": true,
+    "refinement": true,
+    "max_iter": 175,
+    "roi_circ_threshold": 0,
+    "roi_eccentricity_limit": 0.95,
+    "local_max_method": false
+  },
+  "time_trace_params": {
+    "min_neuropil_pixels": 25
+  }
+}

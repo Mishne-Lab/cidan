@@ -9,7 +9,7 @@ import neurofinder
 import pandas
 from PIL import Image
 import re
-import dask
+
 def main():
     parser = argparse.ArgumentParser()
 
@@ -40,8 +40,6 @@ def main():
     else:
         task_list = [os.path.join(args.task_list, o) for o in os.listdir(args.task_list)
                     if os.path.isdir(os.path.join(args.task_list,o))]
-        # +[os.path.join("/home/sschickl/Desktop/HigleyOutAll", o) for o in os.listdir("/home/sschickl/Desktop/HigleyOutAll")
-                    # if os.path.isdir(os.path.join("/home/sschickl/Desktop/HigleyOutAll",o))]
         print(task_list)
 
     def save_image(image, path):
@@ -93,7 +91,7 @@ def main():
                 with open(os.path.join(path, "roi_list.json"), "r") as json_b:
                     json_b_actual = json.load(json_b)
                     for roi in json_b_actual:
-                        roi["coordinates"] = [[x[0]+1, x[1]+1] for x in roi["coordinates"]]
+                        roi["coordinates"] = [[x[0]+11, x[1]+11] for x in roi["coordinates"]]
 
 
                 a = neurofinder.load(os.path.join(path, "roi_true.json") if roi_true_path is None else roi_true_path)
@@ -131,12 +129,12 @@ def main():
                     current_row.append([parameters[x][y]])
 
         rows.append(current_row)
-        files_to_copy = ["background_eigen_norm_image_gray.png"]#, "roi_outline_eigen_norm_image_gray.png", "roi_blob_blank_image_gray.png"]
+        files_to_copy = ["roi_outline_background.png", "roi_blob.png", "roi_blob_background.png", "pca_shape.text"]
         for file in files_to_copy:
-            if os.path.isfile(os.path.join(path, "images/",file)):
+            if os.path.isfile(os.path.join(path, file)):
                 if ".png" in file:
                     Image.open(os.path.join(path,
-                                            "images/",file)).save(
+                                            file)).save(
                         os.path.join(args.output_dir, os.path.basename(path) + "_" + file))
                     if file=="roi_blob.png":
                         try:
@@ -167,12 +165,12 @@ def main():
 
                 else:
                     copyfile(os.path.join(path, file), os.path.join(args.output_dir, os.path.basename(path) + "_" + file))
-        # file = "embedding_norm_images/embedding_norm_image.png"
-        # if os.path.isfile(
-        #         os.path.join(path, file)):
-        #     Image.open(os.path.join(path,
-        #                             file)).save(
-        #         os.path.join(args.output_dir, os.path.basename(path) + "_embedding_norm_image.png"))
+        file = "embedding_norm_images/embedding_norm_image.png"
+        if os.path.isfile(
+                os.path.join(path, file)):
+            Image.open(os.path.join(path,
+                                    file)).save(
+                os.path.join(args.output_dir, os.path.basename(path) + "_embedding_norm_image.png"))
 
     df = pandas.DataFrame(rows, columns=["Seq", "Percision", "Recall", "Inclusion",
                                          "Exclusion", "Combined", "Num Rois truth", "Num rois detected"] + parameter_keys)

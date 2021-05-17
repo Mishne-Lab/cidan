@@ -1,6 +1,7 @@
 import logging
 from math import ceil
 
+import dask
 import numpy as np
 
 from cidan.GUI.Data_Interaction.data_handler_functions.change_param import *
@@ -47,14 +48,14 @@ class DataHandler:
     """
     # x is for roi data, y is for neuropil data, z is roi data denoised
     time_trace_possibilities_functions = {
-        # "Mean Florescence Denoised": lambda x, y: calculateMeanTrace(x, y),
+        "Mean Florescence Denoised": lambda x, y: calculateMeanTrace(x, y),
         "Mean Florescence": lambda x, y: calculateMeanTrace(x, y),
-        # "DeltaF Over F Denoised": lambda x, y: calculateDeltaFOverF(x, y),
+        "DeltaF Over F Denoised": lambda x, y: calculateDeltaFOverF(x, y),
         "DeltaF Over F": lambda x, y: calculateDeltaFOverF(x, y),
-        # "Mean Floresence Denoised (Neuropil Corrected)": lambda x,
-        #                                                         y: calculateMeanTrace(x,
-        #                                                                               y,
-        #                                                                               sub_neuropil=True),
+        "Mean Floresence Denoised (Neuropil Corrected)": lambda x,
+                                                                y: calculateMeanTrace(x,
+                                                                                      y,
+                                                                                      sub_neuropil=True),
         "Mean Floresence  (Neuropil Corrected)": lambda x, y: calculateMeanTrace(x,
                                                                                  y,
 
@@ -63,11 +64,11 @@ class DataHandler:
                                                                                  y,
 
                                                                                  sub_neuropil=True),
-        # "DeltaF Over F Denoised (Neuropil Corrected)": lambda x,
-        #                                                       y: calculateDeltaFOverF(x,
-        #                                                                               y,
-        #
-        #                                                                               sub_neuropil=True),
+        "DeltaF Over F Denoised (Neuropil Corrected)": lambda x,
+                                                              y: calculateDeltaFOverF(x,
+                                                                                      y,
+
+                                                                                      sub_neuropil=True),
         "Neuropil": lambda x, y: neuropil(x, y)
     }
     _global_params_default = {
@@ -192,11 +193,18 @@ class DataHandler:
             self.trials_loaded_time_trace_indices = [num for num, x in
                                                      enumerate(self.trials_all)
                                                      if x in self.trials_loaded]
+
             self.load_dataset(
                 [os.path.join(self.dataset_params["dataset_folder_path"], x) for
                  x
                  in self.trials_loaded])
             self.reset_data()
+            dask.compute(*self.dataset_trials_filtered_loaded)
+            self.global_params["need_recalc_filter_params"] = False
+            self.global_params[
+                "need_recalc_dataset_params"] = False
+
+
 
 
         elif save_dir_already_created:  # this loads everything from the save dir
@@ -611,6 +619,9 @@ class DataHandler:
             self.reset_data()
             self.save_new_param_json()
             self.dataset_trials_filtered[self._trials_loaded_indices[0]].compute()
+            self.global_params["need_recalc_filter_params"] =False
+            self.global_params[
+                "need_recalc_dataset_params"] =False
     def update_selected_trials(self, selected_trials):
         """
         Updates the loaded trials so don't have unnecessary loaded trials
