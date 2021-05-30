@@ -149,13 +149,16 @@ def save_image(self, image, path):
                vmin=0, vmax=255)
 
 
-def create_image_from_eigen_vectors(path, shape):
-    onlyfiles = [f for f in listdir(path) if isfile(join(path, f))]
-    vectors = []
-    for x in onlyfiles:
-        with open(os.path.join(path, x), "rb") as file:
-            vectors.append(pickle.load(file)[:, 1:])
-    all_vectors = np.hstack(vectors)
+def create_image_from_eigen_vectors(path, shape, vectors=None):
+    if vectors is None:
+        onlyfiles = [f for f in listdir(path) if isfile(join(path, f))]
+        vectors = []
+        for x in onlyfiles:
+            with open(os.path.join(path, x), "rb") as file:
+                vectors.append(pickle.load(file)[:, 1:])
+        all_vectors = np.hstack(vectors)
+    else:
+        all_vectors = vectors
     all_vectors_sum = np.power(np.sum(np.power(all_vectors, 2), axis=1), .5)
     all_vectors_shaped = np.reshape(all_vectors_sum, shape)
     all_vectors_shaped[all_vectors_shaped < 0] = 0

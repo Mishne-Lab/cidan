@@ -281,17 +281,18 @@ def roi_extract_image(*, e_vectors: np.ndarray,
     if merge:
         roi_list = merge_rois(roi_list,
                               temporal_coefficient=merge_temporal_coef,
-                              original_2d_vol=original_2d_vol, roi_eccentricity_limit=roi_eccentricity_limit)
+                              original_2d_vol=original_2d_vol,
+                              roi_eccentricity_limit=roi_eccentricity_limit)
         if fill_holes:
             roi_list = fill_holes_func(roi_list, pixel_length, original_shape)
     if wide_field:
         # handles overlapping rois
         roi_list = remove_overlap_widefield(roi_list, mask, original_shape, e_vectors)
-    new_rois_filtered= []
-    for roi in roi_list:
-        if roi_eccentricity(pixel_length,original_shape,roi)<=roi_eccentricity_limit:
-            new_rois_filtered.append(roi)
-    roi_list=new_rois_filtered
+    # new_rois_filtered= []
+    # for roi in roi_list:
+    #     if roi_eccentricity(pixel_length,original_shape,roi)<=roi_eccentricity_limit:
+    #         new_rois_filtered.append(roi)
+    # roi_list=new_rois_filtered
     # print("Went through " + str(total_counter) + " iterations")
     if print_progress:
         with open(os.path.join(save_dir, "temp_files/rois/s_%s" % str(box_num)),
@@ -603,12 +604,31 @@ def merge_rois(roi_list: List,
         List of new rois in format: [[np.array of pixels roi 1],
         [np.array  of pixels roi 2] ... ]
     """
-    A = np.zeros([original_2d_vol.shape[0], len(roi_list)], dtype=bool)
+    A = np.zeros([original_2d_vol.shape[0], len(roi_list)], dtype=bool)  # create 2d
+    # matrix of zeros with dims number of pixels in image by number of rois
+    # Change pixels of each roi to 1
     for num, roi in enumerate(roi_list):
         A[roi, num] = True
+    # Create graph of which rois have pixels which intersect with each other.
     A_graph = np.matmul(A.transpose(), A)
-    A_csr = csr_matrix(A_graph)
+    connected_rois = np.nonzero(A_graph)
+    # print(A_graph)
+    timetraces = [np.mean(original_2d_vol[roi], axis=0) for roi in roi_list]
+    A_graph_new = A_graph.astype(float)
+    # print(list(zip(*connected_rois)))
+    for x in list(zip(*connected_rois)):
+        if A_graph[x[0], x[1]] == True and x[0] != x[1]:
+            A_graph_new[x[0], x[1]] = compare_time_traces(timetraces[x[0]],
+                                                          timetraces[x[1]])
+            # print(A_graph_new[x[0],x[1]])
+            A_graph_new[x[1], x[0]] = A_graph_new[x[0], x[1]]
+            A_graph[x[0], x[1]] = False
+            A_graph_new[x[1], x[0]] = False
+    A_components_to_merge = A_graph_new >= temporal_coefficient
+    A_csr = csr_matrix(A_components_to_merge)
+    # Use connected components to group these rois together
     connected = connected_components_graph(A_csr, False, return_labels=True)
+    # processes connected components putting each group of rois into roi_groups list
     roi_groups = [[] for _ in range(len(roi_list))]
     for num in range(len(roi_list)):
         roi_groups[connected[1][num]].append(roi_list[num])
@@ -616,39 +636,10 @@ def merge_rois(roi_list: List,
     new_rois = []
     for group in roi_groups:
         if len(group) != 0:
+            # combine those rois that should be merged with first roi.
+            first_roi = list(reduce(combine_rois, group))
 
-
-            timetraces = [np.mean(original_2d_vol[roi], axis=0) for roi in group]
-            while len(group) > 0:
-                roi_sizes = [x.shape[0] for x in group]
-                first_roi = group.pop(roi_sizes.index(max(roi_sizes)))
-                timetrace_first = timetraces.pop(roi_sizes.index(max(roi_sizes)))
-                similarity = [np.count_nonzero(np.in1d(x, first_roi,
-                                                       assume_unique=True,
-                                                       invert=False)) for x in group]
-
-                group = [group[x] for x in list(np.argsort(similarity))][::-1]
-                timetraces = [timetraces[x] for x in list(np.argsort(similarity))][::-1]
-                group_zipped = list(enumerate(group))
-                rois_to_merge = []
-                for num, roi in group_zipped:
-                    if compare_time_traces(timetrace_first,
-                                           timetraces[num]) > temporal_coefficient and any([x in roi for x in first_roi]):
-                        rois_to_merge.append(num)
-                first_roi = list(reduce(combine_rois,
-                                        [first_roi] + [group_zipped[x][1] for x in
-                                                       rois_to_merge]))
-                cur_num = 0
-                while len(rois_to_merge) > 0 and cur_num < len(group_zipped):
-                    if group_zipped[cur_num][0] in rois_to_merge:
-                        rois_to_merge.remove(group_zipped[cur_num][0])
-                        group_zipped.pop(cur_num)
-
-                    else:
-                        cur_num += 1
-
-                new_rois.append(np.array(first_roi))
-                group = [y for x, y in group_zipped]
+            new_rois.append(np.array(first_roi))
 
     return new_rois
 
