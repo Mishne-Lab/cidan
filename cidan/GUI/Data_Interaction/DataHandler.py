@@ -116,9 +116,9 @@ class DataHandler:
     _eigen_params_default = {
         "eigen_vectors_already_generated": False,
         "num_eig": 50,
-        "normalize_w_k": 25,
+        "normalize_w_k": 32,
         "metric": "l2",
-        "knn": 32,
+        "knn": 50,
         "accuracy": 75,
         "eigen_accuracy": 8,
         "connections": 40
@@ -171,6 +171,7 @@ class DataHandler:
         self.color_list = [(218, 67, 34),
                            (132, 249, 22), (22, 249, 140), (22, 245, 249),
                            (22, 132, 249), (224, 22, 249), (249, 22, 160)]
+
 
         self.save_dir_path = save_dir_path
         self.time_trace_possibilities_functions = DataHandler.time_trace_possibilities_functions
