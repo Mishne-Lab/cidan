@@ -8,7 +8,9 @@ from cidan.GUI.Data_Interaction.CalculateSingleTrialThread import \
 from cidan.GUI.Data_Interaction.DemoDownloadThread import DemoDownloadThread
 from cidan.GUI.Data_Interaction.OpenDatasetThread import OpenDatasetThread
 from cidan.GUI.Tabs.AnalysisTab import AnalysisTab
+from cidan.GUI.Tabs.ClassificationTab import ClassificationTab
 
+os.environ['QT_MAC_WANTS_LAYER'] = '1'
 os.environ['QT_API'] = 'pyside2'
 from qtpy.QtWidgets import QTabWidget
 from cidan.GUI.Tabs.FileOpenTab import FileOpenTab, createFileDialog
@@ -172,23 +174,23 @@ class MainWidget(QWidget):
         self.thread_list.append(self.calculate_single_trial_thread)
 
         # Initialize top bar menu
-        fileMenu = self.main_menu.addMenu('&File')
+        self.fileMenu = self.main_menu.addMenu('&File')
         openFileAction = QAction("Open File", self)
         openFileAction.setStatusTip('Open a single file')
         openFileAction.triggered.connect(lambda: self.selectOpenFileTab(0))
-        fileMenu.addAction(openFileAction)
+        self.fileMenu.addAction(openFileAction)
         openFolderAction = QAction("Open Folder", self)
         openFolderAction.setStatusTip('Open a folder')
         openFolderAction.triggered.connect(lambda: self.selectOpenFileTab(1))
-        fileMenu.addAction(openFolderAction)
+        self.fileMenu.addAction(openFolderAction)
         openPrevAction = QAction("Open Previous Session", self)
         openPrevAction.setStatusTip('Open a previous session')
         openPrevAction.triggered.connect(lambda: self.selectOpenFileTab(2))
-        fileMenu.addAction(openPrevAction)
+        self.fileMenu.addAction(openPrevAction)
         openPrevAction = QAction("Download and Open Demo Dataset", self)
         openPrevAction.setStatusTip('Download and Open Demo Dataset')
         openPrevAction.triggered.connect(lambda: self.downloadOpenDemo())
-        fileMenu.addAction(openPrevAction)
+        self.fileMenu.addAction(openPrevAction)
         # Below here in this function is just code for testing
         # TODO check if it can load data twice
         if preload and dev:
@@ -237,7 +239,8 @@ class MainWidget(QWidget):
 
         # TODO add to export tab to export all time traces or just currently caclulated ones
         self.tabs = [PreprocessingTab(self), ROIExtractionTab(self), AnalysisTab(self)]
-
+        if self.dev:
+            self.tabs.insert(2, ClassificationTab(self))
         # Add tabs
         for tab in self.tabs:
             self.tab_widget.addTab(tab, tab.name)
@@ -258,10 +261,49 @@ class MainWidget(QWidget):
             export_action.setStatusTip('Export Time Traces/ROIs')
             export_action.triggered.connect(lambda: self.exportStuff())
             self.export_menu.addAction(export_action)
+        if not hasattr(self, "importjson"):
+            self.import_json = QAction("Import Json", self)
+            self.import_json.setStatusTip('Import Json')
+            self.import_json.triggered.connect(lambda: self.openNewJSON())
+            self.fileMenu.addAction(self.import_json)
 
     def selectOpenFileTab(self, index):
         self.tab_widget.setCurrentIndex(0)
         self.fileOpenTab.tab_selector.setCurrentIndex(index)
+
+    def openNewJSON(self):
+        import json
+        path = createFileDialog(directory="~/Desktop", forOpen=True,
+                                isFolder=False, name="Select Json")
+        with open(path, "r") as f:
+            # test2=f.read()
+            test = json.loads(f.read())
+        try:
+            print("Importing json")
+            if self.data_handler.dataset_params["crop_stack"]:
+                rois = [[(y[0] - self.data_handler.dataset_params["crop_x"][0],
+                          y[1] - self.data_handler.dataset_params["crop_y"][0]) for y in
+                         x["coordinates"]] for x in test]
+            else:
+                rois = [[(y[0], y[1]) for y in x["coordinates"]] for x in test]
+
+            from cidan.LSSC.functions.data_manipulation import cord_2d_to_pixel_num
+            self.data_handler.rois = [
+                cord_2d_to_pixel_num(np.array(roi).transpose(), self.data_handler.shape)
+                for roi in rois]
+            self.data_handler.save_rois(self.data_handler.rois)
+
+            self.data_handler.gen_roi_display_variables()
+
+            def temp():
+                self.updateTabs()
+                self.console.updateText("Finished json import")
+
+            [x for x in self.thread_list if type(x) == TimeTraceCalculateThread][
+                0].runThread(temp)
+        except:
+            print(
+                "Error importing json, please make sure json is valid and crop is correct")
 
     def exportStuff(self):
         dialog = QDialog()
@@ -407,6 +449,6 @@ if __name__ == "__main__":
     app = QApplication([])
 
     app.setApplicationName("cidan")
-    widget = MainWindow(dev=True, preload=False)
+    widget = MainWindow(dev=True, preload=True)
 
     sys.exit(app.exec_())

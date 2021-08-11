@@ -8,12 +8,13 @@ class ROIItemWidget(QWidget):
     handled by ROIItemModule
     """
 
-    def __init__(self, roi_tab, color, roi_list, roi_num, parent=None,
-                  display_time=True):
+    def __init__(self, roi_tab, color, roi_list, id, roi_num, parent=None,
+                 display_time=True):
         self.roi_tab = roi_tab
         self.roi_list = roi_list
         self.display_time = display_time
         self.roi_num = roi_num
+        self.id = id
         super(ROIItemWidget, self).__init__(parent)
         self.setStyleSheet("""QPushButton {background-color: rgba(0,0,0,0%);
         padding-left:3px;
@@ -52,7 +53,7 @@ class ROIItemWidget(QWidget):
 
         lay = QHBoxLayout(self)
         lay.addWidget(self.check_box, alignment=QtCore.Qt.AlignLeft)
-        lay.addWidget(QLabel(text="#" + str(roi_num)), alignment=QtCore.Qt.AlignLeft)
+        lay.addWidget(QLabel(text="#" + str(id)), alignment=QtCore.Qt.AlignLeft)
         if display_time:
             lay.addWidget(QLabel())
             lay.addWidget(QLabel())
@@ -76,12 +77,20 @@ class ROIItemWidget(QWidget):
             if not self.display_time:
                 self.check_box_time_trace.setChecked(True)
             self.roi_list.current_selected_roi = self.roi_num
+            try:
+                self.roi_tab.update_current_roi_selected()
+            except AttributeError:
+                pass
 
         else:
             self.check_box.setChecked(False)
             if not self.display_time:
                 self.check_box_time_trace.setChecked(False)
             self.roi_list.current_selected_roi = None
+            try:
+                self.roi_tab.update_current_roi_selected()
+            except AttributeError:
+                pass
 
     def selected(self):
         return self.check_box.checkState()
@@ -97,12 +106,20 @@ class ROIItemWidget(QWidget):
                         x.check_box.setChecked(False)
 
             self.roi_list.current_selected_roi = self.roi_num
+            try:
+                self.roi_tab.update_current_roi_selected()
+            except AttributeError:
+                pass
             self.check_box_time_trace.setChecked(True)
 
             if not self.display_time:
                 self.roi_tab.image_view.selectRoi(self.roi_num)
         else:
             self.roi_list.current_selected_roi = None
+            try:
+                self.roi_tab.update_current_roi_selected()
+            except AttributeError:
+                pass
             if not self.display_time:
                 self.check_box_time_trace.setChecked(False)
             self.roi_tab.image_view.deselectRoi(self.roi_num)
@@ -110,8 +127,11 @@ class ROIItemWidget(QWidget):
     def time_check_box_toggled(self):
 
         self.roi_list.roi_time_check_list[
-            self.roi_num - 1] = self.check_box_time_trace.checkState()
-        if self.check_box_time_trace.checkState():
-            self.roi_tab.selectRoiTime(self.roi_num)
-        else:
-            self.roi_tab.deselectRoiTime()
+            self.roi_num] = self.check_box_time_trace.checkState()
+        try:
+            if self.check_box_time_trace.checkState():
+                self.roi_tab.selectRoiTime(self.roi_num)
+            else:
+                self.roi_tab.deselectRoiTime()
+        except AttributeError:
+            pass

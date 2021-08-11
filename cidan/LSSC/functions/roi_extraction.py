@@ -112,7 +112,12 @@ def roi_extract_image(*, e_vectors: np.ndarray,
             pixel_embedings))  # creates a list of pixels with the highest values
     # in the eigenspace this list is used to decide on the initial point
     # for the roi
-
+    """Plotting function, plots top 40 points:
+    pixels = pixel_embedings.copy()
+    pixels[initial_pixel_list[:40]]=100
+    data=np.reshape(pixels, (400,150))
+    plt.imshow(data)
+    plt.show()"""
     if initial_pixel != -1:
         initial_pixel_list = np.array([initial_pixel])
     roi_list = []  # output list of rois
@@ -604,11 +609,11 @@ def merge_rois(roi_list: List,
         List of new rois in format: [[np.array of pixels roi 1],
         [np.array  of pixels roi 2] ... ]
     """
-    A = np.zeros([original_2d_vol.shape[0], len(roi_list)], dtype=bool)  # create 2d
+    A = np.zeros([original_2d_vol.shape[0], len(roi_list)], dtype=int)  # create 2d
     # matrix of zeros with dims number of pixels in image by number of rois
     # Change pixels of each roi to 1
     for num, roi in enumerate(roi_list):
-        A[roi, num] = True
+        A[roi, num] = 1
     # Create graph of which rois have pixels which intersect with each other.
     A_graph = np.matmul(A.transpose(), A)
     connected_rois = np.nonzero(A_graph)
@@ -617,13 +622,15 @@ def merge_rois(roi_list: List,
     A_graph_new = A_graph.astype(float)
     # print(list(zip(*connected_rois)))
     for x in list(zip(*connected_rois)):
-        if A_graph[x[0], x[1]] == True and x[0] != x[1]:
+        # applies a 10% overlap condition to the rois.
+        if x[0] != x[1] and A_graph[x[0], x[1]] > len(roi_list[x[1]]) * .1 and A_graph[
+            x[0], x[1]] > len(roi_list[x[0]]) * .1:
             A_graph_new[x[0], x[1]] = compare_time_traces(timetraces[x[0]],
                                                           timetraces[x[1]])
             # print(A_graph_new[x[0],x[1]])
             A_graph_new[x[1], x[0]] = A_graph_new[x[0], x[1]]
             A_graph[x[0], x[1]] = False
-            A_graph_new[x[1], x[0]] = False
+            A_graph[x[1], x[0]] = False
     A_components_to_merge = A_graph_new >= temporal_coefficient
     A_csr = csr_matrix(A_components_to_merge)
     # Use connected components to group these rois together

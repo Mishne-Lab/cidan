@@ -41,7 +41,12 @@ def export(self, matlab, background_images, color_maps):
     self.save_rois(self.rois)
     roi_save_object = []
     spatial_box = SpatialBox(0, 1, image_shape=self.shape, spatial_overlap=0)
-    for num, roi in enumerate(self.rois):
+    rois_all = []
+    for class_id in self.classes:
+        class_name = self.classes[class_id]["name"]
+        for roi in self.classes[class_id]["rois"]:
+            rois_all.append((self.rois_dict[roi]["pixels"], class_name))
+    for num, (roi, class_name) in enumerate(rois_all):
         if self.dataset_params["crop_stack"]:
 
             cords = [[x[0] + self.dataset_params["crop_x"][0],
@@ -49,7 +54,7 @@ def export(self, matlab, background_images, color_maps):
                      spatial_box.convert_1d_to_2d(roi)]
         else:
             cords = spatial_box.convert_1d_to_2d(roi)
-        curr_roi = {"id": num, "coordinates": cords}
+        curr_roi = {"id": num, "coordinates": cords, "class": class_name}
         roi_save_object.append(curr_roi)
 
     with open(os.path.join(self.save_dir_path, "roi_list.json"), "w") as f:

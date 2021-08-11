@@ -199,7 +199,7 @@ def get_time_trace(self, num, trial=None, trace_type="Mean Florescence"):
     Parameters
     ----------
     num : int
-        ROI num starts at 1 to num rois
+        ROI num starts at 0 to num rois
 
     Returns
     -------
@@ -207,25 +207,26 @@ def get_time_trace(self, num, trial=None, trace_type="Mean Florescence"):
     """
     if not self.real_trials:
         try:
-            if len(self.time_traces[trace_type][num - 1]) == 1 and type(
-                    self.time_traces[trace_type][num - 1][0]) != bool:
-                return self.time_traces[trace_type][num - 1][0]
+            if len(self.time_traces[trace_type][num]) == 1 and type(
+                    self.time_traces[trace_type][num][0]) != bool:
+                return self.time_traces[trace_type][num][0]
             else:
                 return False
 
         except IndexError:
             return False
+    try:
+        if (trial == None):
 
-    if (trial == None):
-        num = num - 1
-        if self.real_trials:
-            output = np.ndarray(shape=(0))
-            for trial_num in self.trials_loaded_time_trace_indices:
-                output = np.hstack(
-                    [output, self.time_traces[trace_type][num][trial_num]])
+            if self.real_trials:
+                output = np.ndarray(shape=(0))
+                for trial_num in self.trials_loaded_time_trace_indices:
+                    output = np.hstack(
+                        [output, self.time_traces[trace_type][num][trial_num]])
+            else:
+                return self.time_traces[num]
         else:
-            return self.time_traces[num]
-    else:
-        num = num - 1
-        output = self.time_traces[num][trial]
+            output = self.time_traces[num][trial]
+    except IndexError:
+        return False
     return output

@@ -137,7 +137,8 @@ class AnalysisTab(Tab):
                             data_list.append(
                                 self.main_widget.data_handler.get_time_trace(num2,
                                                                              trace_type=self.time_trace_type.current_state()))
-                            roi_names.append(num2)
+                            roi_names.append(
+                                self.data_handler.rois_index_backward[num2])
                     self.plot_widget.set_list_items(data_list, roi_names, [],
                                                     p_color=self.plot_type_input.current_state() == "Color Mesh",
                                                     type="neuron")
@@ -154,7 +155,7 @@ class AnalysisTab(Tab):
                     if self.roi_list_module.current_selected_roi is not None:
                         roi = self.roi_list_module.current_selected_roi
                         data_list = []
-                        roi_names = [roi]
+                        roi_names = [self.data_handler.rois_index_backward[roi]]
                         for x in self.data_handler.trials_loaded_time_trace_indices:
                             data_list.append(
                                 self.main_widget.data_handler.get_time_trace(roi,
@@ -188,7 +189,8 @@ class AnalysisTab(Tab):
                 self.data_handler.trials_all,
                 self.data_handler.trials_loaded_time_trace_indices)
             if self.data_handler.rois_loaded:
-                self.roi_list_module.set_list_items(self.main_widget.data_handler.rois)
+                self.roi_list_module.set_list_items(
+                    self.main_widget.data_handler.rois_dict)
                 self.selectAll(False)
                 self.image_view.reset_view()
                 try:

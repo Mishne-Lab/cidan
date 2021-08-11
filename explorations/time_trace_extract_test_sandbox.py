@@ -20,13 +20,13 @@ from plotting_functions import time_graph
 
 def extract_time_trace():
     data = loadmat(
-        "/Users/sschickler/Code_Devel/LSSC-python/explorations/spatial_test_files/data.mat")[
+        "/Users/sschickler/Code_Devel/LSSC-python/explorations/spatial_test_files/overlapping/data.mat")[
         "data"].transpose([2, 0, 1])
     Ca_traces_true = loadmat(
-        "/Users/sschickler/Code_Devel/LSSC-python/explorations/spatial_test_files/Ca.mat")[
+        "/Users/sschickler/Code_Devel/LSSC-python/explorations/spatial_test_files/overlapping/Ca.mat")[
         "Ca"]
     roi_profiles = loadmat(
-        "/Users/sschickler/Code_Devel/LSSC-python/explorations/spatial_test_files/profile_set.mat")[
+        "/Users/sschickler/Code_Devel/LSSC-python/explorations/spatial_test_files/overlapping/profile_set.mat")[
         'profile_set']
     data = data.astype(np.float32)
     data[data < 0] = 0  # TODO ASK ABOUT HOW TO handle data that goes below 0
@@ -34,7 +34,7 @@ def extract_time_trace():
     # data = data[:300, 10:245, 10: 245]
     # data_2 = reshape_to_2d_over_time(data)
 
-    test = np.zeros((200, 200))
+    test = np.zeros((50, 50))
     k = calcAffinityMatrix(
         pixel_list=reshape_to_2d_over_time(data),
         metric="l2",
@@ -55,11 +55,11 @@ def extract_time_trace():
     e_vectors_squared = np.power(eigen_vectors, 2)
     e_vectors_sum = np.sum(e_vectors_squared, axis=1)
     e_vectors_sum = np.power(e_vectors_sum, .5)
-    e_vectors_sum_rescaled = e_vectors_sum * (
-            1.0 / np.percentile(e_vectors_sum, 99))
-    e_vectors_sum_rescaled[e_vectors_sum_rescaled > 1.0] = 1.0
+    # e_vectors_sum_rescaled = e_vectors_sum * (
+    #         1.0 / np.percentile(e_vectors_sum, 99))
+    # e_vectors_sum_rescaled[e_vectors_sum_rescaled > 1.0] = 1.0
     # e_vectors_sum_rescaled[e_vectors_sum_rescaled>255]=255.0
-    e_vectors_sum_rescaled = e_vectors_sum_rescaled.reshape([200, 200])
+    e_vectors_sum_rescaled = e_vectors_sum.reshape([50, 50])
 
     rois_processed = []
     for x in range(roi_profiles.shape[2] - 1):
@@ -69,7 +69,7 @@ def extract_time_trace():
         for x in pixels:
             test[x[0], x[1]] = 1
     save_image(test, "rois_raw.png")
-
+    save_image(e_vectors_sum_rescaled, "rois_eigen.png")
     rois_processed_1d = [[x[1] + x[0] * 50 for x in roi] for roi in rois_processed]
     time_traces = calculate_spatial_time_denoising(data, rois_processed,
                                                    # calculate_neuropil((200,200),
@@ -78,17 +78,30 @@ def extract_time_trace():
                                                    #                        (-1)),
                                                    #                    neuropil_boundary=0),
                                                    e_vectors_sum_rescaled)
-
+    print("STD True", Ca_traces_true[:, :7].transpose().std(axis=1))
+    print("STD spatial", time_traces[0].std(axis=1))
+    print("Mean True", Ca_traces_true[:, :7].transpose().mean(axis=1))
+    print("Mean spatial", time_traces[0].mean(axis=1))
+    import pandas as pd
+    test = pd.DataFrame.from_dict(
+        {"STD True": Ca_traces_true[:, :7].transpose().std(axis=1),
+         "STD spatial": time_traces[0].std(axis=1),
+         "Mean True": Ca_traces_true[:, :7].transpose().mean(axis=1),
+         "Mean spatial": time_traces[0].mean(axis=1)})
     with open("test.pickle", "wb") as file:
-        pickle.dump({"spatialtime": time_traces, "true": Ca_traces_true.transpose(),
-                     "compare": np.vstack(
-                         [time_traces[1], Ca_traces_true.transpose()[1],
-                          Ca_traces_true.transpose()[1] - time_traces[1]])}, file,
+        pickle.dump({"true": Ca_traces_true[:, :7].transpose(),
+                     "spatialtime": time_traces[0],
+
+                     #          "compare": np.vstack(
+                     #              [time_traces[1], Ca_traces_true.transpose()[1],
+                     # Ca_traces_true.transpose()[1] - time_traces[1]
+                     # ])
+                     }, file,
                     protocol=4)
     # print(np.max(np.abs(time_traces-Ca_traces_true.transpose()), axis=1))
     time_graph.create_graph("test.pickle", "spatial_time_8.png", "")
 
 
 if __name__ == '__main__':
-    for _ in range(10):
-        extract_time_trace()
+    # for _ in range(10):
+    extract_time_trace()

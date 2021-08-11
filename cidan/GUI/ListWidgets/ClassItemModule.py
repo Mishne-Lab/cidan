@@ -1,14 +1,15 @@
-from qtpy import QtCore
 from qtpy.QtGui import *
 
 
-class ROIItemModule(QStandardItem):
+class ClassItemModule(QStandardItem):
     """
-    An item in the ROI list, this part just takes care of the color part, the rest is
-    handeled by roi item widget
+    An item in the Class list, this part just takes care of the color part, the rest is
+    handeled by class item widget
     """
-    def __init__(self, color, num, roi_tab, id):
-        self.roi_tab = roi_tab
+
+    def __init__(self, color, num, classifier_tab, name, id):
+        self.classifier_tab = classifier_tab
+        self.name = name
         self.id = id
         out_img = QImage(100, 100, QImage.Format_ARGB32)
         out_img.fill(Qt.transparent)
@@ -30,18 +31,18 @@ class ROIItemModule(QStandardItem):
         # self.setCheckable(True)
 
     def keyPressEvent(self, event):
-        self.roi_tab.keyPressEvent(event)
-    def toggle_check_state(self):
-        if not self.checkState():
-            self.roi_tab.selectRoi(self.num)
-            self.setCheckState(QtCore.Qt.CheckState.Checked)
-        else:
-            self.roi_tab.deselectRoi(self.num)
-            self.setCheckState(QtCore.Qt.CheckState.Unchecked)
+        self.classifier_tab.keyPressEvent(event)
+    # def toggle_check_state(self):
+    #     if not self.checkState():
+    #         self.classifier_tab.selectRoi(self.num)
+    #         self.setCheckState(QtCore.Qt.CheckState.Checked)
+    #     else:
+    #         self.classifier_tab.deselectRoi(self.num)
+    #         self.setCheckState(QtCore.Qt.CheckState.Unchecked)
 
-    def checkState(self):
-        state = super().checkState()
-        if state == QtCore.Qt.CheckState.Unchecked:
-            return False
-        else:
-            return True
+    # def checkState(self):
+    #     state = super().checkState()
+    #     if state == QtCore.Qt.CheckState.Unchecked:
+    #         return False
+    #     else:
+    #         return True

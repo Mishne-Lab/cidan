@@ -4,8 +4,7 @@ from functools import reduce
 import numpy as np
 from PIL import Image
 from dask import delayed
-from skimage import feature, measure
-from skimage.measure import find_contours
+from skimage import feature
 
 from cidan.LSSC.SpatialBox import SpatialBox
 from cidan.LSSC.functions.data_manipulation import pixel_num_to_2d_cord
@@ -50,91 +49,107 @@ def calculate_roi_extraction(self, progress_signal=None):
                             loaded_num=num, save_data=False))
                 else:
                     image_data.append(self.dataset_trials_filtered_loaded[num])
-            self.rois = process_data( test_images=False, test_output_dir="",
-                                     save_dir=self.save_dir_path,
-                                      shape=self.shape,
-                                     save_intermediate_steps=self.global_params[
-                                         "save_intermediate_steps"],
-                                     image_data_filtered=self.dataset_trials_filtered_loaded,
-                                     image_data=self.dataset_list,
-                                     crop= [self.dataset_params["crop_x"],self.dataset_params["crop_y"]] if self.dataset_params["crop_stack"] else False,
-                                     slicing = [self.dataset_params["slice_start"][0],self.dataset_params["slice_every"][0]] if self.dataset_params["slice_stack"] else [0,1],
+            rois = process_data(test_images=False, test_output_dir="",
+                                save_dir=self.save_dir_path,
+                                shape=self.shape,
+                                save_intermediate_steps=self.global_params[
+                                    "save_intermediate_steps"],
+                                image_data_filtered=self.dataset_trials_filtered_loaded,
+                                image_data=self.dataset_list,
+                                crop=[self.dataset_params["crop_x"],
+                                      self.dataset_params["crop_y"]] if
+                                self.dataset_params["crop_stack"] else False,
+                                slicing=[self.dataset_params["slice_start"][0],
+                                         self.dataset_params["slice_every"][0]] if
+                                self.dataset_params["slice_stack"] else [0, 1],
 
-                                      eigen_vectors_already_generated=(not
+                                eigen_vectors_already_generated=(not
                                                                       eigen_need_recalc) and
                                                                      self.global_params[
                                                                          "save_intermediate_steps"] and self.eigen_vectors_exist,
-                                     save_embedding_images=True,
-                                     total_num_time_steps=self.box_params[
+                                save_embedding_images=True,
+                                total_num_time_steps=self.box_params[
                                          "total_num_time_steps"],
-                                     total_num_spatial_boxes=self.box_params[
+                                total_num_spatial_boxes=self.box_params[
                                          "total_num_spatial_boxes"],
-                                     spatial_overlap=self.box_params[
+                                spatial_overlap=self.box_params[
                                                          "spatial_overlap"] // 2,
 
-                                     metric=self.eigen_params["metric"],
-                                     knn=self.eigen_params["knn"],
-                                     accuracy=self.eigen_params["accuracy"],
-                                     eigen_accuracy=self.eigen_params[
+                                metric=self.eigen_params["metric"],
+                                knn=self.eigen_params["knn"],
+                                accuracy=self.eigen_params["accuracy"],
+                                eigen_accuracy=self.eigen_params[
                                          "eigen_accuracy"],
-                                     connections=self.eigen_params[
+                                connections=self.eigen_params[
                                          "connections"],
-                                     normalize_w_k=self.eigen_params[
+                                normalize_w_k=self.eigen_params[
                                          "normalize_w_k"],
-                                     num_eig=self.eigen_params["num_eig"],
-                                     merge=self.roi_extraction_params["merge"],
-                                     num_rois=self.roi_extraction_params[
+                                num_eig=self.eigen_params["num_eig"],
+                                merge=self.roi_extraction_params["merge"],
+                                num_rois=self.roi_extraction_params[
                                          "num_rois"],
-                                     refinement=self.roi_extraction_params[
+                                refinement=self.roi_extraction_params[
                                          "refinement"],
-                                     num_eigen_vector_select=
+                                num_eigen_vector_select=
                                      self.roi_extraction_params[
                                          "num_eigen_vector_select"],
-                                     max_iter=self.roi_extraction_params[
+                                max_iter=self.roi_extraction_params[
                                          "max_iter"],
-                                     roi_size_min=self.roi_extraction_params[
+                                roi_size_min=self.roi_extraction_params[
                                          "roi_size_min"],
-                                     fill_holes=self.roi_extraction_params[
+                                fill_holes=self.roi_extraction_params[
                                          "fill_holes"],
 
-                                     elbow_threshold_method=
+                                elbow_threshold_method=
                                      self.roi_extraction_params[
                                          "elbow_threshold_method"],
-                                     elbow_threshold_value=
+                                elbow_threshold_value=
                                      self.roi_extraction_params[
                                          "elbow_threshold_value"],
-                                     eigen_threshold_method=
+                                eigen_threshold_method=
                                      self.roi_extraction_params[
                                          "eigen_threshold_method"],
-                                     eigen_threshold_value=
+                                eigen_threshold_value=
                                      self.roi_extraction_params[
                                          "eigen_threshold_value"],
-                                     merge_temporal_coef=
+                                merge_temporal_coef=
                                      self.roi_extraction_params[
                                          "merge_temporal_coef"],
-                                     roi_size_max=self.roi_extraction_params[
+                                roi_size_max=self.roi_extraction_params[
                                          "roi_size_max"],
-                                     pca=self.filter_params["pca"],
-                                     pca_data=self.pca_decomp if self.filter_params[
+                                pca=self.filter_params["pca"],
+                                pca_data=self.pca_decomp if self.filter_params[
                                          "pca"] else False,
-                                     roi_eccentricity_limit=
-                                     self.roi_extraction_params[
-                                         "roi_eccentricity_limit"],
-                                     local_max_method=
-                                     self.roi_extraction_params[
-                                         "local_max_method"],
+                                roi_eccentricity_limit=
+                                self.roi_extraction_params[
+                                    "roi_eccentricity_limit"],
+                                local_max_method=
+                                self.roi_extraction_params[
+                                    "local_max_method"],
 
-                                     progress_signal=progress_signal)
+                                progress_signal=progress_signal)
             self.box_params_processed = temp_params
+            self.delete_roi_vars()
             self.save_new_param_json()
-            roi_valid_list = filterRoiList(self.rois, self.shape)
-            self.rois = [x for x, y in zip(self.rois, roi_valid_list) if
-                         y >= self.roi_extraction_params[
-                             "roi_circ_threshold"]]
+            roi_valid_list = filterRoiList(rois, self.shape)
+
+            rois = [x for x, y in zip(rois, roi_valid_list) if
+                    y >= self.roi_extraction_params[
+                        "roi_circ_threshold"]]
+            self.rois_dict = {(num + 1): {"pixels": roi, "index": num} for num, roi in
+                              enumerate(rois)}
             self.save_rois(self.rois)
             print("Calculating Time Traces")
             self.gen_roi_display_variables()
+            # self.classes["0"]["rois"] = self.rois
             self.calculate_time_traces()
+            """import json
+with open("/Users/sschickler/Code_Devel/LSSC-python/roi_list.json", "r") as f:
+    # test2=f.read()
+    test =json.loads(f.read())
+    rois = [[(y[0]-self.dataset_params["crop_x"][0],y[1]-self.dataset_params["crop_y"][0]) for y in x["coordinates"]]for x in test]
+    from cidan.LSSC.functions.data_manipulation import cord_2d_to_pixel_num
+test234 = [cord_2d_to_pixel_num(np.array(roi).transpose(), self.shape) for roi in rois]"""
 
             self.rois_loaded = True
         except FileNotFoundError as e:
@@ -143,8 +158,6 @@ def calculate_roi_extraction(self, progress_signal=None):
             print(
                 "Please try again there was an internal error in the roi extraction process")
             raise AssertionError()
-
-
 def gen_roi_display_variables(self):
     """
     Generates the other variables associated with displaying ROIs
@@ -163,8 +176,8 @@ def gen_roi_display_variables(self):
         [self.shape[0] * self.shape[1], 3])
     edge_roi_image = np.zeros([self.shape[0], self.shape[1]])
     for num, roi in enumerate(self.rois):
-        cur_color = self.color_list[num % len(self.color_list)]
-        self.pixel_with_rois_flat[roi] = num + 1
+        cur_color = self.color_list[self.roi_index_backward[num] % len(self.color_list)]
+        self.pixel_with_rois_flat[roi] = num
         self.pixel_with_rois_color_flat[roi] = cur_color
         roi_edge = np.zeros(
             [self.shape[0] * self.shape[1]])
@@ -206,7 +219,32 @@ def gen_roi_display_variables(self):
                          "embedding_norm_images/embedding_norm_image.png")))
     except:
         print("Can't generate eigen Norm image please try again")
+    self.gen_class_display_variables()
 
+
+def gen_class_display_variables(self):
+    roi_keys = set(self.rois_dict.keys())
+
+    keys = self.classes.keys()
+    for key in [key for key in keys if key != "Unassigned"]:
+        for roi_key in self.classes[key]["rois"]:
+            if roi_key in roi_keys:
+                roi_keys.remove(roi_key)
+    self.classes["Unassigned"]["rois"] = list(roi_keys)
+    roi_list_1d_cord_by_class = [[
+        self.rois_dict[x]["pixels"] for x in
+        self.classes[key]["rois"]] for key in keys]
+    self.pixel_with_rois_class_flat = np.zeros(
+
+        [self.shape[0] * self.shape[1], 3])
+    for class_index, rois in zip(keys, roi_list_1d_cord_by_class):
+        cur_color = self.classes[class_index]["color"]
+        for roi in rois:
+            self.pixel_with_rois_class_flat[roi] = cur_color
+
+    self.pixel_with_rois_class = np.reshape(self.pixel_with_rois_class_flat,
+                                            [self.shape[0],
+                                             self.shape[1], 3])
 
 def genRoiFromPoint(self, point, growth_factor=1.0):
     """

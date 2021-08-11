@@ -8,7 +8,8 @@ from cidan.GUI.Data_Interaction.data_handler_functions.change_param import *
 from cidan.GUI.Data_Interaction.data_handler_functions.export import \
     export_overlapping_rois, save_image, export, calculate_statistics
 from cidan.GUI.Data_Interaction.data_handler_functions.gen_rois_functions import \
-    gen_roi_display_variables, genRoiFromPoint, calculate_roi_extraction
+    gen_roi_display_variables, genRoiFromPoint, calculate_roi_extraction, \
+    gen_class_display_variables
 from cidan.GUI.Data_Interaction.data_handler_functions.load_filter_functions import \
     calculate_dataset, transform_data_to_zarr, reset_data, load_dataset, \
     compute_trial_filter_step
@@ -176,6 +177,7 @@ class DataHandler:
         self.save_dir_path = save_dir_path
         self.time_trace_possibilities_functions = DataHandler.time_trace_possibilities_functions
         self.rois_loaded = False  # whether roi variables have been created
+        self.rois_update_needed = True
         if parameter_file:
             self.parameter_file_name = os.path.basename(parameter_file)
             self.save_dir_path = os.path.dirname(parameter_file)
@@ -274,7 +276,12 @@ class DataHandler:
             self.box_params_processed = DataHandler._box_params_default.copy()
             self.roi_extraction_params = DataHandler._roi_extraction_params_default.copy()
             self.time_trace_params = DataHandler._time_trace_params_default.copy()
-
+            self.classes = {"Unassigned": {"color": (150, 150, 150), "rois": [],
+                                           "name": "Unassigned", "editable": False},
+                            "Base": {"color": self.color_list[0], "rois": [],
+                                     "name": "Base", "editable": True},
+                            "Important": {"color": self.color_list[1], "rois": [],
+                                          "name": "important", "editable": True}}
             self.dataset_params["dataset_folder_path"] = data_path
             self.dataset_params["trials_loaded"] = trials
             self.trials_loaded = trials
@@ -408,7 +415,22 @@ class DataHandler:
         with them
         """
         if pickle_exist("rois", output_directory=self.save_dir_path):
-            self.rois = pickle_load("rois", output_directory=self.save_dir_path)
+            rois = pickle_load("rois", output_directory=self.save_dir_path)
+            if type(rois) == dict:
+                self.rois_dict = rois
+            else:
+                self.rois_dict = {(num + 1): {"pixels": roi, "index": num} for num, roi
+                                  in enumerate(rois)}
+            try:
+                self.classes = pickle_load("classes", output_directory=self.classes)
+            except:
+                self.classes = {"Unassigned": {"color": (150, 150, 150), "rois": [],
+                                               "name": "Unassigned", "editable": False},
+                                "Base": {"color": self.color_list[0], "rois": [],
+                                         "name": "Base", "editable": True},
+                                "Important": {"color": self.color_list[1], "rois": [],
+                                              "name": "important", "editable": True}}
+
             self.gen_roi_display_variables()
 
     def save_rois(self, rois):
@@ -421,8 +443,8 @@ class DataHandler:
 
         """
         if os.path.isdir(self.save_dir_path):
-            pickle_save(rois, "rois", output_directory=self.save_dir_path)
-
+            pickle_save(self.rois_dict, "rois", output_directory=self.save_dir_path)
+            pickle_save(self.classes, "classes", output_directory=self.save_dir_path)
     def load_param_json(self):
         """
         Loads the parameter json file and saves it to all the parameter values
@@ -586,9 +608,15 @@ class DataHandler:
 
     def gen_roi_display_variables(self):
         """
-        Generates the other variables associated with displaying ROIs
+        Generates the other variables associated with displaying ROIs including class ones
         """
         return gen_roi_display_variables(self)
+
+    def gen_class_display_variables(self):
+        """
+        Generates the class variables associated with displaying ROIs
+        """
+        return gen_class_display_variables(self)
 
     def calculate_time_traces(self, report_progress=None):
         """
@@ -596,7 +624,56 @@ class DataHandler:
         """
         return calculate_time_traces(self, report_progress)
 
+    @property
+    def rois(self):
 
+        if self.rois_update_needed:
+            keys = list(self.rois_dict.keys())
+            for num, x in enumerate(keys):
+                self.rois_dict[x]["index"] = num
+            self._rois = [self.rois_dict[x]["pixels"] for x in keys]
+            self.roi_index_backward = {num: x for num, x in enumerate(keys)}
+            self.rois_update_needed = False
+        return self._rois
+
+    def assign_roi_class(self, key, new_class, input_key=True):
+        if not input_key:
+            key = self.roi_index_backward[key]
+        self.remove_roi_from_all_classes(key, input_key=True)
+        self.classes[new_class]["rois"].append(key)
+        self.gen_class_display_variables()
+
+    def remove_roi_from_all_classes(self, key, input_key=True):
+        if not input_key:
+            key = self.roi_index_backward[key]
+        for class_name in self.classes:
+            if key in self.classes[class_name]["rois"]:
+                self.classes[class_name]["rois"].remove(key)
+
+    def delete_roi(self, key, input_key=True):
+        if not input_key:
+            key = self.roi_index_backward[key]
+
+        for x in self.time_traces.keys():
+            self.time_traces[x].pop(self.rois_dict[key]["index"])
+        self.roi_time_trace_need_update.pop(self.rois_dict[key]["index"])
+        del self.rois_dict[key]
+
+        self.rois_update_needed = True
+        self.gen_roi_display_variables()
+
+    def add_new_roi(self, roi_pixels):
+        self.rois_dict[max(list(self.rois_dict.keys())) + 1] = {"pixels": roi_pixels}
+        self.rois_update_needed = True
+        self.gen_roi_display_variables()
+        self.roi_time_trace_need_update.append(True)
+
+    def update_roi(self, key, new_pixels, input_key=True):
+        if not input_key:
+            key = self.roi_index_backward[key]
+        self.rois_dict[key]["pixels"] = new_pixels
+        self.rois_update_needed = True
+        self.gen_roi_display_variables()
 
     def get_time_trace(self, num, trial=None, trace_type="Mean Florescence"):
         """
@@ -682,7 +759,11 @@ class DataHandler:
         return save_image(self, image, path)
 
     def delete_roi_vars(self):
-        self.rois = []
+        # self.rois = []
+        self.rois_dict = {}
+        self.rois_update_needed = True
+        for key in self.classes.keys():
+            self.classes[key]["rois"] = []
         self.rois_loaded = False
         self.roi_max_cord_list = None
         self.roi_min_cord_list = None

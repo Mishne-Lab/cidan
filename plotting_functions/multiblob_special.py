@@ -49,6 +49,7 @@ def create_roi_image(size, color, path, blobs=True, offset=0):
     image = np.zeros((size[0], size[1], 3), dtype="int")
 
     with open(path, "r") as json_true:
+        print(path)
         json_b_actual = json.load(json_true)
     for num, x in enumerate(json_b_actual):
 
@@ -91,9 +92,9 @@ def create_roi_image_cont(size, color, path, fig, offset=0, ):
             # edge = feature.canny(
             #     np.sum(image_temp, axis=2) / np.max(np.sum(image_temp, axis=2)))
             # image[edge] = 1
-            # image_temp = ndimage.morphology.binary_dilation(image_temp)
+            image_temp = ndimage.morphology.binary_dilation(image_temp)
 
-            image_temp = ndimage.morphology.binary_opening(image_temp)
+            # image_temp = ndimage.morphology.binary_opening(image_temp)
             test = measure.label(image_temp, background=0, connectivity=1)
             # image_temp = ndimage.morphology.binary_erosion(image_temp)
             #
@@ -148,6 +149,9 @@ def create_graph(bg_path="", shape=None, e_dir="", data_1="", data_2="", data_3=
     background_image[background_image > 1] = 1
     background_image = background_image * 255
     background_image[background_image < 0] = 0
+    if len(background_image.shape) == 2:
+        background_image = background_image.reshape(
+            (background_image.shape[0], background_image.shape[1], 1))
     print(shape)
 
     combined_image = np.dstack([np.zeros(shape[:2]), background_image[:, :, 0],

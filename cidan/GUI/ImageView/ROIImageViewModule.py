@@ -13,13 +13,14 @@ logger1 = logging.getLogger("cidan.ImageView.ROIImageViewModule")
 
 class ROIImageViewModule(ImageViewModule):
     # QApplication.mouseButtons() == Qt.LeftButton
-    def __init__(self, main_widget, tab, settings_tab=True):
+    def __init__(self, main_widget, tab, settings_tab=True, display_class_option=False):
         super(ROIImageViewModule, self).__init__(main_widget, histogram=False)
         self.tab = tab
         self.resetting_view = False  # Way to prevent infinite loops of reset_view
         self.current_foreground_intensity = 30
         self.click_event = False
         self.outlines = True
+        self.display_class_option = display_class_option
         self.trial_selector_input = OptionInput(
             "Time Block:", "",
             lambda x, y: self.set_background("", self.current_background_name),
@@ -49,9 +50,10 @@ class ROIImageViewModule(ImageViewModule):
         display_settings.setLayout(self.display_settings_layout)
         image_chooser = OptionInput("ROI Display type:", "",
                                     on_change_function=self.set_image,
-                                    default_index=0,
+                                    default_index=0 if not self.display_class_option else 3,
                                     tool_tip="Choose background to display",
-                                    val_list=["Outlines", "Blob", "Neuropil"])
+                                    val_list=["Outlines", "Blob", "Neuropil"] + (
+                                        ["Class"] if self.display_class_option else []))
 
         self.display_settings_layout.addWidget(image_chooser)
 
@@ -210,11 +212,15 @@ class ROIImageViewModule(ImageViewModule):
             if func_name == "Blob":
                 self.outlines = False
                 self.roi_image_flat = self.main_widget.data_handler.pixel_with_rois_color_flat
+            if func_name == "Class":
+                self.outlines = False
+                self.roi_image_flat = self.main_widget.data_handler.pixel_with_rois_class_flat
             if func_name == "Neuropil":
                 self.outlines = False
                 self.roi_image_flat = self.main_widget.data_handler.neuropil_image_display
             if update_image:
                 self.updateImageDisplay()
+            self.current_forground = func_name
 
     def updateImageDisplay(self, new=False):
 
@@ -284,10 +290,9 @@ class ROIImageViewModule(ImageViewModule):
     def selectRoi(self, num):
         try:
             color_select = (245, 249, 22) if self.outlines else (255, 255, 255)
-            color_roi = self.main_widget.data_handler.color_list[
-                (num - 1) % len(self.main_widget.data_handler.color_list)]
+
             self.select_image_flat[
-                self.main_widget.data_handler.rois[num - 1]] = color_select
+                self.main_widget.data_handler.rois[num]] = color_select
             self.updateImageDisplay()
         except AttributeError:
             pass
@@ -304,11 +309,10 @@ class ROIImageViewModule(ImageViewModule):
 
     def deselectRoi(self, num):
         try:
-            color = self.main_widget.data_handler.color_list[
-                (num - 1) % len(self.main_widget.data_handler.color_list)]
+
             shape_flat = self.data_handler.edge_roi_image_flat.shape
             self.select_image_flat[self.main_widget.data_handler.rois[
-                num - 1]] = (0, 0, 0)
+                num]] = (0, 0, 0)
             self.updateImageDisplay()
         except ValueError as e:
             if "shape" in e.args[0]:
@@ -328,11 +332,10 @@ class ROIImageViewModule(ImageViewModule):
         -------
         Nothing
         """
-        num = num - 1
 
-        max_cord = self.main_widget.data_handler.roi_max_cord_list[num] + 15
+        max_cord = self.main_widget.data_handler.roi_max_cord_list[num] + 50
 
-        min_cord = self.main_widget.data_handler.roi_min_cord_list[num] - 15
+        min_cord = self.main_widget.data_handler.roi_min_cord_list[num] - 50
 
         self.image_view.getView().setYRange(min_cord[1],
                                             max_cord[1])
@@ -426,7 +429,7 @@ class ROIImageViewModule(ImageViewModule):
                 self.tab.update_time = False
                 for x in rois_selected:
                     self.tab.roi_list_module.roi_item_list[
-                        int(x) - 1].check_box.setChecked(True)
+                        int(x)].check_box.setChecked(True)
                 self.tab.update_time = True
                 self.tab.deselectRoiTime()
                 self.box_selector_cords = [(0, 0), (0, 0)]
@@ -486,7 +489,10 @@ class ROIImageViewModule(ImageViewModule):
 
 
                 else:
+
                     self.roi_image_flat = self.main_widget.data_handler.pixel_with_rois_color_flat
+                    if self.current_forground == "Class":
+                        self.roi_image_flat = self.main_widget.data_handler.pixel_with_rois_class_flat
             if len(self.trial_selector_input.val_list) != len(
                     self.data_handler.trials_loaded) or any(
                     [x != y for x, y in zip(self.trial_selector_input.val_list,

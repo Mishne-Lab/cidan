@@ -112,5 +112,9 @@ def create_graph(bg_path="", shape=None, e_dir="", rois="", out_file="",
 
 if __name__ == '__main__':
     fire.Fire(create_graph)
+    """ --bg_path /Users/sschickler/Code_Devel/LSSC-python/plotting_functions/data/cidan/File1_CPn_l5_gcamp6s_lan.tif300/embedding_norm_images/embedding_norm_image.png 
+    --rois /Users/sschickler/Code_Devel/LSSC-python/plotting_functions/data/cidan/File1_CPn_l5_gcamp6s_lan.tif300/roi_list.json
+    --out_file plots/spatial_graph_file1.png
+    """
     #  good rois in file 4 "0 2 7 15 16 22 23 24 25 26 28 32 33 35 37 42 43 47 48 49"
 # 27 28 29 30 31 32 33 34 35 37 38 39 40 41"
