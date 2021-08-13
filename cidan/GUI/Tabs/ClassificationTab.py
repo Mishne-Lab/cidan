@@ -61,7 +61,9 @@ class ClassificationTab(Tab):
         display_setting_layout.addWidget(self.display_settings)
         roi_classification_layout = QVBoxLayout()
 
-        self.button_layout = QHBoxLayout()
+        self.button_layout_1 = QHBoxLayout()
+        self.button_layout_2 = QHBoxLayout()
+
         self.stats_layout = QVBoxLayout()
         self.roi_label = QLabel(
             "ROI #{}:".format(self.roi_list_module.current_selected_roi))
@@ -82,7 +84,8 @@ class ClassificationTab(Tab):
         self.stats_layout.addLayout(stats_layout_h1)
         self.stats_layout.addLayout(stats_layout_h2)
         roi_classification_layout.addLayout(self.stats_layout)
-        roi_classification_layout.addLayout(self.button_layout)
+        roi_classification_layout.addLayout(self.button_layout_1)
+        roi_classification_layout.addLayout(self.button_layout_2)
 
         self.roi_class_dict_tabs = QTabWidget()
         self.roi_class_dict_tabs.addTab(self.roi_list_module, "ROI List")
@@ -165,31 +168,23 @@ class ClassificationTab(Tab):
         return self.main_widget.data_handler
 
     def set_class_buttons(self):
-        for i in reversed(range(self.button_layout.count())):
-            self.button_layout.itemAt(i).widget().setParent(None)
-        class_id_1 = list(self.data_handler.classes.keys())[0]
-        button = QPushButton(self.data_handler.classes[class_id_1]["name"])
+        def button_function(class_id):
+            return lambda x: self.assign_roi_to_class(class_id)
 
-        button.clicked.connect(lambda x: self.assign_roi_to_class(class_id_1))
-        self.button_layout.addWidget(button)
-        if len(self.data_handler.classes) > 1:
-            class_id_2 = list(self.data_handler.classes.keys())[1]
-            button = QPushButton(self.data_handler.classes[class_id_2]["name"])
+        for i in reversed(range(self.button_layout_1.count())):
+            self.button_layout_1.itemAt(i).widget().setParent(None)
+        for i in reversed(range(self.button_layout_2.count())):
+            self.button_layout_2.itemAt(i).widget().setParent(None)
+        ids = list(self.data_handler.classes.keys())
+        for num, id in enumerate(ids):
+            button = QPushButton(self.data_handler.classes[id]["name"])
 
-            button.clicked.connect(lambda x: self.assign_roi_to_class(class_id_2))
-            self.button_layout.addWidget(button)
-        if len(self.data_handler.classes) > 2:
-            class_id_3 = list(self.data_handler.classes.keys())[2]
-            button = QPushButton(self.data_handler.classes[class_id_3]["name"])
+            button.clicked.connect(button_function(id))
+            if num < 4:
+                self.button_layout_1.addWidget(button)
+            else:
+                self.button_layout_2.addWidget(button)
 
-            button.clicked.connect(lambda x: self.assign_roi_to_class(class_id_3))
-            self.button_layout.addWidget(button)
-        if len(self.data_handler.classes) > 3:
-            class_id_4 = list(self.data_handler.classes.keys())[3]
-            button = QPushButton(self.data_handler.classes[class_id_4]["name"])
-
-            button.clicked.connect(lambda x: self.assign_roi_to_class(class_id_4))
-            self.button_layout.addWidget(button)
         self.class_list_module.set_list_items(self.data_handler.classes)
         # button = QPushButton("Delete ROI")
         # button.clicked.connect(lambda x: self.delete_roi())
@@ -212,6 +207,16 @@ class ClassificationTab(Tab):
                 pass
 
     def create_class(self):
+        if len(self.data_handler.classes.keys()) >= 8:
+            msg = QMessageBox()
+            msg.setStyleSheet(qdarkstyle.load_stylesheet())
+            msg.setWindowTitle("Notice")
+
+            msg.setText(
+                "The maximum number of allowed classes is 8")
+            msg.setIcon(QMessageBox.Information)
+            x = msg.exec_()
+            return
         id = len(self.data_handler.classes.keys())
 
         while id in self.data_handler.classes.keys():
@@ -222,15 +227,6 @@ class ClassificationTab(Tab):
                                                       self.data_handler.color_list)],
                                               "editable": True}
         self.edit_class(str(id))
-        if len(self.data_handler.classes.keys()) > 4:
-            msg = QMessageBox()
-            msg.setStyleSheet(qdarkstyle.load_stylesheet())
-            msg.setWindowTitle("Notice")
-
-            msg.setText(
-                "All classes over class number 4 can be \naccessed by the appropriate number keys")
-            msg.setIcon(QMessageBox.Information)
-            x = msg.exec_()
 
     def delete_class(self, class_id):
 
