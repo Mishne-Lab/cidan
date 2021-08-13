@@ -1,7 +1,9 @@
 import os
 
+import neurofinder
 from PySide2.QtCore import QThreadPool
 from qtpy import QtGui
+from regional import many
 
 from cidan.GUI.Data_Interaction.CalculateSingleTrialThread import \
     CalculateSingleTrialThread
@@ -9,6 +11,7 @@ from cidan.GUI.Data_Interaction.DemoDownloadThread import DemoDownloadThread
 from cidan.GUI.Data_Interaction.OpenDatasetThread import OpenDatasetThread
 from cidan.GUI.Tabs.AnalysisTab import AnalysisTab
 from cidan.GUI.Tabs.ClassificationTab import ClassificationTab
+from cidan.LSSC.SpatialBox import SpatialBox
 
 os.environ['QT_MAC_WANTS_LAYER'] = '1'
 os.environ['QT_API'] = 'pyside2'
@@ -261,12 +264,16 @@ class MainWidget(QWidget):
             export_action.setStatusTip('Export Time Traces/ROIs')
             export_action.triggered.connect(lambda: self.exportStuff())
             self.export_menu.addAction(export_action)
-        if not hasattr(self, "importjson"):
+        if not hasattr(self, "import_json"):
             self.import_json = QAction("Import Json", self)
             self.import_json.setStatusTip('Import Json')
             self.import_json.triggered.connect(lambda: self.openNewJSON())
             self.fileMenu.addAction(self.import_json)
-
+        if not hasattr(self, "auto_label_rois") and self.dev:
+            self.auto_label_rois = QAction("Auto Label ROIS", self)
+            self.auto_label_rois.setStatusTip('Use a json file to auto label rois')
+            self.auto_label_rois.triggered.connect(lambda: self.autoLabelRois())
+            self.fileMenu.addAction(self.auto_label_rois)
     def selectOpenFileTab(self, index):
         self.tab_widget.setCurrentIndex(0)
         self.fileOpenTab.tab_selector.setCurrentIndex(index)
@@ -288,9 +295,12 @@ class MainWidget(QWidget):
                 rois = [[(y[0], y[1]) for y in x["coordinates"]] for x in test]
 
             from cidan.LSSC.functions.data_manipulation import cord_2d_to_pixel_num
-            self.data_handler.rois = [
+            rois = [
                 cord_2d_to_pixel_num(np.array(roi).transpose(), self.data_handler.shape)
                 for roi in rois]
+            self.data_handler.rois_dict = {(num + 1): {"pixels": roi, "index": num} for
+                                           num, roi
+                                           in enumerate(rois)}
             self.data_handler.save_rois(self.data_handler.rois)
 
             self.data_handler.gen_roi_display_variables()
@@ -304,6 +314,50 @@ class MainWidget(QWidget):
         except:
             print(
                 "Error importing json, please make sure json is valid and crop is correct")
+
+    def autoLabelRois(self):
+        import json
+        path = createFileDialog(directory="~/Desktop", forOpen=True,
+                                isFolder=False, name="Select Json")
+        with open(path, "r") as f:
+            # test2=f.read()
+            test = json.loads(f.read())
+
+        try:
+            print("Importing json")
+            if self.data_handler.dataset_params["crop_stack"]:
+                rois = [[(y[0] - self.data_handler.dataset_params["crop_x"][0],
+                          y[1] - self.data_handler.dataset_params["crop_y"][0]) for y in
+                         x["coordinates"]] for x in test]
+            else:
+                rois = [[(y[0], y[1]) for y in x["coordinates"]] for x in test]
+
+            from cidan.LSSC.functions.data_manipulation import cord_2d_to_pixel_num
+
+            rois_true = many(rois)
+            spatial_box = SpatialBox(0, 1, image_shape=self.data_handler.shape,
+                                     spatial_overlap=0)
+            rois = many(
+                [spatial_box.convert_1d_to_2d(roi) for roi in self.data_handler.rois])
+            matches = neurofinder.match(rois, rois_true, threshold=5)
+            for key in self.data_handler.classes.keys():
+                self.data_handler.classes[key]["rois"] = []
+            for num, match in enumerate(matches):
+                if not np.isnan(match):
+                    self.data_handler.classes[
+                        list(self.data_handler.classes.keys())[1]]['rois'].append(
+                        self.data_handler.roi_index_backward[num])
+                else:
+                    self.data_handler.classes[
+                        list(self.data_handler.classes.keys())[0]]['rois'].append(
+                        self.data_handler.roi_index_backward[num])
+            self.data_handler.gen_class_display_variables()
+            self.updateTabs()
+
+
+        except:
+            print(
+                "Error importing json, please make sure json is valid")
 
     def exportStuff(self):
         dialog = QDialog()
