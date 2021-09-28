@@ -429,7 +429,8 @@ class ROIImageViewModule(ImageViewModule):
                 self.tab.update_time = False
                 for x in rois_selected:
                     self.tab.roi_list_module.roi_item_list[
-                        int(x)].check_box.setChecked(True)
+                        self.data_handler.rois_dict[int(x)][
+                            "index"]].check_box.setChecked(True)
                 self.tab.update_time = True
                 self.tab.deselectRoiTime()
                 self.box_selector_cords = [(0, 0), (0, 0)]

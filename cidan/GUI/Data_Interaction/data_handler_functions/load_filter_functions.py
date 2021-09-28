@@ -1,6 +1,7 @@
 import logging
 
 import dask
+import h5py
 import numpy as np
 import zarr
 from dask import delayed
@@ -270,6 +271,27 @@ def compute_trial_filter_step(self, trial_num, loaded_num,dataset=False, save_da
             self.dataset_trials_filtered[trial_num] = z1
         return z1
 
+
+def load_mask(self, path):
+    if ".mat" in path:
+        try:
+            with h5py.File(path, 'r') as f:
+                keys = list(f.keys())
+                if "mask" in keys:
+                    key = "mask"
+                else:
+                    key = keys[0]
+                mask = np.array(f[key]).astype(bool).reshape(self.shape)
+                self.image_data_mask = mask
+                return True
+        except Exception as a:
+            print(a)
+            print(
+                "Loading of mat file failed please make sure the mask is in variable called mask and that it is the right size")
+    else:
+        print("Please input a mat file for the mask")
+        # raise warnings.warn_explicit("Please enter a valid mat file for the mask")
+        return False
 
 # def calculate_filters(self, progress_signal=None, auto_crop=False):
 #     """

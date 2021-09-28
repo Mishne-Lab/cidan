@@ -119,7 +119,7 @@ def calculate_roi_extraction(self, progress_signal=None):
                                          "roi_size_max"],
                                 pca=self.filter_params["pca"],
                                 pca_data=self.pca_decomp if self.filter_params[
-                                         "pca"] else False,
+                                    "pca"] else False,
                                 roi_eccentricity_limit=
                                 self.roi_extraction_params[
                                     "roi_eccentricity_limit"],
@@ -127,7 +127,9 @@ def calculate_roi_extraction(self, progress_signal=None):
                                 self.roi_extraction_params[
                                     "local_max_method"],
 
-                                progress_signal=progress_signal)
+                                progress_signal=progress_signal,
+                                widefield=self.widefield,
+                                image_data_mask=self.image_data_mask)
             self.box_params_processed = temp_params
             self.delete_roi_vars()
             self.save_new_param_json()
@@ -175,8 +177,10 @@ def gen_roi_display_variables(self):
     self.pixel_with_rois_color_flat = np.zeros(
         [self.shape[0] * self.shape[1], 3])
     edge_roi_image = np.zeros([self.shape[0], self.shape[1]])
-    for num, roi in enumerate(self.rois):
-        cur_color = self.color_list[self.roi_index_backward[num] % len(self.color_list)]
+    for roi_key in self.rois_dict.keys():
+        num = roi_key
+        roi = self.rois_dict[roi_key]["pixels"]
+        cur_color = self.color_list[num % len(self.color_list)]
         self.pixel_with_rois_flat[roi] = num
         self.pixel_with_rois_color_flat[roi] = cur_color
         roi_edge = np.zeros(
@@ -260,6 +264,9 @@ def genRoiFromPoint(self, point, growth_factor=1.0):
     -------
     the pixels in said roi in there 1d form
     """
+    if self.widefield:
+        print("this function isn't available for widefield data")
+        return []
     spatial_boxes = [SpatialBox(box_num=x,
                                 total_boxes=self.box_params_processed[
                                     "total_num_spatial_boxes"],

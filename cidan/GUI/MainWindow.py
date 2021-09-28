@@ -39,10 +39,10 @@ pg.setConfigOption("imageAxisOrder", "row-major")
 class MainWindow(QMainWindow):
     """Initializes the basic window with Main widget being the focused widget"""
 
-    def __init__(self, dev=False, preload=False):
+    def __init__(self, dev=False, preload=False, widefield=False):
         super().__init__()
         self.title = 'cidan'
-        scale = (self.logicalDpiX() / 96.0-1)/2+1
+        scale = (self.logicalDpiX() / 96.0 - 1) / 2 + 1
         sizeObject = QtGui.QGuiApplication.primaryScreen().availableGeometry()
 
         self.width = 1500 * scale
@@ -55,6 +55,7 @@ class MainWindow(QMainWindow):
         self.setMinimumSize(int(self.width), int(self.height))
         self.main_menu = self.menuBar()
         self.setContentsMargins(0, 0, 0, 0)
+        self.widefield = widefield
 
         import cidan
         cidanpath = os.path.dirname(os.path.realpath(cidan.__file__))
@@ -71,7 +72,9 @@ class MainWindow(QMainWindow):
         app_icon.addFile(icon_path, QtCore.QSize(96, 96))
         app_icon.addFile(icon_path, QtCore.QSize(256, 256))
         self.setWindowIcon(app_icon)
-        self.table_widget = MainWidget(self, dev=dev, preload=preload)
+
+        self.table_widget = MainWidget(self, dev=dev, preload=preload,
+                                       widefield=widefield)
         self.setCentralWidget(self.table_widget)
         # self.setStyleSheet(qdarkstyle.load_stylesheet())
         style = str("""
@@ -132,7 +135,7 @@ class MainWidget(QWidget):
         A list of the currently active tabs not used until after init_w_data is run
     """
 
-    def __init__(self, parent, dev=False, preload=True):
+    def __init__(self, parent, dev=False, preload=True, widefield=False):
         """
         Initialize the main widget to load files
         Parameters
@@ -140,7 +143,7 @@ class MainWidget(QWidget):
         parent
         """
         super().__init__(parent)
-        self.scale = (self.logicalDpiX() / 96.0-1)/2+1
+        self.scale = (self.logicalDpiX() / 96.0 - 1) / 2 + 1
         self.main_window = parent
         self.threadpool = QThreadPool()
         self.progress_signal = None
@@ -151,6 +154,7 @@ class MainWidget(QWidget):
         self.setContentsMargins(0, 0, 0, 0)
 
         self.dev = dev
+        self.widefield = widefield
         self.tab_widget = QTabWidget()
         self.tab_widget.setContentsMargins(0, 0, 0, 0)
         self.fileOpenTab = FileOpenTab(self)

@@ -12,7 +12,7 @@ from cidan.GUI.Data_Interaction.data_handler_functions.gen_rois_functions import
     gen_class_display_variables
 from cidan.GUI.Data_Interaction.data_handler_functions.load_filter_functions import \
     calculate_dataset, transform_data_to_zarr, reset_data, load_dataset, \
-    compute_trial_filter_step
+    compute_trial_filter_step, load_mask
 from cidan.GUI.Data_Interaction.data_handler_functions.save_functions import \
     load_param_json, save_new_param_json
 from cidan.GUI.Data_Interaction.data_handler_functions.time_trace_functions import \
@@ -72,6 +72,15 @@ class DataHandler:
                                                                                       sub_neuropil=True),
         "Neuropil": lambda x, y: neuropil(x, y)
     }
+    _color_list = [(218, 67, 34),
+                   (132, 249, 22), (22, 249, 140), (22, 245, 249),
+                   (22, 132, 249), (224, 22, 249), (249, 22, 160)]
+    _base_class_construct = {"Unassigned": {"color": (150, 150, 150), "rois": [],
+                                            "name": "Unassigned", "editable": False},
+                             "Base": {"color": _color_list[0], "rois": [],
+                                      "name": "Base", "editable": True},
+                             "Important": {"color": _color_list[1], "rois": [],
+                                           "name": "important", "editable": True}}
     _global_params_default = {
         "save_intermediate_steps": True,
         "need_recalc_dataset_params": True,
@@ -86,6 +95,7 @@ class DataHandler:
         "dataset_folder_path": "",
         "trials_loaded": [],
         "trials_all": [],
+        "mask_path": "",
         "single_file_mode": False,
         "original_folder_trial_split": "",
         "slice_stack": False,
@@ -100,6 +110,16 @@ class DataHandler:
     }
 
     _filter_params_default = {
+        "median_filter": False,
+        "median_filter_size": 3,
+        "z_score": False,
+        "hist_eq": False,
+        "localSpatialDenoising": True,
+        "pca": False,
+        "pca_threshold": .97
+
+    }
+    _filter_params_default_widefield = {
         "median_filter": False,
         "median_filter_size": 3,
         "z_score": False,
@@ -144,12 +164,32 @@ class DataHandler:
         "local_max_method": False
 
     }
+    _roi_extraction_params_default_widefield = {
+        "elbow_threshold_method": True,
+        "elbow_threshold_value": .95,
+        "eigen_threshold_method": True,
+        "eigen_threshold_value": .9,
+        "num_eigen_vector_select": 1,
+        "merge_temporal_coef": .9,
+        "roi_size_min": 30,
+        "roi_size_max": 600,
+        "merge": True,
+        "num_rois": 60,
+        "fill_holes": True,
+        "refinement": True,
+        "max_iter": 100,
+        "roi_circ_threshold": 0,
+        "roi_eccentricity_limit": .9,
+        "local_max_method": False
+
+    }
     _time_trace_params_default = {
         "min_neuropil_pixels": 25
     }
 
     def __init__(self, data_path, save_dir_path, save_dir_already_created, trials=[],
-                 parameter_file=False, load_into_mem=True, auto_crop=False):
+                 parameter_file=False, load_into_mem=True, auto_crop=False,
+                 widefield=False, mask_path=None):
         """
         Initializes the object
         Parameters
@@ -169,18 +209,18 @@ class DataHandler:
         self.parameter_file_name = "parameters.json"
         # TODO add loaded trials and all trials parameter here
         # TODO make sure if trial list includes files that aren't valid it works
-        self.color_list = [(218, 67, 34),
-                           (132, 249, 22), (22, 249, 140), (22, 245, 249),
-                           (22, 132, 249), (224, 22, 249), (249, 22, 160)]
-
+        self.color_list = DataHandler._color_list
 
         self.save_dir_path = save_dir_path
         self.time_trace_possibilities_functions = DataHandler.time_trace_possibilities_functions
         self.rois_loaded = False  # whether roi variables have been created
         self.rois_update_needed = True
+        self.widefield = widefield
+        self.image_data_mask = None
         if parameter_file:
             self.parameter_file_name = os.path.basename(parameter_file)
             self.save_dir_path = os.path.dirname(parameter_file)
+            self.classes = DataHandler._base_class_construct
             self.create_new_save_dir()
             valid = self.load_param_json()
             self.global_params = DataHandler._global_params_default.copy()
@@ -212,6 +252,7 @@ class DataHandler:
 
         elif save_dir_already_created:  # this loads everything from the save dir
             valid = self.load_param_json()
+            self.classes = DataHandler._base_class_construct
             self.time_trace_params = DataHandler._time_trace_params_default.copy()
             if self.dataset_params["single_file_mode"] and not self.load_into_mem:
                 if not os.path.isdir(
@@ -247,7 +288,6 @@ class DataHandler:
                      in self.trials_loaded])
                 self.reset_data()
 
-
                 self.dataset_trials_filtered[
                     self._trials_loaded_indices[0]].compute()
 
@@ -255,6 +295,8 @@ class DataHandler:
             # if there are ROIs saved in the save dir load them and calculate time
             # traces
 
+            if self.widefield:
+                self.load_mask(self.mask_path)
             if self.rois_exist:
                 try:
                     self.load_rois()
@@ -276,15 +318,11 @@ class DataHandler:
             self.box_params_processed = DataHandler._box_params_default.copy()
             self.roi_extraction_params = DataHandler._roi_extraction_params_default.copy()
             self.time_trace_params = DataHandler._time_trace_params_default.copy()
-            self.classes = {"Unassigned": {"color": (150, 150, 150), "rois": [],
-                                           "name": "Unassigned", "editable": False},
-                            "Base": {"color": self.color_list[0], "rois": [],
-                                     "name": "Base", "editable": True},
-                            "Important": {"color": self.color_list[1], "rois": [],
-                                          "name": "important", "editable": True}}
+            self.classes = DataHandler._base_class_construct
             self.dataset_params["dataset_folder_path"] = data_path
             self.dataset_params["trials_loaded"] = trials
             self.trials_loaded = trials
+            self.dataset_params["mask_path"] = mask_path
             if not os.path.isdir(
                     os.path.join(data_path, trials[0])) and len(
                 self.trials_loaded) == 1:
@@ -338,7 +376,8 @@ class DataHandler:
                 self.dataset_trials_filtered[self._trials_loaded_indices[0]].compute()
                 self.dataset_params["crop_x"] = [0, self.shape[0]]
                 self.dataset_params["crop_y"] = [0, self.shape[1]]
-
+            if self.widefield:
+                self.load_mask(self.mask_path)
             self.save_new_param_json()
 
     def __del__(self):
@@ -347,6 +386,10 @@ class DataHandler:
                 self.__dict__[x[0]] = None
         except TypeError:
             pass
+
+    @property
+    def mask_path(self):
+        return self.dataset_params["mask_path"]
 
     @property
     def dataset_trials_filtered_loaded(self):
@@ -547,36 +590,38 @@ class DataHandler:
             -------
             Filtered trial as a np.ndarray
             """
-        return compute_trial_filter_step(self, trial_num, loaded_num, dataset, save_data=save_data)
-    def load_trial_dataset_step(self, trial_num):
-        """
-        Delayed function step that loads a single trial
-        Parameters
-        ----------
-        trial_num : int
-            trial num to load in trials_all
+        return compute_trial_filter_step(self, trial_num, loaded_num, dataset,
+                                         save_data=save_data)
 
-        Returns
-        -------
-        Trial as a np.ndarray
-        """
-        return load_trial_dataset_step(self, trial_num)
-
-    def load_trial_filter_step(self, trial_num, dataset=False, loaded_num=False):
-        """
-        Delayed function step that applies filter to a single trial
-        Parameters
-        ----------
-        trial_num : int
-            trial num to load in trials_all
-        dataset : ndarray
-            Dataset to process if false load dataset
-
-        Returns
-        -------
-        Filtered trial as a np.ndarray
-        """
-        return load_trial_filter_step(self, trial_num, dataset, loaded_num)
+    # def load_trial_dataset_step(self, trial_num):
+    #     """
+    #     Delayed function step that loads a single trial
+    #     Parameters
+    #     ----------
+    #     trial_num : int
+    #         trial num to load in trials_all
+    #
+    #     Returns
+    #     -------
+    #     Trial as a np.ndarray
+    #     """
+    #     return load_trial_dataset_step(self, trial_num)
+    #
+    # def load_trial_filter_step(self, trial_num, dataset=False, loaded_num=False):
+    #     """
+    #     Delayed function step that applies filter to a single trial
+    #     Parameters
+    #     ----------
+    #     trial_num : int
+    #         trial num to load in trials_all
+    #     dataset : ndarray
+    #         Dataset to process if false load dataset
+    #
+    #     Returns
+    #     -------
+    #     Filtered trial as a np.ndarray
+    #     """
+    #     return load_trial_filter_step(self, trial_num, dataset, loaded_num)
     #
     # def calculate_filters(self, trial=0,progress_signal=None, auto_crop=False):
     #     """
@@ -594,11 +639,14 @@ class DataHandler:
     def load_dataset(self, path):
         # loads a dataset or loads a zarr in
         return load_dataset(self, path)
+
+    def load_mask(self, path):
+        return load_mask(self, path)
+
     @property
     def real_trials(self):
         return not (self.dataset_params["single_file_mode"] or self.dataset_params[
             "trial_split"] or len(self.trials_loaded) == 1)
-
 
     def calculate_roi_extraction(self, progress_signal=None):
         """

@@ -2,8 +2,8 @@ import os
 from functools import reduce
 from typing import List, Tuple
 
-import numpy as np
 from dask import delayed
+from scipy import ndimage
 from scipy.ndimage import gaussian_filter
 from scipy.ndimage.morphology import binary_fill_holes
 from scipy.sparse import csr_matrix
@@ -24,12 +24,14 @@ def roi_extract_image(*, e_vectors: np.ndarray,
                       elbow_threshold_method: bool, elbow_threshold_value: float,
                       eigen_threshold_method: bool,
                       eigen_threshold_value: float, merge_temporal_coef: float,
-                      roi_size_limit: int, box_num: int, roi_eccentricity_limit: float, total_num_spatial_boxes=0,
+                      roi_size_limit: int, box_num: int, roi_eccentricity_limit: float,
+                      total_num_spatial_boxes=0,
                       total_num_time_steps=0, save_dir=0, print_progress=False,
                       initial_pixel=-1,
 
-                      print_info=True, progress_signal=None, wide_field=False,
-                      mask=None, local_max_method=False) -> List[
+                      print_info=True, progress_signal=None, widefield=False,
+                      image_data_mask=None,
+                      local_max_method=False) -> List[
     np.ndarray]:
     """
     Computes the Local Selective Spectral roi_extraction algorithm on an set of
@@ -92,17 +94,25 @@ def roi_extract_image(*, e_vectors: np.ndarray,
     pixel_embedings = embedEigenSqrdNorm(
         e_vectors)  # embeds the pixels in the eigen space
 
-    if local_max_method or wide_field:
-
-        image = np.reshape(pixel_embedings, original_shape[1:])
+    if local_max_method or widefield:
+        if widefield:
+            pixel_embedings_all = mask_to_data_2d(pixel_embedings, image_data_mask)
+        else:
+            pixel_embedings_all = pixel_embedings
+        image = np.reshape(pixel_embedings_all, original_shape[1:])
         image = gaussian_filter(image, np.std(image))
         local_max = peak_local_max(image, min_distance=int(
-            roi_size_min * .25) if roi_size_min * .25 > 5 else 5)
+            roi_size_min * .25) if roi_size_min * .25 > 2 else 2)
 
         initial_pixel_list = cord_2d_to_pixel_num(local_max.transpose(),
                                                   original_shape[1:])
-        sort_ind = np.flip(np.argsort(pixel_embedings[initial_pixel_list]))
+        sort_ind = np.flip(
+            np.argsort(pixel_embedings_all[initial_pixel_list].flatten()))
         initial_pixel_list = initial_pixel_list[sort_ind]
+        if widefield:
+            initial_pixel_list = orig_to_mask_data_point(initial_pixel_list,
+                                                         image_data_mask,
+                                                         original_shape)
         print(len(initial_pixel_list))
         # if num_rois!=60:
         #     return [np.array([int(x)]) for x in initial_pixel_list]
@@ -129,7 +139,8 @@ def roi_extract_image(*, e_vectors: np.ndarray,
     pixels_assigned_set = {}
     while len(roi_list) < num_rois and len(
             initial_pixel_list) > 0 and iter_counter < max_iter and (
-            not wide_field or float(len(pixels_assigned_set)) / pixel_length > .95):
+            not widefield or not float(
+        len(pixels_assigned_set)) / pixel_length > .95 or len(initial_pixel_list) != 0):
         iter_counter += 1
         total_counter += 1
         # print(iter_counter, len(roi_list.json),
@@ -156,19 +167,22 @@ def roi_extract_image(*, e_vectors: np.ndarray,
         # selects pixels in roi
         pixels_in_roi = np.nonzero(
             small_pixel_distance <= small_pixel_embeding_norm)[0]
-        if wide_field:
+        if widefield:
             # runs a connected component analysis around the initial point
             # in original image
             pixels_in_roi_comp = connected_component(pixel_length,
                                                      original_shape,
                                                      mask_to_data_point(
-                                                         pixels_in_roi, mask,
+                                                         pixels_in_roi, image_data_mask,
                                                          original_shape),
                                                      mask_to_data_point(
-                                                         initial_pixel, mask,
+                                                         [initial_pixel],
+                                                         image_data_mask,
                                                          original_shape), )
 
-            pixels_in_roi_final = pixels_in_roi_comp
+            pixels_in_roi_final = orig_to_mask_data_point(pixels_in_roi_comp,
+                                                          image_data_mask,
+                                                          original_shape)
         else:
             # runs a connected component analysis around the initial point
             # in original image
@@ -217,20 +231,24 @@ def roi_extract_image(*, e_vectors: np.ndarray,
 
             # runs a connected component analysis around the initial point
             # in original image
-            if wide_field:
+            if widefield:
                 rf_pixels_in_roi_comp = connected_component(pixel_length,
                                                             original_shape,
                                                             mask_to_data_point(
-                                                                rf_pixels_in_roi, mask,
+                                                                rf_pixels_in_roi,
+                                                                image_data_mask,
                                                                 original_shape),
                                                             mask_to_data_point(
-                                                                rf_initial_point, mask,
+                                                                [rf_initial_point],
+                                                                image_data_mask,
                                                                 original_shape))
                 rf_pixels_in_roi_filled = \
                     fill_holes_func([rf_pixels_in_roi_comp], pixel_length,
                                     original_shape)[
                         0]  # TODO do we fill the rois in widefield
-                pixels_in_roi_final = rf_pixels_in_roi_filled
+                pixels_in_roi_final = orig_to_mask_data_point(rf_pixels_in_roi_filled,
+                                                              image_data_mask,
+                                                              original_shape)
 
             else:
                 rf_pixels_in_roi_comp = connected_component(pixel_length,
@@ -249,7 +267,7 @@ def roi_extract_image(*, e_vectors: np.ndarray,
         # print( len(
         #         pixels_in_roi_final))
 
-        if wide_field or (roi_size_min < len(
+        if widefield or (roi_size_min < len(
                 pixels_in_roi_final) < roi_size_limit and roi_eccentricity(pixel_length,
                                                                            original_shape,
                                                                            pixels_in_roi_final) <= roi_eccentricity_limit):
@@ -257,7 +275,7 @@ def roi_extract_image(*, e_vectors: np.ndarray,
             roi_list.append(pixels_in_roi_final)
 
             iter_counter = 0
-            if wide_field:
+            if widefield:
                 initial_pixel_list = np.delete(initial_pixel_list, 0)
 
             else:
@@ -272,13 +290,16 @@ def roi_extract_image(*, e_vectors: np.ndarray,
 
             # print(len(initial_pixel_list))
         else:
-            if wide_field:
+            if widefield:
                 initial_pixel_list = np.delete(initial_pixel_list, 0)
             else:
                 # takes current initial point and moves it to end of
                 # initial_pixel_list
                 initial_pixel_list = np.delete(
                     np.append(initial_pixel_list, initial_pixel_list[0]), 0)
+    if widefield:
+        roi_list = [mask_to_data_point(x, image_data_mask, original_shape) for x in
+                    roi_list]  # converts all points to unmasked version
     if fill_holes:
         # TODO combine into connected component function
         roi_list = fill_holes_func(roi_list, pixel_length, original_shape)
@@ -290,9 +311,12 @@ def roi_extract_image(*, e_vectors: np.ndarray,
                               roi_eccentricity_limit=roi_eccentricity_limit)
         if fill_holes:
             roi_list = fill_holes_func(roi_list, pixel_length, original_shape)
-    if wide_field:
+    if widefield:
         # handles overlapping rois
-        roi_list = remove_overlap_widefield(roi_list, mask, original_shape, e_vectors)
+        roi_list = remove_overlap_widefield(roi_list, image_data_mask, original_shape,
+                                            e_vectors)
+        roi_list = add_unassigned_pixels_widefield(roi_list, image_data_mask,
+                                                   original_shape, e_vectors)
     # new_rois_filtered= []
     # for roi in roi_list:
     #     if roi_eccentricity(pixel_length,original_shape,roi)<=roi_eccentricity_limit:
@@ -305,9 +329,82 @@ def roi_extract_image(*, e_vectors: np.ndarray,
             f.write("done")
         printProgressBarROI(total_num_spatial_boxes, total_num_time_steps, save_dir,
                             progress_signal=progress_signal)
+    roi_list = [np.array(x) for x in roi_list]
     return roi_list
 
 
+def add_unassigned_pixels_widefield(roi_list, mask, original_shape, e_vectors):
+    new_rois = []
+    for roi in roi_list:
+        image_temp = np.zeros((original_shape[1] * original_shape[2]), dtype=float)
+
+        image_temp[roi] = 1
+        image_temp = image_temp.reshape((original_shape[1], original_shape[2]))
+        # edge = feature.canny(
+        #     np.sum(image_temp, axis=2) / np.max(np.sum(image_temp, axis=2)))
+        # image[edge] = 1
+        image_temp = ndimage.morphology.binary_dilation(image_temp)
+        image_temp = image_temp.reshape((original_shape[1] * original_shape[2]))
+        new_rois.append(np.nonzero(image_temp))
+    roi_pixel_matrix = np.zeros((len(roi_list), original_shape[1] * original_shape[2]))
+    pixels_currently_in_roi = np.hstack(roi_list)
+    for num, roi in enumerate(new_rois):
+        roi_pixel_matrix[num, roi] = 1
+    roi_pixel_matrix[:, pixels_currently_in_roi] = 0
+    roi_pixel_matrix[:, ~mask.flatten()] = 0
+    num_rois_pixels = np.sum(roi_pixel_matrix, axis=0)
+    pixels_to_assign = np.nonzero(num_rois_pixels == 1)[0]
+
+    for pixel in pixels_to_assign:
+        roi_num = np.nonzero(roi_pixel_matrix[:, pixel])[0][0]
+        roi_list[roi_num] = np.append(roi_list[roi_num], pixel)
+    roi_centroids = []
+
+    def change_1_cord(cord_1d):
+        # converts 1d cord to 2d cord
+        return int(cord_1d // original_shape[1]), int(cord_1d - (
+                cord_1d // original_shape[1]) * original_shape[1])
+
+    for roi in roi_list:
+        roi_centroids.append(
+            np.mean(e_vectors[orig_to_mask_data_point(roi, mask, original_shape)],
+                    axis=0))
+    pixels_with_two_overlap = np.nonzero(num_rois_pixels >= 2)[0]
+    for pixel in pixels_with_two_overlap:
+        rois = np.nonzero(roi_pixel_matrix[:, pixel])[0]
+        diffs = []
+        for roi_num in rois:
+            diffs.append(
+                distance_from_centroid(roi_list[roi_num], [pixel], mask, original_shape,
+                                       e_vectors, roi_centroids[roi_num]))
+        closest_roi = rois[np.argmin(diffs)]
+        roi_list[closest_roi] = np.append(roi_list[closest_roi], pixel)
+
+    return roi_list
+
+
+def distance_from_centroid(roi, points, mask, original_shape, e_vectors,
+                           centroid_vector):
+    """
+    Calculates the distance of a set of points from the rois centroid
+    Parameters
+    ----------
+    roi list of points in original shape cords 1d
+    points list of points in original shape cords 1d
+    mask
+    original_shape
+    e_vectors
+
+    Returns
+    -------
+
+    """
+
+    embedding_centroid = centroid_vector
+
+    embedding_points = e_vectors[orig_to_mask_data_point(points, mask, original_shape)]
+    diff = embedEigenSqrdNorm(embedding_points - embedding_centroid)
+    return diff
 def remove_overlap_widefield(roi_list, mask, original_shape, e_vectors):
     """
     Removes overlapping pixels in widefield.
@@ -322,16 +419,39 @@ def remove_overlap_widefield(roi_list, mask, original_shape, e_vectors):
     -------
 
     """
-
+    # [number_connected_components(pixel_length=original_shape[1]*original_shape[2], original_shape=original_shape,pixels_in_roi=x)for x in roi_list]
     A = np.zeros([original_shape[1] * original_shape[2], len(roi_list)], dtype=bool)
     for num, roi in enumerate(roi_list):
         A[roi, num] = True
     A_graph = np.matmul(A.transpose(), A)
-    A_graph_sum = np.sum(A_graph, axis=1)
-    row_numbers = np.arange(0, original_shape[1] * original_shape[2], 1)
-    rows_with_multiple = row_numbers[A_graph_sum > 1]
-    for x in list(rows_with_multiple):
-        row = A_graph[x, :]
+    overlaping_rois = np.nonzero(np.triu(A_graph))
+
+    roi_centroids = []
+
+    def change_1_cord(cord_1d):
+        # converts 1d cord to 2d cord
+        return int(cord_1d // original_shape[1]), int(cord_1d - (
+                cord_1d // original_shape[1]) * original_shape[1])
+
+    for roi in roi_list:
+        roi_centroids.append(
+            np.mean(e_vectors[orig_to_mask_data_point(roi, mask, original_shape)],
+                    axis=0))
+    for roi_a, roi_b in list(zip(overlaping_rois[0], overlaping_rois[1])):
+        if roi_a != roi_b:
+            overlap_pixels = np.intersect1d(roi_list[roi_a], roi_list[roi_b],
+                                            assume_unique=True)
+            diff_a = distance_from_centroid(roi_list[roi_a], overlap_pixels, mask,
+                                            original_shape, e_vectors,
+                                            centroid_vector=roi_centroids[roi_a])
+            diff_b = distance_from_centroid(roi_list[roi_b], overlap_pixels, mask,
+                                            original_shape, e_vectors,
+                                            centroid_vector=roi_centroids[roi_b])
+            remove_from_a = overlap_pixels[diff_a > diff_b]
+            remove_from_b = overlap_pixels[diff_a <= diff_b]
+            roi_list[roi_a] = np.setdiff1d(roi_list[roi_a], remove_from_a)
+            roi_list[roi_b] = np.setdiff1d(roi_list[roi_b], remove_from_b)
+    return roi_list
 
 
 def fill_holes_func(roi_list: List[np.ndarray], pixel_length: int,
@@ -354,7 +474,7 @@ def fill_holes_func(roi_list: List[np.ndarray], pixel_length: int,
         [np.array  of pixels roi 2] ... ]
     """
     for num, roi in enumerate(roi_list):
-        original_zeros = np.zeros((pixel_length))
+        original_zeros = np.zeros((original_shape[1] * original_shape[2]))
         original_zeros[roi] = 255
         image_filled = binary_fill_holes(np.reshape(original_zeros,
                                                     original_shape[1:]))
@@ -431,7 +551,7 @@ def connected_component(pixel_length: int, original_shape: Tuple[int, int, int],
     """
     # TODO add in im fill before connected component
     # first creates an image with pixel values of 1 if pixel in roi
-    original_zeros = np.zeros(pixel_length)
+    original_zeros = np.zeros(original_shape[1] * original_shape[2])
     original_zeros[pixels_in_roi] = 1
     pixel_image = np.reshape(original_zeros, original_shape[1:])
     # runs connected component analysis on image

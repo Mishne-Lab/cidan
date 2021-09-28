@@ -541,9 +541,7 @@ class ROIExtractionTab(Tab):
         try:
             self.time_plot.clear()
             self.time_plot.enableAutoRange(axis=0)
-            for num2, x in zip(
-                    range(1, len(self.roi_list_module.roi_time_check_list)),
-                    self.roi_list_module.roi_time_check_list):
+            for num2, x in enumerate(self.roi_list_module.roi_time_check_list):
                 if x:
                     if self.data_handler.roi_time_trace_need_update[num2]:
                         self.main_widget.console.updateText(

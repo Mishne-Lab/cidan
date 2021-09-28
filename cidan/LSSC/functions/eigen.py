@@ -4,7 +4,6 @@ import os
 import numpy as np
 from PIL import Image
 from dask import delayed
-from matplotlib import pyplot as plt
 from scipy import sparse
 from scipy.sparse import linalg
 
@@ -129,15 +128,15 @@ def createEmbedingNormImageFromMultiple(*, spatial_box_list, save_dir, num_time_
                                                         time_box_num),
                 output_directory=eigen_dir)
 
-            fig = plt.figure(frameon=False)
-            for x in range(e_vectors.shape[1]):
-                ax = plt.Axes(fig, [0., 0., 1., 1.])
-                ax.set_axis_off()
-                fig.add_axes(ax)
-                ax.imshow(np.abs(e_vectors[:, x].reshape(spatial_box.shape)))
-                fig.savefig(os.path.join(save_dir, "embedding_norm_images",
-                                         "e_vector2_%s.png" % (str(x))))
-            fig.clf()
+            # fig = plt.figure(frameon=False)
+            # for x in range(e_vectors.shape[1]):
+            #     ax = plt.Axes(fig, [0., 0., 1., 1.])
+            #     ax.set_axis_off()
+            #     fig.add_axes(ax)
+            #     ax.imshow(np.abs(e_vectors[:, x].reshape(spatial_box.shape)))
+            #     fig.savefig(os.path.join(save_dir, "embedding_norm_images",
+            #                              "e_vector2_%s.png" % (str(x))))
+            # fig.clf()
             e_vectors_squared = np.power(e_vectors, 2)
             e_vectors_sum = np.sum(e_vectors_squared, axis=1)
             e_vectors_sum = np.power(e_vectors_sum, .5)

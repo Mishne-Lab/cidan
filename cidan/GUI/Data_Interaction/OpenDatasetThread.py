@@ -27,7 +27,9 @@ class OpenDatasetThread(Thread):
                                                         save_dir_path=self.save_dir_path,
                                                         save_dir_already_created=self.save_dir_already_created,
                                                         load_into_mem=self.load_into_mem,
-                                                        auto_crop=self.auto_crop)
+                                                        auto_crop=self.auto_crop,
+                                                        mask_path=self.mask_path,
+                                                        widefield=self.main_widget.widefield)
             # self.main_widget.data_handler.calculate_filters(self.reportProgress,
             #                                                 auto_crop=self.auto_crop)
 
@@ -39,7 +41,9 @@ class OpenDatasetThread(Thread):
                                                             save_dir_path=self.save_dir_path,
                                                             save_dir_already_created=self.save_dir_already_created,
                                                             load_into_mem=self.load_into_mem,
-                                                            auto_crop=self.auto_crop)
+                                                            auto_crop=self.auto_crop,
+                                                            mask_path=self.mask_path,
+                                                            widefield=self.main_widget.widefield)
                 # self.main_widget.data_handler.calculate_filters(self.reportProgress,
                 #                                                 auto_crop=auto_cropself.auto_crop)
                 self.signal.sig.emit(True)
@@ -53,20 +57,23 @@ class OpenDatasetThread(Thread):
                 self.signal.sig.emit(False)
 
     def runThread(self, data_path, trials, save_dir_path, save_dir_already_created,
-                  load_into_mem):
+                  load_into_mem, widefield=False, mask_path=None):
         self.data_path = data_path
         self.trials = trials
         self.save_dir_path = save_dir_path
         self.save_dir_already_created = save_dir_already_created
         self.load_into_mem = load_into_mem
         self.auto_crop = False
+        self.widefield = widefield
+        self.mask_path = mask_path
 
         if not any([x.isRunning() for x in self.main_widget.thread_list]):
             print("Opening Dataset")
             self.main_widget.console.updateText("Opening Dataset")
 
             # self.button.setEnabled(False)
-            if not save_dir_already_created and self.load_into_mem and len(trials) == 1:
+            if not save_dir_already_created and self.load_into_mem and len(
+                    trials) == 1 and not widefield:
                 msg = QMessageBox()
                 msg.setIcon(QMessageBox.Information)
                 msg.setStyleSheet(qdarkstyle.load_stylesheet())
