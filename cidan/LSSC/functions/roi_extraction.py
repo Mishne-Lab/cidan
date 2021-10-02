@@ -102,7 +102,7 @@ def roi_extract_image(*, e_vectors: np.ndarray,
         image = np.reshape(pixel_embedings_all, original_shape[1:])
         image = gaussian_filter(image, np.std(image))
         local_max = peak_local_max(image, min_distance=int(
-            roi_size_min * .25) if roi_size_min * .25 > 2 else 2)
+            roi_size_min * .25) if roi_size_min * .25 < 2 else 2)
 
         initial_pixel_list = cord_2d_to_pixel_num(local_max.transpose(),
                                                   original_shape[1:])
@@ -141,6 +141,8 @@ def roi_extract_image(*, e_vectors: np.ndarray,
             initial_pixel_list) > 0 and iter_counter < max_iter and (
             not widefield or not float(
         len(pixels_assigned_set)) / pixel_length > .95 or len(initial_pixel_list) != 0):
+
+        # in this loop in widefield mode all pixel storage happens in masked state
         iter_counter += 1
         total_counter += 1
         # print(iter_counter, len(roi_list.json),
@@ -267,10 +269,11 @@ def roi_extract_image(*, e_vectors: np.ndarray,
         # print( len(
         #         pixels_in_roi_final))
 
-        if widefield or (roi_size_min < len(
-                pixels_in_roi_final) < roi_size_limit and roi_eccentricity(pixel_length,
-                                                                           original_shape,
-                                                                           pixels_in_roi_final) <= roi_eccentricity_limit):
+        if roi_size_min < len(
+                pixels_in_roi_final) < roi_size_limit and (
+                widefield or roi_eccentricity(pixel_length,
+                                              original_shape,
+                                              pixels_in_roi_final) <= roi_eccentricity_limit):
 
             roi_list.append(pixels_in_roi_final)
 
@@ -300,6 +303,7 @@ def roi_extract_image(*, e_vectors: np.ndarray,
     if widefield:
         roi_list = [mask_to_data_point(x, image_data_mask, original_shape) for x in
                     roi_list]  # converts all points to unmasked version
+    #### in widefield all points are now in unmasked space
     if fill_holes:
         # TODO combine into connected component function
         roi_list = fill_holes_func(roi_list, pixel_length, original_shape)
@@ -308,7 +312,8 @@ def roi_extract_image(*, e_vectors: np.ndarray,
         roi_list = merge_rois(roi_list,
                               temporal_coefficient=merge_temporal_coef,
                               original_2d_vol=original_2d_vol,
-                              roi_eccentricity_limit=roi_eccentricity_limit)
+                              roi_eccentricity_limit=roi_eccentricity_limit,
+                              widefield=widefield)
         if fill_holes:
             roi_list = fill_holes_func(roi_list, pixel_length, original_shape)
     if widefield:
@@ -449,8 +454,10 @@ def remove_overlap_widefield(roi_list, mask, original_shape, e_vectors):
                                             centroid_vector=roi_centroids[roi_b])
             remove_from_a = overlap_pixels[diff_a > diff_b]
             remove_from_b = overlap_pixels[diff_a <= diff_b]
-            roi_list[roi_a] = np.setdiff1d(roi_list[roi_a], remove_from_a)
-            roi_list[roi_b] = np.setdiff1d(roi_list[roi_b], remove_from_b)
+            roi_list[roi_a] = np.setdiff1d(roi_list[roi_a], remove_from_a,
+                                           assume_unique=True)
+            roi_list[roi_b] = np.setdiff1d(roi_list[roi_b], remove_from_b,
+                                           assume_unique=True)
     return roi_list
 
 
@@ -710,7 +717,8 @@ def elbow_threshold(pixel_vals: np.ndarray, pixel_val_sort_indices: np.ndarray,
 
 
 def merge_rois(roi_list: List,
-               temporal_coefficient: float, original_2d_vol: np.ndarray, roi_eccentricity_limit=1.0):
+               temporal_coefficient: float, original_2d_vol: np.ndarray,
+               roi_eccentricity_limit=1.0, widefield=False):
     # TODO is this the most efficient implementation I can do
     """
     Merges rois based on temporal and spacial overlap
@@ -739,18 +747,20 @@ def merge_rois(roi_list: List,
     connected_rois = np.nonzero(A_graph)
     # print(A_graph)
     timetraces = [np.mean(original_2d_vol[roi], axis=0) for roi in roi_list]
-    A_graph_new = A_graph.astype(float)
+    A_graph_new = np.identity(A_graph.shape[0], dtype=float)
     # print(list(zip(*connected_rois)))
     for x in list(zip(*connected_rois)):
         # applies a 10% overlap condition to the rois.
-        if x[0] != x[1] and A_graph[x[0], x[1]] > len(roi_list[x[1]]) * .1 and A_graph[
-            x[0], x[1]] > len(roi_list[x[0]]) * .1:
+        if x[0] != x[1] and (widefield or (
+                A_graph[x[0], x[1]] > len(roi_list[x[1]]) * .1 and A_graph[
+            x[0], x[1]] > len(roi_list[x[0]]) * .1)):
             A_graph_new[x[0], x[1]] = compare_time_traces(timetraces[x[0]],
                                                           timetraces[x[1]])
             # print(A_graph_new[x[0],x[1]])
             A_graph_new[x[1], x[0]] = A_graph_new[x[0], x[1]]
             A_graph[x[0], x[1]] = False
             A_graph[x[1], x[0]] = False
+
     A_components_to_merge = A_graph_new >= temporal_coefficient
     A_csr = csr_matrix(A_components_to_merge)
     # Use connected components to group these rois together
@@ -793,8 +803,8 @@ def compare_time_traces(trace_1: np.ndarray, trace_2: np.ndarray) -> float:
     trace_1_sub_mean = (trace_1 - trace_1_mean)
     trace_2_sub_mean = (trace_2 - trace_2_mean)
     top = np.dot(trace_1_sub_mean, trace_2_sub_mean)
-    bottom = (np.dot(trace_1_sub_mean, trace_1_sub_mean) *
-              np.dot(trace_2_sub_mean, trace_2_sub_mean)) ** .5
+    bottom = (np.dot(trace_1_sub_mean, trace_1_sub_mean) ** .5 *
+              np.dot(trace_2_sub_mean, trace_2_sub_mean) ** .5)
     return top / bottom
 
 

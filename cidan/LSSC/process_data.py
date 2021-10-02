@@ -259,7 +259,7 @@ def process_data(*, test_images: bool, test_output_dir: str,
     all_rois_merged = delayed(merge_rois)(roi_list=all_rois,
                                           temporal_coefficient=merge_temporal_coef,
                                           original_2d_vol=reshape_to_2d_over_time(
-                                              data_all)).compute()
+                                              data_all), widefield=widefield).compute()
 
     if test_images:
         delayed(save_roi_images)(roi_list=all_rois_merged,
