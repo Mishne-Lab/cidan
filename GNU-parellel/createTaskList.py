@@ -16,14 +16,32 @@ def main():
     parser.add_argument("-p", "--parameter", type=str, default='', required=True,
                         help="Parameter file to base off of",
                         )
+    parser.add_argument("--num_rois", type=int, default=70, required=False,
+                        help="Number of rois",
+                        )
+    parser.add_argument("--num_spatial_boxes", type=int, default=1, required=False,
+                        help="Number of rois",
+                        )
+    parser.add_argument("--start",type=int, default=0, required=False, )
     args = parser.parse_args()
     with open(args.parameter, "r") as f:
         parameter_json = json.load(f)
-    parameters_to_search = {"median_filter": [False], "hist_eq": [True],
-                            "pca": [False], "total_num_spatial_boxes": [1],
-                            "num_eig": [50], "trial_split": [True],
-                            "trial_length": [400],"eigen_accuracy":[7],
-                            "localSpatialDenoising": [True], "auto_crop":[True], "num_rois":[70,120], "num_iter":[100,200,300]}
+    parameters_to_search = {"median_filter": [True,False], "hist_eq": [True,False],
+                            "pca": [False,True], "total_num_spatial_boxes": [1],
+                            "num_eig": [21,31,41,51], "trial_split": [True],
+                            "trial_length": [500],"eigen_accuracy":[10],
+                            "localSpatialDenoising": [False,True], "auto_crop":[False], "num_rois":[100],
+                            "max_iter":[100,200],"eigen_threshold_value":[.2,.3,.4,.5], "roi_eccentricity_limit": [.95],
+        #, "roi_circ_threshold":[0],"roi_eccentricity_limit": [1],
+                            # "crop_x": [[
+                            #     0,
+                            #     256
+                            # ]],
+                            # "crop_y": [[
+                            #     0,
+                            #     256
+                            # ]]
+                            }
     total_parameters_combinations = reduce(lambda x, y: x * y,
                                            [len(parameters_to_search[x]) for x in
                                             parameters_to_search])
@@ -37,6 +55,7 @@ def main():
         parameter_remainders.append(remainder)
     if os.path.isdir(args.input_dir):
         directory_list = list_dirs(args.input_dir, 1)
+        directory_list = [x for x in directory_list if os.path.isfile(os.path.join(args.input_dir, x))]
     else:
         directory_list = [os.path.basename(args.input_dir)]
 
@@ -48,7 +67,7 @@ def main():
 
             for x in range(total_parameters_combinations):
                 curr_json = parameter_json.copy()
-                curr_out_dir = os.path.join(args.output_dir, curr_dir + str(x+6))
+                curr_out_dir = os.path.join(args.output_dir, curr_dir + str(x+args.start))
                 if not os.path.isdir(curr_out_dir):
                     os.mkdir(curr_out_dir)
                 for remainder, key in zip(parameter_remainders, parameter_keys):
@@ -59,7 +78,7 @@ def main():
                             curr_json[section][key] = val
                 curr_json["dataset_params"]["dataset_folder_path"] = args.input_dir
                 curr_json["dataset_params"][
-                    "original_folder_trial_split"] = os.path.basename(curr_dir)
+                    "original_folder_trial_split"] = [os.path.basename(curr_dir)]
                 if os.path.isdir(os.path.join(args.input_dir, curr_dir, "images")):
                     curr_json["dataset_params"]["dataset_folder_path"] = os.path.join(
                         args.input_dir, curr_dir)

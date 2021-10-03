@@ -4,26 +4,29 @@ from functools import reduce
 from typing import List
 
 import dask
-import numpy as np
 from dask import delayed
 
 from cidan.LSSC.SpatialBox import SpatialBox
-from cidan.LSSC.functions.data_manipulation import reshape_to_2d_over_time, \
-    join_data_list
+from cidan.LSSC.functions.data_manipulation import reshape_to_2d_over_time
 from cidan.LSSC.functions.eigen import generateEigenVectors, saveEigenVectors, \
     loadEigenVectors, saveEmbedingNormImage, createEmbedingNormImageFromMultiple
 from cidan.LSSC.functions.embeddings import calcAffinityMatrix
 from cidan.LSSC.functions.progress_bar import printProgressBarROI
 from cidan.LSSC.functions.roi_extraction import roi_extract_image, merge_rois
 from cidan.LSSC.functions.save_test_images import save_roi_images
+from cidan.LSSC.functions.widefield_functions import *
+from explorations.load_mat import load_dataset_widefield_test
 
 logger1 = logging.getLogger("cidan.LSSC.process_data")
 
 
-def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
+def process_data(*, test_images: bool, test_output_dir: str,
                  save_dir: str, save_intermediate_steps: bool,
-
                  image_data: List[np.ndarray],
+                 image_data_filtered: List[np.ndarray],
+                 shape: List[np.ndarray],
+                 crop: List[np.ndarray],
+                 slicing: List[np.ndarray],
                  eigen_vectors_already_generated: bool,
                  save_embedding_images: bool,
                  total_num_time_steps: int, total_num_spatial_boxes: int,
@@ -36,7 +39,9 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                  eigen_threshold_method: bool,
                  eigen_threshold_value: float, merge_temporal_coef: float,
                  roi_size_max: int, pca: bool, pca_data: np.ndarray,
-                 eigen_accuracy: int, progress_signal=None):
+                 eigen_accuracy: int, roi_eccentricity_limit: float,
+                 local_max_method: bool, progress_signal=None, widefield=False,
+                 image_data_mask=None):
     logger1.debug("""Inputs: num_threads {0},test_images {1}, test_output_dir {2},
                  save_dir {3}, save_intermediate_steps {4},
                  load_data {5}, data_path {6},
@@ -55,10 +60,10 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                  elbow_threshold_method {33}, elbow_threshold_value {34},
                  eigen_threshold_method {35},
                  eigen_threshold_value {36}, merge_temporal_coef {37},
-                 roi_size_max {38}""".format(num_threads, test_images, test_output_dir,
+                 roi_size_max {38}""".format("none", test_images, test_output_dir,
                                              save_dir, save_intermediate_steps,
                                              "", "",
-                                             image_data,
+                                             image_data_filtered,
                                              eigen_vectors_already_generated,
                                              save_embedding_images,
                                              total_num_time_steps,
@@ -97,7 +102,7 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
     filelist = [f for f in os.listdir(os.path.join(save_dir, "temp_files/rois"))]
     for f in filelist:
         os.remove(os.path.join(os.path.join(save_dir, "temp_files/rois"), f))
-    shape = [image_data[0].shape[1], image_data[0].shape[2]]
+    # shape = [image_data_filtered[0].shape[1], image_data_filtered[0].shape[2]]
     logger1.debug("image shape {0}".format(shape))
     # print("Creating {} spatial boxes".format(total_num_spatial_boxes))
     printProgressBarROI(total_num_spatial_boxes=total_num_spatial_boxes,
@@ -109,7 +114,8 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
     all_rois = []
     all_boxes_eigen_vectors = []
     for spatial_box in spatial_boxes:
-        spatial_box_data_list = [spatial_box.extract_box(x) for x in image_data]
+        spatial_box_data_list = [convert_to_float(spatial_box.extract_box(x)) for x in
+                                 image_data_filtered]
         if pca:
             spatial_box_data_list_pca = [spatial_box.extract_box(x) for x in pca_data]
         if len(spatial_box_data_list) == 1:
@@ -119,8 +125,8 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
 
 
         if total_num_time_steps != 1 and len(spatial_box_data_list) == 1 and not pca:
-            time_boxes = [(x * (image_data[0].shape[0] // total_num_time_steps),
-                           (x + 1) * (image_data[0].shape[0] //
+            time_boxes = [(x * (image_data_filtered[0].shape[0] // total_num_time_steps),
+                           (x + 1) * (image_data_filtered[0].shape[0] //
                                       total_num_time_steps))
                           for x in range(total_num_time_steps)]
 
@@ -139,6 +145,9 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                 #                               spatial_box.box_num)
 
                 time_box_data_2d = reshape_to_2d_over_time(time_box_data)
+                if widefield:
+                    time_box_data_2d = delayed(mask_data_2d)(time_box_data_2d,
+                                                             image_data_mask.flatten())
                 if pca:
                     time_box_data_2d_pca = reshape_to_2d_over_time(
                         spatial_box_data_list_pca[temporal_box_num])
@@ -152,7 +161,7 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                     knn=knn, accuracy=accuracy,
                     connections=connections,
                     normalize_w_k=25,
-                    num_threads=num_threads,
+                    num_threads=8,
                     spatial_box_num=spatial_box.box_num,
                     temporal_box_num=temporal_box_num,
                     total_num_spatial_boxes=total_num_spatial_boxes,
@@ -168,11 +177,16 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
 
                                                      )
                 if save_intermediate_steps:
-                    eigen_vectors = saveEigenVectors(e_vectors=eigen_vectors,
-                                                     spatial_box_num=spatial_box.box_num,
-                                                     time_box_num=temporal_box_num,
-                                                     save_dir=save_dir,
-                                                     total=total_num_time_steps * total_num_spatial_boxes)
+                    eigen_vectors = saveEigenVectors(
+                        e_vectors=eigen_vectors if not widefield else delayed(
+                            mask_to_data_2d)(eigen_vectors, image_data_mask),
+                        spatial_box_num=spatial_box.box_num,
+                        time_box_num=temporal_box_num,
+                        save_dir=save_dir,
+                        total=total_num_time_steps * total_num_spatial_boxes)
+                    if widefield:
+                        eigen_vectors = delayed(mask_data_2d)(eigen_vectors,
+                                                              image_data_mask)
 
                 all_eigen_vectors_list.append(eigen_vectors)
                 if test_images:
@@ -183,24 +197,34 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                     #                            box_num=spatial_box.box_num).compute()
 
         else:
-            for temporal_box_num in range(len(image_data)):
+            for temporal_box_num in range(len(image_data_filtered)):
                 all_eigen_vectors_list.append(
                     loadEigenVectors(spatial_box_num=spatial_box.box_num,
                                      time_box_num=temporal_box_num,
                                      save_dir=save_dir))
+                if widefield:
+                    all_eigen_vectors_list[-1] = delayed(mask_data_2d)(
+                        all_eigen_vectors_list[-1], image_data_mask)
 
         all_eigen_vectors = delayed(np.hstack)(all_eigen_vectors_list)
         all_boxes_eigen_vectors.append(all_eigen_vectors)
         if save_embedding_images:
-            all_eigen_vectors = saveEmbedingNormImage(e_vectors=all_eigen_vectors,
-                                                      image_shape=spatial_box.shape,
-                                                      save_dir=save_dir,
-                                                      spatial_box_num=spatial_box.box_num)
-        spatial_box_data_all = join_data_list(spatial_box_data_list)
+            all_eigen_vectors = saveEmbedingNormImage(
+                e_vectors=all_eigen_vectors if not widefield else delayed(
+                    mask_to_data_2d)(all_eigen_vectors, image_data_mask),
+                image_shape=spatial_box.shape,
+                save_dir=save_dir,
+                spatial_box_num=spatial_box.box_num)
+            if widefield:
+                all_eigen_vectors = delayed(mask_data_2d)(all_eigen_vectors,
+                                                          image_data_mask)
+
+        data_all = spatial_box.extract_box(stack_crop_slice_data(image_data,slicing, crop))
+
         rois = roi_extract_image(e_vectors=all_eigen_vectors,
-                                 original_shape=spatial_box_data_all.shape,
+                                 original_shape=data_all.shape,
                                  original_2d_vol=reshape_to_2d_over_time(
-                                     spatial_box_data_all),
+                                     data_all),
                                  merge=merge,
                                  num_rois=num_rois, refinement=refinement,
                                  num_eigen_vector_select=num_eigen_vector_select,
@@ -216,7 +240,10 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
                                  box_num=spatial_box.box_num, print_progress=True,
                                  total_num_time_steps=total_num_time_steps,
                                  total_num_spatial_boxes=total_num_spatial_boxes,
-                                 save_dir=save_dir, progress_signal=progress_signal)
+                                 roi_eccentricity_limit=roi_eccentricity_limit,
+                                 save_dir=save_dir, local_max_method=local_max_method,
+                                 progress_signal=progress_signal, widefield=widefield,
+                                 image_data_mask=image_data_mask)
         if test_images:
             pass
             # delayed(save_roi_images)(
@@ -227,11 +254,12 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
         all_rois.append(spatial_box.redefine_spatial_cord_1d(rois))
     all_rois = delayed(reduce)(lambda x, y: x + y, all_rois)
     all_rois = all_rois.compute()
+    data_all = stack_crop_slice_data(image_data, slicing, crop)
 
     all_rois_merged = delayed(merge_rois)(roi_list=all_rois,
                                           temporal_coefficient=merge_temporal_coef,
                                           original_2d_vol=reshape_to_2d_over_time(
-                                              join_data_list(image_data))).compute()
+                                              data_all), widefield=widefield).compute()
 
     if test_images:
         delayed(save_roi_images)(roi_list=all_rois_merged,
@@ -240,47 +268,45 @@ def process_data(*, num_threads: int, test_images: bool, test_output_dir: str,
     if save_embedding_images and save_intermediate_steps:
         createEmbedingNormImageFromMultiple(spatial_box_list=spatial_boxes,
                                             save_dir=save_dir,
-                                            num_time_steps=len(image_data))
+                                            num_time_steps=len(image_data_filtered))
 
     return all_rois_merged
 
 
-if __name__ == '__main__':
-    process_data(num_threads=1, load_data=True,
-                 data_path="/Users/sschickler/Code Devel/LSSC-python/input_images" +
-                           "/small_dataset1.tif",
-                 test_images=True,
-                 save_dir="/Users/sschickler/Code Devel/LSSC-python/output_images/15",
-                 save_intermediate_steps=False,
-                 eigen_vectors_already_generated=False,
-                 save_embedding_images=False,
-                 test_output_dir="/Users/sschickler/Code Devel/LSSC-python/output_images/15",
-                 image_data=None,
-                 total_num_time_steps=4, total_num_spatial_boxes=4, spatial_overlap=10,
-                 filter=True, median_filter_size=(1, 3, 3), median_filter=True,
-                 z_score=False, slice_stack=False, slice_every=10, slice_start=0,
-                 metric="l2", knn=50, accuracy=59, connections=60,
-                 num_eig=50, normalize_w_k=2, merge=True,
-                 num_rois=25, refinement=True,
-                 num_eigen_vector_select=5,
-                 max_iter=400, roi_size_min=30,
-                 fill_holes=True,
-                 elbow_threshold_method=True,
-                 elbow_threshold_value=1,
-                 eigen_threshold_method=True,
-                 eigen_threshold_value=.5,
-                 merge_temporal_coef=.01,
-                 roi_size_max=600)
-    # with performance_report(filename="dask-report.html"):
-    # process_data(num_threads=1, load_data=True,
-    #              data_path="/Users/sschickler/Code Devel/LSSC-python/input_images/dataset_1",
-    #              test_images=False,
-    #              test_output_dir="/Users/sschickler/Documents/LSSC-python/output_images/16",
-    #              image_data=None,
-    #              save_dir="/Users/sschickler/Code DEvel/LSSC-python/output_images/16",
-    #              save_embedding_images=True,
-    #              save_intermediate_steps=True,
-    #              eigen_vectors_already_generated=False,
+# if __name__ == '__main__':
+#     # process_data(
+#     #
+#     #              test_images=True,
+#     #              save_dir="/Users/sschickler/Code_Devel/LSSC-python/tests/test_files/save_dir",
+#     #              save_intermediate_steps=False,
+#     #              eigen_vectors_already_generated=False,
+#     #              save_embedding_images=False,
+#     #              test_output_dir="/Users/sschickler/Code_Devel/LSSC-python/tests/test_files/save_dir",
+#     #              image_data_filtered=None,
+#     #              total_num_time_steps=4, total_num_spatial_boxes=4, spatial_overlap=10,
+#     #
+#     #              metric="l2", knn=50, accuracy=59, connections=60,
+#     #              num_eig=50, normalize_w_k=2, merge=True,
+#     #              num_rois=25, refinement=True,
+#     #              num_eigen_vector_select=5,
+#     #              max_iter=400, roi_size_min=30,
+#     #              fill_holes=True,
+#     #              elbow_threshold_method=True,
+#     #              elbow_threshold_value=1,
+#     #              eigen_threshold_method=True,
+#     #              eigen_threshold_value=.5,
+#     #              merge_temporal_coef=.01,
+#              roi_size_max=600)
+# with performance_report(filename="dask-report.html"):
+# process_data(num_threads=1, load_data=True,
+#              data_path="/Users/sschickler/Code Devel/LSSC-python/input_images/dataset_1",
+#              test_images=False,
+#              test_output_dir="/Users/sschickler/Documents/LSSC-python/output_images/16",
+#              image_data=None,
+#              save_dir="/Users/sschickler/Code DEvel/LSSC-python/output_images/16",
+#              save_embedding_images=True,
+#              save_intermediate_steps=True,
+#              eigen_vectors_already_generated=False,
     #              total_num_time_steps=20, total_num_spatial_boxes=16, spatial_overlap=30,
     #              filter=True, median_filter_size=(1, 3, 3), median_filter=True,
     #              z_score=False, slice_stack=False, slice_every=10, slice_start=0,
@@ -301,3 +327,126 @@ if __name__ == '__main__':
 @delayed
 def sliceData(data, start_end):
     return data[0][start_end[0]:start_end[1], :, :]
+
+
+@delayed
+def convert_to_float(data):
+    return data.astype(np.float32)
+
+
+@delayed
+def stack_crop_slice_data(image_data, slicing, crop):
+    if crop:
+        data_all = np.vstack(
+            [x[slicing[0]::slicing[1], crop[0][0]:crop[0][1], crop[1][0]:crop[1][1]] for
+             x in image_data])
+    else:
+        data_all = np.vstack([x[slicing[0]::slicing[1], :, :] for x in image_data])
+    return data_all
+
+
+def main():
+    # #### Wide field data part
+    data_all, mask = load_dataset_widefield_test()
+    data_all = data_all
+    data_all = data_all.reshape((mask.shape[0], mask.shape[1], -1)).transpose((2, 0, 1))
+    eigen_params = {
+        "eigen_vectors_already_generated": False,
+        "num_eig": 50,
+        "normalize_w_k": 32,
+        "metric": "l2",
+        "knn": 50,
+        "accuracy": 75,
+        "eigen_accuracy": 8,
+        "connections": 40
+
+    }
+    roi_extraction_params = {
+        "elbow_threshold_method": True,
+        "elbow_threshold_value": .95,
+        "eigen_threshold_method": True,
+        "eigen_threshold_value": .9,
+        "num_eigen_vector_select": 1,
+        "merge_temporal_coef": .99,
+        "roi_size_min": 30,
+        "roi_size_max": 600,
+        "merge": True,
+        "num_rois": 60,
+        "fill_holes": True,
+        "refinement": True,
+        "max_iter": 100,
+        "roi_circ_threshold": 0,
+        "roi_eccentricity_limit": .9,
+        "local_max_method": False
+
+    }
+    process_data(test_images=False, test_output_dir="",
+                 save_dir="/Users/sschickler/Code_Devel/Widefield/test/",
+                 shape=data_all.shape[1:],
+                 save_intermediate_steps=True,
+                 image_data_filtered=[data_all],
+                 image_data=[data_all],
+                 crop=False,
+                 slicing=[0, 1],
+                 eigen_vectors_already_generated=False,
+                 save_embedding_images=True,
+                 total_num_time_steps=1,
+                 total_num_spatial_boxes=1,
+                 spatial_overlap=5,
+
+                 metric=eigen_params["metric"],
+                 knn=eigen_params["knn"],
+                 accuracy=eigen_params["accuracy"],
+                 eigen_accuracy=eigen_params[
+                     "eigen_accuracy"],
+                 connections=eigen_params[
+                     "connections"],
+                 normalize_w_k=eigen_params[
+                     "normalize_w_k"],
+                 num_eig=eigen_params["num_eig"],
+                 merge=roi_extraction_params["merge"],
+                 num_rois=roi_extraction_params[
+                     "num_rois"],
+                 refinement=roi_extraction_params[
+                     "refinement"],
+                 num_eigen_vector_select=
+                 roi_extraction_params[
+                     "num_eigen_vector_select"],
+                 max_iter=roi_extraction_params[
+                     "max_iter"],
+                 roi_size_min=roi_extraction_params[
+                     "roi_size_min"],
+                 fill_holes=roi_extraction_params[
+                     "fill_holes"],
+
+                 elbow_threshold_method=
+                 roi_extraction_params[
+                     "elbow_threshold_method"],
+                 elbow_threshold_value=
+                 roi_extraction_params[
+                     "elbow_threshold_value"],
+                 eigen_threshold_method=
+                 roi_extraction_params[
+                     "eigen_threshold_method"],
+                 eigen_threshold_value=
+                 roi_extraction_params[
+                     "eigen_threshold_value"],
+                 merge_temporal_coef=
+                 roi_extraction_params[
+                     "merge_temporal_coef"],
+                 roi_size_max=roi_extraction_params[
+                     "roi_size_max"],
+                 pca=False,
+                 pca_data=False,
+                 roi_eccentricity_limit=roi_extraction_params[
+                     "roi_eccentricity_limit"],
+                 local_max_method=
+                 roi_extraction_params[
+                     "local_max_method"],
+                 widefield=True,
+
+                 progress_signal=None, image_data_mask=mask)
+
+
+if __name__ == '__main__':
+    main()

@@ -1,0 +1,7 @@
+#!/bin/bash
+python time_trace_extract.py --input_file ~/Desktop/HigleyData/file1/File1_CPn_l5_gcamp6s_lan.tif  --rois ~/Desktop/CIDAN/plotting_functions/data/true/File1_corrected.json --output ~/Desktop/CIDAN/plotting_functions/data/time/file1.pickle
+python time_trace_extract.py --input_file ~/Desktop/HigleyData/file2/File2_CSt_l5_gcamp6s_lan.tif  --rois ~/Desktop/CIDAN/plotting_functions/data/true/File2_corrected.json --output ~/Desktop/CIDAN/plotting_functions/data/time/file2.pickle
+python time_trace_extract.py --input_file ~/Desktop/HigleyData/file3/File3_kf139_s.tif --rois ~/Desktop/CIDAN/plotting_functions/data/true/File3_corrected.json --output ~/Desktop/CIDAN/plotting_functions/data/time/file3.pickle
+python time_trace_extract.py --input_file ~/Desktop/HigleyData/file4/File4_kf158_s.tif  --rois ~/Desktop/CIDAN/plotting_functions/data/true/File4_corrected.json --output ~/Desktop/CIDAN/plotting_functions/data/time/file4.pickle
+python time_trace_extract.py --input_file ~/Desktop/HigleyData/file5/File5_l23_gcamp6s_lan.tif  --rois ~/Desktop/CIDAN/plotting_functions/data/true/File5_corrected.json --output ~/Desktop/CIDAN/plotting_functions/data/time/file5.pickle
+python time_trace_extract.py --input_file ~/Desktop/HigleyData/file6/File6_som_l5_gcamp6s_alka.tif --rois ~/Desktop/CIDAN/plotting_functions/data/true/File6_corrected.json --output ~/Desktop/CIDAN/plotting_functions/data/time/file6.pickle

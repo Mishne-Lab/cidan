@@ -4,23 +4,23 @@ from cidan.LSSC.functions import data_manipulation
 
 
 def save_volume_images(volume, output_dir):
-    data_manipulation.save_image(volume,
+    data_manipulation.save_image_multiple(volume,
                                  "original_image_filtered",
-                                 output_dir,
-                                 volume.shape,
-                                 number_save=4)
-    data_manipulation.save_image(np.max(volume, axis=0),
+                                          output_dir,
+                                          volume.shape,
+                                          number_save=4)
+    data_manipulation.save_image_multiple(np.max(volume, axis=0),
                                  "max_intensity_filtered",
-                                 output_dir, (
+                                          output_dir, (
                                      1, volume.shape[1],
                                      volume.shape[2]),
-                                 number_save=1)
-    data_manipulation.save_image(np.mean(volume, axis=0),
+                                          number_save=1)
+    data_manipulation.save_image_multiple(np.mean(volume, axis=0),
                                  "mean_intensity_filtered",
-                                 output_dir,
-                                 (1, volume.shape[1],
+                                          output_dir,
+                                          (1, volume.shape[1],
                                   volume.shape[2]),
-                                 number_save=1)
+                                          number_save=1)
 
 
 def save_eigen_images(eigen_vectors, output_dir, image_shape, box_num=0):

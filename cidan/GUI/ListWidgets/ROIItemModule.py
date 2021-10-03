@@ -7,8 +7,9 @@ class ROIItemModule(QStandardItem):
     An item in the ROI list, this part just takes care of the color part, the rest is
     handeled by roi item widget
     """
-    def __init__(self, color, num, roi_tab):
+    def __init__(self, color, num, roi_tab, id):
         self.roi_tab = roi_tab
+        self.id = id
         out_img = QImage(100, 100, QImage.Format_ARGB32)
         out_img.fill(Qt.transparent)
         brush = QBrush(QColor(*color))  # Create texture brush

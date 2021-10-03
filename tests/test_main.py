@@ -30,16 +30,17 @@ def test_main():
         assert tab.image_view.image_item.image.shape[0] == 400
         assert tab.image_view.image_item.image.shape[1] == 150
     data_handler = main_widget.data_handler
-    data_handler.change_dataset_param("crop_x", [0, 200])
+    data_handler.change_dataset_param("crop_x", [0, 400])
     data_handler.change_dataset_param("crop_stack", True)
     data_handler.change_filter_param("hist_eq", True)
     main_widget.thread_list[0].run()
-    assert main_widget.data_handler.shape == [200, 150]
+    assert main_widget.data_handler.shape == [400, 150]
 
     data_handler.change_filter_param("hist_eq", False)
     data_handler.change_filter_param("median_filter", True)
     data_handler.change_roi_extraction_param("roi_circ_threshold", 0)
     main_widget.thread_list[1].run()
+    main_widget.exportStuff()
     assert main_widget.data_handler.shape == [200, 150]
     assert len(main_widget.data_handler.rois) != 0
     assert main_widget.data_handler.rois_loaded == True

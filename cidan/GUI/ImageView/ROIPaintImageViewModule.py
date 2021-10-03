@@ -217,13 +217,14 @@ class ROIPaintImageViewModule(ROIImageViewModule):
                 # print("Error please try again")
                 self.reset_view()
 
-    def clearPixelSelection(self, update_display=True):
+    def clearPixelSelection(self, update_display=True, display_update_text=False):
         shape = self.main_widget.data_handler.shape
         self.current_selected_pixels_mask = np.zeros([shape[0], shape[1]], dtype=bool)
         self.current_selected_pixels_list = []
         if update_display:
             self.updateImageDisplay()
-        self.main_widget.console.updateText("Clearing currently selected pixels")
+        if display_update_text:
+            self.main_widget.console.updateText("Clearing currently selected pixels")
 
     def check_pos_in_image(self, x, y):
         pass

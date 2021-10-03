@@ -1,7 +1,9 @@
 import logging
 import os
 
+import qdarkstyle
 from qtpy import QtWidgets
+from qtpy.QtWidgets import QMessageBox
 
 from cidan.GUI.Inputs.FileInput import createFileDialog
 
@@ -9,7 +11,8 @@ logger1 = logging.getLogger("cidan.loadDataset")
 
 
 def load_new_dataset(main_widget, file_path, save_dir_path, trials=None,
-                     single=False, load_into_mem=True, override_load_warning=False):
+                     single=False, load_into_mem=True, override_load_warning=False,
+                     mask_path=None):
     """
     Function to load a initialize a new DataHandler object and the GUI with the data
     Parameters
@@ -38,15 +41,51 @@ def load_new_dataset(main_widget, file_path, save_dir_path, trials=None,
             main_widget.data_handler.__del__()
             main_widget.data_handler = None
             pass
+        if save_dir_path == "":
+            msg = QMessageBox()
+            msg.setStyleSheet(qdarkstyle.load_stylesheet())
+            msg.setWindowTitle("Error")
+
+            msg.setText(
+                "Please select a save directory for cidan to save its outputs in")
+            msg.setIcon(QMessageBox.Information)
+            x = msg.exec_()
+
+            return
+        if file_path == "":
+            msg = QMessageBox()
+            msg.setStyleSheet(qdarkstyle.load_stylesheet())
+            msg.setWindowTitle("Error")
+
+            msg.setText(
+                "Please select a file for cidan")
+            msg.setIcon(QMessageBox.Information)
+            x = msg.exec_()
+
+            return
+        if mask_path == "" and main_widget.widefield:
+            msg = QMessageBox()
+            msg.setStyleSheet(qdarkstyle.load_stylesheet())
+            msg.setWindowTitle("Error")
+
+            msg.setText(
+                "Please select a mask for cidan")
+            msg.setIcon(QMessageBox.Information)
+            x = msg.exec_()
+
+            return
         if single:
             try:
                 dir_path = os.path.dirname(file_path)
                 main_widget.open_dataset_thread.runThread(data_path=dir_path,
                                                           trials=[
-                                                           os.path.basename(file_path)],
+                                                              os.path.basename(
+                                                                  file_path)],
                                                           save_dir_path=save_dir_path,
                                                           save_dir_already_created=False,
-                                                          load_into_mem=load_into_mem)
+                                                          load_into_mem=load_into_mem,
+                                                          mask_path=mask_path,
+                                                          widefield=main_widget.widefield)
 
             except Exception as e:
                 logger1.error(e)
@@ -61,10 +100,13 @@ def load_new_dataset(main_widget, file_path, save_dir_path, trials=None,
 
                 main_widget.open_dataset_thread.runThread(data_path=dir_path,
                                                           trials=[
-                                                           os.path.basename(file_path)],
+                                                              os.path.basename(
+                                                                  file_path)],
                                                           save_dir_path=save_dir_path,
                                                           save_dir_already_created=False,
-                                                          load_into_mem=load_into_mem)
+                                                          load_into_mem=load_into_mem,
+                                                          mask_path=mask_path,
+                                                          widefield=main_widget.widefield)
             except Exception as e:
                 logger1.error(e)
                 error_dialog = QtWidgets.QErrorMessage()
@@ -76,12 +118,15 @@ def load_new_dataset(main_widget, file_path, save_dir_path, trials=None,
             if len(trials) == 0:
                 error_dialog = QtWidgets.QErrorMessage()
                 error_dialog.showMessage("Please select at least one trial")
+                return
             try:
                 main_widget.open_dataset_thread.runThread(data_path=file_path,
                                                           trials=trials,
                                                           save_dir_path=save_dir_path,
                                                           save_dir_already_created=False,
-                                                          load_into_mem=load_into_mem)
+                                                          load_into_mem=load_into_mem,
+                                                          mask_path=mask_path,
+                                                          widefield=main_widget.widefield)
             except Exception as e:
                 logger1.error(e)
                 error_dialog = QtWidgets.QErrorMessage()

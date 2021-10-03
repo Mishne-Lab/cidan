@@ -1,3 +1,4 @@
+import numpy as np
 import pyqtgraph as pg
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
@@ -41,7 +42,10 @@ class GraphItemLine(QWidget):
             if type(colors) == list:
                 for x, color in zip(data, colors):
                     pen = pg.mkPen(color=color, width=2)
-                    self.graph.plot(x, pen=pen)
+                    if type(x) != np.ndarray:
+                        print("Please recalculate time traces")
+                    else:
+                        self.graph.plot(x, pen=pen)
             else:
                 for x in data:
                     self.graph.plot(x)

@@ -1,12 +1,19 @@
 import os
 
+import neurofinder
 from PySide2.QtCore import QThreadPool
 from qtpy import QtGui
+from regional import many
 
+from cidan.GUI.Data_Interaction.CalculateSingleTrialThread import \
+    CalculateSingleTrialThread
 from cidan.GUI.Data_Interaction.DemoDownloadThread import DemoDownloadThread
 from cidan.GUI.Data_Interaction.OpenDatasetThread import OpenDatasetThread
 from cidan.GUI.Tabs.AnalysisTab import AnalysisTab
+from cidan.GUI.Tabs.ClassificationTab import ClassificationTab
+from cidan.LSSC.SpatialBox import SpatialBox
 
+os.environ['QT_MAC_WANTS_LAYER'] = '1'
 os.environ['QT_API'] = 'pyside2'
 from qtpy.QtWidgets import QTabWidget
 from cidan.GUI.Tabs.FileOpenTab import FileOpenTab, createFileDialog
@@ -32,10 +39,10 @@ pg.setConfigOption("imageAxisOrder", "row-major")
 class MainWindow(QMainWindow):
     """Initializes the basic window with Main widget being the focused widget"""
 
-    def __init__(self, dev=False, preload=False):
+    def __init__(self, dev=False, preload=False, widefield=False):
         super().__init__()
         self.title = 'cidan'
-        scale = (self.logicalDpiX() / 96.0-1)/2+1
+        scale = (self.logicalDpiX() / 96.0 - 1) / 2 + 1
         sizeObject = QtGui.QGuiApplication.primaryScreen().availableGeometry()
 
         self.width = 1500 * scale
@@ -48,6 +55,7 @@ class MainWindow(QMainWindow):
         self.setMinimumSize(int(self.width), int(self.height))
         self.main_menu = self.menuBar()
         self.setContentsMargins(0, 0, 0, 0)
+        self.widefield = widefield
 
         import cidan
         cidanpath = os.path.dirname(os.path.realpath(cidan.__file__))
@@ -64,7 +72,9 @@ class MainWindow(QMainWindow):
         app_icon.addFile(icon_path, QtCore.QSize(96, 96))
         app_icon.addFile(icon_path, QtCore.QSize(256, 256))
         self.setWindowIcon(app_icon)
-        self.table_widget = MainWidget(self, dev=dev, preload=preload)
+
+        self.table_widget = MainWidget(self, dev=dev, preload=preload,
+                                       widefield=widefield)
         self.setCentralWidget(self.table_widget)
         # self.setStyleSheet(qdarkstyle.load_stylesheet())
         style = str("""
@@ -125,7 +135,7 @@ class MainWidget(QWidget):
         A list of the currently active tabs not used until after init_w_data is run
     """
 
-    def __init__(self, parent, dev=False, preload=True):
+    def __init__(self, parent, dev=False, preload=True, widefield=False):
         """
         Initialize the main widget to load files
         Parameters
@@ -133,7 +143,7 @@ class MainWidget(QWidget):
         parent
         """
         super().__init__(parent)
-        self.scale = (self.logicalDpiX() / 96.0-1)/2+1
+        self.scale = (self.logicalDpiX() / 96.0 - 1) / 2 + 1
         self.main_window = parent
         self.threadpool = QThreadPool()
         self.progress_signal = None
@@ -144,6 +154,7 @@ class MainWidget(QWidget):
         self.setContentsMargins(0, 0, 0, 0)
 
         self.dev = dev
+        self.widefield = widefield
         self.tab_widget = QTabWidget()
         self.tab_widget.setContentsMargins(0, 0, 0, 0)
         self.fileOpenTab = FileOpenTab(self)
@@ -166,25 +177,27 @@ class MainWidget(QWidget):
         self.thread_list.append(self.demo_download_thread)
         self.open_dataset_thread = OpenDatasetThread(main_widget=self)
         self.thread_list.append(self.open_dataset_thread)
+        self.calculate_single_trial_thread = CalculateSingleTrialThread(self)
+        self.thread_list.append(self.calculate_single_trial_thread)
 
         # Initialize top bar menu
-        fileMenu = self.main_menu.addMenu('&File')
+        self.fileMenu = self.main_menu.addMenu('&File')
         openFileAction = QAction("Open File", self)
         openFileAction.setStatusTip('Open a single file')
         openFileAction.triggered.connect(lambda: self.selectOpenFileTab(0))
-        fileMenu.addAction(openFileAction)
+        self.fileMenu.addAction(openFileAction)
         openFolderAction = QAction("Open Folder", self)
         openFolderAction.setStatusTip('Open a folder')
         openFolderAction.triggered.connect(lambda: self.selectOpenFileTab(1))
-        fileMenu.addAction(openFolderAction)
+        self.fileMenu.addAction(openFolderAction)
         openPrevAction = QAction("Open Previous Session", self)
         openPrevAction.setStatusTip('Open a previous session')
         openPrevAction.triggered.connect(lambda: self.selectOpenFileTab(2))
-        fileMenu.addAction(openPrevAction)
+        self.fileMenu.addAction(openPrevAction)
         openPrevAction = QAction("Download and Open Demo Dataset", self)
         openPrevAction.setStatusTip('Download and Open Demo Dataset')
         openPrevAction.triggered.connect(lambda: self.downloadOpenDemo())
-        fileMenu.addAction(openPrevAction)
+        self.fileMenu.addAction(openPrevAction)
         # Below here in this function is just code for testing
         # TODO check if it can load data twice
         if preload and dev:
@@ -192,10 +205,11 @@ class MainWidget(QWidget):
                 # auto loads a small dataset
                 self.data_handler = DataHandler(
 
-                    "/Users/sschickler/Code_Devel/HigleyData/",
-                    "/Users/sschickler/Documents/LSSC-python",
-                    trials=["File6_som_l5_gcamp6s_alka.tif"],
-                    save_dir_already_created=True)
+                    "/Users/sschickler/Code_Devel/LSSC-python/tests/test_files/",
+                    "/Users/sschickler/Code_Devel/LSSC-python/tests/test_files/save_dir",
+                    trials=["small_dataset1.tif", "small_dataset2.tif"],
+                    save_dir_already_created=False, load_into_mem=False,
+                    auto_crop=False)
                 # self.data_handler.calculate_filters(auto_crop=True)
                 self.init_w_data()
             except IndentationError:
@@ -218,15 +232,22 @@ class MainWidget(QWidget):
 
         """
         self.thread_list = []
+        self.demo_download_thread = DemoDownloadThread(main_widget=self)
+        self.thread_list.append(self.demo_download_thread)
+        self.open_dataset_thread = OpenDatasetThread(main_widget=self)
+        self.thread_list.append(self.open_dataset_thread)
+        self.calculate_single_trial_thread = CalculateSingleTrialThread(self)
+        self.thread_list.append(self.calculate_single_trial_thread)
+
         self.preprocess_image_view = ImageViewModule(self)
         # This assumes that the data is already loaded in
-        self.data_handler.calculate_filters()
         for num, _ in enumerate(self.tabs):
             self.tab_widget.removeTab(1)
 
         # TODO add to export tab to export all time traces or just currently caclulated ones
         self.tabs = [PreprocessingTab(self), ROIExtractionTab(self), AnalysisTab(self)]
-
+        if self.dev:
+            self.tabs.insert(2, ClassificationTab(self))
         # Add tabs
         for tab in self.tabs:
             self.tab_widget.addTab(tab, tab.name)
@@ -247,25 +268,159 @@ class MainWidget(QWidget):
             export_action.setStatusTip('Export Time Traces/ROIs')
             export_action.triggered.connect(lambda: self.exportStuff())
             self.export_menu.addAction(export_action)
-
+        if not hasattr(self, "import_json"):
+            self.import_json = QAction("Import Json", self)
+            self.import_json.setStatusTip('Import Json')
+            self.import_json.triggered.connect(lambda: self.openNewJSON())
+            self.fileMenu.addAction(self.import_json)
+        if not hasattr(self, "auto_label_rois") and self.dev:
+            self.auto_label_rois = QAction("Auto Label ROIS", self)
+            self.auto_label_rois.setStatusTip('Use a json file to auto label rois')
+            self.auto_label_rois.triggered.connect(lambda: self.autoLabelRois())
+            self.fileMenu.addAction(self.auto_label_rois)
     def selectOpenFileTab(self, index):
         self.tab_widget.setCurrentIndex(0)
         self.fileOpenTab.tab_selector.setCurrentIndex(index)
+
+    def openNewJSON(self):
+        import json
+        path = createFileDialog(directory="~/Desktop", forOpen=True,
+                                isFolder=False, name="Select Json")
+        with open(path, "r") as f:
+            # test2=f.read()
+            test = json.loads(f.read())
+        try:
+            print("Importing json")
+            if self.data_handler.dataset_params["crop_stack"]:
+                rois = [[(y[0] - self.data_handler.dataset_params["crop_x"][0],
+                          y[1] - self.data_handler.dataset_params["crop_y"][0]) for y in
+                         x["coordinates"]] for x in test]
+            else:
+                rois = [[(y[0], y[1]) for y in x["coordinates"]] for x in test]
+
+            from cidan.LSSC.functions.data_manipulation import cord_2d_to_pixel_num
+            rois = [
+                cord_2d_to_pixel_num(np.array(roi).transpose(), self.data_handler.shape)
+                for roi in rois]
+            self.data_handler.rois_dict = {(num + 1): {"pixels": roi, "index": num} for
+                                           num, roi
+                                           in enumerate(rois)}
+            self.data_handler.save_rois(self.data_handler.rois)
+
+            self.data_handler.gen_roi_display_variables()
+
+            def temp():
+                self.updateTabs()
+                self.console.updateText("Finished json import")
+
+            [x for x in self.thread_list if type(x) == TimeTraceCalculateThread][
+                0].runThread(temp)
+        except:
+            print(
+                "Error importing json, please make sure json is valid and crop is correct")
+
+    def autoLabelRois(self):
+        import json
+        path = createFileDialog(directory="~/Desktop", forOpen=True,
+                                isFolder=False, name="Select Json")
+        with open(path, "r") as f:
+            # test2=f.read()
+            test = json.loads(f.read())
+
+        try:
+            print("Importing json")
+            if self.data_handler.dataset_params["crop_stack"]:
+                rois = [[(y[0] - self.data_handler.dataset_params["crop_x"][0],
+                          y[1] - self.data_handler.dataset_params["crop_y"][0]) for y in
+                         x["coordinates"]] for x in test]
+            else:
+                rois = [[(y[0], y[1]) for y in x["coordinates"]] for x in test]
+
+            from cidan.LSSC.functions.data_manipulation import cord_2d_to_pixel_num
+
+            rois_true = many(rois)
+            spatial_box = SpatialBox(0, 1, image_shape=self.data_handler.shape,
+                                     spatial_overlap=0)
+            rois = many(
+                [spatial_box.convert_1d_to_2d(roi) for roi in self.data_handler.rois])
+            matches = neurofinder.match(rois, rois_true, threshold=5)
+            for key in self.data_handler.classes.keys():
+                self.data_handler.classes[key]["rois"] = []
+            for num, match in enumerate(matches):
+                if not np.isnan(match):
+                    self.data_handler.classes[
+                        list(self.data_handler.classes.keys())[1]]['rois'].append(
+                        self.data_handler.roi_index_backward[num])
+                else:
+                    self.data_handler.classes[
+                        list(self.data_handler.classes.keys())[0]]['rois'].append(
+                        self.data_handler.roi_index_backward[num])
+            self.data_handler.gen_class_display_variables()
+            self.updateTabs()
+
+
+        except:
+            print(
+                "Error importing json, please make sure json is valid")
 
     def exportStuff(self):
         dialog = QDialog()
         dialog.setStyleSheet(qdarkstyle.load_stylesheet())
         dialog.layout = QVBoxLayout()
-        dialog.setWindowTitle("Select Trials to Export")
+
         trial_dialog = TrialListWidget()
         trial_dialog.set_items_from_list(self.data_handler.trials_all,
                                          trials_selected_indices=self.data_handler.trials_loaded_time_trace_indices)
+        settings_layout = QHBoxLayout()
+        style = str("""
+                    QVBoxLayout {
+                
+                        border:%dpx;
+                    }
+
+
+                    """ % (2))
+        dialog.setStyleSheet(qdarkstyle.load_stylesheet() + style)
+        image_selection_layout = QVBoxLayout()
+        image_selection_layout.addWidget(QLabel("Select background images to use:"),
+                                         alignment=QtCore.Qt.AlignTop)
+
+        image_selection_buttons = []
+        for button_name in ["Max Image", "Mean Image", "Eigen Norm Image", "Blank"]:
+            temp = QCheckBox(button_name)
+            temp.toggle()
+            image_selection_layout.addWidget(temp, alignment=QtCore.Qt.AlignTop)
+            image_selection_buttons.append(temp)
+        color_map_selection_layout = QVBoxLayout()
+        color_map_selection_layout.addWidget(QLabel("Select color maps to use:"),
+                                             alignment=QtCore.Qt.AlignTop)
+        color_map_buttons = []
+        for button_name in ["Grey Scale", "Green Scale", "Magma", "Virdis", "Plasma",
+                            "Cividis", "Hot"]:
+            temp = QCheckBox(button_name)
+            color_map_selection_layout.addWidget(temp, alignment=QtCore.Qt.AlignTop)
+            color_map_buttons.append(temp)
+        color_map_buttons[0].toggle()
+        settings_layout.addLayout(image_selection_layout, alignment=QtCore.Qt.AlignTop)
+        settings_layout.addLayout(color_map_selection_layout,
+                                  alignment=QtCore.Qt.AlignTop)
+        export_matlab = QCheckBox("Export Matlab files")
+        export_matlab.toggle()
 
         def export_func():
+            dialog.close()
             self.data_handler.update_selected_trials(
                 trial_dialog.selectedTrials())
-            self.data_handler.export()
-            dialog.close()
+            self.data_handler.export(matlab=export_matlab.isChecked(),
+                                     background_images=[x for num, x in enumerate(
+                                         ["max", "mean", "eigen_norm", "blank"]) if
+                                                        color_map_buttons[
+                                                            num].isChecked()],
+                                     color_maps=[x for num, x in enumerate(
+                                         ["gray", "green", "magma", "plasma", "cividis",
+                                          "hot"]) if color_map_buttons[num].isChecked()]
+                                     )
+
             msg = QMessageBox()
             msg.setStyleSheet(qdarkstyle.load_stylesheet())
             msg.setWindowTitle("Export data")
@@ -274,11 +429,16 @@ class MainWidget(QWidget):
             msg.setIcon(QMessageBox.Information)
             x = msg.exec_()
 
-        dialog.layout.addWidget(trial_dialog)
+        if self.data_handler.real_trials:
+            dialog.setWindowTitle("Select Trials to Export")
+            dialog.layout.addWidget(trial_dialog)
+        else:
+            dialog.setWindowTitle("Export:")
         export_button = QPushButton("Export")
         export_button.clicked.connect(lambda x: export_func())
-
-        dialog.layout.addWidget(export_button)
+        dialog.layout.addLayout(settings_layout, alignment=QtCore.Qt.AlignCenter)
+        dialog.layout.addWidget(export_matlab, alignment=QtCore.Qt.AlignCenter)
+        dialog.layout.addWidget(export_button, alignment=QtCore.Qt.AlignCenter)
         dialog.setLayout(dialog.layout)
         dialog.show()
 
@@ -326,7 +486,8 @@ class MainWidget(QWidget):
             else:
                 self.console.updateText("Download Unsuccessful")
         path = createFileDialog(directory="~/Desktop", forOpen=False,
-                                isFolder=True)
+                                isFolder=True,
+                                name="Choose location to save demo dataset")
         self.demo_download_thread.runThread(path, endfunc)
         # self.console.updateText("Downloading Demo Dataset to: " + path)
 

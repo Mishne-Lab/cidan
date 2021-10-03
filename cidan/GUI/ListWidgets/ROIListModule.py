@@ -11,12 +11,14 @@ class ROIListModule(QFrame):
     Its the roi list in the ROI modification tab
     """
 
-    def __init__(self, data_handler, roi_tab, select_multiple=False, display_time=True):
+    def __init__(self, data_handler, roi_tab, select_multiple=False, display_time=True,
+                 class_version=False):
         super().__init__()
-        self.current_selected_roi = 0
+        self.current_selected_roi = None
         self.select_multiple = select_multiple
         self.display_time = display_time
         self.roi_tab = roi_tab
+        self.class_version = class_version
         self.color_list = data_handler.color_list
         self.list = QListView()
 
@@ -43,7 +45,7 @@ class ROIListModule(QFrame):
         self.top_labels_layout.addWidget(QLabel(), alignment=QtCore.Qt.AlignRight)
         if display_time:
             label3 = QLabel(text="Time Trace On")
-            label3.setMaximumWidth(100*((self.logicalDpiX() / 96.0-1)/2+1))
+            label3.setMaximumWidth(100 * ((self.logicalDpiX() / 96.0 - 1) / 2 + 1))
             self.top_labels_layout.addWidget(label3, alignment=QtCore.Qt.AlignRight)
         self.setMinimumHeight(200 * ((self.logicalDpiX() / 96.0 - 1) / 2 + 1))
         self.model = QStandardItemModel(self.list)
@@ -57,27 +59,36 @@ class ROIListModule(QFrame):
 
     def keyPressEvent(self, event):
         self.roi_tab.keyPressEvent(event)
+
     def set_current_select(self, num):
-        self.list.setCurrentIndex(self.model.index(int(num - 1), 0))
-        self.roi_time_check_list[num - 1] = not self.roi_time_check_list[num - 1]
-        self.roi_item_list[num - 1].select_check_box()
+        num = self.roi_tab.data_handler.rois_dict[num]["index"]
+        self.list.setCurrentIndex(self.model.index(int(num), 0))
+        self.roi_time_check_list[num] = not self.roi_time_check_list[num]
+        self.roi_item_list[num].select_check_box()
         # self.roi_module_list[num-1].
         if self.display_time:
-            self.roi_item_list[num - 1].select_time_check_box()
+            self.roi_item_list[num].select_time_check_box()
 
-    def set_list_items(self, rois):
-        self.roi_list = rois
+    def set_list_items(self, rois_dict):
+        self.rois_dict = rois_dict
         for x in range(self.model.rowCount()):
             self.model.removeRow(0)
         self.roi_item_list = []
         self.roi_module_list = []
-        for num in range(len(self.roi_list)):
+        for num, id in enumerate(list(self.rois_dict.keys())):
+            color = self.color_list[
+                id % len(self.color_list)] if not self.class_version else \
+            self.roi_tab.data_handler.classes[[key for key in
+                                               self.roi_tab.data_handler.classes.keys()
+                                               if id in
+                                               self.roi_tab.data_handler.classes[key][
+                                                   "rois"]][0]]["color"]
             item = ROIItemWidget(self.roi_tab,
-                                 self.color_list[num % len(self.color_list)], self,
-                                 num + 1, display_time=self.display_time
+                                 color, self,
+                                 id=id, roi_num=num, display_time=self.display_time
                                  )
-            item1 = ROIItemModule(self.color_list[num % len(self.color_list)], num + 1,
-                                  self.roi_tab)
+            item1 = ROIItemModule(color, id=id, num=num,
+                                  roi_tab=self.roi_tab)
             item1.setSelectable(False)
             self.roi_item_list.append(item)
             self.model.appendRow(item1)

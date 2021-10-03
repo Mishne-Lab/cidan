@@ -197,10 +197,9 @@ def dataset_setting_block_crop(main_widget):
                                                                           tool_tip="Length of each timeblock",
                                                                           display_tool_tip=False,
                                                                           min=25,
-                                                                          max=2000,
+                                                                          max=10000,
                                                                           step=1)] if
-                                                                  data_handler.dataset_params[
-                                                                      "original_folder_trial_split"] != "" else []))
+                                                                  data_handler.single_dataset_mode else []))
 
 
 def multiprocessing_settings_block(main_widget):
@@ -267,16 +266,7 @@ def roi_extraction_settings_block(main_widget):
                                           "roi_size_max"],
                                       tool_tip="Maximum size in pixels for a region of interest",
                                       min=1, max=1000000, step=1),
-                                  # BoolInput(
-                                  #     display_name="Run refinement step:",
-                                  #     program_name="refinement",
-                                  #     on_change_function=lambda x,
-                                  #                               y: data_handler.change_roi_extraction_param(
-                                  #         x, y),
-                                  #     default_val=
-                                  #     data_handler.roi_extraction_params[
-                                  #         "refinement"],
-                                  #     tool_tip="Whether to run the refinement step, greatly improves results"),
+
                                   FloatInput(
                                       display_name="Merge temporal coefficient:",
                                       program_name="merge_temporal_coef",
@@ -287,18 +277,19 @@ def roi_extraction_settings_block(main_widget):
                                       data_handler.roi_extraction_params[
                                           "merge_temporal_coef"],
                                       tool_tip="The coefficient that determines if two overlapping regions are merged based on their temporal correlation",
-                                      min=0, max=1, step=.01)
-                                  #     BoolInput(
-                                  #         display_name="Fill holes:",
-                                  #         program_name="fill_holes",
-                                  #         on_change_function=lambda x,
-                                  #                                   y: data_handler.change_roi_extraction_param(
-                                  #             x, y),
-                                  #         default_val=
-                                  #         data_handler.roi_extraction_params[
-                                  #             "fill_holes"],
-                                  #         tool_tip="Whether to fill holes in each roi"),
+                                      min=0, max=1, step=.01),
+
                                   #
+                                  IntInput(display_name="ROI Eccentricity Threshold:",
+                                           program_name="roi_circ_threshold",
+                                           on_change_function=lambda x,
+                                                                     y: data_handler.change_roi_extraction_param(
+                                               x, y),
+                                           default_val=
+                                           data_handler.roi_extraction_params[
+                                               "roi_circ_threshold"],
+                                           tool_tip="Thresholds the rois based on how circular they are. Lowering the number would allow more ROIs through",
+                                           min=0, max=100, step=1),
                               ]
                               )
 
@@ -306,114 +297,137 @@ def roi_extraction_settings_block(main_widget):
 def roi_advanced_settings_block(main_widget):
     # TODO fix input into spatial box number
     data_handler = main_widget.data_handler
-    return SettingBlockModule("Advanced Settings",
-                              [IntInput(display_name="Number of eigen vectors:",
-                                        program_name="num_eig",
-                                        on_change_function=lambda x,
+    input = [IntInput(display_name="Number of eigen vectors:",
+                      program_name="num_eig",
+                      on_change_function=lambda x,
                                                                   y: data_handler.change_eigen_param(
                                             x, y),
-                                        default_val=data_handler.eigen_params[
+                      default_val=data_handler.eigen_params[
                                             "num_eig"],
-                                        tool_tip="Number of eigen vectors to generate. Increase if eigen norm image isn't showing all rois",
-                                        min=1, max=10000, step=1),
-                               FloatInput(display_name="Eigen threshold value:",
-                                          program_name="eigen_threshold_value",
-                                          on_change_function=lambda x,
-                                                                    y: data_handler.change_roi_extraction_param(
-                                              x, y),
-                                          default_val=
-                                          data_handler.roi_extraction_params[
-                                              "eigen_threshold_value"],
-                                          tool_tip="Number of eigen vectors to select for each ROI. Multiply number of trials by the number of eigen vectors \n if this number is below 300, then it might help to increase this value to .3 or .5",
-                                          min=0, max=1, step=.01),
-                               # FloatInput(display_name="Elbow threshold value:",
-                               #            program_name="elbow_threshold_value",
-                               #            on_change_function=lambda x,
-                               #                                      y: data_handler.change_roi_extraction_param(
-                               #                x, y),
-                               #            default_val=
-                               #            data_handler.roi_extraction_params[
-                               #                "elbow_threshold_value"],
-                               #            tool_tip="Number of eigen vectors to select at each point",
-                               #            min=0, max=1.5, step=.01),
-                               # BoolInput(
-                               #     display_name="Merge ROIs:",
-                               #     program_name="merge",
-                               #     on_change_function=lambda x,
-                               #                               y: data_handler.change_roi_extraction_param(
-                               #         x, y),
-                               #     default_val=
-                               #     data_handler.roi_extraction_params[
-                               #         "merge"],
-                               #     tool_tip="Whether to merge rois with similar time traces"),
-                               IntInput(display_name="ROI Eccentricity Threshold:",
-                                        program_name="roi_circ_threshold",
-                                        on_change_function=lambda x,
-                                                                    y: data_handler.change_roi_extraction_param(
-                                              x, y),
-                                        default_val=
-                                          data_handler.roi_extraction_params[
-                                              "roi_circ_threshold"],
-                                        tool_tip="Thresholds the rois based on how circular they are. Lowering the number would allow more ROIs through",
-                                        min=0, max=100, step=1),
-                               # IntInput(display_name="Number of connections:",
-                               #          program_name="connections",
-                               #          on_change_function=lambda x,
-                               #                                    y: data_handler.change_eigen_param(
-                               #              x, y),
-                               #          default_val=data_handler.eigen_params[
-                               #              "connections"],
-                               #          tool_tip="Number of eigen vectors to generate",
-                               #          min=1, max=10000, step=1),
-                               # IntInput(display_name="accuracy:",
-                               #          program_name="accuracy",
-                               #          on_change_function=lambda x,
-                               #                                    y: data_handler.change_eigen_param(
-                               #              x, y),
-                               #          default_val=data_handler.eigen_params[
-                               #              "accuracy"],
-                               #          tool_tip="Number of eigen vectors to generate",
-                               #          min=1, max=10000, step=1),
-                               # IntInput(display_name="Number of knn:",
-                               #          program_name="knn",
-                               #          on_change_function=lambda x,
-                               #                                    y: data_handler.change_eigen_param(
-                               #              x, y),
-                               #          default_val=data_handler.eigen_params[
-                               #              "knn"],
-                               #          tool_tip="Number of eigen vectors to generate",
-                               #          min=1, max=10000, step=1),
-                               IntInput(display_name="Eigen Accuracy:",
-                                        program_name="eigen_accuracy",
-                                        on_change_function=lambda x,
-                                                                  y: data_handler.change_eigen_param(
-                                            x, y),
-                                        default_val=data_handler.eigen_params[
-                                            "eigen_accuracy"],
-                                        tool_tip="10^-x accuracy for each eigen vector, If there are lines in the eigen norm image increase this to 7 or 8",
-                                        min=1, max=10000, step=1),
-                               IntInput(display_name="Number of iterations:",
-                                        program_name="max_iter",
-                                        on_change_function=lambda x,
-                                                                  y: data_handler.change_roi_extraction_param(
-                                            x, y),
-                                        default_val=data_handler.roi_extraction_params[
-                                            "max_iter"],
-                                        tool_tip="The number of iterations of the algorithm to preform. Increase if not detecting all rois but they are present in the eigen norm image",
-                                        min=1, max=10000, step=1),
+                      tool_tip="Number of eigen vectors to generate. Increase if eigen norm image isn't showing all rois",
+                      min=1, max=10000, step=1),
 
-                               # IntInput(display_name="Number of time steps:",
-                               #          program_name="total_num_time_steps",
-                               #          on_change_function=lambda x,
-                               #                                    y: data_handler.change_box_param(
-                               #              x, y),
-                               #          default_val=data_handler.box_params[
-                               #              "total_num_time_steps"],
-                               #          tool_tip=
-                               #          "Number of time steps to break" +
-                               #          "the processing into",
-                               #          min=1, max=10000, step=1),
-                               #
-                               ]
-                              )
+             FloatInput(display_name="Elbow threshold value:",
+                        program_name="elbow_threshold_value",
+                        on_change_function=lambda x,
+                                                  y: data_handler.change_roi_extraction_param(
+                            x, y),
+                        default_val=
+                        data_handler.roi_extraction_params[
+                            "elbow_threshold_value"],
+                        tool_tip="Number of eigen vectors to select at each point",
+                        min=0, max=1.5, step=.01),
+
+             IntInput(display_name="Eigen Accuracy:",
+                      program_name="eigen_accuracy",
+                      on_change_function=lambda x,
+                                                y: data_handler.change_eigen_param(
+                          x, y),
+                      default_val=data_handler.eigen_params[
+                          "eigen_accuracy"],
+                      tool_tip="10^-x accuracy for each eigen vector, If there are lines in the eigen norm image increase this to 7 or 8",
+                      min=1, max=10000, step=1),
+             IntInput(display_name="Number of iterations:",
+                      program_name="max_iter",
+                      on_change_function=lambda x,
+                                                y: data_handler.change_roi_extraction_param(
+                          x, y),
+                      default_val=data_handler.roi_extraction_params[
+                          "max_iter"],
+                      tool_tip="The number of iterations of the algorithm to preform. Increase if not detecting all rois but they are present in the eigen norm image",
+                      min=1, max=10000, step=1),
+
+             ]
+    if main_widget.dev:
+        input += [BoolInput(
+            display_name="Local Max Methods:",
+            program_name="local_max_method",
+            on_change_function=lambda x,
+                                      y: data_handler.change_roi_extraction_param(
+                x, y),
+            default_val=
+            data_handler.roi_extraction_params[
+                "local_max_method"],
+            tool_tip=""),
+            BoolInput(
+                display_name="Fill holes:",
+                program_name="fill_holes",
+                on_change_function=lambda x,
+                                          y: data_handler.change_roi_extraction_param(
+                    x, y),
+                default_val=
+                data_handler.roi_extraction_params[
+                    "fill_holes"],
+                tool_tip="Whether to fill holes in each roi"),
+
+            FloatInput(display_name="Eigen threshold value:",
+                       program_name="eigen_threshold_value",
+                       on_change_function=lambda x,
+                                                 y: data_handler.change_roi_extraction_param(
+                           x, y),
+                       default_val=
+                       data_handler.roi_extraction_params[
+                           "eigen_threshold_value"],
+                       tool_tip="Number of eigen vectors to select for each ROI. Multiply number of trials by the number of eigen vectors \n if this number is below 300, then it might help to increase this value to .3 or .5",
+                       min=0, max=1, step=.01),
+            FloatInput(display_name="ROI Eccentricity value:",
+                       program_name="roi_eccentricity_limit",
+                       on_change_function=lambda x,
+                                                 y: data_handler.change_roi_extraction_param(
+                           x, y),
+                       default_val=
+                       data_handler.roi_extraction_params[
+                           "roi_eccentricity_limit"],
+                       tool_tip="",
+                       min=0, max=1, step=.01),
+            BoolInput(
+                display_name="Merge ROIs:",
+                program_name="merge",
+                on_change_function=lambda x,
+                                          y: data_handler.change_roi_extraction_param(
+                    x, y),
+                default_val=
+                data_handler.roi_extraction_params[
+                    "merge"],
+                tool_tip="Whether to merge rois with similar time traces"),
+
+            IntInput(display_name="Number of connections:",
+                     program_name="connections",
+                     on_change_function=lambda x,
+                                               y: data_handler.change_eigen_param(
+                         x, y),
+                     default_val=data_handler.eigen_params[
+                         "connections"],
+                     tool_tip="Number of eigen vectors to generate",
+                     min=1, max=10000, step=1),
+            IntInput(display_name="accuracy:",
+                     program_name="accuracy",
+                     on_change_function=lambda x,
+                                               y: data_handler.change_eigen_param(
+                         x, y),
+                     default_val=data_handler.eigen_params[
+                         "accuracy"],
+                     tool_tip="Number of eigen vectors to generate",
+                     min=1, max=10000, step=1),
+            IntInput(display_name="Number of knn:",
+                     program_name="knn",
+                     on_change_function=lambda x,
+                                               y: data_handler.change_eigen_param(
+                         x, y),
+                     default_val=data_handler.eigen_params[
+                         "knn"],
+                     tool_tip="Number of eigen vectors to generate", min=1, max=10000,
+                     step=1),
+            BoolInput(
+                display_name="Run refinement step:",
+                program_name="refinement",
+                on_change_function=lambda x,
+                                          y: data_handler.change_roi_extraction_param(
+                    x, y),
+                default_val=
+                data_handler.roi_extraction_params[
+                    "refinement"],
+                tool_tip="Whether to run the refinement step, greatly improves results"),
+        ]
+    return SettingBlockModule("Advanced Settings", input)
 # TODO add fill holes/number rois per spatial box to inputs

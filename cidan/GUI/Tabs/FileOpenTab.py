@@ -14,30 +14,44 @@ class FileOpenTab(Tab):
         dataset_file_input = FileInput("Dataset File:", "", None, "",
                                        "Select a file to load in", isFolder=2,
                                        forOpen=True)
+        dataset_mask_input = FileInput("Mask File:", "", None, "",
+                                       "Select a file to load in", isFolder=2,
+                                       forOpen=True)
         dataset_folder_input = FileInput("Dataset Folder:", "",
                                          lambda x: self.add_trial_selection(x), "",
                                          "Select a folder to load in", isFolder=1,
                                          forOpen=True)
-        save_dir_new_file = FileInput("Save Directory Location(Empty Directory):", "",
+        dataset_mask_input_folder = FileInput("Mask File:", "", None, "",
+                                              "Select a file to load in", isFolder=2,
+                                              forOpen=True)
+        save_dir_new_file = FileInput("Save Directory Location:", "",
                                       None, "",
-                                      "Select a place to save outputs", isFolder=1,
-                                      forOpen=False)
-        save_dir_new_folder = FileInput("Save Directory Location(Empty Directory):", "",
+                                      "Select a place to save outputs, preferably an empty directory",
+                                      isFolder=1,
+                                      forOpen=False,
+                                      name="Choose directory to save results in:")
+        save_dir_new_folder = FileInput("Save Directory Location:", "",
                                         None, "",
-                                        "Select a place to save outputs", isFolder=1,
+                                        "Select a place to save outputs, preferably an empty directory",
+                                        isFolder=1,
                                         forOpen=False)
 
         save_dir_load = FileInput("Previous Session Location:", "", None, "",
                                   tool_tip="Select the save directory for a previous session",
-                                  isFolder=1, forOpen=True)
-
+                                  isFolder=1, forOpen=True,
+                                  name="Choose directory of previous session")
+        file_demo_button = QPushButton()
+        file_demo_button.setContentsMargins(0, 0, 0, 11)
+        file_demo_button.setText("Download and Load Demo File")
+        file_demo_button.clicked.connect(lambda: main_widget.downloadOpenDemo())
         file_open_button = QPushButton()
         file_open_button.setContentsMargins(0, 0, 0, 11)
         file_open_button.setText("Load")
         file_open_button.clicked.connect(
             lambda: load_new_dataset(main_widget, dataset_file_input.current_state(),
                                      save_dir_new_file.current_state(),
-                                     load_into_mem=self.folder_load_into_mem.current_state()))
+                                     load_into_mem=self.folder_load_into_mem.current_state(),
+                                     mask_path=dataset_mask_input.current_state()))
         self.file_load_into_mem = BoolInput("Load data into memory", "", None, True,
                                             "")
         folder_open_button = QPushButton()
@@ -48,9 +62,11 @@ class FileOpenTab(Tab):
                                      save_dir_new_folder.current_state(),
                                      trials=self.trial_list_widget.selectedTrials(),
                                      single=self.folder_open_single_trial.current_state(),
-                                     load_into_mem=self.folder_load_into_mem.current_state()))
-        self.folder_open_single_trial = BoolInput("Open folder as single trial", "",
-                                                  None, False, "")
+                                     load_into_mem=self.folder_load_into_mem.current_state(),
+                                     mask_path=dataset_mask_input.current_state()))
+        self.folder_open_single_trial = BoolInput(
+            "Open folder as single trial\n(Tiff images only, stacks not supported)", "",
+            None, False, "")
         self.folder_load_into_mem = BoolInput("Load data into memory", "", None, True,
                                               "")
         prev_session_open_button = QPushButton()
@@ -59,15 +75,23 @@ class FileOpenTab(Tab):
         prev_session_open_button.clicked.connect(
             lambda: load_prev_session(main_widget, save_dir_load.current_state()))
         file_open = Tab("File Open", column_2=[], column_2_display=False,
-                        column_1=[dataset_file_input, save_dir_new_file,
-                                  self.file_load_into_mem,
-                                  file_open_button])
+                        column_1=[dataset_file_input, dataset_mask_input,
+                                  save_dir_new_file, file_open_button,
+                                  file_demo_button] if main_widget.widefield else [
+                            dataset_file_input, save_dir_new_file,
+                            # self.file_load_into_mem,
+                            file_open_button, file_demo_button])
         folder_open = Tab("Folder Open", column_2=[self.trial_list_widget],
                           column_2_display=True,
                           column_1=[dataset_folder_input, save_dir_new_folder,
                                     self.folder_open_single_trial,
-                                    self.folder_load_into_mem,
-                                    folder_open_button]
+                                    # self.folder_load_into_mem,
+                                    folder_open_button] if not main_widget.widefield else [
+                              dataset_folder_input, dataset_mask_input_folder,
+                              save_dir_new_folder,
+                              self.folder_open_single_trial,
+                              # self.folder_load_into_mem,
+                              folder_open_button]
                           )
         prev_session_open = Tab("Previous Session Open", column_2=[],
                                 column_2_display=False,

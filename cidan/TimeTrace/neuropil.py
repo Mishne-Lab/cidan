@@ -2,7 +2,7 @@ import numpy as np
 from scipy.ndimage import binary_dilation
 
 
-def calculate_nueropil(image_shape, roi_list, roi_mask_flat, min_pixels=25,
+def calculate_neuropil(image_shape, roi_list, roi_mask_flat, min_pixels=25,
                        neuropil_boundary=2):
     neuropil = []
     for roi in roi_list:

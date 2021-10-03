@@ -1,7 +1,5 @@
 import logging
 
-from qtpy import QtWidgets
-
 from cidan.GUI.Data_Interaction.Signals import StrIntSignal
 from cidan.GUI.Data_Interaction.Thread import Thread
 
@@ -28,14 +26,17 @@ class ROIExtractionThread(Thread):
                 self.data_handler.calculate_roi_extraction(self.reportProgress)
                 print("Finished ROI extraction")
                 self.signal.sig.emit(True)
-            except Exception as e:
+            except RuntimeError as e:
                 if (type(e) == AssertionError):
-                    error_dialog = QtWidgets.QErrorMessage()
-                    error_dialog.showMessage("Unexpected error: " + str(e.args[0]))
+                    print("test")
+
+                    # error_dialog = QtWidgets.QErrorMessage()
+                    # error_dialog.showMessage("Unexpected error: " + str(e.args[0]))
                 else:
-                    error_dialog = QtWidgets.QErrorMessage()
-                    error_dialog.showMessage(
-                        "Something weird happened please reload and try again")
+                    print("test")
+                    # error_dialog = QtWidgets.QErrorMessage()
+                    # error_dialog.showMessage(
+                    #     "Something weird happened please reload and try again")
                 self.main_widget.data_handler.global_params[
                     "need_recalc_eigen_params"] = True
                 logger.error(str(e))
