@@ -213,6 +213,10 @@ class DataHandler:
 
         self.save_dir_path = save_dir_path
         self.time_trace_possibilities_functions = DataHandler.time_trace_possibilities_functions
+        if widefield:
+            self.time_trace_possibilities_functions = {
+                key: DataHandler.time_trace_possibilities_functions[key] for key in
+                self.time_trace_possibilities_functions.keys() if "Neuropil" not in key}
         self.rois_loaded = False  # whether roi variables have been created
         self.rois_update_needed = True
         self.widefield = widefield

@@ -1,6 +1,5 @@
 import os
 
-import neurofinder
 from PySide2.QtCore import QThreadPool
 from qtpy import QtGui
 from regional import many
@@ -9,6 +8,7 @@ from cidan.GUI.Data_Interaction.CalculateSingleTrialThread import \
     CalculateSingleTrialThread
 from cidan.GUI.Data_Interaction.DemoDownloadThread import DemoDownloadThread
 from cidan.GUI.Data_Interaction.OpenDatasetThread import OpenDatasetThread
+from cidan.GUI.Inputs.FloatInput import FloatInput
 from cidan.GUI.Tabs.AnalysisTab import AnalysisTab
 from cidan.GUI.Tabs.ClassificationTab import ClassificationTab
 from cidan.LSSC.SpatialBox import SpatialBox
@@ -26,6 +26,7 @@ from cidan.GUI.Console.ConsoleWidget import ConsoleWidget
 import sys
 import logging
 import pyqtgraph as pg
+import cidan.GUI.Data_Interaction.neurofinder_edited
 
 # sys._excepthook = sys.excepthook
 # def exception_hook(exctype, value, traceback):
@@ -338,27 +339,74 @@ class MainWidget(QWidget):
 
             from cidan.LSSC.functions.data_manipulation import cord_2d_to_pixel_num
 
-            rois_true = many(rois)
+            if self.data_handler.dataset_params["crop_stack"]:
+                rois = [[(y[0] - self.data_handler.dataset_params["crop_x"][0],
+                          y[1] - self.data_handler.dataset_params["crop_y"][0]) for y in
+                         x["coordinates"]] for x in test]
+            else:
+                rois = [[(y[0], y[1]) for y in x["coordinates"]] for x in test]
+
+            from cidan.LSSC.functions.data_manipulation import cord_2d_to_pixel_num
+            rois_true_1d = [
+                cord_2d_to_pixel_num(np.array(roi).transpose(), self.data_handler.shape)
+                for roi in rois]
             spatial_box = SpatialBox(0, 1, image_shape=self.data_handler.shape,
                                      spatial_overlap=0)
+            rois_true = many(rois)
+
             rois = many(
                 [spatial_box.convert_1d_to_2d(roi) for roi in self.data_handler.rois])
-            matches = neurofinder.match(rois, rois_true, threshold=5)
-            for key in self.data_handler.classes.keys():
-                self.data_handler.classes[key]["rois"] = []
-            for num, match in enumerate(matches):
-                if not np.isnan(match):
-                    self.data_handler.classes[
-                        list(self.data_handler.classes.keys())[1]]['rois'].append(
-                        self.data_handler.roi_index_backward[num])
-                else:
-                    self.data_handler.classes[
-                        list(self.data_handler.classes.keys())[0]]['rois'].append(
-                        self.data_handler.roi_index_backward[num])
-            self.data_handler.gen_class_display_variables()
-            self.updateTabs()
+            matches = cidan.GUI.Data_Interaction.neurofinder_edited.match(rois,
+                                                                          rois_true,
+                                                                          threshold=5)
+            dialog = QDialog()
+            dialog.setStyleSheet(qdarkstyle.load_stylesheet())
+            dialog.layout = QVBoxLayout()
+            overlap_1_input = FloatInput(display_name="Overlap/current threshold:",
+                                         default_val=0, max=10, min=0,
+                                         on_change_function=None, program_name="test",
+                                         step=.01, tool_tip=None)
+            overlap_2_input = FloatInput(display_name="Overlap/true threshold:",
+                                         default_val=0, max=10, min=0,
+                                         on_change_function=None, program_name="test",
+                                         step=.01, tool_tip=None)
+            dialog.layout.addWidget(overlap_1_input, alignment=QtCore.Qt.AlignCenter)
+            dialog.layout.addWidget(overlap_2_input, alignment=QtCore.Qt.AlignCenter)
 
+            def final_load_part():
+                dialog.close()
+                overlap_1_thresh = overlap_1_input.current_state()
+                overlap_2_thresh = overlap_2_input.current_state()
+                for key in self.data_handler.classes.keys():
+                    self.data_handler.classes[key]["rois"] = []
+                for num, match in enumerate(matches):
+                    if not np.isnan(match):
+                        overlap = float(np.intersect1d(self.data_handler.rois[num],
+                                                       rois_true_1d[match]).size)
+                        overlap_1 = overlap / len(self.data_handler.rois[num])
+                        overlap_2 = overlap / len(rois_true_1d[match])
+                        if overlap_1 >= overlap_1_thresh and overlap_2 >= overlap_2_thresh:
+                            self.data_handler.classes[
+                                list(self.data_handler.classes.keys())[1]][
+                                'rois'].append(
+                                self.data_handler.roi_index_backward[num])
+                        else:
+                            self.data_handler.classes[
+                                list(self.data_handler.classes.keys())[2]][
+                                'rois'].append(
+                                self.data_handler.roi_index_backward[num])
+                    else:
+                        self.data_handler.classes[
+                            list(self.data_handler.classes.keys())[0]]['rois'].append(
+                            self.data_handler.roi_index_backward[num])
+                self.data_handler.gen_class_display_variables()
+                self.updateTabs()
 
+            load_button = QPushButton(text="Load JSON")
+            load_button.clicked.connect(lambda x: final_load_part())
+            dialog.layout.addWidget(load_button, alignment=QtCore.Qt.AlignCenter)
+            dialog.setLayout(dialog.layout)
+            dialog.show()
         except:
             print(
                 "Error importing json, please make sure json is valid")
