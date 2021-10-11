@@ -201,8 +201,7 @@ class ClassificationTab(Tab):
             try:
                 next_roi = self.data_handler.classes["Unassigned"]["rois"][0]
                 self.image_view.zoomRoi(self.data_handler.rois_dict[next_roi]["index"])
-                self.roi_list_module.set_current_select(
-                    self.data_handler.rois_dict[next_roi]["index"])
+                self.roi_list_module.set_current_select(next_roi)
             except IndexError:
                 pass
 

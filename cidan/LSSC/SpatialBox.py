@@ -2,7 +2,6 @@ import logging
 from typing import Tuple
 
 import numpy as np
-from dask import delayed
 
 logger1 = logging.getLogger("cidan.LSSC.SpatialBox")
 
@@ -47,12 +46,10 @@ class SpatialBox:
                        ).format(self.boxes_per_row, self.y_box_num, self.x_box_num,
                                 self.box_cord_1, self.box_cord_2, self.shape))
 
-    @delayed
     def extract_box(self, dataset):
         return dataset[:, self.box_cord_1[0]:self.box_cord_2[0], self.box_cord_1[1]:
                                                                  self.box_cord_2[1]]
 
-    @delayed
     def redefine_spatial_cord_2d(self, cord_list):
         return [(x + self.box_cord_1[0], y + self.box_cord_1[1]) for x, y in cord_list]
 
@@ -83,7 +80,6 @@ class SpatialBox:
         """
         return (point[0] - self.box_cord_1[0], point[1] - self.box_cord_1[1])
 
-    @delayed
     def redefine_spatial_cord_1d(self, cord_list):
         box_length = self.box_cord_2[1] - self.box_cord_1[1]
 
@@ -168,7 +164,7 @@ def combine_images(spatial_box_list, data_list):
 if __name__ == '__main__':
     test = SpatialBox(box_num=0, total_boxes=9, image_shape=[1, 9, 9],
                       spatial_overlap=0)
-    pixel_list = test.redefine_spatial_cord_1d([0, 4, 8]).compute()
+    pixel_list = test.redefine_spatial_cord_1d([0, 4, 8])
 
     zeros = np.zeros((9 * 9))
     zeros[pixel_list] = 1

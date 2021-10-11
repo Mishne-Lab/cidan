@@ -1,4 +1,5 @@
 import logging
+from functools import reduce
 from math import ceil
 
 import dask
@@ -220,7 +221,7 @@ class DataHandler:
         self.rois_loaded = False  # whether roi variables have been created
         self.rois_update_needed = True
         self.widefield = widefield
-        self.image_data_mask = None
+        self.image_data_mask_flat = None
         if parameter_file:
             self.parameter_file_name = os.path.basename(parameter_file)
             self.save_dir_path = os.path.dirname(parameter_file)
@@ -241,6 +242,8 @@ class DataHandler:
                                                      enumerate(self.trials_all)
                                                      if x in self.trials_loaded]
 
+            if self.widefield:
+                self.load_mask(self.mask_path)
             self.load_dataset(
                 [os.path.join(self.dataset_params["dataset_folder_path"], x) for
                  x
@@ -271,14 +274,15 @@ class DataHandler:
             self.trials_loaded_time_trace_indices = [num for num, x in
                                                      enumerate(self.trials_all)
                                                      if x in self.trials_loaded]
+            if self.widefield:
+                self.load_mask(self.mask_path)
             # this loads the dataset and calculate the specified filters
             if not self.load_into_mem:
                 self.load_dataset(
-                        [os.path.join(self.dataset_params["dataset_folder_path"], x) for
-                         x
-                         in self.trials_loaded])
+                    [os.path.join(self.dataset_params["dataset_folder_path"], x) for
+                     x
+                     in self.trials_loaded])
                 self.reset_data()
-
 
                 self.dataset_trials_filtered[
                     self._trials_loaded_indices[0]].compute()
@@ -287,6 +291,7 @@ class DataHandler:
 
             else:
                 temp = self.global_params["need_recalc_box_params"]
+
                 self.load_dataset(
                     [os.path.join(self.dataset_params["dataset_folder_path"], x) for x
                      in self.trials_loaded])
@@ -299,8 +304,7 @@ class DataHandler:
             # if there are ROIs saved in the save dir load them and calculate time
             # traces
 
-            if self.widefield:
-                self.load_mask(self.mask_path)
+
             if self.rois_exist:
                 try:
                     self.load_rois()
@@ -354,11 +358,12 @@ class DataHandler:
                                         "save directory")
             if self.dataset_params["single_file_mode"] and not load_into_mem:
                 self.transform_data_to_zarr()
+            if self.widefield:
+                self.load_mask(self.mask_path)
 
-
-            self.load_dataset([os.path.join(self.dataset_params["dataset_folder_path"],x) for x in self.trials_loaded ])
-
-
+            self.load_dataset(
+                [os.path.join(self.dataset_params["dataset_folder_path"], x) for x in
+                 self.trials_loaded])
 
             self._trials_loaded_indices = [num for num, x in enumerate(self.trials_all)
                                            if x in self.trials_loaded]
@@ -380,8 +385,7 @@ class DataHandler:
                 self.dataset_trials_filtered[self._trials_loaded_indices[0]].compute()
                 self.dataset_params["crop_x"] = [0, self.shape[0]]
                 self.dataset_params["crop_y"] = [0, self.shape[1]]
-            if self.widefield:
-                self.load_mask(self.mask_path)
+
             self.save_new_param_json()
 
     def __del__(self):
@@ -439,7 +443,7 @@ class DataHandler:
         return self.global_params["load_into_mem"]
     @property
     def rois_exist(self):
-        """ƒc
+        """
         Return if the roi save file exists
         """
         return not (self.global_params["need_recalc_eigen_params"] or
@@ -714,11 +718,14 @@ class DataHandler:
         self.rois_update_needed = True
         self.gen_roi_display_variables()
 
-    def add_new_roi(self, roi_pixels):
-        self.rois_dict[max(list(self.rois_dict.keys())) + 1] = {"pixels": roi_pixels}
+    def add_new_roi(self, roi_pixels, update=True):
+        key = max(list(self.rois_dict.keys())) + 1
+        self.rois_dict[key] = {"pixels": roi_pixels}
         self.rois_update_needed = True
-        self.gen_roi_display_variables()
+        if update:
+            self.gen_roi_display_variables()
         self.roi_time_trace_need_update.append(True)
+        return key
 
     def update_roi(self, key, new_pixels, input_key=True):
         if not input_key:
@@ -726,6 +733,19 @@ class DataHandler:
         self.rois_dict[key]["pixels"] = new_pixels
         self.rois_update_needed = True
         self.gen_roi_display_variables()
+
+    def merge_rois(self, keys, input_key=True):
+        if not input_key:
+            keys = [self.roi_index_backward[key] for key in keys]
+        pixels = set(list(reduce(lambda x, y: x + y,
+                                 [list(self.rois_dict[x]["pixels"]) for x in keys])))
+        for key in keys:
+            self.rois_dict.pop(key, "test")
+        index = max(list(self.rois_dict.keys())) + 1
+        self.rois_dict[index] = {"pixels": np.array(list(pixels))}
+        self.rois_update_needed = True
+        self.gen_roi_display_variables()
+        return index
 
     def get_time_trace(self, num, trial=None, trace_type="Mean Florescence"):
         """

@@ -12,9 +12,10 @@ from scipy import ndimage, sparse
 from sklearn.decomposition import PCA
 
 from cidan.LSSC.functions.embeddings import calcDInv
+from cidan.LSSC.functions.widefield_functions import *
 
 
-def load_tif_stack(path, convert_to_32=True):
+def load_tif_stack(path, mask_flat=None, convert_to_32=True):
     """
     This function reads a tiff stack file
     Parameters
@@ -66,6 +67,14 @@ def load_tif_stack(path, convert_to_32=True):
         image = image.astype(np.float32)
         if np.isclose(np.mean(image[0]), 2 ** 15, 0, 4000):
             image = image - 2 ** 15
+
+    if mask_flat is not None:
+        image = image.transpose((1, 2, 0))
+        try:
+            image[mask_flat.reshape((image.shape[0], image.shape[1])) == 0] = 0
+        except:
+            print("Error mask is the wrong size")
+        image = image.transpose((2, 0, 1))
     return image
 
 def load_tif_stack_trial(path):
@@ -332,16 +341,24 @@ def saveTempImage(data, save_dir, spatial_box_num):
     return data
 
 
-def applyPCA(data, pca_threshold):
+def applyPCA(data, pca_threshold, mask_flat=None):
+    data_shape = data.shape
     from cidan.LSSC.functions.roi_extraction import elbow_threshold
-
+    if mask_flat is not None:
+        data = mask_data_3d(data, mask_flat)
+    else:
+        data = reshape_to_2d_over_time(data)
     pca = PCA()
-    pca.fit(reshape_to_2d_over_time(data).transpose())
+    pca.fit(data.transpose())
     threshold = elbow_threshold(pca.singular_values_,
                                 np.arange(0, len(pca.singular_values_), 1),
                                 half=False)
+    print(threshold, pca.singular_values_)
     filtered_pca_components = pca.components_[pca.singular_values_ > threshold]
-    return filtered_pca_components.reshape((-1, data.shape[1], data.shape[2]))
+    if mask_flat is not None:
+        filtered_pca_components = mask_to_data_2d(filtered_pca_components.transpose(),
+                                                  mask_flat).transpose()
+    return filtered_pca_components.reshape((-1, data_shape[1], data_shape[2]))
 
 
 def applyLocalSpatialDenoising(data):

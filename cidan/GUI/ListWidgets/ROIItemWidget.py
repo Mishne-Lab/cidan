@@ -67,13 +67,16 @@ class ROIItemWidget(QWidget):
 
     def keyPressEvent(self, event):
         self.roi_tab.keyPressEvent(event)
-    def select_check_box(self):
-        if not self.check_box.checkState():
+
+    def select_check_box(self, force_on=False):
+        if not self.check_box.checkState() or force_on:
             if not self.roi_list.select_multiple:
                 for x in self.roi_list.roi_item_list:
                     if x != self:
                         x.check_box.setChecked(False)
+
             self.check_box.setChecked(True)
+
             if not self.display_time:
                 self.check_box_time_trace.setChecked(True)
             self.roi_list.current_selected_roi = self.roi_num

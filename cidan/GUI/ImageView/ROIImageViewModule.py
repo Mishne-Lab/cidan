@@ -346,9 +346,16 @@ class ROIImageViewModule(ImageViewModule):
         if event.button() == QtCore.Qt.RightButton:
             if self.image_item.raiseContextMenu(event):
                 event.accept()
+        modifiers = QApplication.keyboardModifiers()
 
         if hasattr(self.main_widget.data_handler,
                    "pixel_with_rois_flat") and self.main_widget.data_handler.pixel_with_rois_flat is not None:
+            modifiers = QApplication.keyboardModifiers()
+            if modifiers == QtCore.Qt.ShiftModifier and hasattr(self.tab,
+                                                                "select_many_rois_box"):
+                self.tab.select_many_rois_box(event)
+
+                return
             pos = event.pos()
 
             y = int(pos.x())
@@ -362,7 +369,7 @@ class ROIImageViewModule(ImageViewModule):
                 event.accept()
                 self.tab.roi_list_module.set_current_select(roi_num)
 
-    def roi_view_drag(self, event):
+    def roi_selector_thing_box(self, event):
         prev = True
         pos = event.pos()
 
@@ -486,7 +493,6 @@ class ROIImageViewModule(ImageViewModule):
                         [self.data_handler.edge_roi_image_flat,
                          np.zeros(shape),
                          np.zeros(shape)])
-
 
 
                 else:

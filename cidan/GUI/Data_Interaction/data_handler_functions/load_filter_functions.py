@@ -79,17 +79,25 @@ def load_dataset(self, path_list):
     if self.load_into_mem:
         if self.single_dataset_mode:
 
-            self.dataset_list = [load_tif_stack(path_list[0], convert_to_32=False)]
+            self.dataset_list = [load_tif_stack(path_list[0],
+                                                mask_flat=self.image_data_mask_flat if self.widefield else None,
+                                                convert_to_32=False)]
         else:
             self.dataset_list = dask.compute(
-                *[delayed(load_tif_stack)(x) for x in path_list])
+                *[delayed(load_tif_stack)(x,
+                                          mask_flat=self.image_data_mask_flat if self.widefield else None)
+                  for x in path_list])
         self.total_size = [self.dataset_list[0].shape[1], self.dataset_list[0].shape[2]]
     else:
         if self.single_dataset_mode:
-            self.dataset_list= [load_tif_stack(path_list[0], convert_to_32=False)]
+            self.dataset_list = [load_tif_stack(path_list[0],
+                                                mask_flat=self.image_data_mask_flat if self.widefield else None,
+                                                convert_to_32=False)]
         else:
             self.dataset_list = dask.compute(
-                *[delayed(load_tif_stack)(x) for x in path_list])
+                *[delayed(load_tif_stack)(x,
+                                          mask_flat=self.image_data_mask_flat if self.widefield else None)
+                  for x in path_list])
         self.total_size = [self.dataset_list[0].shape[1],self.dataset_list[0].shape[2]]
 
 
@@ -241,7 +249,8 @@ def compute_trial_filter_step(self, trial_num, loaded_num,dataset=False, save_da
             #     loaded_num] = calculate_temporal_correlation(
             #     cur_stack).compute()
     if self.filter_params["pca"]:
-        pca = applyPCA(cur_stack, self.filter_params["pca_threshold"])
+        pca = applyPCA(cur_stack, self.filter_params["pca_threshold"],
+                       mask_flat=self.image_data_mask_flat)
         if self.load_into_mem:
             self.pca_decomp[loaded_num] = pca
         else:
@@ -281,8 +290,8 @@ def load_mask(self, path):
                     key = "mask"
                 else:
                     key = keys[0]
-                mask = np.array(f[key]).astype(bool).reshape(self.shape)
-                self.image_data_mask = mask
+                mask = np.array(f[key]).astype(bool)
+                self.image_data_mask_flat = mask
                 return True
         except Exception as a:
             print(a)

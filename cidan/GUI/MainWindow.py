@@ -209,7 +209,7 @@ class MainWidget(QWidget):
                     "/Users/sschickler/Code_Devel/LSSC-python/tests/test_files/",
                     "/Users/sschickler/Code_Devel/LSSC-python/tests/test_files/save_dir",
                     trials=["small_dataset1.tif", "small_dataset2.tif"],
-                    save_dir_already_created=False, load_into_mem=False,
+                    save_dir_already_created=True, load_into_mem=False,
                     auto_crop=False)
                 # self.data_handler.calculate_filters(auto_crop=True)
                 self.init_w_data()
@@ -244,9 +244,9 @@ class MainWidget(QWidget):
         # This assumes that the data is already loaded in
         for num, _ in enumerate(self.tabs):
             self.tab_widget.removeTab(1)
-
+        self.roi_extraction_tab = ROIExtractionTab(self)
         # TODO add to export tab to export all time traces or just currently caclulated ones
-        self.tabs = [PreprocessingTab(self), ROIExtractionTab(self), AnalysisTab(self)]
+        self.tabs = [PreprocessingTab(self), self.roi_extraction_tab, AnalysisTab(self)]
         if self.dev:
             self.tabs.insert(2, ClassificationTab(self))
         # Add tabs
@@ -269,19 +269,36 @@ class MainWidget(QWidget):
             export_action.setStatusTip('Export Time Traces/ROIs')
             export_action.triggered.connect(lambda: self.exportStuff())
             self.export_menu.addAction(export_action)
+        if not hasattr(self, "tool_menu"):
+            self.tool_menu = self.main_menu.addMenu("&Tools")
         if not hasattr(self, "import_json"):
             self.import_json = QAction("Import Json", self)
             self.import_json.setStatusTip('Import Json')
             self.import_json.triggered.connect(lambda: self.openNewJSON())
-            self.fileMenu.addAction(self.import_json)
+            self.tool_menu.addAction(self.import_json)
         if not hasattr(self, "auto_label_rois") and self.dev:
             self.auto_label_rois = QAction("Auto Label ROIS", self)
             self.auto_label_rois.setStatusTip('Use a json file to auto label rois')
             self.auto_label_rois.triggered.connect(lambda: self.autoLabelRois())
-            self.fileMenu.addAction(self.auto_label_rois)
+            self.tool_menu.addAction(self.auto_label_rois)
+        if not hasattr(self, "merge_mode_on") and self.dev:
+            self.merge_mode_item = QAction("Turn merge mode on", self)
+            # self.merge_mode_item.setStatusTip('Turn merge mode on')
+            self.merge_mode_item.triggered.connect(lambda: self.merge_mode_func())
+            self.tool_menu.addAction(self.merge_mode_item)
+
     def selectOpenFileTab(self, index):
         self.tab_widget.setCurrentIndex(0)
         self.fileOpenTab.tab_selector.setCurrentIndex(index)
+
+    def merge_mode_func(self):
+        self.roi_extraction_tab.merge_mode = not self.roi_extraction_tab.merge_mode
+        cur_val = self.roi_extraction_tab.merge_mode
+        if cur_val:
+            self.merge_mode_item.setText("Turn merge mode off")
+        else:
+            self.merge_mode_item.setText("Turn merge mode on")
+        self.roi_extraction_tab.toggle_merge_mode(cur_val)
 
     def openNewJSON(self):
         import json
@@ -399,6 +416,15 @@ class MainWidget(QWidget):
                         self.data_handler.classes[
                             list(self.data_handler.classes.keys())[0]]['rois'].append(
                             self.data_handler.roi_index_backward[num])
+                self.data_handler.classes["true"] = {
+                    "color": DataHandler._color_list[2], "rois": [],
+                    "name": "True", "editable": True}
+                for x in rois_true_1d:
+                    self.data_handler.classes["true"]["rois"].append(
+                        self.data_handler.add_new_roi(x, update=False))
+                self.data_handler.gen_roi_display_variables()
+                self.data_handler.rois_update_needed = True
+                self.data_handler.rois  # just to force the update
                 self.data_handler.gen_class_display_variables()
                 self.updateTabs()
 

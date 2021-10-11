@@ -447,6 +447,87 @@ def main():
 
                  progress_signal=None, image_data_mask=mask)
 
+    # number_times_run = 10
+    # accuracies = [10,20,40,60,100]
+    # crops = [[10,245],[60, 245],[120,245]]
+    # time_lengths = [100,200,400,600, 800,1200]
+    # results = pd.DataFrame.from_dict({"accuracy":[], "num_pixels":[], "time_steps":[], "run_num":[],"time":[]})
+    # for x in range(number_times_run):
+    #     for crop in crops:
+    #         for time_length in time_lengths:
+    #             for accuracy in accuracies:
+    #                 data_current = data_all[:time_length,crop[0]:crop[1],crop[0]:crop[1]]
+    #                 time_start = time.time()
+    #                 process_data(test_images=False, test_output_dir="",
+    #                              save_dir="/Users/sschickler/Code_Devel/Widefield/test2/",
+    #                              shape=data_current.shape[1:],
+    #                              save_intermediate_steps=True,
+    #                              image_data_filtered=[data_current for _ in range(1)],
+    #                              image_data=[data_current for _ in range(1)],
+    #                              crop=False,
+    #                              slicing=[0, 1],
+    #                              eigen_vectors_already_generated=False,
+    #                              save_embedding_images=True,
+    #                              total_num_time_steps=1,
+    #                              total_num_spatial_boxes=1,
+    #                              spatial_overlap=5,
+    #
+    #                              metric=eigen_params["metric"],
+    #                              knn=eigen_params["knn"],
+    #                              accuracy=accuracy,
+    #                              eigen_accuracy=eigen_params[
+    #                                  "eigen_accuracy"],
+    #                              connections=accuracy,
+    #                              normalize_w_k=eigen_params[
+    #                                  "normalize_w_k"],
+    #                              num_eig=eigen_params["num_eig"],
+    #                              merge=roi_extraction_params["merge"],
+    #                              num_rois=roi_extraction_params[
+    #                                  "num_rois"],
+    #                              refinement=roi_extraction_params[
+    #                                  "refinement"],
+    #                              num_eigen_vector_select=
+    #                              roi_extraction_params[
+    #                                  "num_eigen_vector_select"],
+    #                              max_iter=roi_extraction_params[
+    #                                           "max_iter"]+100,
+    #                              roi_size_min=roi_extraction_params[
+    #                                  "roi_size_min"],
+    #                              fill_holes=roi_extraction_params[
+    #                                  "fill_holes"],
+    #
+    #                              elbow_threshold_method=
+    #                              roi_extraction_params[
+    #                                  "elbow_threshold_method"],
+    #                              elbow_threshold_value=
+    #                              roi_extraction_params[
+    #                                  "elbow_threshold_value"],
+    #                              eigen_threshold_method=
+    #                              roi_extraction_params[
+    #                                  "eigen_threshold_method"],
+    #                              eigen_threshold_value=
+    #                              roi_extraction_params[
+    #                                  "eigen_threshold_value"],
+    #                              merge_temporal_coef=
+    #                              roi_extraction_params[
+    #                                  "merge_temporal_coef"],
+    #                              roi_size_max=roi_extraction_params[
+    #                                  "roi_size_max"],
+    #                              pca=False,
+    #                              pca_data=False,
+    #                              roi_eccentricity_limit=roi_extraction_params[
+    #                                  "roi_eccentricity_limit"],
+    #                              local_max_method=
+    #                              roi_extraction_params[
+    #                                  "local_max_method"],
+    #                              widefield=False,
+    #
+    #                              progress_signal=None,
+    #                              # image_data_mask=mask
+    #                              )
+    #                 time_end = time.time()
+    #                 results = results.append({"accuracy":accuracy, "num_pixels":(crop[1]-crop[0])**2, "time_steps":time_length, "run_num":x, "time":time_end-time_start}, ignore_index=True)
+    #                 results.to_csv("out.csv")
 
 if __name__ == '__main__':
     main()
