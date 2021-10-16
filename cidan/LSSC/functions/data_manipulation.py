@@ -67,7 +67,7 @@ def load_tif_stack(path, mask_flat=None, convert_to_32=True):
         image = image.astype(np.float32)
         if np.isclose(np.mean(image[0]), 2 ** 15, 0, 4000):
             image = image - 2 ** 15
-
+            image[image < 0] = 0
     if mask_flat is not None:
         image = image.transpose((1, 2, 0))
         try:
@@ -183,6 +183,7 @@ def filter_stack(*, stack: np.ndarray, median_filter: bool,
     stack = stack.astype(np.float32)
     if np.isclose(np.mean(stack[0]), 2 ** 15, 0, 4000):
         stack = stack - 2 ** 15
+        stack[stack < 0] = 0
     if localSpatialDenoising:
         stack = applyLocalSpatialDenoising(stack)
     if z_score and not hist_eq:
@@ -350,8 +351,8 @@ def applyPCA(data, pca_threshold, mask_flat=None):
         data = reshape_to_2d_over_time(data)
     pca = PCA()
     pca.fit(data.transpose())
-    threshold = elbow_threshold(pca.singular_values_,
-                                np.arange(0, len(pca.singular_values_), 1),
+    threshold = elbow_threshold(pca.singular_values_[:100],
+                                np.arange(0, len(pca.singular_values_[:100]), 1),
                                 half=False)
     print(threshold, pca.singular_values_)
     filtered_pca_components = pca.components_[pca.singular_values_ > threshold]

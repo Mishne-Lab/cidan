@@ -297,10 +297,14 @@ class ROIExtractionTab(Tab):
                          column_2_display=True, horiz_moveable=True)
         self._brush_size_options.setMinimumHeight(
             int(30 * ((self.logicalDpiX() / 96.0 - 1) / 2 + 1)))
+        self.installEventFilter(self.main_widget.eventFilterCustom)
 
+        for attr in dir(self):
+            if isinstance(self.__getattribute__(attr), QWidget):
+                self.__getattribute__(attr).installEventFilter(
+                    self.main_widget.eventFilterCustom)
 
-    def keyPressEvent(self, event):
-        super(ROIExtractionTab, self).keyPressEvent(event)
+    def keyPressAction(self, event):
         if self.tab_selector_roi.currentIndex() == 1:
             if event.key() == 81:  # Q
                 self.off_button.setChecked(True)
@@ -346,11 +350,13 @@ class ROIExtractionTab(Tab):
                 self.delete_roi(self.roi_list_module.current_selected_roi)
                 event.accept()
             if event.key() == 16777234:
-                self.roi_list_module.select_roi_next(True)
-                event.accept()
-            if event.key() == 16777236:
                 self.roi_list_module.select_roi_next(False)
                 event.accept()
+            if event.key() == 16777236:
+                self.roi_list_module.select_roi_next(True)
+                event.accept()
+
+        return event.isAccepted()
 
     @property
     def data_handler(self):

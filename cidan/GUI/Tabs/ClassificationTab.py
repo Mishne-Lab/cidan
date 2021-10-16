@@ -364,6 +364,17 @@ class ClassificationTab(Tab):
             # print("SOmething happened")
             pass
 
+    def keyPressAction(self, event):
+
+        if event.key() == 16777234:
+            self.roi_list_module.select_roi_next(False)
+            event.accept()
+        if event.key() == 16777236:
+            self.roi_list_module.select_roi_next(True)
+            event.accept()
+
+        return event.isAccepted()
+
     def updateTab(self
                   ):
         if (self.main_widget.checkThreadRunning()):

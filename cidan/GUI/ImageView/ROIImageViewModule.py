@@ -363,7 +363,23 @@ class ROIImageViewModule(ImageViewModule):
             self.click_event = True
             pixel_with_rois_flat = self.main_widget.data_handler.pixel_with_rois_flat
             shape = self.main_widget.data_handler.shape
-            roi_num = int(pixel_with_rois_flat[shape[1] * x + y])
+            rois_possible = self.main_widget.data_handler.pixel_with_rois_sep_flat[:,
+                            shape[1] * x + y]
+            if np.count_nonzero(
+                    rois_possible) > 1 and self.tab.roi_list_module.current_selected_roi is not None:
+                possible_values = list(np.unique(rois_possible[rois_possible > 0]))
+                try:
+                    cur_val = possible_values.index(
+                        self.data_handler.roi_index_backward[
+                            self.tab.roi_list_module.current_selected_roi])
+                except ValueError:
+                    cur_val = -1
+                cur_val += 1
+                if len(possible_values) == cur_val:
+                    cur_val = 0
+                roi_num = possible_values[cur_val]
+            else:
+                roi_num = int(pixel_with_rois_flat[shape[1] * x + y])
             # TODO change to int
             if roi_num != 0:
                 event.accept()

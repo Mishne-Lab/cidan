@@ -8,6 +8,7 @@ from cidan.GUI.Data_Interaction.CalculateSingleTrialThread import \
     CalculateSingleTrialThread
 from cidan.GUI.Data_Interaction.DemoDownloadThread import DemoDownloadThread
 from cidan.GUI.Data_Interaction.OpenDatasetThread import OpenDatasetThread
+from cidan.GUI.EventFilter.EventFilterMainWindow import EventFilterMainWindow
 from cidan.GUI.Inputs.FloatInput import FloatInput
 from cidan.GUI.Tabs.AnalysisTab import AnalysisTab
 from cidan.GUI.Tabs.ClassificationTab import ClassificationTab
@@ -150,6 +151,8 @@ class MainWidget(QWidget):
         self.progress_signal = None
         self.main_menu = self.main_window.main_menu
         self.layout = QVBoxLayout(self)
+        self.eventFilterCustom = EventFilterMainWindow(self)
+
         self.data_handler = None
         self.thread_list = []
         self.setContentsMargins(0, 0, 0, 0)
@@ -173,6 +176,9 @@ class MainWidget(QWidget):
         # self.console.setMinimumHeight(150)
         self.layout.addWidget(self.console)
         self.setLayout(self.layout)
+        self.installEventFilter(self.eventFilterCustom)
+        self.console.installEventFilter(self.eventFilterCustom)
+        self.tab_widget.installEventFilter(self.eventFilterCustom)
 
         self.demo_download_thread = DemoDownloadThread(main_widget=self)
         self.thread_list.append(self.demo_download_thread)
@@ -428,7 +434,7 @@ class MainWidget(QWidget):
                 self.data_handler.gen_class_display_variables()
                 self.updateTabs()
 
-            load_button = QPushButton(text="Load JSON")
+            load_button = QPushButton(text="Auto Label ROIs")
             load_button.clicked.connect(lambda x: final_load_part())
             dialog.layout.addWidget(load_button, alignment=QtCore.Qt.AlignCenter)
             dialog.setLayout(dialog.layout)

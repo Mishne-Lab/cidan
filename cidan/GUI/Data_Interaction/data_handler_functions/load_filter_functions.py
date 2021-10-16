@@ -291,12 +291,16 @@ def load_mask(self, path):
                 else:
                     key = keys[0]
                 mask = np.array(f[key]).astype(bool)
-                self.image_data_mask_flat = mask
+                self.image_data_mask_flat = mask.reshape((-1, 1))
                 return True
         except Exception as a:
             print(a)
             print(
                 "Loading of mat file failed please make sure the mask is in variable called mask and that it is the right size")
+    elif ".tif" in path:
+        image = tifffile.imread(path)
+        mask = image.astype(bool).reshape((-1, 1))
+        self.image_data_mask_flat = mask
     else:
         print("Please input a mat file for the mask")
         # raise warnings.warn_explicit("Please enter a valid mat file for the mask")

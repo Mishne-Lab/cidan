@@ -175,14 +175,17 @@ def gen_roi_display_variables(self):
     self.roi_min_cord_list = [np.min(x, axis=1) for x in roi_list_2d_cord]
     self.pixel_with_rois_flat = np.zeros(
         [self.shape[0] * self.shape[1]])
+    self.pixel_with_rois_sep_flat = np.zeros(
+        [len(self.rois), self.shape[0] * self.shape[1]])
     self.pixel_with_rois_color_flat = np.zeros(
         [self.shape[0] * self.shape[1], 3])
     edge_roi_image = np.zeros([self.shape[0], self.shape[1]])
-    for roi_key in self.rois_dict.keys():
+    for index, roi_key in enumerate(self.rois_dict.keys()):
         num = roi_key
         roi = self.rois_dict[roi_key]["pixels"]
         cur_color = self.color_list[num % len(self.color_list)]
         self.pixel_with_rois_flat[roi] = num
+        self.pixel_with_rois_sep_flat[index, roi] = num
         self.pixel_with_rois_color_flat[roi] = cur_color
         roi_edge = np.zeros(
             [self.shape[0] * self.shape[1]])
