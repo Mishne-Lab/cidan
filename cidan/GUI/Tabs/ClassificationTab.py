@@ -200,7 +200,7 @@ class ClassificationTab(Tab):
             self.updateTab()
             try:
                 next_roi = self.data_handler.classes["Unassigned"]["rois"][0]
-                self.image_view.zoomRoi(self.data_handler.rois_dict[next_roi]["index"])
+                self.image_view.zoomRoi(self.data_handler.rois_dict[next_roi]["index"], input_key=False)
                 self.roi_list_module.set_current_select(next_roi)
             except IndexError:
                 pass
@@ -343,6 +343,11 @@ class ClassificationTab(Tab):
             original_zeros[roi_pix] = 1
             original_zeros = original_zeros.reshape(self.data_handler.shape)
             props = measure.regionprops(original_zeros)[0]
+            for key in props:
+                try:
+                    print(key, float(props[key]))
+                except:
+                    pass
             extent = len(roi_pix) / ((self.data_handler.roi_max_cord_list[roi_index][
                                           0] -
                                       self.data_handler.roi_min_cord_list[roi_index][

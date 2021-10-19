@@ -280,7 +280,7 @@ def roi_extraction_settings_block(main_widget):
                                       min=0, max=1, step=.01),
 
                                   #
-                                  IntInput(display_name="ROI Eccentricity Threshold:",
+                                  FloatInput(display_name="ROI Eccentricity Threshold:",
                                            program_name="roi_circ_threshold",
                                            on_change_function=lambda x,
                                                                      y: data_handler.change_roi_extraction_param(
@@ -289,7 +289,7 @@ def roi_extraction_settings_block(main_widget):
                                            data_handler.roi_extraction_params[
                                                "roi_circ_threshold"],
                                            tool_tip="Thresholds the rois based on how circular they are. Lowering the number would allow more ROIs through",
-                                           min=0, max=100, step=1),
+                                           min=0, max=1, step=.01),
                               ]
                               )
 
@@ -359,7 +359,16 @@ def roi_advanced_settings_block(main_widget):
                 data_handler.roi_extraction_params[
                     "fill_holes"],
                 tool_tip="Whether to fill holes in each roi"),
-
+            IntInput(display_name="normalize_w_k:",
+                       program_name="normalize_w_k",
+                       on_change_function=lambda x,
+                                                 y: data_handler.change_roi_extraction_param(
+                           x, y),
+                       default_val=
+                       data_handler.eigen_params[
+                           "normalize_w_k"],
+                       tool_tip="",
+                       min=0, max=500, step=1),
             FloatInput(display_name="Eigen threshold value:",
                        program_name="eigen_threshold_value",
                        on_change_function=lambda x,

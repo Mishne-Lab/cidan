@@ -15,7 +15,7 @@ from cidan.LSSC.functions.progress_bar import printProgressBarROI
 from cidan.LSSC.functions.roi_extraction import roi_extract_image, merge_rois
 from cidan.LSSC.functions.save_test_images import save_roi_images
 from cidan.LSSC.functions.widefield_functions import *
-from explorations.load_mat import load_dataset_widefield_test
+# from explorations.load_mat import load_dataset_widefield_test
 
 logger1 = logging.getLogger("cidan.LSSC.process_data")
 
@@ -91,7 +91,8 @@ def process_data(*, test_images: bool, test_output_dir: str,
         filelist = [f for f in os.listdir(os.path.join(save_dir, "eigen_vectors"))]
         for f in filelist:
             os.remove(os.path.join(os.path.join(save_dir, "eigen_vectors"), f))
-
+    if not os.path.isdir(os.path.join(save_dir, "temp_files/")):
+        os.mkdir(os.path.join(save_dir, "temp_files/"))
     if not os.path.isdir(os.path.join(save_dir, "temp_files/embedding")):
         os.mkdir(os.path.join(save_dir, "temp_files/embedding"))
     if not os.path.isdir(os.path.join(save_dir, "temp_files/rois")):

@@ -45,7 +45,7 @@ class ROIItemWidget(QWidget):
             }""")
         self.zoom_button = QPushButton("Zoom To")
         self.zoom_button.clicked.connect(
-            lambda x: self.roi_tab.image_view.zoomRoi(self.roi_num))
+            lambda x: self.roi_tab.image_view.zoomRoi(self.id, input_key=True))
         self.check_box = QCheckBox()
         self.check_box.toggled.connect(lambda: self.check_box_toggled())
         self.check_box_time_trace = QCheckBox()
