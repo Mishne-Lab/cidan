@@ -30,7 +30,7 @@ class ROIImageViewModule(ImageViewModule):
             show_name=True)
         self.set_background("", "Max Image", update_image=False)
         self.image_item.mouseClickEvent = lambda x: self.roi_view_click(x)
-        self.image_item.mouseDragEvent = lambda x: self.roi_view_drag(x)
+        # self.image_item.mouseDragEvent = lambda x: self.roi_view_drag(x)
 
 
         shape = main_widget.data_handler.shape
@@ -320,7 +320,7 @@ class ROIImageViewModule(ImageViewModule):
                 print("Error please try again")
                 self.reset_view()
 
-    def zoomRoi(self, num):
+    def zoomRoi(self, id, input_key=True):
         """
         Zooms in to a certain roi
         Parameters
@@ -332,7 +332,10 @@ class ROIImageViewModule(ImageViewModule):
         -------
         Nothing
         """
-
+        if input_key:
+            num = self.data_handler.roi_index_backward[id]
+        else:
+            num = id
         max_cord = self.main_widget.data_handler.roi_max_cord_list[num] + 50
 
         min_cord = self.main_widget.data_handler.roi_min_cord_list[num] - 50
@@ -341,14 +344,23 @@ class ROIImageViewModule(ImageViewModule):
                                             max_cord[1])
         self.image_view.getView().setXRange(min_cord[0],
                                             max_cord[0])
+        if num != 0:
+            self.tab.roi_list_module.set_current_select(num)
 
     def roi_view_click(self, event):
         if event.button() == QtCore.Qt.RightButton:
             if self.image_item.raiseContextMenu(event):
                 event.accept()
+        modifiers = QApplication.keyboardModifiers()
 
         if hasattr(self.main_widget.data_handler,
                    "pixel_with_rois_flat") and self.main_widget.data_handler.pixel_with_rois_flat is not None:
+            modifiers = QApplication.keyboardModifiers()
+            if modifiers == QtCore.Qt.ShiftModifier and hasattr(self.tab,
+                                                                "select_many_rois_box"):
+                self.tab.select_many_rois_box(event)
+
+                return
             pos = event.pos()
 
             y = int(pos.x())
@@ -356,13 +368,29 @@ class ROIImageViewModule(ImageViewModule):
             self.click_event = True
             pixel_with_rois_flat = self.main_widget.data_handler.pixel_with_rois_flat
             shape = self.main_widget.data_handler.shape
-            roi_num = int(pixel_with_rois_flat[shape[1] * x + y])
+            rois_possible = self.main_widget.data_handler.pixel_with_rois_sep_flat[:,
+                            shape[1] * x + y]
+            if np.count_nonzero(
+                    rois_possible) > 1 and self.tab.roi_list_module.current_selected_roi is not None:
+                possible_values = list(np.unique(rois_possible[rois_possible > 0]))
+                try:
+                    cur_val = possible_values.index(
+                        self.data_handler.roi_index_backward[
+                            self.tab.roi_list_module.current_selected_roi])
+                except ValueError:
+                    cur_val = -1
+                cur_val += 1
+                if len(possible_values) == cur_val:
+                    cur_val = 0
+                roi_num = possible_values[cur_val]
+            else:
+                roi_num = int(pixel_with_rois_flat[shape[1] * x + y])
             # TODO change to int
             if roi_num != 0:
                 event.accept()
                 self.tab.roi_list_module.set_current_select(roi_num)
 
-    def roi_view_drag(self, event):
+    def roi_selector_thing_box(self, event):
         prev = True
         pos = event.pos()
 
@@ -486,7 +514,6 @@ class ROIImageViewModule(ImageViewModule):
                         [self.data_handler.edge_roi_image_flat,
                          np.zeros(shape),
                          np.zeros(shape)])
-
 
 
                 else:

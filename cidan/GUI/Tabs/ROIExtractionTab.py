@@ -1,4 +1,5 @@
 import logging
+from math import ceil, floor
 
 import numpy as np
 import pyqtgraph as pg
@@ -47,10 +48,11 @@ class ROIExtractionTab(Tab):
         self.image_view = ROIPaintImageViewModule(main_widget, self, False)
         self.image_view.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.roi_unconnected = QErrorMessage(self.main_widget.main_window)
-
+        self.merge_mode = False  # this is for the multi merge capability
 
         # This part creates the top left settings/roi list view in two tabs
         self.tab_selector_roi = QTabWidget()
+        self.tab_selector_roi.keyPressEvent = self.keyPressEvent
         # self.tab_selector_roi.setStyleSheet("QTabWidget {font-size: 20px;}")
 
         # ROI modification Tab
@@ -102,11 +104,17 @@ class ROIExtractionTab(Tab):
                               "Select an roi in the ROI list below")
         delete_roi.clicked.connect(
             lambda x: self.delete_roi(self.roi_list_module.current_selected_roi))
+        self.merge_button = QPushButton(text="Merge Selected")
+        self.merge_button.setToolTip("this merges the currently selected rois together")
+        self.merge_button.clicked.connect(
+            lambda x: self.merge_rois())
+        self.merge_button.hide()
         roi_modification_button_top_layout.addWidget(add_new_roi)
         roi_modification_button_top_layout.addWidget(add_to_roi)
         roi_modification_button_top_layout.addWidget(sub_to_roi)
 
         roi_modification_button_top_layout.addWidget(delete_roi)
+        roi_modification_button_top_layout.addWidget(self.merge_button)
         add_to_roi.setStyleSheet("QWidget {border: 0px solid #32414B;}")
         sub_to_roi.setStyleSheet("QWidget {border: 0px solid #32414B;}")
         add_new_roi.setStyleSheet("QWidget {border: 0px solid #32414B;}")
@@ -178,6 +186,14 @@ class ROIExtractionTab(Tab):
         clear_from_selection.clicked.connect(
             lambda x: self.image_view.clearPixelSelection(display_update_text=True))
         painter_layout.addWidget(clear_from_selection)
+        self.select_all_screen_button = QPushButton(
+            text="Select all rois on screen (shift+click)")
+        self.select_all_screen_button.setStyleSheet(
+            "QWidget {border: 0px solid #32414B;}")
+        self.select_all_screen_button.clicked.connect(
+            lambda x: self.select_many_rois_box())
+        painter_layout.addWidget(self.select_all_screen_button)
+        self.select_all_screen_button.hide()
         roi_modification_button_top_widget.setStyleSheet(
             "QWidget {border: 2px solid #32414B; font-size: %dpx}" % (
                     self.main_widget.scale * 20))
@@ -281,14 +297,19 @@ class ROIExtractionTab(Tab):
                          column_2_display=True, horiz_moveable=True)
         self._brush_size_options.setMinimumHeight(
             int(30 * ((self.logicalDpiX() / 96.0 - 1) / 2 + 1)))
+        self.installEventFilter(self.main_widget.eventFilterCustom)
 
+        for attr in dir(self):
+            if isinstance(self.__getattribute__(attr), QWidget):
+                self.__getattribute__(attr).installEventFilter(
+                    self.main_widget.eventFilterCustom)
 
-    def keyPressEvent(self, event):
-        super(ROIExtractionTab, self).keyPressEvent(event)
+    def keyPressAction(self, event):
         if self.tab_selector_roi.currentIndex() == 1:
             if event.key() == 81:  # Q
                 self.off_button.setChecked(True)
                 self.image_view.setSelectorBrushType("off")
+                event.accept()
             if event.key() == 87:  # W
                 if self.on_button.isChecked():
                     self.off_button.setChecked(True)
@@ -296,6 +317,7 @@ class ROIExtractionTab(Tab):
                 else:
                     self.on_button.setChecked(True)
                     self.image_view.setSelectorBrushType("add")
+                    event.accept()
             if event.key() == 69:  # E
                 if self.sub_button.isChecked():
                     self.off_button.setChecked(True)
@@ -303,6 +325,7 @@ class ROIExtractionTab(Tab):
                 else:
                     self.sub_button.setChecked(True)
                     self.image_view.setSelectorBrushType("subtract")
+                event.accept()
             if event.key() == 82:  # R
                 if self.magic_wand.isChecked():
                     self.off_button.setChecked(True)
@@ -310,16 +333,30 @@ class ROIExtractionTab(Tab):
                 else:
                     self.magic_wand.setChecked(True)
                     self.image_view.setSelectorBrushType("magic")
+                event.accept()
             if event.key() == 84:  # T
                 self.image_view.clearPixelSelection()
+                event.accept()
             if event.key() == 65:  # A
                 self.modify_roi(self.roi_list_module.current_selected_roi, "add")
-            if event.key() == 83:  #S
+                event.accept()
+            if event.key() == 83:  # S
                 self.modify_roi(self.roi_list_module.current_selected_roi, "subtract")
+                event.accept()
             if event.key() == 68:  # D
                 self.add_new_roi()
+                event.accept()
             if event.key() == 70 or 16777219 == event.key():  # F or delete
                 self.delete_roi(self.roi_list_module.current_selected_roi)
+                event.accept()
+            if event.key() == 16777234:
+                self.roi_list_module.select_roi_next(False)
+                event.accept()
+            if event.key() == 16777236:
+                self.roi_list_module.select_roi_next(True)
+                event.accept()
+
+        return event.isAccepted()
 
     @property
     def data_handler(self):
@@ -381,12 +418,12 @@ class ROIExtractionTab(Tab):
             # for _ in range(len(self.data_handler.trials_all)):
             #     self.data_handler.time_traces[-1].append(False)
             # self.data_handler.time_traces.append([np.zeros(50)])
-            self.data_handler.add_new_roi(temp_roi)
+            roi_key = self.data_handler.add_new_roi(temp_roi)
             self.image_view.clearPixelSelection()
             self.update_roi(False)
             self.roi_list_module.set_list_items(self.data_handler.rois_dict)
             self.deselectRoiTime()
-            self.roi_list_module.set_current_select(len(self.data_handler.rois) - 1)
+            self.roi_list_module.set_current_select(roi_key)
             self.main_widget.tabs[2].updateTab()
             self.off_button.setChecked(True)
             self.image_view.setSelectorBrushType("off")
@@ -437,7 +474,7 @@ class ROIExtractionTab(Tab):
         Nothing
         """
         if (self.main_widget.checkThreadRunning()):
-
+            self.select_many_rois_box_dev()
             if roi_num is None or roi_num <1:
                 print("Please select an roi")
                 self.main_widget.console.updateText("Please Select an ROI")
@@ -535,6 +572,68 @@ class ROIExtractionTab(Tab):
                 self.time_plot.enableAutoRange(axis=0)
         except AttributeError:
             pass
+
+    def toggle_merge_mode(self, cur_val):
+        self.merge_mode = cur_val
+        self.roi_list_module.select_multiple = cur_val
+        if self.merge_mode:
+            self.merge_button.show()
+            self.select_all_screen_button.show()
+        else:
+            self.merge_button.hide()
+            self.select_all_screen_button.hide()
+
+    def merge_rois(self):
+        rois_to_merge = [x.id for x in self.roi_list_module.roi_item_list if
+                         x.check_box.checkState()]
+        index = self.data_handler.merge_rois(rois_to_merge)
+        self.deselectRoiTime()
+
+        self.image_view.clearPixelSelection()
+
+        self.image_view.setSelectorBrushType("off")
+        self.update_roi(new=False)
+        self.updateTab()
+        self.main_widget.tabs[2].updateTab()
+        self.roi_list_module.set_current_select(index)
+
+    def select_many_rois_box(self, event=None):
+        if not self.main_widget.dev or not self.merge_mode:
+            return
+        if event is not None:
+            event.accept()
+        region_range = self.image_view.image_view.getView().vb.state["viewRange"]
+        image_size = self.main_widget.data_handler.shape
+        for y in range(2):
+            for h in range(2):
+                if h == 1:
+                    region_range[y][h] = ceil(region_range[y][h])
+                else:
+                    region_range[y][h] = floor(region_range[y][h])
+        if region_range[0][0] < 0:
+            region_range[0][0] = 0
+        if region_range[1][0] < 0:
+            region_range[1][0] = 0
+        if region_range[0][1] > image_size[1]:
+            region_range[0][1] = image_size[1]
+        if region_range[1][1] > image_size[0]:
+            region_range[1][1] = image_size[0]
+        region_range = region_range[::-1]
+        roi_num_image = np.reshape(self.main_widget.data_handler.pixel_with_rois_flat,
+                                   image_size)
+        rois_in_region = list(np.unique(
+            roi_num_image[region_range[0][0]:region_range[0][1],
+            region_range[1][0]:region_range[1][1]]))
+        rois_in_region.remove(0)
+        for x in rois_in_region:
+            self.roi_list_module.set_current_select(int(x), force_on=True)
+        # self.updateTab()
+
+        # take range down to image size
+        # use that to segment out portion of roiimage view then run np unique on it to find which rois are present
+        # then select all those rois, idk how to do this by passing a one time parameter that allows multiple rois to be selected that resets everytime all selections are cleared
+        # see how this looks and then add a merge mode to it if its too much and makes user experience worse
+        # oh or add a menu item that turns merge mode on and off to the top menu thing
 
     def deselectRoiTime(self):
 

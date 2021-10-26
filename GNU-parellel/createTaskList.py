@@ -26,13 +26,16 @@ def main():
     args = parser.parse_args()
     with open(args.parameter, "r") as f:
         parameter_json = json.load(f)
-    parameters_to_search = {"median_filter": [True,False], "hist_eq": [True,False],
-                            "pca": [False,True], "total_num_spatial_boxes": [1],
-                            "num_eig": [21,31,41,51], "trial_split": [True],
+    parameters_to_search = {"median_filter": [True], "hist_eq": [False,True],"z_score": [True],
+                            "pca": [False], "total_num_spatial_boxes": [1],
+                            "num_eig": [51], "trial_split": [True],
                             "trial_length": [500],"eigen_accuracy":[10],
-                            "localSpatialDenoising": [False,True], "auto_crop":[False], "num_rois":[100],
-                            "max_iter":[100,200],"eigen_threshold_value":[.2,.3,.4,.5], "roi_eccentricity_limit": [.95],
-        #, "roi_circ_threshold":[0],"roi_eccentricity_limit": [1],
+                            "localSpatialDenoising": [False,True], "auto_crop":[False],
+                            #"num_rois":[175],
+                            "eigen_threshold_value":[0], "roi_eccentricity_limit": [1],
+                            "elbow_threshold_value": [.95],"max_iter":[300], "merge_threshold":[1],
+        "roi_circ_threshold":[0],
+                            # "roi_eccentricity_limit": [1],
                             # "crop_x": [[
                             #     0,
                             #     256
@@ -66,35 +69,41 @@ def main():
         for curr_dir in directory_list:
 
             for x in range(total_parameters_combinations):
-                curr_json = parameter_json.copy()
-                curr_out_dir = os.path.join(args.output_dir, curr_dir + str(x+args.start))
-                if not os.path.isdir(curr_out_dir):
-                    os.mkdir(curr_out_dir)
-                for remainder, key in zip(parameter_remainders, parameter_keys):
-                    val = parameters_to_search[key][x % remainder // (
-                            remainder // len(parameters_to_search[key]))]
-                    for section in curr_json:
-                        if key in curr_json[section].keys():
-                            curr_json[section][key] = val
-                curr_json["dataset_params"]["dataset_folder_path"] = args.input_dir
-                curr_json["dataset_params"][
-                    "original_folder_trial_split"] = [os.path.basename(curr_dir)]
-                if os.path.isdir(os.path.join(args.input_dir, curr_dir, "images")):
-                    curr_json["dataset_params"]["dataset_folder_path"] = os.path.join(
-                        args.input_dir, curr_dir)
+                for y in range(1):
+                    curr_json = parameter_json.copy()
+                    curr_out_dir = os.path.join(args.output_dir, curr_dir + str(x+args.start))
+                    if not os.path.isdir(curr_out_dir):
+                        os.mkdir(curr_out_dir)
+                    for remainder, key in zip(parameter_remainders, parameter_keys):
+                        val = parameters_to_search[key][x % remainder // (
+                                remainder // len(parameters_to_search[key]))]
+                        for section in curr_json:
+                            if key in curr_json[section].keys():
+                                curr_json[section][key] = val
+                    curr_json["dataset_params"]["dataset_folder_path"] = args.input_dir
                     curr_json["dataset_params"][
-                        "original_folder_trial_split"] = "images"
-                    with open(os.path.join(args.input_dir, curr_dir,
-                                           "regions/regions.json"), "r") as f:
-                        with open(os.path.join(curr_out_dir, "roi_true.json"),
-                                  "w") as f2:
-                            json.dump(json.load(f), f2)
+                        "original_folder_trial_split"] = [os.path.basename(curr_dir)]
+                    curr_json["dataset_params"][
+                        "trials_all"] = [os.path.basename(curr_dir)]
+                    curr_json["dataset_params"][
+                        "trials_loaded"] = [os.path.basename(curr_dir)]
+                    if os.path.isdir(os.path.join(args.input_dir, curr_dir, "images")):
+                        curr_json["dataset_params"]["dataset_folder_path"] = os.path.join(
+                            args.input_dir, curr_dir)
+                        curr_json["dataset_params"][
+                            "original_folder_trial_split"] = "images"
+                        with open(os.path.join(args.input_dir, curr_dir,
+                                               "regions/regions.json"), "r") as f:
+                            with open(os.path.join(curr_out_dir, "roi_true.json"),
+                                      "w") as f2:
+                                json.dump(json.load(f), f2)
 
-                parameter_file_path = os.path.join(curr_out_dir, "parameters.json")
-                with open(parameter_file_path, "w") as f:
-                    json.dump(curr_json, f)
+                    parameter_file_path = os.path.join(curr_out_dir, "parameters.json")
+                    with open(parameter_file_path, "w") as f:
+                        json.dump(curr_json, f)
 
-                task_list_writer.writerow([curr_out_dir])
+                    task_list_writer.writerow([curr_out_dir])
+                    print(curr_out_dir)
 
 
 def list_dirs(dir, depth_left):

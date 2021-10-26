@@ -43,7 +43,9 @@ class ImageViewModule(QFrame):
             self.image_view.ui.roiBtn.hide()
         # self.image_view.getRoiPlot().hide()
         self.image_item = self.image_view.getImageItem()
-
+        self.image_view.installEventFilter(self.main_widget.eventFilterCustom)
+        self.image_item.installEventFilter(self.main_widget.eventFilterCustom)
+        self.plot_item.installEventFilter(self.main_widget.eventFilterCustom)
         self.layout.addWidget(self.image_view)
 
     @property

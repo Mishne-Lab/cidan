@@ -45,7 +45,7 @@ class ROIItemWidget(QWidget):
             }""")
         self.zoom_button = QPushButton("Zoom To")
         self.zoom_button.clicked.connect(
-            lambda x: self.roi_tab.image_view.zoomRoi(self.roi_num))
+            lambda x: self.roi_tab.image_view.zoomRoi(self.id, input_key=True))
         self.check_box = QCheckBox()
         self.check_box.toggled.connect(lambda: self.check_box_toggled())
         self.check_box_time_trace = QCheckBox()
@@ -67,13 +67,16 @@ class ROIItemWidget(QWidget):
 
     def keyPressEvent(self, event):
         self.roi_tab.keyPressEvent(event)
-    def select_check_box(self):
-        if not self.check_box.checkState():
+
+    def select_check_box(self, force_on=False):
+        if not self.check_box.checkState() or force_on:
             if not self.roi_list.select_multiple:
                 for x in self.roi_list.roi_item_list:
                     if x != self:
                         x.check_box.setChecked(False)
+
             self.check_box.setChecked(True)
+
             if not self.display_time:
                 self.check_box_time_trace.setChecked(True)
             self.roi_list.current_selected_roi = self.roi_num

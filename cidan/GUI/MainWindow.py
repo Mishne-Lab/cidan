@@ -1,6 +1,5 @@
 import os
 
-import neurofinder
 from PySide2.QtCore import QThreadPool
 from qtpy import QtGui
 from regional import many
@@ -9,6 +8,8 @@ from cidan.GUI.Data_Interaction.CalculateSingleTrialThread import \
     CalculateSingleTrialThread
 from cidan.GUI.Data_Interaction.DemoDownloadThread import DemoDownloadThread
 from cidan.GUI.Data_Interaction.OpenDatasetThread import OpenDatasetThread
+from cidan.GUI.EventFilter.EventFilterMainWindow import EventFilterMainWindow
+from cidan.GUI.Inputs.FloatInput import FloatInput
 from cidan.GUI.Tabs.AnalysisTab import AnalysisTab
 from cidan.GUI.Tabs.ClassificationTab import ClassificationTab
 from cidan.LSSC.SpatialBox import SpatialBox
@@ -26,6 +27,7 @@ from cidan.GUI.Console.ConsoleWidget import ConsoleWidget
 import sys
 import logging
 import pyqtgraph as pg
+import cidan.GUI.Data_Interaction.neurofinder_edited
 
 # sys._excepthook = sys.excepthook
 # def exception_hook(exctype, value, traceback):
@@ -149,6 +151,8 @@ class MainWidget(QWidget):
         self.progress_signal = None
         self.main_menu = self.main_window.main_menu
         self.layout = QVBoxLayout(self)
+        self.eventFilterCustom = EventFilterMainWindow(self)
+
         self.data_handler = None
         self.thread_list = []
         self.setContentsMargins(0, 0, 0, 0)
@@ -172,6 +176,9 @@ class MainWidget(QWidget):
         # self.console.setMinimumHeight(150)
         self.layout.addWidget(self.console)
         self.setLayout(self.layout)
+        self.installEventFilter(self.eventFilterCustom)
+        self.console.installEventFilter(self.eventFilterCustom)
+        self.tab_widget.installEventFilter(self.eventFilterCustom)
 
         self.demo_download_thread = DemoDownloadThread(main_widget=self)
         self.thread_list.append(self.demo_download_thread)
@@ -208,7 +215,7 @@ class MainWidget(QWidget):
                     "/Users/sschickler/Code_Devel/LSSC-python/tests/test_files/",
                     "/Users/sschickler/Code_Devel/LSSC-python/tests/test_files/save_dir",
                     trials=["small_dataset1.tif", "small_dataset2.tif"],
-                    save_dir_already_created=False, load_into_mem=False,
+                    save_dir_already_created=True, load_into_mem=False,
                     auto_crop=False)
                 # self.data_handler.calculate_filters(auto_crop=True)
                 self.init_w_data()
@@ -243,9 +250,9 @@ class MainWidget(QWidget):
         # This assumes that the data is already loaded in
         for num, _ in enumerate(self.tabs):
             self.tab_widget.removeTab(1)
-
+        self.roi_extraction_tab = ROIExtractionTab(self)
         # TODO add to export tab to export all time traces or just currently caclulated ones
-        self.tabs = [PreprocessingTab(self), ROIExtractionTab(self), AnalysisTab(self)]
+        self.tabs = [PreprocessingTab(self), self.roi_extraction_tab, AnalysisTab(self)]
         if self.dev:
             self.tabs.insert(2, ClassificationTab(self))
         # Add tabs
@@ -268,19 +275,36 @@ class MainWidget(QWidget):
             export_action.setStatusTip('Export Time Traces/ROIs')
             export_action.triggered.connect(lambda: self.exportStuff())
             self.export_menu.addAction(export_action)
+        if not hasattr(self, "tool_menu"):
+            self.tool_menu = self.main_menu.addMenu("&Tools")
         if not hasattr(self, "import_json"):
             self.import_json = QAction("Import Json", self)
             self.import_json.setStatusTip('Import Json')
             self.import_json.triggered.connect(lambda: self.openNewJSON())
-            self.fileMenu.addAction(self.import_json)
+            self.tool_menu.addAction(self.import_json)
         if not hasattr(self, "auto_label_rois") and self.dev:
             self.auto_label_rois = QAction("Auto Label ROIS", self)
             self.auto_label_rois.setStatusTip('Use a json file to auto label rois')
             self.auto_label_rois.triggered.connect(lambda: self.autoLabelRois())
-            self.fileMenu.addAction(self.auto_label_rois)
+            self.tool_menu.addAction(self.auto_label_rois)
+        if not hasattr(self, "merge_mode_on") and self.dev:
+            self.merge_mode_item = QAction("Turn merge mode on", self)
+            # self.merge_mode_item.setStatusTip('Turn merge mode on')
+            self.merge_mode_item.triggered.connect(lambda: self.merge_mode_func())
+            self.tool_menu.addAction(self.merge_mode_item)
+
     def selectOpenFileTab(self, index):
         self.tab_widget.setCurrentIndex(0)
         self.fileOpenTab.tab_selector.setCurrentIndex(index)
+
+    def merge_mode_func(self):
+        self.roi_extraction_tab.merge_mode = not self.roi_extraction_tab.merge_mode
+        cur_val = self.roi_extraction_tab.merge_mode
+        if cur_val:
+            self.merge_mode_item.setText("Turn merge mode off")
+        else:
+            self.merge_mode_item.setText("Turn merge mode on")
+        self.roi_extraction_tab.toggle_merge_mode(cur_val)
 
     def openNewJSON(self):
         import json
@@ -323,6 +347,25 @@ class MainWidget(QWidget):
         import json
         path = createFileDialog(directory="~/Desktop", forOpen=True,
                                 isFolder=False, name="Select Json")
+        # self.data_handler.classes = {"Unassigned": {"color": (150, 150, 150), "rois": [],
+        #                                        "name": "Unassigned", "editable": False},
+        #                         "Soma": {"color": self.data_handler.color_list[0], "rois": [],
+        #                                  "name": "Soma", "editable": True},
+        #                         "Dendrite": {"color": self.data_handler.color_list[1], "rois": [],
+        #                                       "name": "Dendrite", "editable": True},
+        #                          "Background": {"color": self.data_handler.color_list[2], "rois": [],
+        #                                       "name": "Background", "editable": True},
+        #                              "Merged": {"color": self.data_handler.color_list[3], "rois": [],
+        #                                           "name": "Merged", "editable": True},
+        #                              "Partial": {"color": self.data_handler.color_list[4], "rois": [],
+        #                                           "name": "Partial", "editable": True},
+        #                              "Some/Background": {"color": self.data_handler.color_list[5], "rois": [],
+        #                                          "name": "Soma/Background", "editable": True},
+        #                              "Some/Dendrite": {"color": self.data_handler.color_list[6], "rois": [],
+        #                                                  "name": "Soma/Dendrite", "editable": True},
+        #                             "Apical Dendrite": {"color": self.data_handler.color_list[6], "rois": [],
+        #                                                "name": "Apical Dendrite", "editable": True}
+        #                              True}
         with open(path, "r") as f:
             # test2=f.read()
             test = json.loads(f.read())
@@ -338,27 +381,88 @@ class MainWidget(QWidget):
 
             from cidan.LSSC.functions.data_manipulation import cord_2d_to_pixel_num
 
-            rois_true = many(rois)
+            if self.data_handler.dataset_params["crop_stack"]:
+                rois = [[(y[0] - self.data_handler.dataset_params["crop_x"][0],
+                          y[1] - self.data_handler.dataset_params["crop_y"][0]) for y in
+                         x["coordinates"]] for x in test]
+            else:
+                rois = [[(y[0], y[1]) for y in x["coordinates"]] for x in test]
+
+            from cidan.LSSC.functions.data_manipulation import cord_2d_to_pixel_num
+            rois_true_1d = [
+                cord_2d_to_pixel_num(np.array(roi).transpose(), self.data_handler.shape)
+                for roi in rois]
             spatial_box = SpatialBox(0, 1, image_shape=self.data_handler.shape,
                                      spatial_overlap=0)
+            rois_true = many(rois)
+
             rois = many(
                 [spatial_box.convert_1d_to_2d(roi) for roi in self.data_handler.rois])
-            matches = neurofinder.match(rois, rois_true, threshold=5)
-            for key in self.data_handler.classes.keys():
-                self.data_handler.classes[key]["rois"] = []
-            for num, match in enumerate(matches):
-                if not np.isnan(match):
-                    self.data_handler.classes[
-                        list(self.data_handler.classes.keys())[1]]['rois'].append(
-                        self.data_handler.roi_index_backward[num])
-                else:
-                    self.data_handler.classes[
-                        list(self.data_handler.classes.keys())[0]]['rois'].append(
-                        self.data_handler.roi_index_backward[num])
-            self.data_handler.gen_class_display_variables()
-            self.updateTabs()
+            matches = cidan.GUI.Data_Interaction.neurofinder_edited.match(rois,
+                                                                          rois_true,
+                                                                          threshold=5)
+            dialog = QDialog()
+            dialog.setStyleSheet(qdarkstyle.load_stylesheet())
+            dialog.layout = QVBoxLayout()
+            overlap_1_input = FloatInput(display_name="Overlap/current threshold:",
+                                         default_val=0, max=10, min=0,
+                                         on_change_function=None, program_name="test",
+                                         step=.01, tool_tip=None)
+            overlap_2_input = FloatInput(display_name="Overlap/true threshold:",
+                                         default_val=0, max=10, min=0,
+                                         on_change_function=None, program_name="test",
+                                         step=.01, tool_tip=None)
+            dialog.layout.addWidget(overlap_1_input, alignment=QtCore.Qt.AlignCenter)
+            dialog.layout.addWidget(overlap_2_input, alignment=QtCore.Qt.AlignCenter)
 
+            def final_load_part():
+                dialog.close()
+                overlap_1_thresh = overlap_1_input.current_state()
+                overlap_2_thresh = overlap_2_input.current_state()
+                if hasattr(self.data_handler.classes, "true"):
+                    for roi in self.data_handler.classes["true"]["rois"]:
+                        self.data_handler.delete_roi(roi, input_key=True)
+                for key in self.data_handler.classes.keys():
+                    self.data_handler.classes[key]["rois"] = []
+                for num, match in enumerate(matches):
+                    if not np.isnan(match):
+                        overlap = float(np.intersect1d(self.data_handler.rois[num],
+                                                       rois_true_1d[match]).size)
+                        overlap_1 = overlap / len(self.data_handler.rois[num])
+                        overlap_2 = overlap / len(rois_true_1d[match])
+                        if overlap_1 >= overlap_1_thresh and overlap_2 >= overlap_2_thresh:
+                            self.data_handler.classes[
+                                list(self.data_handler.classes.keys())[2]][
+                                'rois'].append(
+                                self.data_handler.roi_index_backward[num])
+                        else:
+                            self.data_handler.classes[
+                                list(self.data_handler.classes.keys())[1]][
+                                'rois'].append(
+                                self.data_handler.roi_index_backward[num])
+                    else:
+                        self.data_handler.classes[
+                            list(self.data_handler.classes.keys())[0]]['rois'].append(
+                            self.data_handler.roi_index_backward[num])
 
+                self.data_handler.classes["true"] = {
+
+                    "color": DataHandler._color_list[3], "rois": [],
+                    "name": "True", "editable": True}
+                for x in rois_true_1d:
+                    self.data_handler.classes["true"]["rois"].append(
+                        self.data_handler.add_new_roi(x, update=False))
+                self.data_handler.gen_roi_display_variables()
+                self.data_handler.rois_update_needed = True
+                self.data_handler.rois  # just to force the update
+                self.data_handler.gen_class_display_variables()
+                self.updateTabs()
+
+            load_button = QPushButton(text="Auto Label ROIs")
+            load_button.clicked.connect(lambda x: final_load_part())
+            dialog.layout.addWidget(load_button, alignment=QtCore.Qt.AlignCenter)
+            dialog.setLayout(dialog.layout)
+            dialog.show()
         except:
             print(
                 "Error importing json, please make sure json is valid")

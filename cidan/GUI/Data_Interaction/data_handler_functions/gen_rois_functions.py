@@ -129,7 +129,8 @@ def calculate_roi_extraction(self, progress_signal=None):
 
                                 progress_signal=progress_signal,
                                 widefield=self.widefield,
-                                image_data_mask=self.image_data_mask)
+                                image_data_mask=self.image_data_mask_flat.reshape(
+                                    self.shape) if self.widefield else None)
             self.box_params_processed = temp_params
             self.delete_roi_vars()
             self.save_new_param_json()
@@ -174,14 +175,17 @@ def gen_roi_display_variables(self):
     self.roi_min_cord_list = [np.min(x, axis=1) for x in roi_list_2d_cord]
     self.pixel_with_rois_flat = np.zeros(
         [self.shape[0] * self.shape[1]])
+    self.pixel_with_rois_sep_flat = np.zeros(
+        [len(self.rois), self.shape[0] * self.shape[1]])
     self.pixel_with_rois_color_flat = np.zeros(
         [self.shape[0] * self.shape[1], 3])
     edge_roi_image = np.zeros([self.shape[0], self.shape[1]])
-    for roi_key in self.rois_dict.keys():
+    for index, roi_key in enumerate(self.rois_dict.keys()):
         num = roi_key
         roi = self.rois_dict[roi_key]["pixels"]
         cur_color = self.color_list[num % len(self.color_list)]
         self.pixel_with_rois_flat[roi] = num
+        self.pixel_with_rois_sep_flat[index, roi] = num
         self.pixel_with_rois_color_flat[roi] = cur_color
         roi_edge = np.zeros(
             [self.shape[0] * self.shape[1]])
@@ -236,15 +240,21 @@ def gen_class_display_variables(self):
                 roi_keys.remove(roi_key)
     self.classes["Unassigned"]["rois"] = list(roi_keys)
     roi_list_1d_cord_by_class = [[
-        self.rois_dict[x]["pixels"] for x in
+        (self.rois_dict[x]["index"], self.rois_dict[x]["pixels"]) for x in
         self.classes[key]["rois"]] for key in keys]
-    self.pixel_with_rois_class_flat = np.zeros(
+    pixel_with_rois_class_flat_construct = np.zeros(
 
-        [self.shape[0] * self.shape[1], 3])
+        [len(self.rois_dict), self.shape[0] * self.shape[1], 3])
+
     for class_index, rois in zip(keys, roi_list_1d_cord_by_class):
         cur_color = self.classes[class_index]["color"]
-        for roi in rois:
-            self.pixel_with_rois_class_flat[roi] = cur_color
+        for num, roi in rois:
+            pixel_with_rois_class_flat_construct[num, roi] = cur_color
+    num_rois_per_pixel = np.sum(
+        0 != (np.sum(pixel_with_rois_class_flat_construct, axis=2)), axis=0)
+    num_rois_per_pixel[num_rois_per_pixel == 0] = 1
+    self.pixel_with_rois_class_flat = np.sum(pixel_with_rois_class_flat_construct,
+                                             axis=0) / num_rois_per_pixel.reshape(-1, 1)
 
     self.pixel_with_rois_class = np.reshape(self.pixel_with_rois_class_flat,
                                             [self.shape[0],

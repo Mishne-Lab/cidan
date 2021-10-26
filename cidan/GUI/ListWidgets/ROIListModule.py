@@ -20,7 +20,9 @@ class ROIListModule(QFrame):
         self.roi_tab = roi_tab
         self.class_version = class_version
         self.color_list = data_handler.color_list
+        self.last_selected_roi = 0
         self.list = QListView()
+
 
         self.setStyleSheet("QListView::item { border-bottom: 1px solid rgb(50, 65, " +
                            "75); } " + """QListView::item::pressed,
@@ -41,8 +43,19 @@ class ROIListModule(QFrame):
         self.top_labels_layout.addWidget(label2, alignment=QtCore.Qt.AlignLeft)
         self.top_labels_layout.addWidget(QLabel(), alignment=QtCore.Qt.AlignRight)
         self.top_labels_layout.addWidget(QLabel(), alignment=QtCore.Qt.AlignRight)
-        self.top_labels_layout.addWidget(QLabel(), alignment=QtCore.Qt.AlignRight)
-        self.top_labels_layout.addWidget(QLabel(), alignment=QtCore.Qt.AlignRight)
+        self.left_arrow = QToolButton()
+        self.left_arrow.setArrowType(QtCore.Qt.LeftArrow)
+
+        self.right_arrow = QToolButton()
+        self.right_arrow.setArrowType(QtCore.Qt.RightArrow)
+        self.left_arrow.clicked.connect(lambda x: self.select_roi_next(False))
+        self.right_arrow.clicked.connect(lambda x: self.select_roi_next(True))
+        self.left_arrow.setStyleSheet("QWidget {border: 0px solid #32414B;}")
+        self.right_arrow.setStyleSheet("QWidget {border: 0px solid #32414B;}")
+        self.top_labels_layout.addWidget(self.left_arrow,
+                                         alignment=QtCore.Qt.AlignRight)
+        self.top_labels_layout.addWidget(self.right_arrow,
+                                         alignment=QtCore.Qt.AlignRight)
         if display_time:
             label3 = QLabel(text="Time Trace On")
             label3.setMaximumWidth(100 * ((self.logicalDpiX() / 96.0 - 1) / 2 + 1))
@@ -60,11 +73,23 @@ class ROIListModule(QFrame):
     def keyPressEvent(self, event):
         self.roi_tab.keyPressEvent(event)
 
-    def set_current_select(self, num):
-        num = self.roi_tab.data_handler.rois_dict[num]["index"]
+    def select_roi_next(self, next=True):
+        if next:
+            if len(self.roi_tab.data_handler.rois) > self.last_selected_roi + 1:
+                self.set_current_select(self.last_selected_roi + 1, force_on=True,
+                                        input_key=False)
+        else:
+            if 0 <= self.last_selected_roi - 1:
+                self.set_current_select(self.last_selected_roi - 1, force_on=True,
+                                        input_key=False)
+
+    def set_current_select(self, num, force_on=False, input_key=True):
+        if input_key:
+            num = self.roi_tab.data_handler.rois_dict[num]["index"]
+        self.last_selected_roi = num
         self.list.setCurrentIndex(self.model.index(int(num), 0))
         self.roi_time_check_list[num] = not self.roi_time_check_list[num]
-        self.roi_item_list[num].select_check_box()
+        self.roi_item_list[num].select_check_box(force_on=force_on)
         # self.roi_module_list[num-1].
         if self.display_time:
             self.roi_item_list[num].select_time_check_box()
