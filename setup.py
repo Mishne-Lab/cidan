@@ -26,7 +26,7 @@ setup(
                       "dask[complete]", "matplotlib", "scipy", "tiffile",
                       "scikit-image", "pybind11", "hnswlib", "pillow",
                       'tifffile', "zarr", "neurofinder", "sklearn", 'pandas', 'future',
-                      "peakutils", "requests"],
+                      "peakutils", "requests", "h5py"],
     include_package_data=True,
 
     entry_points={
