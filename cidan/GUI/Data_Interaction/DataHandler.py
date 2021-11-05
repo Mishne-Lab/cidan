@@ -162,7 +162,8 @@ class DataHandler:
         "max_iter": 100,
         "roi_circ_threshold": 0,
         "roi_eccentricity_limit": .9,
-        "local_max_method": False
+        "local_max_method": False,
+        "area_stop_threshold": .95
 
     }
     _roi_extraction_params_default_widefield = {
@@ -181,7 +182,8 @@ class DataHandler:
         "max_iter": 100,
         "roi_circ_threshold": 0,
         "roi_eccentricity_limit": .9,
-        "local_max_method": False
+        "local_max_method": False,
+        "area_stop_threshold": .95
 
     }
     _time_trace_params_default = {
@@ -325,6 +327,9 @@ class DataHandler:
             self.box_params = DataHandler._box_params_default.copy()
             self.box_params_processed = DataHandler._box_params_default.copy()
             self.roi_extraction_params = DataHandler._roi_extraction_params_default.copy()
+            if widefield:
+                self.roi_extraction_params = DataHandler._roi_extraction_params_default_widefield.copy()
+
             self.time_trace_params = DataHandler._time_trace_params_default.copy()
             self.classes = DataHandler._base_class_construct
             self.dataset_params["dataset_folder_path"] = data_path

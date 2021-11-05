@@ -130,15 +130,15 @@ class AnalysisTab(Tab):
                     data_list = []
                     roi_names = []
                     for num2, x in zip(
-                            range(1, len(
-                                self.roi_list_module.roi_time_check_list) + 1),
+                            range(0, len(
+                                self.roi_list_module.roi_time_check_list)),
                             self.roi_list_module.roi_time_check_list):
                         if x:
                             data_list.append(
                                 self.main_widget.data_handler.get_time_trace(num2,
                                                                              trace_type=self.time_trace_type.current_state()))
                             roi_names.append(
-                                self.data_handler.rois_index_backward[num2])
+                                self.data_handler.roi_index_backward[num2])
                     self.plot_widget.set_list_items(data_list, roi_names, [],
                                                     p_color=self.plot_type_input.current_state() == "Color Mesh",
                                                     type="neuron")
