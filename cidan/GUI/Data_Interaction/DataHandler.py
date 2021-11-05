@@ -377,11 +377,17 @@ class DataHandler:
                                                      if x in self.trials_loaded]
 
             if auto_crop:
-                self.dataset_params["auto_crop"] = False
-                self.dataset_params["crop_x"], self.dataset_params[
-                    "crop_y"] = auto_crop_func(self.dataset_list)
-                self.dataset_params["crop_stack"] = True
-                self.reset_data()
+                try:
+                    self.dataset_params["auto_crop"] = False
+                    self.dataset_params["crop_x"], self.dataset_params[
+                        "crop_y"] = auto_crop_func(self.dataset_list)
+                    self.dataset_params["crop_stack"] = True
+                    self.reset_data()
+
+                    self.dataset_trials_filtered[self._trials_loaded_indices[0]].compute()
+                except IndexError:
+                    self.dataset_params["crop_stack"] = False
+                    self.reset_data()
 
                 self.dataset_trials_filtered[self._trials_loaded_indices[0]].compute()
             else:

@@ -347,6 +347,25 @@ class MainWidget(QWidget):
         import json
         path = createFileDialog(directory="~/Desktop", forOpen=True,
                                 isFolder=False, name="Select Json")
+        # self.data_handler.classes = {"Unassigned": {"color": (150, 150, 150), "rois": [],
+        #                                        "name": "Unassigned", "editable": False},
+        #                         "Soma": {"color": self.data_handler.color_list[0], "rois": [],
+        #                                  "name": "Soma", "editable": True},
+        #                         "Dendrite": {"color": self.data_handler.color_list[1], "rois": [],
+        #                                       "name": "Dendrite", "editable": True},
+        #                          "Background": {"color": self.data_handler.color_list[2], "rois": [],
+        #                                       "name": "Background", "editable": True},
+        #                              "Merged": {"color": self.data_handler.color_list[3], "rois": [],
+        #                                           "name": "Merged", "editable": True},
+        #                              "Partial": {"color": self.data_handler.color_list[4], "rois": [],
+        #                                           "name": "Partial", "editable": True},
+        #                              "Some/Background": {"color": self.data_handler.color_list[5], "rois": [],
+        #                                          "name": "Soma/Background", "editable": True},
+        #                              "Some/Dendrite": {"color": self.data_handler.color_list[6], "rois": [],
+        #                                                  "name": "Soma/Dendrite", "editable": True},
+        #                             "Apical Dendrite": {"color": self.data_handler.color_list[6], "rois": [],
+        #                                                "name": "Apical Dendrite", "editable": True}
+        #                              True}
         with open(path, "r") as f:
             # test2=f.read()
             test = json.loads(f.read())
@@ -400,6 +419,9 @@ class MainWidget(QWidget):
                 dialog.close()
                 overlap_1_thresh = overlap_1_input.current_state()
                 overlap_2_thresh = overlap_2_input.current_state()
+                if hasattr(self.data_handler.classes, "true"):
+                    for roi in self.data_handler.classes["true"]["rois"]:
+                        self.data_handler.delete_roi(roi, input_key=True)
                 for key in self.data_handler.classes.keys():
                     self.data_handler.classes[key]["rois"] = []
                 for num, match in enumerate(matches):
@@ -410,20 +432,22 @@ class MainWidget(QWidget):
                         overlap_2 = overlap / len(rois_true_1d[match])
                         if overlap_1 >= overlap_1_thresh and overlap_2 >= overlap_2_thresh:
                             self.data_handler.classes[
-                                list(self.data_handler.classes.keys())[1]][
+                                list(self.data_handler.classes.keys())[2]][
                                 'rois'].append(
                                 self.data_handler.roi_index_backward[num])
                         else:
                             self.data_handler.classes[
-                                list(self.data_handler.classes.keys())[2]][
+                                list(self.data_handler.classes.keys())[1]][
                                 'rois'].append(
                                 self.data_handler.roi_index_backward[num])
                     else:
                         self.data_handler.classes[
                             list(self.data_handler.classes.keys())[0]]['rois'].append(
                             self.data_handler.roi_index_backward[num])
+
                 self.data_handler.classes["true"] = {
-                    "color": DataHandler._color_list[2], "rois": [],
+
+                    "color": DataHandler._color_list[3], "rois": [],
                     "name": "True", "editable": True}
                 for x in rois_true_1d:
                     self.data_handler.classes["true"]["rois"].append(

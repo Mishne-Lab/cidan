@@ -30,7 +30,7 @@ class ROIImageViewModule(ImageViewModule):
             show_name=True)
         self.set_background("", "Max Image", update_image=False)
         self.image_item.mouseClickEvent = lambda x: self.roi_view_click(x)
-        self.image_item.mouseDragEvent = lambda x: self.roi_view_drag(x)
+        # self.image_item.mouseDragEvent = lambda x: self.roi_view_drag(x)
 
 
         shape = main_widget.data_handler.shape
@@ -320,7 +320,7 @@ class ROIImageViewModule(ImageViewModule):
                 print("Error please try again")
                 self.reset_view()
 
-    def zoomRoi(self, num):
+    def zoomRoi(self, id, input_key=True):
         """
         Zooms in to a certain roi
         Parameters
@@ -332,7 +332,10 @@ class ROIImageViewModule(ImageViewModule):
         -------
         Nothing
         """
-
+        if input_key:
+            num = self.data_handler.roi_index_backward[id]
+        else:
+            num = id
         max_cord = self.main_widget.data_handler.roi_max_cord_list[num] + 50
 
         min_cord = self.main_widget.data_handler.roi_min_cord_list[num] - 50
@@ -341,6 +344,8 @@ class ROIImageViewModule(ImageViewModule):
                                             max_cord[1])
         self.image_view.getView().setXRange(min_cord[0],
                                             max_cord[0])
+        if num != 0:
+            self.tab.roi_list_module.set_current_select(num)
 
     def roi_view_click(self, event):
         if event.button() == QtCore.Qt.RightButton:
