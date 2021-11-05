@@ -40,7 +40,8 @@ def process_data(*, test_images: bool, test_output_dir: str,
                  eigen_threshold_value: float, merge_temporal_coef: float,
                  roi_size_max: int, pca: bool, pca_data: np.ndarray,
                  eigen_accuracy: int, roi_eccentricity_limit: float,
-                 local_max_method: bool, progress_signal=None, widefield=False,
+                 local_max_method: bool, area_stop_threshold=.95, progress_signal=None,
+                 widefield=False,
                  image_data_mask=None):
     logger1.debug("""Inputs: num_threads {0},test_images {1}, test_output_dir {2},
                  save_dir {3}, save_intermediate_steps {4},
@@ -243,7 +244,8 @@ def process_data(*, test_images: bool, test_output_dir: str,
                                  roi_eccentricity_limit=roi_eccentricity_limit,
                                  save_dir=save_dir, local_max_method=local_max_method,
                                  progress_signal=progress_signal, widefield=widefield,
-                                 image_data_mask=image_data_mask)
+                                 image_data_mask=image_data_mask,
+                                 area_stop_threshold=area_stop_threshold)
         if test_images:
             pass
             # delayed(save_roi_images)(
@@ -444,6 +446,7 @@ def main():
                  roi_extraction_params[
                      "local_max_method"],
                  widefield=True,
+                 area_stop_threshold=area_stop_threshold,
 
                  progress_signal=None, image_data_mask=mask)
 

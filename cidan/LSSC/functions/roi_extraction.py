@@ -27,7 +27,7 @@ def roi_extract_image(*, e_vectors: np.ndarray,
                       roi_size_limit: int, box_num: int, roi_eccentricity_limit: float,
                       total_num_spatial_boxes=0,
                       total_num_time_steps=0, save_dir=0, print_progress=False,
-                      initial_pixel=-1,
+                      initial_pixel=-1, area_stop_threshold=0.95,
 
                       print_info=True, progress_signal=None, widefield=False,
                       image_data_mask=None,
@@ -140,7 +140,8 @@ def roi_extract_image(*, e_vectors: np.ndarray,
     while len(roi_list) < num_rois and len(
             initial_pixel_list) > 0 and iter_counter < max_iter and (
             not widefield or not float(
-        len(pixels_assigned_set)) / pixel_length > .95 or len(initial_pixel_list) != 0):
+        len(pixels_assigned_set)) / pixel_length > area_stop_threshold or len(
+        initial_pixel_list) != 0):
 
         # in this loop in widefield mode all pixel storage happens in masked state
         iter_counter += 1

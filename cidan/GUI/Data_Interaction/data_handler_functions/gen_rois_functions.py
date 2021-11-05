@@ -116,7 +116,7 @@ def calculate_roi_extraction(self, progress_signal=None):
                                      self.roi_extraction_params[
                                          "merge_temporal_coef"],
                                 roi_size_max=self.roi_extraction_params[
-                                         "roi_size_max"],
+                                    "roi_size_max"],
                                 pca=self.filter_params["pca"],
                                 pca_data=self.pca_decomp if self.filter_params[
                                     "pca"] else False,
@@ -126,7 +126,8 @@ def calculate_roi_extraction(self, progress_signal=None):
                                 local_max_method=
                                 self.roi_extraction_params[
                                     "local_max_method"],
-
+                                area_stop_threshold=self.roi_extraction_params[
+                                    "area_stop_threshold"],
                                 progress_signal=progress_signal,
                                 widefield=self.widefield,
                                 image_data_mask=self.image_data_mask_flat.reshape(

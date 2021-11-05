@@ -186,14 +186,15 @@ def dataset_setting_block_crop(main_widget):
                                            "every x timestep. This setting is recomended for all large datasets",
                                   display_tool_tip=False),
                                                                       IntInput(
-                                                                          display_name="Time Block Length",
+                                                                          display_name="Time Block Length(frames)",
                                                                           program_name="trial_length",
-                                                                          on_change_function=lambda x,
-                                                                             y: data_handler.change_dataset_param(
-                                                       x, y),
+                                                                          on_change_function=lambda
+                                                                              x,
+                                                                              y: data_handler.change_dataset_param(
+                                                                              x, y),
                                                                           default_val=
-                                                   data_handler.dataset_params[
-                                                       "trial_length"],
+                                                                          data_handler.dataset_params[
+                                                                              "trial_length"],
                                                                           tool_tip="Length of each timeblock",
                                                                           display_tool_tip=False,
                                                                           min=25,
@@ -219,7 +220,7 @@ def multiprocessing_settings_block(main_widget):
             min=1, max=10000, step=1)
         ,
         IntInput(
-            display_name="Spatial overlap:",
+            display_name="Spatial overlap(pixels):",
             program_name="spatial_overlap",
             on_change_function=lambda x, y: data_handler.change_box_param(x, y),
             default_val=
@@ -338,6 +339,18 @@ def roi_advanced_settings_block(main_widget):
                       min=1, max=10000, step=1),
 
              ]
+    if main_widget.widefield:
+        input += [FloatInput(display_name="Area Stop Threshold(percent):",
+                             program_name="area_stop_threshold",
+                             on_change_function=lambda x,
+                                                       y: data_handler.change_roi_extraction_param(
+                                 x, y),
+                             default_val=
+                             data_handler.roi_extraction_params[
+                                 "area_stop_threshold"],
+                             tool_tip="Stops widefield extraction when a certain "
+                                      "percent of pixels are covered",
+                             min=0, max=1, step=.01), ]
     if main_widget.dev:
         input += [BoolInput(
             display_name="Local Max Methods:",
