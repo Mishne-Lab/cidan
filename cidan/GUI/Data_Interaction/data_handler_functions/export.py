@@ -93,7 +93,8 @@ def export(self, matlab, background_images, color_maps):
                 os.path.join(self.save_dir_path, "eigen_vectors/"), shape)
         if not background_image_name == "zeros":
             background_image = scale_background(background_image)
-
+        np.save(os.path.join(self.save_dir_path, "images/",
+                             "{}.npy".format(background_image_name)), background_image)
         for color_map_name in color_maps:
             # first the blob plot
             ax = plt.Axes(fig, [0., 0., 1., 1.])

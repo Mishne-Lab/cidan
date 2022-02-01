@@ -1,4 +1,6 @@
+import json
 import logging
+import os
 import sys
 
 import qdarkstyle
@@ -8,6 +10,7 @@ from qtpy import QtWidgets
 from cidan.GUI.Data_Interaction.DataHandler import DataHandler
 from cidan.GUI.Data_Interaction.Signals import StrIntSignal
 from cidan.GUI.Data_Interaction.Thread import Thread
+from cidan.GUI.Inputs.FileInput import createFileDialog
 
 logger = logging.getLogger("cidan.GUI.Data_Interaction.PreprocessThread")
 
@@ -87,9 +90,32 @@ class OpenDatasetThread(Thread):
                 retval = msg.exec_()
                 if retval == 16384:
                     self.auto_crop = True
+            #load json at save_dir_path+parameters.json
+            try:
+                params = json.load(open(save_dir_path + "/parameters.json"))
+                file = "/Users/sschickler/Code_Devel/nuerofinder/neurofinder00.04.tif"
+                if True or (save_dir_already_created and params["dataset_params"]["single_file_mode"] and not os.path.isfile(os.path.join(params["dataset_params"]["dataset_folder_path"], params["dataset_params"]["trials_loaded"][0]))):
+                    # file = "/Users/sschickler/Code_Devel/HigleyData/File6_som_l5_gcamp6s_alka.tif" #createFileDialog(directory="~/Desktop", forOpen=True,
+                           #          isFolder=False, name="Couldn't Find dataset, please select the dataset file")
+
+                    self.trials = [os.path.basename(
+                        file)]
+                    self.data_path = os.path.dirname(file)
+                if save_dir_already_created and not params["dataset_params"]["single_file_mode"] and not os.path.isdir(params["dataset_params"]["dataset_folder_path"]):
+                    file = createFileDialog(directory="~/Desktop", forOpen=True,
+                                            isFolder=False, name="Couldn't Find dataset, please select the dataset folder")
+                    self.data_path = os.path.dirname(file)
+                self.start()
+
+            except Exception as e:
+                logger.error(e)
+                print("Unexpected error:", sys.exc_info()[0])
+                self.main_widget.console.updateText("Unexpected error: " +
+                                                    sys.exc_info()[0])
+                error_dialog = QtWidgets.QErrorMessage()
+                error_dialog.showMessage("Unexpected error: " + str(e))
 
 
-            self.start()
         else:
             print(
                 "Previous process in process, please wait to start new one till "

@@ -261,6 +261,12 @@ class DataHandler:
 
         elif save_dir_already_created:  # this loads everything from the save dir
             valid = self.load_param_json()
+
+            if data_path!= "":
+                self.dataset_params["dataset_folder_path"] = data_path
+            if trials is not None:
+                self.dataset_params["trials_loaded"] = trials
+                self.dataset_params["trials_all"] = trials
             self.classes = DataHandler._base_class_construct
             self.time_trace_params = DataHandler._time_trace_params_default.copy()
             if self.dataset_params["single_file_mode"] and not self.load_into_mem:
@@ -484,7 +490,7 @@ class DataHandler:
                 self.rois_dict = {(num + 1): {"pixels": roi, "index": num} for num, roi
                                   in enumerate(rois)}
             try:
-                self.classes = pickle_load("classes", output_directory=self.classes)
+                self.classes = pickle_load("classes", output_directory=self.save_dir_path)
             except:
                 self.classes = {"Unassigned": {"color": (150, 150, 150), "rois": [],
                                                "name": "Unassigned", "editable": False},
@@ -717,17 +723,27 @@ class DataHandler:
             if key in self.classes[class_name]["rois"]:
                 self.classes[class_name]["rois"].remove(key)
 
-    def delete_roi(self, key, input_key=True):
+    def delete_roi(self, key, input_key=True, update_display=True):
         if not input_key:
             key = self.roi_index_backward[key]
 
         for x in self.time_traces.keys():
-            self.time_traces[x].pop(self.rois_dict[key]["index"])
-        self.roi_time_trace_need_update.pop(self.rois_dict[key]["index"])
+            try:
+                self.time_traces[x].pop(self.rois_dict[key]["index"])
+            except IndexError:
+                pass
+        try:
+            self.roi_time_trace_need_update.pop(self.rois_dict[key]["index"])
+        except IndexError:
+            pass
+        for x in self.classes.keys():
+            if key in self.classes[x]["rois"]:
+                self.classes[x]["rois"].remove(key)
         del self.rois_dict[key]
 
         self.rois_update_needed = True
-        self.gen_roi_display_variables()
+        if update_display:
+            self.gen_roi_display_variables()
 
     def add_new_roi(self, roi_pixels, update=True):
         key = max(list(self.rois_dict.keys())) + 1

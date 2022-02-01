@@ -157,6 +157,7 @@ def load_prev_session(main_widget, save_dir_path):
                                                       save_dir_already_created=True,
                                                       load_into_mem=None, trials=None)
 
+
         except Exception as e:
             logger1.error(e)
             print(
