@@ -320,7 +320,7 @@ class ROIImageViewModule(ImageViewModule):
                 print("Error please try again")
                 self.reset_view()
 
-    def zoomRoi(self, id, input_key=True):
+    def zoomRoi(self, id, input_key=True, update=True):
         """
         Zooms in to a certain roi
         Parameters
@@ -344,7 +344,7 @@ class ROIImageViewModule(ImageViewModule):
                                             max_cord[1])
         self.image_view.getView().setXRange(min_cord[0],
                                             max_cord[0])
-        if num != 0:
+        if num != 0 and update:
             self.tab.roi_list_module.set_current_select(num)
 
     def roi_view_click(self, event):

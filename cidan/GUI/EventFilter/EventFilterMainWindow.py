@@ -9,7 +9,7 @@ class EventFilterMainWindow(QObject):
     def eventFilter(self, obj, event):
         if (event.type() == QEvent.KeyPress):
             key = event.key()
-            if self.main_window.data_handler is not None:
+            if self.main_window.checkThreadRunning and self.main_window.data_handler is not None:
                 current_active_main_tab_ind = self.main_window.tab_widget.currentIndex()
                 current_active_main_tab = self.main_window.tabs[
                     current_active_main_tab_ind - 1]  # since dataload tab isn't in this list

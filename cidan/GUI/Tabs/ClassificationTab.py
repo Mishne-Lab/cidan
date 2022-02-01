@@ -16,6 +16,7 @@ from cidan.GUI.Inputs.StringInput import StringInput
 from cidan.GUI.ListWidgets.ClassListModule import ClassListModule
 from cidan.GUI.ListWidgets.ROIListModule import ROIListModule
 from cidan.GUI.ListWidgets.TrialListWidget import TrialListWidget
+from cidan.GUI.Tabs.ROIExtractionTab import ROIExtractionTab
 from cidan.GUI.Tabs.Tab import Tab
 from cidan.TimeTrace.signal_to_noise import trial_PSNR
 
@@ -151,6 +152,10 @@ class ClassificationTab(Tab):
                                    self.roi_class_dict_tabs],
                          column_2=[self.image_view, tab_selector_time_trace],
                          column_2_display=True, horiz_moveable=True)
+    def deselectRoiTime(self):
+        ROIExtractionTab.deselectRoiTime(self)
+    def update_time_traces(self):
+        ROIExtractionTab.update_time_traces(self)
 
     def keyPressEvent(self, event):
         super(ClassificationTab, self).keyPressEvent(event)
@@ -199,7 +204,7 @@ class ClassificationTab(Tab):
                 pass
             self.updateTab()
             try:
-                next_roi = self.data_handler.classes["Unassigned"]["rois"][0]
+                next_roi = self.main_widget.data_handler.roi_index_backward[self.roi_list_module.current_selected_roi+1]
                 self.image_view.zoomRoi(self.data_handler.rois_dict[next_roi]["index"], input_key=False)
                 self.roi_list_module.set_current_select(next_roi)
             except IndexError:
@@ -337,17 +342,18 @@ class ClassificationTab(Tab):
 
             roi_index = self.roi_list_module.current_selected_roi
             self.selectRoiTime(roi_index)
+            self.image_view.zoomRoi(roi_index, input_key=False, update=False)
             roi_pix = self.data_handler.rois[roi_index]
             original_zeros = np.zeros(self.data_handler.shape, dtype=int).reshape(
                 (-1, 1))
             original_zeros[roi_pix] = 1
             original_zeros = original_zeros.reshape(self.data_handler.shape)
             props = measure.regionprops(original_zeros)[0]
-            for key in props:
-                try:
-                    print(key, float(props[key]))
-                except:
-                    pass
+            # for key in props:
+            #     try:
+            #         print(key, float(props[key]))
+            #     except:
+            #         pass
             extent = len(roi_pix) / ((self.data_handler.roi_max_cord_list[roi_index][
                                           0] -
                                       self.data_handler.roi_min_cord_list[roi_index][
@@ -380,15 +386,15 @@ class ClassificationTab(Tab):
 
         return event.isAccepted()
 
-    def updateTab(self
-                  ):
+    def updateTab(self, gen_display=False):
         if (self.main_widget.checkThreadRunning()):
 
             self._time_trace_trial_select_list.set_items_from_list(
                 self.data_handler.trials_all,
                 self.data_handler.trials_loaded_time_trace_indices)
             if self.data_handler.rois_loaded:
-                self.data_handler.gen_class_display_variables()
+                if gen_display:
+                    self.data_handler.gen_class_display_variables()
                 self.roi_list_module.set_list_items(
                     self.main_widget.data_handler.rois_dict)
             self.set_class_buttons()

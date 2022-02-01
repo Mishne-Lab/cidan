@@ -650,10 +650,13 @@ class ROIExtractionTab(Tab):
                         (num2) % len(self.main_widget.data_handler.color_list)]
 
                     pen = pg.mkPen(color=color_roi, width=3)
-                    self.time_plot.plot(
-                        self.main_widget.data_handler.get_time_trace(num2,
+                    try:
+                        self.time_plot.plot(
+                            self.main_widget.data_handler.get_time_trace(num2,
                                                                      trace_type=self.time_trace_type.current_state()),
-                        pen=pen)
+                            pen=pen)
+                    except:
+                        print("ROI time trace not calculated")
         except AttributeError:
             print("No ROIs have been generated yet")
 

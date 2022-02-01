@@ -55,10 +55,15 @@ def calculate_time_traces(self, report_progress=None):
     if not self.real_trials:
         calc_list = []
         data_2d = reshape_to_2d_over_time(self.dataset_list[0][:])
+        sub_2_15 = np.isclose(np.mean(data_2d[:50,:5]), 2 ** 15, 0, 4000)
+        def preprocess(data):
+            if sub_2_15:
+                data = data - 2 ** 15
+                data[data < -400] = np.min(data[data > -400])
+            return data
         for roi in range(len(self.rois)):
-            roi_time_traces_by_pixel[roi][0] = data_2d[self.rois[roi]]
-            roi_neuropil_traces_by_pixel[roi][0] = data_2d[
-                self.neuropil_pixels[roi]]
+            roi_time_traces_by_pixel[roi][0] = preprocess(data_2d[self.rois[roi]].astype(np.float32))
+            roi_neuropil_traces_by_pixel[roi][0] =preprocess(data_2d[self.neuropil_pixels[roi]].astype(np.float32))
         if report_progress is not None:
             printProgressBar(self.trials_loaded_time_trace_indices[-1],
                              total=len(
@@ -67,7 +72,7 @@ def calculate_time_traces(self, report_progress=None):
                              prefix="Time Trace Calculation Progress:",
                              suffix="Complete", progress_signal=report_progress)
         roi_time_traces_by_pixel_denoised = dask.compute(*[dask.delayed(waveletDenoise)(x[0]) for x in roi_time_traces_by_pixel])
-        roi_neuropil_traces_by_pixel_denoised = dask.compute(*[dask.delayed(waveletDenoise)(x[0]) for x in roi_time_traces_by_pixel])
+        roi_neuropil_traces_by_pixel_denoised = dask.compute(*[dask.delayed(waveletDenoise)(x[0]) for x in roi_neuropil_traces_by_pixel])
 
         for roi_counter, roi_data, neuropil_data,roi_data_denoised_combined,neuropil_data_denoised_combined in zip(range(len(self.rois)),
                                                         roi_time_traces_by_pixel,
@@ -97,7 +102,8 @@ def calculate_time_traces(self, report_progress=None):
     if self.real_trials:
         for trial_num in self.trials_loaded_time_trace_indices:
             data =self.dataset_list[trial_num]
-            data_2d = reshape_to_2d_over_time(data[:])
+            data_2d = reshape_to_2d_over_time(data[:]).astype(np.int32)-2**15
+            data_2d[data_2d<-400]=np.min(data_2d[data_2d>=-400])
             del data
             # if type(self.dataset_trials_filtered[trial_num]) == bool:
             #     data = self.load_trial_filter_step(

@@ -6,7 +6,7 @@ import sys
 os.environ['QT_API'] = 'pyside2'
 from qtpy.QtWidgets import QApplication
 
-from cidan.GUI import MainWindow
+
 from cidan.GUI.Data_Interaction import DataHandler
 
 def str2bool(v):
@@ -59,6 +59,7 @@ def main():
         data_handler.calculate_roi_extraction()
         data_handler.export()
     else:
+        from cidan.GUI import MainWindow
         app = QApplication([])
         app.setApplicationName("cidan")
         widget = MainWindow.MainWindow(dev=args.dev, widefield=args.widefield)
