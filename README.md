@@ -11,8 +11,16 @@ conda activate cidan
 pip install cidan
 python -m cidan
 ```
-
-If you encounter another issue in the installation or running of the package, first try rerunning 'pip install cidan'. If this doesn't fix the problem, please post the issue to the github repo and we will get back to you.
+or these commands if you want to use widefield:
+```
+conda create -n cidan python=3.7
+conda activate cidan
+git clone https://github.com/Mishne-Lab/cidan.git
+cd cidan
+pip install .
+python -m cidan --widefield True
+```
+If you encounter another issue in the installation or running of the package, first try rerunning 'pip install cidan' or 'pip install .'. If this doesn't fix the problem, please post the issue to the github repo and we will get back to you.
 
 To update to the latest version of cidan, run these commands: 
 ```
