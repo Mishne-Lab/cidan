@@ -31,13 +31,13 @@ class ROIItemModule(QStandardItem):
 
     def keyPressEvent(self, event):
         self.roi_tab.keyPressEvent(event)
-    def toggle_check_state(self):
-        if not self.checkState():
-            self.roi_tab.selectRoi(self.num)
-            self.setCheckState(QtCore.Qt.CheckState.Checked)
-        else:
-            self.roi_tab.deselectRoi(self.num)
-            self.setCheckState(QtCore.Qt.CheckState.Unchecked)
+    # def toggle_check_state(self):
+    #     if not self.checkState():
+    #         self.roi_tab.selectRoi(self.num)
+    #         self.setCheckState(QtCore.Qt.CheckState.Checked)
+    #     else:
+    #         self.roi_tab.deselectRoi(self.num)
+    #         self.setCheckState(QtCore.Qt.CheckState.Unchecked)
 
     def checkState(self):
         state = super().checkState()

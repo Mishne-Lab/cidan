@@ -84,7 +84,7 @@ def roi_extract_image(*, e_vectors: np.ndarray,
     It will have length num_rois unless max_iter amount is surpassed
     """
     from cidan.LSSC.functions.data_manipulation import cord_2d_to_pixel_num
-
+    print("starting roi extraction")
     # if print_info:
     #     print("Spatial Box {}: Starting ROI selection process".format(box_num))
     pixel_length = e_vectors.shape[0]
@@ -142,7 +142,7 @@ def roi_extract_image(*, e_vectors: np.ndarray,
             not widefield or not float(
         len(pixels_assigned_set)) / pixel_length > area_stop_threshold or len(
         initial_pixel_list) != 0):
-
+        print("iteration {}".format(iter_counter))
         # in this loop in widefield mode all pixel storage happens in masked state
         iter_counter += 1
         total_counter += 1

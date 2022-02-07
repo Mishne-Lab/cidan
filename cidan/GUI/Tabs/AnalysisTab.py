@@ -18,7 +18,7 @@ class AnalysisTab(Tab):
         self.main_widget = main_widget
         self.cur_plot_type = "neuron"
 
-        self.image_view = ROIImageViewModule(self.main_widget, self, settings_tab=False)
+        self.image_view = ROIImageViewModule(self.main_widget, self,select_multiple=True, settings_tab=False)
 
         self.roi_list_module = ROIListModule(main_widget.data_handler, self,
                                              select_multiple=True, display_time=False)

@@ -203,7 +203,13 @@ class ROIExtractionTab(Tab):
 
         recalc_time_traces_button = QPushButton(text="Recalculate Time Traces")
         recalc_time_traces_button.clicked.connect(lambda: self.update_time_traces())
-        roi_modification_tab_layout.addWidget(recalc_time_traces_button)
+        self.deselect_all_button = QPushButton("Deselect All")
+        self.deselect_all_button.clicked.connect(lambda x: self.selectAll(False))
+        self.deselect_all_button.hide()
+        recalc_horiz_layout = QHBoxLayout()
+        recalc_horiz_layout.addWidget(recalc_time_traces_button)
+        recalc_horiz_layout.addWidget(self.deselect_all_button)
+        roi_modification_tab_layout.addLayout(recalc_horiz_layout)
         # ROI Settings Tab
         process_button = QPushButton()
         process_button.setText("Apply Settings")
@@ -576,18 +582,26 @@ class ROIExtractionTab(Tab):
     def toggle_merge_mode(self, cur_val):
         self.merge_mode = cur_val
         self.roi_list_module.select_multiple = cur_val
+        self.image_view.select_multiple = cur_val
         if self.merge_mode:
             self.merge_button.show()
             self.select_all_screen_button.show()
+            self.deselect_all_button.show()
         else:
             self.merge_button.hide()
             self.select_all_screen_button.hide()
-
+            self.deselect_all_button.hide()
+    def selectAll(self, select):
+        self.update_time = False
+        for x in self.roi_list_module.roi_item_list:
+            x.check_box.setChecked(select)
+        self.update_time = True
+        self.deselectRoiTime()
     def merge_rois(self):
         rois_to_merge = [x.id for x in self.roi_list_module.roi_item_list if
                          x.check_box.checkState()]
         index = self.data_handler.merge_rois(rois_to_merge)
-        self.deselectRoiTime()
+
 
         self.image_view.clearPixelSelection()
 
@@ -595,6 +609,7 @@ class ROIExtractionTab(Tab):
         self.update_roi(new=False)
         self.updateTab()
         self.main_widget.tabs[2].updateTab()
+        self.deselectRoiTime()
         self.roi_list_module.set_current_select(index)
 
     def select_many_rois_box(self, event=None):

@@ -80,74 +80,77 @@ def export(self, matlab, background_images, color_maps):
     fig.set_size_inches(shape[1] / 100, shape[0] / 100)
 
     for background_image_name in background_images:
-        if background_image_name == "mean":
-            background_image = np.mean(
-                [self.mean_images[x] for x in self._trials_loaded_indices], axis=0)
-        elif background_image_name == "max":
-            background_image = np.max(
-                [self.max_images[x] for x in self._trials_loaded_indices], axis=0)
-        elif background_image_name == "blank":
-            background_image = np.zeros(shape)
-        else:  # eigen norm is default
-            background_image = create_image_from_eigen_vectors(
-                os.path.join(self.save_dir_path, "eigen_vectors/"), shape)
-        if not background_image_name == "zeros":
-            background_image = scale_background(background_image)
-        np.save(os.path.join(self.save_dir_path, "images/",
-                             "{}.npy".format(background_image_name)), background_image)
-        for color_map_name in color_maps:
-            # first the blob plot
-            ax = plt.Axes(fig, [0., 0., 1., 1.])
-            ax.set_axis_off()
-            fig.add_axes(ax)
-            if color_map_name == "green":
-                ax.imshow(np.dstack(
-                    [np.zeros(shape), background_image, np.zeros(shape)]).astype(
-                    np.uint8), vmin=0, vmax=255)
+        try:
+            if background_image_name == "mean":
+                background_image = np.mean(
+                    [self.mean_images[x] for x in self._trials_loaded_indices], axis=0)
+            elif background_image_name == "max":
+                background_image = np.max(
+                    [self.max_images[x] for x in self._trials_loaded_indices], axis=0)
+            elif background_image_name == "blank":
+                background_image = np.zeros(shape)
+            else:  # eigen norm is default
+                background_image = create_image_from_eigen_vectors(
+                    os.path.join(self.save_dir_path, "eigen_vectors/"), shape)
+            if not background_image_name == "zeros":
+                background_image = scale_background(background_image)
+            np.save(os.path.join(self.save_dir_path, "images/",
+                                 "{}.npy".format(background_image_name)), background_image)
+            for color_map_name in color_maps:
+                # first the blob plot
+                ax = plt.Axes(fig, [0., 0., 1., 1.])
+                ax.set_axis_off()
+                fig.add_axes(ax)
+                if color_map_name == "green":
+                    ax.imshow(np.dstack(
+                        [np.zeros(shape), background_image, np.zeros(shape)]).astype(
+                        np.uint8), vmin=0, vmax=255)
 
-            else:
-                ax.imshow(background_image.astype(np.uint8), vmin=0, vmax=255,
-                          cmap=color_map_name)
-            ax.imshow(create_roi_image_blob(color_list=self.color_list, rois=rois,
-                                            shape=shape).astype(np.uint8), vmin=0,
-                      vmax=255)
-            fig.savefig(os.path.join(self.save_dir_path, "images/",
-                                     "roi_blob_%s_image_%s.png" % (
-                                     background_image_name, color_map_name)))
-            fig.clf()
-            # now the outline plot
-            ax = plt.Axes(fig, [0., 0., 1., 1.])
-            ax.set_axis_off()
-            fig.add_axes(ax)
-            if color_map_name == "green":
-                ax.imshow(np.dstack(
-                    [np.zeros(shape), background_image, np.zeros(shape)]).astype(
-                    np.uint8), vmin=0, vmax=255)
+                else:
+                    ax.imshow(background_image.astype(np.uint8), vmin=0, vmax=255,
+                              cmap=color_map_name)
+                ax.imshow(create_roi_image_blob(color_list=self.color_list, rois=rois,
+                                                shape=shape).astype(np.uint8), vmin=0,
+                          vmax=255)
+                fig.savefig(os.path.join(self.save_dir_path, "images/",
+                                         "roi_blob_%s_image_%s.png" % (
+                                         background_image_name, color_map_name)))
+                fig.clf()
+                # now the outline plot
+                ax = plt.Axes(fig, [0., 0., 1., 1.])
+                ax.set_axis_off()
+                fig.add_axes(ax)
+                if color_map_name == "green":
+                    ax.imshow(np.dstack(
+                        [np.zeros(shape), background_image, np.zeros(shape)]).astype(
+                        np.uint8), vmin=0, vmax=255)
 
-            else:
-                ax.imshow(background_image.astype(np.uint8), vmin=0, vmax=255,
-                          cmap=color_map_name)
-            plot_roi_image_contour(shape, (1, 1, 1), rois, ax)
-            fig.savefig(os.path.join(self.save_dir_path, "images/",
-                                     "roi_outline_%s_image_%s.png" % (
-                                     background_image_name, color_map_name)))
-            fig.clf()
-            # now just background plot
-            ax = plt.Axes(fig, [0., 0., 1., 1.])
-            ax.set_axis_off()
-            fig.add_axes(ax)
-            if color_map_name == "green":
-                ax.imshow(np.dstack(
-                    [np.zeros(shape), background_image, np.zeros(shape)]).astype(
-                    np.uint8), vmin=0, vmax=255)
+                else:
+                    ax.imshow(background_image.astype(np.uint8), vmin=0, vmax=255,
+                              cmap=color_map_name)
+                plot_roi_image_contour(shape, (1, 1, 1), rois, ax)
+                fig.savefig(os.path.join(self.save_dir_path, "images/",
+                                         "roi_outline_%s_image_%s.png" % (
+                                         background_image_name, color_map_name)))
+                fig.clf()
+                # now just background plot
+                ax = plt.Axes(fig, [0., 0., 1., 1.])
+                ax.set_axis_off()
+                fig.add_axes(ax)
+                if color_map_name == "green":
+                    ax.imshow(np.dstack(
+                        [np.zeros(shape), background_image, np.zeros(shape)]).astype(
+                        np.uint8), vmin=0, vmax=255)
 
-            else:
-                ax.imshow(background_image.astype(np.uint8), vmin=0, vmax=255,
-                          cmap=color_map_name)
-            fig.savefig(os.path.join(self.save_dir_path, "images/",
-                                     "background_%s_image_%s.png" % (
-                                     background_image_name, color_map_name)))
-            fig.clf()
+                else:
+                    ax.imshow(background_image.astype(np.uint8), vmin=0, vmax=255,
+                              cmap=color_map_name)
+                fig.savefig(os.path.join(self.save_dir_path, "images/",
+                                         "background_%s_image_%s.png" % (
+                                         background_image_name, color_map_name)))
+                fig.clf()
+        except ValueError:
+            print("Failed to export images please run roi extraction part again if you want to export images")
 
 
 def save_image(self, image, path):
