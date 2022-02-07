@@ -41,8 +41,9 @@ class ROIListModule(QFrame):
         label2 = QLabel(text="ROI Num")
         label2.setMaximumWidth(140 * ((self.logicalDpiX() / 96.0)))
         self.top_labels_layout.addWidget(label2, alignment=QtCore.Qt.AlignLeft)
+        self.num_roi_selected_label = QLabel(text="")
         self.top_labels_layout.addWidget(QLabel(), alignment=QtCore.Qt.AlignRight)
-        self.top_labels_layout.addWidget(QLabel(), alignment=QtCore.Qt.AlignRight)
+        self.top_labels_layout.addWidget(self.num_roi_selected_label, alignment=QtCore.Qt.AlignRight)
         self.left_arrow = QToolButton()
         self.left_arrow.setArrowType(QtCore.Qt.LeftArrow)
 
@@ -93,7 +94,15 @@ class ROIListModule(QFrame):
         # self.roi_module_list[num-1].
         if self.display_time:
             self.roi_item_list[num].select_time_check_box()
-
+    def update_select_number(self):
+        if self.select_multiple:
+            num_selected = len(self.currently_selected_rois_list)
+            self.num_roi_selected_label.setText("Num ROIs Selected: {}  ".format(num_selected))
+        else:
+            self.num_roi_selected_label.setText("")
+    @property
+    def currently_selected_rois_list(self):
+        return [i for i, j in enumerate(self.roi_item_list) if j.check_box.checkState()]
     def set_list_items(self, rois_dict):
         self.rois_dict = rois_dict
         for x in range(self.model.rowCount()):

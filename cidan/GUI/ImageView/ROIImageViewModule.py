@@ -13,14 +13,16 @@ logger1 = logging.getLogger("cidan.ImageView.ROIImageViewModule")
 
 class ROIImageViewModule(ImageViewModule):
     # QApplication.mouseButtons() == Qt.LeftButton
-    def __init__(self, main_widget, tab, settings_tab=True, display_class_option=False):
+    def __init__(self, main_widget, tab, settings_tab=True,select_multiple=False, display_class_option=False):
         super(ROIImageViewModule, self).__init__(main_widget, histogram=False)
         self.tab = tab
         self.resetting_view = False  # Way to prevent infinite loops of reset_view
         self.current_foreground_intensity = 30
+        self.base_forground_intensity = 30
         self.click_event = False
         self.outlines = True
         self.display_class_option = display_class_option
+        self.select_multiple = select_multiple
         self.trial_selector_input = OptionInput(
             "Time Block:", "",
             lambda x, y: self.set_background("", self.current_background_name),
@@ -84,7 +86,7 @@ class ROIImageViewModule(ImageViewModule):
             self.intensitySliderChanged)
         try:
             self.background_slider.setValue(
-                self.current_foreground_intensity)
+                self.base_forground_intensity)
         except AttributeError:
             pass
         background_slider_layout.addWidget(self.background_slider)
@@ -307,14 +309,21 @@ class ROIImageViewModule(ImageViewModule):
                 print("Error please try again")
                 self.reset_view()
 
-    def deselectRoi(self, num):
+    def deselectRoi(self, num, other_selected=()):
         try:
-
-            shape_flat = self.data_handler.edge_roi_image_flat.shape
-            self.select_image_flat[self.main_widget.data_handler.rois[
-                num]] = (0, 0, 0)
+            if self.select_multiple:
+                shape_flat = self.data_handler.edge_roi_image_flat.shape
+                pixels_to_turn_off = np.zeros(shape_flat).squeeze()
+                pixels_to_turn_off[self.main_widget.data_handler.rois[num]] = 1
+                for x in other_selected:
+                    pixels_to_turn_off[self.main_widget.data_handler.rois[x]] = 0
+                self.select_image_flat[pixels_to_turn_off == 1] = (0, 0, 0)
+            else:
+                self.select_image_flat[self.main_widget.data_handler.rois[
+                    num]] = (0, 0, 0)
             self.updateImageDisplay()
         except ValueError as e:
+            print("Test")
             if "shape" in e.args[0]:
                 self.main_widget.console.updateText("Error please try again")
                 print("Error please try again")

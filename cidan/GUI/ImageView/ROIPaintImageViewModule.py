@@ -10,8 +10,8 @@ logger1 = logging.getLogger("cidan.ImageView.ROIImageViewModule")
 
 
 class ROIPaintImageViewModule(ROIImageViewModule):
-    def __init__(self, main_widget, tab, settings_tab=True):
-        super(ROIPaintImageViewModule, self).__init__(main_widget, tab, settings_tab)
+    def __init__(self, main_widget, tab, select_multiple=False,settings_tab=True):
+        super(ROIPaintImageViewModule, self).__init__(main_widget, tab, settings_tab, select_multiple=select_multiple)
         # part about selecting pixels
         self.setMouseTracking(True)
         self.image_view.setMouseTracking(True)
@@ -163,7 +163,7 @@ class ROIPaintImageViewModule(ROIImageViewModule):
             background_image_scaled_3_channel = np.hstack(
                 [background_image_scaled, background_image_scaled,
                  background_image_scaled])
-            if new and not hasattr(self.main_widget.data_handler,
+            if not hasattr(self.main_widget.data_handler,
                                    "edge_roi_image_flat"):
                 self.image_item.image = background_image_scaled_3_channel.reshape(
                     (shape[0], shape[1], 3))
