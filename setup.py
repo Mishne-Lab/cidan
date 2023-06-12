@@ -25,7 +25,7 @@ setup(
                       "pyside2",
                       "dask[complete]", "matplotlib", "scipy", "tiffile",
                       "scikit-image", "pybind11", "hnswlib", "pillow",
-                      'tifffile', "zarr", "neurofinder", "sklearn", 'pandas', 'future',
+                      'tifffile', "zarr", "neurofinder", "scikit-learn", 'pandas', 'future',
                       "peakutils", "requests", "h5py"],
     include_package_data=True,
 
